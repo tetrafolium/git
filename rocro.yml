@@ -8,6 +8,6 @@ inspecode:
     cpplint:
       options:
         --filter:
-          -whitespace
-          -build/include_subdir
+          - -whitespace
+          - -build/include_subdir
       thresholds: {num-issues: 999}
