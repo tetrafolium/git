@@ -10,4 +10,9 @@ inspecode:
         --filter:
           - -whitespace
           - -build/include_subdir
+          - runtime/int
+          - readability/braces
+          - readability/casting
+          - legal/copyright
+          - build/header_guard
       thresholds: {num-issues: 999}
