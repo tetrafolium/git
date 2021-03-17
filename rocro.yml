@@ -10,7 +10,7 @@ inspecode:
         --filter:
           - -whitespace
           - -build/include_subdir
-          - -zruntime/int
+          - -runtime/int
           - -readability/braces
           - -readability/casting
           - -legal/copyright
