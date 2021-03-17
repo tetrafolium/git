@@ -64,7 +64,9 @@ inspecode:
       thresholds: {num-issues: 999}
 
     jscpd:
-      thresholds: {num-issues: 64}
+      thresholds: {num-issues: 52}
+      #### jscpd 3.3.24 at inspecode.rocro.com ... Failed (codelift#2249)
+      #### jscpd 3.2.1 at inspecode.tractrix.org ... OK
 
     misspell:
       auto-fix: true
@@ -80,6 +82,7 @@ inspecode:
         - '**/t/'
       thresholds: {num-issues: 922}
 
+    #### (codelift-plugins#1880)
     #### Uncrustify finished with errors.
     #### newlines_cleanup_braces(4112): Missing BRACE_OPEN after namespace
     ####    orig_line is 356, orig_col is 46
