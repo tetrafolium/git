@@ -7,5 +7,7 @@ inspecode:
 
     cpplint:
       options:
-        --filter: -whitespace/tab
+        --filter:
+          -whitespace
+          -build/include_subdir
       thresholds: {num-issues: 999}
