@@ -1,0 +1,58 @@
+---
+inspecode:
+
+  global:
+
+  tools:
+
+    astyle:
+      auto-fix: true
+      thresholds: {num-issues: 999}
+
+    clang-format:
+      auto-fix: true
+      thresholds: {num-issues: 999}
+
+    # coverity:
+
+    cpd:
+      thresholds: {num-issues: 999}
+
+    cppcheck:
+      thresholds: {num-issues: 999}
+
+    cpplint:
+      thresholds: {num-issues: 999}
+
+    # fortify:
+
+    fossology:
+      thresholds: {num-issues: 999}
+
+    grep:
+      thresholds: {num-issues: 999}
+
+    infer:
+      thresholds: {num-issues: 999}
+
+    jscpd:
+      thresholds: {num-issues: 999}
+
+    misspell:
+      auto-fix: true
+      thresholds: {num-issues: 999}
+
+    scan-build:
+      thresholds: {num-issues: 999}
+
+    shellcheck:
+      thresholds: {num-issues: 999}
+
+    uncrustify:
+      auto-fix: true
+      thresholds: {num-issues: 999}
+
+    # understand
+
+    unused:
+      thresholds: {num-issues: 999}
