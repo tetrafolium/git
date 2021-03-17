@@ -6,39 +6,27 @@ inspecode:
   tools:
 
     clang-format:
-    - # auto-fix: true
+    - &clang-format-settings
+      options:
+        --style: file
+      # auto-fix: true
       thresholds: {num-issues: 999}
+    - <<: *clang-format-settings
+      ignore:
+        - 'compat/nedmalloc/malloc.c.h'
+        - 'g*'
+    - <<: *clang-format-settings
       input:
         - 'compat/nedmalloc/malloc.c.h'
-    - # auto-fix: true
-      thresholds: {num-issues: 999}
-      ignore:
-        - '[d-n]*'
-    - # auto-fix: true
-      thresholds: {num-issues: 999}
+    - <<: *clang-format-settings
       input:
-        - 'd*/'
-    - # auto-fix: true
-      thresholds: {num-issues: 999}
+        - 'g*.[ch]'
+    - <<: *clang-format-settings
       input:
-        - '[ef]*/'
-    - # auto-fix: true
-      thresholds: {num-issues: 999}
+        - 'git-gui/'
+    - <<: *clang-format-settings
       input:
-        - 'g*/'
-    - # auto-fix: true
-      thresholds: {num-issues: 999}
+        - 'gitk-git/'
+    - <<: *clang-format-settings
       input:
-        - '[hijk]*/'
-    - # auto-fix: true
-      thresholds: {num-issues: 999}
-      input:
-        - 'l*/'
-    - # auto-fix: true
-      thresholds: {num-issues: 999}
-      input:
-        - 'm*/'
-    - # auto-fix: true
-      thresholds: {num-issues: 999}
-      input:
-        - 'n*/'
+        - 'gitweb/'
