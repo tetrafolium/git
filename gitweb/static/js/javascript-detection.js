@@ -7,7 +7,6 @@
  * @license GPLv2 or later
  */
 
-
 /* ============================================================ */
 /* Manipulating links */
 
@@ -30,14 +29,14 @@ var jsExceptionsRe = /[;?]js=[01](#.*)?$/;
  * @globals jsExceptionsRe
  */
 function fixLinks() {
-	var allLinks = document.getElementsByTagName("a") || document.links;
-	for (var i = 0, len = allLinks.length; i < len; i++) {
-		var link = allLinks[i];
-		if (!jsExceptionsRe.test(link)) {
-			link.href = link.href.replace(/(#|$)/,
-				(link.href.indexOf('?') === -1 ? '?' : ';') + 'js=1$1');
-		}
-	}
+  var allLinks = document.getElementsByTagName("a") || document.links;
+  for (var i = 0, len = allLinks.length; i < len; i++) {
+    var link = allLinks[i];
+    if (!jsExceptionsRe.test(link)) {
+      link.href = link.href.replace(
+          /(#|$)/, (link.href.indexOf('?') === -1 ? '?' : ';') + 'js=1$1');
+    }
+  }
 }
 
 /* end of javascript-detection.js */

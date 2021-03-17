@@ -7,7 +7,6 @@
  * @license GPLv2 or later
  */
 
-
 /* ============================================================ */
 /* ............................................................ */
 /* Padding */
@@ -26,17 +25,17 @@
  * @returns {String} INPUT prefixed with STR x (WIDTH - INPUT.length)
  */
 function padLeftStr(input, width, str) {
-	var prefix = '';
-	if (typeof str === 'undefined') {
-		ch = '\u00A0'; // using '&nbsp;' doesn't work in all browsers
-	}
+  var prefix = '';
+  if (typeof str === 'undefined') {
+    ch = '\u00A0'; // using '&nbsp;' doesn't work in all browsers
+  }
 
-	width -= input.toString().length;
-	while (width > 0) {
-		prefix += str;
-		width--;
-	}
-	return prefix + input;
+  width -= input.toString().length;
+  while (width > 0) {
+    prefix += str;
+    width--;
+  }
+  return prefix + input;
 }
 
 /**
@@ -51,17 +50,16 @@ function padLeftStr(input, width, str) {
  * @returns {String} Modified string, at least SIZE length.
  */
 function padLeft(input, width, ch) {
-	var s = input + "";
-	if (typeof ch === 'undefined') {
-		ch = '0';
-	}
+  var s = input + "";
+  if (typeof ch === 'undefined') {
+    ch = '0';
+  }
 
-	while (s.length < width) {
-		s = ch + s;
-	}
-	return s;
+  while (s.length < width) {
+    s = ch + s;
+  }
+  return s;
 }
-
 
 /* ............................................................ */
 /* Handling browser incompatibilities */
@@ -71,22 +69,25 @@ function padLeft(input, width, ch) {
  * @returns XMLHttpRequest object, or null
  */
 function createRequestObject() {
-	try {
-		return new XMLHttpRequest();
-	} catch (e) {}
-	try {
-		return window.createRequest();
-	} catch (e) {}
-	try {
-		return new ActiveXObject("Msxml2.XMLHTTP");
-	} catch (e) {}
-	try {
-		return new ActiveXObject("Microsoft.XMLHTTP");
-	} catch (e) {}
+  try {
+    return new XMLHttpRequest();
+  } catch (e) {
+  }
+  try {
+    return window.createRequest();
+  } catch (e) {
+  }
+  try {
+    return new ActiveXObject("Msxml2.XMLHTTP");
+  } catch (e) {
+  }
+  try {
+    return new ActiveXObject("Microsoft.XMLHTTP");
+  } catch (e) {
+  }
 
-	return null;
+  return null;
 }
-
 
 /**
  * Insert rule giving specified STYLE to given SELECTOR at the end of
@@ -96,22 +97,21 @@ function createRequestObject() {
  * @param {String} style: rule contents, e.g. 'background-color: red;'
  */
 function addCssRule(selector, style) {
-	var stylesheet = document.styleSheets[0];
+  var stylesheet = document.styleSheets[0];
 
-	var theRules = [];
-	if (stylesheet.cssRules) {     // W3C way
-		theRules = stylesheet.cssRules;
-	} else if (stylesheet.rules) { // IE way
-		theRules = stylesheet.rules;
-	}
+  var theRules = [];
+  if (stylesheet.cssRules) { // W3C way
+    theRules = stylesheet.cssRules;
+  } else if (stylesheet.rules) { // IE way
+    theRules = stylesheet.rules;
+  }
 
-	if (stylesheet.insertRule) {    // W3C way
-		stylesheet.insertRule(selector + ' { ' + style + ' }', theRules.length);
-	} else if (stylesheet.addRule) { // IE way
-		stylesheet.addRule(selector, style);
-	}
+  if (stylesheet.insertRule) { // W3C way
+    stylesheet.insertRule(selector + ' { ' + style + ' }', theRules.length);
+  } else if (stylesheet.addRule) { // IE way
+    stylesheet.addRule(selector, style);
+  }
 }
-
 
 /* ............................................................ */
 /* Support for legacy browsers */
@@ -144,25 +144,24 @@ function addCssRule(selector, style) {
  * @returns {Node[]} array of matching elements
  */
 if (!('getElementsByClassName' in document)) {
-	document.getElementsByClassName = function (classname, taghint) {
-		taghint = taghint || "*";
-		var elements = (taghint === "*" && document.all) ?
-		               document.all :
-		               document.getElementsByTagName(taghint);
-		var pattern = new RegExp("(^|\\s)" + classname + "(\\s|$)");
-		var matches= [];
-		for (var i = 0, j = 0, n = elements.length; i < n; i++) {
-			var el= elements[i];
-			if (el.className && pattern.test(el.className)) {
-				// matches.push(el);
-				matches[j] = el;
-				j++;
-			}
-		}
-		return matches;
-	};
+  document.getElementsByClassName = function(classname, taghint) {
+    taghint = taghint || "*";
+    var elements = (taghint === "*" && document.all)
+                       ? document.all
+                       : document.getElementsByTagName(taghint);
+    var pattern = new RegExp("(^|\\s)" + classname + "(\\s|$)");
+    var matches = [];
+    for (var i = 0, j = 0, n = elements.length; i < n; i++) {
+      var el = elements[i];
+      if (el.className && pattern.test(el.className)) {
+        // matches.push(el);
+        matches[j] = el;
+        j++;
+      }
+    }
+    return matches;
+  };
 } // end if
-
 
 /* ............................................................ */
 /* unquoting/unescaping filenames */
@@ -186,39 +185,39 @@ var maybeQuotedRe = /^\"(.*)\"$/;
  * @globals escCodeRe, octEscRe, maybeQuotedRe
  */
 function unquote(str) {
-	function unq(seq) {
-		var es = {
-			// character escape codes, aka escape sequences (from C)
-			// replacements are to some extent JavaScript specific
-			t: "\t",   // tab            (HT, TAB)
-			n: "\n",   // newline        (NL)
-			r: "\r",   // return         (CR)
-			f: "\f",   // form feed      (FF)
-			b: "\b",   // backspace      (BS)
-			a: "\x07", // alarm (bell)   (BEL)
-			e: "\x1B", // escape         (ESC)
-			v: "\v"    // vertical tab   (VT)
-		};
+  function unq(seq) {
+    var es = {
+      // character escape codes, aka escape sequences (from C)
+      // replacements are to some extent JavaScript specific
+      t : "\t",   // tab            (HT, TAB)
+      n : "\n",   // newline        (NL)
+      r : "\r",   // return         (CR)
+      f : "\f",   // form feed      (FF)
+      b : "\b",   // backspace      (BS)
+      a : "\x07", // alarm (bell)   (BEL)
+      e : "\x1B", // escape         (ESC)
+      v : "\v"    // vertical tab   (VT)
+    };
 
-		if (seq.search(octEscRe) !== -1) {
-			// octal char sequence
-			return String.fromCharCode(parseInt(seq, 8));
-		} else if (seq in es) {
-			// C escape sequence, aka character escape code
-			return es[seq];
-		}
-		// quoted ordinary character
-		return seq;
-	}
+    if (seq.search(octEscRe) !== -1) {
+      // octal char sequence
+      return String.fromCharCode(parseInt(seq, 8));
+    } else if (seq in es) {
+      // C escape sequence, aka character escape code
+      return es[seq];
+    }
+    // quoted ordinary character
+    return seq;
+  }
 
-	var match = str.match(maybeQuotedRe);
-	if (match) {
-		str = match[1];
-		// perhaps str = eval('"'+str+'"'); would be enough?
-		str = str.replace(escCodeRe,
-			function (substr, p1, offset, s) { return unq(p1); });
-	}
-	return str;
+  var match = str.match(maybeQuotedRe);
+  if (match) {
+    str = match[1];
+    // perhaps str = eval('"'+str+'"'); would be enough?
+    str = str.replace(escCodeRe,
+                      function(substr, p1, offset, s) { return unq(p1); });
+  }
+  return str;
 }
 
 /* end of common-lib.js */
