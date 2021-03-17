@@ -8,31 +8,37 @@ inspecode:
     clang-format:
     - # auto-fix: true
       thresholds: {num-issues: 999}
+      input:
+        - 'compat/nedmalloc/malloc.c.h'
+    - # auto-fix: true
+      thresholds: {num-issues: 999}
       ignore:
-        - '[a-z]*/'
+        - '[d-n]*'
     - # auto-fix: true
       thresholds: {num-issues: 999}
       input:
-        - 'compat/nedmalloc/'
+        - 'd*/'
     - # auto-fix: true
       thresholds: {num-issues: 999}
       input:
-        - '[abc]*/'
-      ignore:
-        - 'compat/nedmalloc/'
+        - '[ef]*/'
     - # auto-fix: true
       thresholds: {num-issues: 999}
       input:
-        - '[d-n]*/'
+        - 'g*/'
     - # auto-fix: true
       thresholds: {num-issues: 999}
       input:
-        - '[o-s]*/'
+        - '[hijk]*/'
     - # auto-fix: true
       thresholds: {num-issues: 999}
       input:
-        - '[t]*/'
+        - 'l*/'
     - # auto-fix: true
       thresholds: {num-issues: 999}
       input:
-        - '[u-z]*/'
+        - 'm*/'
+    - # auto-fix: true
+      thresholds: {num-issues: 999}
+      input:
+        - 'n*/'
