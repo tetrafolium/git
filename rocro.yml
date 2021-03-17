@@ -7,52 +7,88 @@ inspecode:
 
     astyle:
       auto-fix: true
-      thresholds: {num-issues: 999}
+      thresholds: {num-issues: 677}
 
     clang-format:
+    - ignore:
+        - 'compat/nedmalloc/malloc.c.h'
+        - '**/*.js'
+      options:
+        --style: file   # use ".clang-format" (for C)
       auto-fix: true
-      thresholds: {num-issues: 999}
+      thresholds: {num-issues: 612}
+    - input:
+        - 'compat/nedmalloc/malloc.c.h'
+      options:
+        --style: file   # use ".clang-format" (for C)
+      # auto-fix: true
+      thresholds: {num-issues: 999}   # xargs: clang-format: terminated by signal 9
+    - input:
+        - '**/*.js'
+      options:
+        --style: LLVM   # not-use ".clang-format" (not for JavaScript)
+      auto-fix: true
+      thresholds: {num-issues: 7}
 
     # coverity:
 
     cpd:
-      thresholds: {num-issues: 999}
+      thresholds: {num-issues: 170}
 
     cppcheck:
-      thresholds: {num-issues: 999}
+      thresholds: {num-issues: 51}
 
     cpplint:
-      thresholds: {num-issues: 999}
+      options:
+        --filter:
+          - -whitespace
+          - -build/include_subdir
+          - -runtime/int
+          - -readability/braces
+          - -readability/casting
+          - -legal/copyright
+          - -build/header_guard
+      thresholds: {num-issues: 249}
 
     # fortify:
 
     fossology:
-      thresholds: {num-issues: 999}
+      thresholds: {num-issues: 109}
 
     grep:
-      thresholds: {num-issues: 999}
+      thresholds: {num-issues: 91}
 
+    #### Infer finished with errors.
+    #### make: curl-config: Command not found
     infer:
       thresholds: {num-issues: 999}
 
     jscpd:
-      thresholds: {num-issues: 999}
+      thresholds: {num-issues: 64}
 
     misspell:
       auto-fix: true
-      thresholds: {num-issues: 999}
+      thresholds: {num-issues: 30}
 
+    #### scan-build finished with errors.
+    #### make: curl-config: Command not found
     scan-build:
       thresholds: {num-issues: 999}
 
     shellcheck:
-      thresholds: {num-issues: 999}
+      ignore:
+        - '**/t/'
+      thresholds: {num-issues: 922}
 
+    #### Uncrustify finished with errors.
+    #### newlines_cleanup_braces(4112): Missing BRACE_OPEN after namespace
+    ####    orig_line is 356, orig_col is 46
     uncrustify:
-      auto-fix: true
+      # auto-fix: true    # disable to avoid stop succeeding tasks
       thresholds: {num-issues: 999}
 
     # understand
 
-    unused:
-      thresholds: {num-issues: 999}
+    #### Unused timed out.
+    # unused:
+    #   thresholds: {num-issues: 999}
