@@ -20,4 +20,4 @@ inspecode:
       input:
         - '**/*.js'
       options:
-        -fallback-style: none
+        --fallback-style: none
