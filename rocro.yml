@@ -7,26 +7,17 @@ inspecode:
 
     clang-format:
     - &clang-format-settings
-      options:
-        --style: file
       # auto-fix: true
       thresholds: {num-issues: 999}
     - <<: *clang-format-settings
       ignore:
         - 'compat/nedmalloc/malloc.c.h'
-        - 'g*'
+        - '**/*.js'
     - <<: *clang-format-settings
       input:
         - 'compat/nedmalloc/malloc.c.h'
     - <<: *clang-format-settings
       input:
-        - 'g*.[ch]'
-    - <<: *clang-format-settings
-      input:
-        - 'git-gui/'
-    - <<: *clang-format-settings
-      input:
-        - 'gitk-git/'
-    - <<: *clang-format-settings
-      input:
-        - 'gitweb/'
+        - '**/*.js'
+      options:
+        -fallback-style: none
