@@ -6,18 +6,22 @@ inspecode:
   tools:
 
     clang-format:
-    - &clang-format-settings
-      # auto-fix: true
-      thresholds: {num-issues: 999}
-    - <<: *clang-format-settings
-      ignore:
+    - ignore:
         - 'compat/nedmalloc/malloc.c.h'
-        - '**/*.js'
-    - <<: *clang-format-settings
-      input:
-        - 'compat/nedmalloc/malloc.c.h'
-    - <<: *clang-format-settings
-      input:
         - '**/*.js'
       options:
-        --style: LLVM   # not-use file ".clang-format"
+        --style: file   # use ".clang-format" (for C)
+      auto-fix: true
+      thresholds: {num-issues: 612}
+    - input:
+        - 'compat/nedmalloc/malloc.c.h'
+      options:
+        --style: file   # use ".clang-format" (for C)
+      # auto-fix: true
+      thresholds: {num-issues: 999}   # xargs: clang-format: terminated by signal 9
+    - input:
+        - '**/*.js'
+      options:
+        --style: LLVM   # not-use ".clang-format" (not for JavaScript)
+      auto-fix: true
+      thresholds: {num-issues: 7}
