@@ -64,7 +64,7 @@ inspecode:
       thresholds: {num-issues: 999}
 
     jscpd:
-      thresholds: {num-issues: 52}
+      thresholds: {num-issues: 64}
       #### jscpd 3.3.24 at inspecode.rocro.com ... Failed (codelift#2249)
       #### jscpd 3.2.1 at inspecode.tractrix.org ... OK
 
