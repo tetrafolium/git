@@ -6,7 +6,10 @@ inspecode:
   tools:
 
     unused:
+    - &unused-settings
       ignore:
         - '**/t/'
       options: [--single-occurrence, --all-likelihoods]
       thresholds: {num-issues: 999}
+    - <<: *unused-settings
+      machine: {cpu: 1.0}
