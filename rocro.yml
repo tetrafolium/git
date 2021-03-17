@@ -9,13 +9,30 @@ inspecode:
     - # auto-fix: true
       thresholds: {num-issues: 999}
       ignore:
-        - '*.[ch]'
-        - 'compat/'
+        - '[a-z]*/'
     - # auto-fix: true
       thresholds: {num-issues: 999}
       input:
-        - '*.[ch]'
+        - 'compat/nedmalloc/'
     - # auto-fix: true
       thresholds: {num-issues: 999}
       input:
-        - 'compat/'
+        - '[abc]*/'
+      ignore:
+        - 'compat/nedmalloc/'
+    - # auto-fix: true
+      thresholds: {num-issues: 999}
+      input:
+        - '[d-n]*/'
+    - # auto-fix: true
+      thresholds: {num-issues: 999}
+      input:
+        - '[o-s]*/'
+    - # auto-fix: true
+      thresholds: {num-issues: 999}
+      input:
+        - '[t]*/'
+    - # auto-fix: true
+      thresholds: {num-issues: 999}
+      input:
+        - '[u-z]*/'
