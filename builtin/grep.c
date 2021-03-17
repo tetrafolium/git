@@ -26,7 +26,7 @@
 #include "object-store.h"
 #include "packfile.h"
 
-static char const * const grep_usage[] = {
+static char const *const grep_usage[] = {
 	N_("git grep [<options>] [-e] <pattern> [<rev>...] [[--] <path>...]"),
 	NULL
 };
@@ -98,7 +98,7 @@ static void add_work(struct grep_opt *opt, struct grep_source *gs)
 
 	grep_lock();
 
-	while ((todo_end+1) % ARRAY_SIZE(todo) == todo_done) {
+	while ((todo_end + 1) % ARRAY_SIZE(todo) == todo_done) {
 		pthread_cond_wait(&cond_write, &grep_mutex);
 	}
 
@@ -137,8 +137,8 @@ static void work_done(struct work_item *w)
 	grep_lock();
 	w->done = 1;
 	old_done = todo_done;
-	for(; todo[todo_done].done && todo_done != todo_start;
-	    todo_done = (todo_done+1) % ARRAY_SIZE(todo)) {
+	for (; todo[todo_done].done && todo_done != todo_start;
+	     todo_done = (todo_done + 1) % ARRAY_SIZE(todo)) {
 		w = &todo[todo_done];
 		if (w->out.len) {
 			const char *p = w->out.buf;
@@ -186,7 +186,7 @@ static void *run(void *arg)
 	free_grep_patterns(arg);
 	free(arg);
 
-	return (void*) (intptr_t) hit;
+	return (void *)(intptr_t)hit;
 }
 
 static void strbuf_out(struct grep_opt *opt, const void *buf, size_t size)
@@ -249,7 +249,7 @@ static int wait_all(void)
 	for (i = 0; i < num_threads; i++) {
 		void *h;
 		pthread_join(threads[i], &h);
-		hit |= (int) (intptr_t) h;
+		hit |= (int)(intptr_t)h;
 	}
 
 	free(threads);
@@ -326,8 +326,7 @@ static void grep_source_name(struct grep_opt *opt, const char *filename,
 }
 
 static int grep_oid(struct grep_opt *opt, const struct object_id *oid,
-		     const char *filename, int tree_name_len,
-		     const char *path)
+		    const char *filename, int tree_name_len, const char *path)
 {
 	struct strbuf pathbuf = STRBUF_INIT;
 	struct grep_source gs;
@@ -404,16 +403,15 @@ static void run_pager(struct grep_opt *opt, const char *prefix)
 		exit(status);
 }
 
-static int grep_cache(struct grep_opt *opt,
-		      const struct pathspec *pathspec, int cached);
+static int grep_cache(struct grep_opt *opt, const struct pathspec *pathspec,
+		      int cached);
 static int grep_tree(struct grep_opt *opt, const struct pathspec *pathspec,
 		     struct tree_desc *tree, struct strbuf *base, int tn_len,
 		     int check_attr);
 
-static int grep_submodule(struct grep_opt *opt,
-			  const struct pathspec *pathspec,
-			  const struct object_id *oid,
-			  const char *filename, const char *path, int cached)
+static int grep_submodule(struct grep_opt *opt, const struct pathspec *pathspec,
+			  const struct object_id *oid, const char *filename,
+			  const char *path, int cached)
 {
 	struct repository subrepo;
 	struct repository *superproject = opt->repo;
@@ -466,11 +464,11 @@ static int grep_submodule(struct grep_opt *opt,
 		obj_read_lock();
 		object = parse_object_or_die(oid, NULL);
 		obj_read_unlock();
-		data = read_object_with_reference(&subrepo,
-						  &object->oid, tree_type,
-						  &size, NULL);
+		data = read_object_with_reference(&subrepo, &object->oid,
+						  tree_type, &size, NULL);
 		if (!data)
-			die(_("unable to read tree (%s)"), oid_to_hex(&object->oid));
+			die(_("unable to read tree (%s)"),
+			    oid_to_hex(&object->oid));
 
 		strbuf_addstr(&base, filename);
 		strbuf_addch(&base, '/');
@@ -488,8 +486,8 @@ static int grep_submodule(struct grep_opt *opt,
 	return hit;
 }
 
-static int grep_cache(struct grep_opt *opt,
-		      const struct pathspec *pathspec, int cached)
+static int grep_cache(struct grep_opt *opt, const struct pathspec *pathspec,
+		      int cached)
 {
 	struct repository *repo = opt->repo;
 	int hit = 0;
@@ -514,9 +512,9 @@ static int grep_cache(struct grep_opt *opt,
 		strbuf_addstr(&name, ce->name);
 
 		if (S_ISREG(ce->ce_mode) &&
-		    match_pathspec(repo->index, pathspec, name.buf, name.len, 0, NULL,
-				   S_ISDIR(ce->ce_mode) ||
-				   S_ISGITLINK(ce->ce_mode))) {
+		    match_pathspec(
+			    repo->index, pathspec, name.buf, name.len, 0, NULL,
+			    S_ISDIR(ce->ce_mode) || S_ISGITLINK(ce->ce_mode))) {
 			/*
 			 * If CE_VALID is on, we assume worktree file and its
 			 * cache entry are identical, even if worktree file has
@@ -525,13 +523,14 @@ static int grep_cache(struct grep_opt *opt,
 			if (cached || (ce->ce_flags & CE_VALID)) {
 				if (ce_stage(ce) || ce_intent_to_add(ce))
 					continue;
-				hit |= grep_oid(opt, &ce->oid, name.buf,
-						 0, name.buf);
+				hit |= grep_oid(opt, &ce->oid, name.buf, 0,
+						name.buf);
 			} else {
 				hit |= grep_file(opt, name.buf);
 			}
 		} else if (recurse_submodules && S_ISGITLINK(ce->ce_mode) &&
-			   submodule_path_match(repo->index, pathspec, name.buf, NULL)) {
+			   submodule_path_match(repo->index, pathspec, name.buf,
+						NULL)) {
 			hit |= grep_submodule(opt, pathspec, NULL, ce->name,
 					      ce->name, cached);
 		} else {
@@ -542,7 +541,8 @@ static int grep_cache(struct grep_opt *opt,
 			do {
 				nr++;
 			} while (nr < repo->index->cache_nr &&
-				 !strcmp(ce->name, repo->index->cache[nr]->name));
+				 !strcmp(ce->name,
+					 repo->index->cache[nr]->name));
 			nr--; /* compensate for loop control */
 		}
 		if (hit && opt->status_only)
@@ -574,9 +574,8 @@ static int grep_tree(struct grep_opt *opt, const struct pathspec *pathspec,
 
 		if (match != all_entries_interesting) {
 			strbuf_addstr(&name, base->buf + tn_len);
-			match = tree_entry_interesting(repo->index,
-						       &entry, &name,
-						       0, pathspec);
+			match = tree_entry_interesting(repo->index, &entry,
+						       &name, 0, pathspec);
 			strbuf_setlen(&name, name_base_len);
 
 			if (match == all_entries_not_interesting)
@@ -589,7 +588,7 @@ static int grep_tree(struct grep_opt *opt, const struct pathspec *pathspec,
 
 		if (S_ISREG(entry.mode)) {
 			hit |= grep_oid(opt, &entry.oid, base->buf, tn_len,
-					 check_attr ? base->buf + tn_len : NULL);
+					check_attr ? base->buf + tn_len : NULL);
 		} else if (S_ISDIR(entry.mode)) {
 			enum object_type type;
 			struct tree_desc sub;
@@ -634,11 +633,11 @@ static int grep_object(struct grep_opt *opt, const struct pathspec *pathspec,
 		struct strbuf base;
 		int hit, len;
 
-		data = read_object_with_reference(opt->repo,
-						  &obj->oid, tree_type,
-						  &size, NULL);
+		data = read_object_with_reference(opt->repo, &obj->oid,
+						  tree_type, &size, NULL);
 		if (!data)
-			die(_("unable to read tree (%s)"), oid_to_hex(&obj->oid));
+			die(_("unable to read tree (%s)"),
+			    oid_to_hex(&obj->oid));
 
 		len = name ? strlen(name) : 0;
 		strbuf_init(&base, PATH_MAX + len + 1);
@@ -667,8 +666,7 @@ static int grep_objects(struct grep_opt *opt, const struct pathspec *pathspec,
 		struct object *real_obj;
 
 		obj_read_lock();
-		real_obj = deref_tag(opt->repo, list->objects[i].item,
-				     NULL, 0);
+		real_obj = deref_tag(opt->repo, list->objects[i].item, NULL, 0);
 		obj_read_unlock();
 
 		if (!real_obj) {
@@ -833,34 +831,35 @@ int cmd_grep(int argc, const char **argv, const char *prefix)
 
 	struct option options[] = {
 		OPT_BOOL(0, "cached", &cached,
-			N_("search in index instead of in the work tree")),
+			 N_("search in index instead of in the work tree")),
 		OPT_NEGBIT(0, "no-index", &use_index,
-			 N_("find in contents not managed by git"), 1),
+			   N_("find in contents not managed by git"), 1),
 		OPT_BOOL(0, "untracked", &untracked,
-			N_("search in both tracked and untracked files")),
+			 N_("search in both tracked and untracked files")),
 		OPT_SET_INT(0, "exclude-standard", &opt_exclude,
 			    N_("ignore files specified via '.gitignore'"), 1),
 		OPT_BOOL(0, "recurse-submodules", &recurse_submodules,
 			 N_("recursively search in each submodule")),
 		OPT_GROUP(""),
 		OPT_BOOL('v', "invert-match", &opt.invert,
-			N_("show non-matching lines")),
+			 N_("show non-matching lines")),
 		OPT_BOOL('i', "ignore-case", &opt.ignore_case,
-			N_("case insensitive matching")),
+			 N_("case insensitive matching")),
 		OPT_BOOL('w', "word-regexp", &opt.word_regexp,
-			N_("match patterns only at word boundaries")),
+			 N_("match patterns only at word boundaries")),
 		OPT_SET_INT('a', "text", &opt.binary,
-			N_("process binary files as text"), GREP_BINARY_TEXT),
+			    N_("process binary files as text"),
+			    GREP_BINARY_TEXT),
 		OPT_SET_INT('I', NULL, &opt.binary,
-			N_("don't match patterns in binary files"),
-			GREP_BINARY_NOMATCH),
+			    N_("don't match patterns in binary files"),
+			    GREP_BINARY_NOMATCH),
 		OPT_BOOL(0, "textconv", &opt.allow_textconv,
 			 N_("process binary files with textconv filters")),
 		OPT_SET_INT('r', "recursive", &opt.max_depth,
 			    N_("search in subdirectories (default)"), -1),
 		{ OPTION_INTEGER, 0, "max-depth", &opt.max_depth, N_("depth"),
-			N_("descend at most <depth> levels"), PARSE_OPT_NONEG,
-			NULL, 1 },
+		  N_("descend at most <depth> levels"), PARSE_OPT_NONEG, NULL,
+		  1 },
 		OPT_GROUP(""),
 		OPT_SET_INT('E', "extended-regexp", &pattern_type_arg,
 			    N_("use extended POSIX regular expressions"),
@@ -875,76 +874,88 @@ int cmd_grep(int argc, const char **argv, const char *prefix)
 			    N_("use Perl-compatible regular expressions"),
 			    GREP_PATTERN_TYPE_PCRE),
 		OPT_GROUP(""),
-		OPT_BOOL('n', "line-number", &opt.linenum, N_("show line numbers")),
-		OPT_BOOL(0, "column", &opt.columnnum, N_("show column number of first match")),
-		OPT_NEGBIT('h', NULL, &opt.pathname, N_("don't show filenames"), 1),
+		OPT_BOOL('n', "line-number", &opt.linenum,
+			 N_("show line numbers")),
+		OPT_BOOL(0, "column", &opt.columnnum,
+			 N_("show column number of first match")),
+		OPT_NEGBIT('h', NULL, &opt.pathname, N_("don't show filenames"),
+			   1),
 		OPT_BIT('H', NULL, &opt.pathname, N_("show filenames"), 1),
 		OPT_NEGBIT(0, "full-name", &opt.relative,
-			N_("show filenames relative to top directory"), 1),
+			   N_("show filenames relative to top directory"), 1),
 		OPT_BOOL('l', "files-with-matches", &opt.name_only,
-			N_("show only filenames instead of matching lines")),
+			 N_("show only filenames instead of matching lines")),
 		OPT_BOOL(0, "name-only", &opt.name_only,
-			N_("synonym for --files-with-matches")),
-		OPT_BOOL('L', "files-without-match",
-			&opt.unmatch_name_only,
-			N_("show only the names of files without match")),
+			 N_("synonym for --files-with-matches")),
+		OPT_BOOL('L', "files-without-match", &opt.unmatch_name_only,
+			 N_("show only the names of files without match")),
 		OPT_BOOL_F('z', "null", &opt.null_following_name,
 			   N_("print NUL after filenames"),
 			   PARSE_OPT_NOCOMPLETE),
 		OPT_BOOL('o', "only-matching", &opt.only_matching,
-			N_("show only matching parts of a line")),
-		OPT_BOOL('c', "count", &opt.count,
+			 N_("show only matching parts of a line")),
+		OPT_BOOL(
+			'c', "count", &opt.count,
 			N_("show the number of matches instead of matching lines")),
 		OPT__COLOR(&opt.color, N_("highlight matches")),
-		OPT_BOOL(0, "break", &opt.file_break,
+		OPT_BOOL(
+			0, "break", &opt.file_break,
 			N_("print empty line between matches from different files")),
-		OPT_BOOL(0, "heading", &opt.heading,
+		OPT_BOOL(
+			0, "heading", &opt.heading,
 			N_("show filename only once above matches from same file")),
 		OPT_GROUP(""),
-		OPT_CALLBACK('C', "context", &opt, N_("n"),
+		OPT_CALLBACK(
+			'C', "context", &opt, N_("n"),
 			N_("show <n> context lines before and after matches"),
 			context_callback),
 		OPT_INTEGER('B', "before-context", &opt.pre_context,
-			N_("show <n> context lines before matches")),
+			    N_("show <n> context lines before matches")),
 		OPT_INTEGER('A', "after-context", &opt.post_context,
-			N_("show <n> context lines after matches")),
+			    N_("show <n> context lines after matches")),
 		OPT_INTEGER(0, "threads", &num_threads,
-			N_("use <n> worker threads")),
+			    N_("use <n> worker threads")),
 		OPT_NUMBER_CALLBACK(&opt, N_("shortcut for -C NUM"),
-			context_callback),
-		OPT_BOOL('p', "show-function", &opt.funcname,
+				    context_callback),
+		OPT_BOOL(
+			'p', "show-function", &opt.funcname,
 			N_("show a line with the function name before matches")),
 		OPT_BOOL('W', "function-context", &opt.funcbody,
-			N_("show the surrounding function")),
+			 N_("show the surrounding function")),
 		OPT_GROUP(""),
 		OPT_CALLBACK('f', NULL, &opt, N_("file"),
-			N_("read patterns from file"), file_callback),
+			     N_("read patterns from file"), file_callback),
 		OPT_CALLBACK_F('e', NULL, &opt, N_("pattern"),
-			N_("match <pattern>"), PARSE_OPT_NONEG, pattern_callback),
+			       N_("match <pattern>"), PARSE_OPT_NONEG,
+			       pattern_callback),
 		OPT_CALLBACK_F(0, "and", &opt, NULL,
-			N_("combine patterns specified with -e"),
-			PARSE_OPT_NOARG | PARSE_OPT_NONEG, and_callback),
+			       N_("combine patterns specified with -e"),
+			       PARSE_OPT_NOARG | PARSE_OPT_NONEG, and_callback),
 		OPT_BOOL(0, "or", &dummy, ""),
 		OPT_CALLBACK_F(0, "not", &opt, NULL, "",
-			PARSE_OPT_NOARG | PARSE_OPT_NONEG, not_callback),
+			       PARSE_OPT_NOARG | PARSE_OPT_NONEG, not_callback),
 		OPT_CALLBACK_F('(', NULL, &opt, NULL, "",
-			PARSE_OPT_NOARG | PARSE_OPT_NONEG | PARSE_OPT_NODASH,
-			open_callback),
+			       PARSE_OPT_NOARG | PARSE_OPT_NONEG |
+				       PARSE_OPT_NODASH,
+			       open_callback),
 		OPT_CALLBACK_F(')', NULL, &opt, NULL, "",
-			PARSE_OPT_NOARG | PARSE_OPT_NONEG | PARSE_OPT_NODASH,
-			close_callback),
+			       PARSE_OPT_NOARG | PARSE_OPT_NONEG |
+				       PARSE_OPT_NODASH,
+			       close_callback),
 		OPT__QUIET(&opt.status_only,
 			   N_("indicate hit with exit status without output")),
-		OPT_BOOL(0, "all-match", &opt.all_match,
+		OPT_BOOL(
+			0, "all-match", &opt.all_match,
 			N_("show only matches from files that match all patterns")),
 		OPT_GROUP(""),
 		{ OPTION_STRING, 'O', "open-files-in-pager", &show_in_pager,
-			N_("pager"), N_("show matching files in the pager"),
-			PARSE_OPT_OPTARG | PARSE_OPT_NOCOMPLETE,
-			NULL, (intptr_t)default_pager },
-		OPT_BOOL_F(0, "ext-grep", &external_grep_allowed__ignored,
-			   N_("allow calling of grep(1) (ignored by this build)"),
-			   PARSE_OPT_NOCOMPLETE),
+		  N_("pager"), N_("show matching files in the pager"),
+		  PARSE_OPT_OPTARG | PARSE_OPT_NOCOMPLETE, NULL,
+		  (intptr_t)default_pager },
+		OPT_BOOL_F(
+			0, "ext-grep", &external_grep_allowed__ignored,
+			N_("allow calling of grep(1) (ignored by this build)"),
+			PARSE_OPT_NOCOMPLETE),
 		OPT_END()
 	};
 
@@ -963,7 +974,7 @@ int cmd_grep(int argc, const char **argv, const char *prefix)
 	 */
 	argc = parse_options(argc, argv, prefix, options, grep_usage,
 			     PARSE_OPT_KEEP_DASHDASH |
-			     PARSE_OPT_STOP_AT_NON_OPTION);
+				     PARSE_OPT_STOP_AT_NON_OPTION);
 	grep_commit_pattern_type(pattern_type_arg, &opt);
 
 	if (use_index && !startup_info->have_repository) {
@@ -1050,8 +1061,7 @@ int cmd_grep(int argc, const char **argv, const char *prefix)
 		}
 
 		if (get_oid_with_context(the_repository, arg,
-					 GET_OID_RECORD_PATH,
-					 &oid, &oc)) {
+					 GET_OID_RECORD_PATH, &oid, &oc)) {
 			if (seen_dashdash)
 				die(_("unable to resolve revision: %s"), arg);
 			break;
@@ -1060,7 +1070,8 @@ int cmd_grep(int argc, const char **argv, const char *prefix)
 		object = parse_object_or_die(&oid, arg);
 		if (!seen_dashdash)
 			verify_non_filename(prefix, arg);
-		add_object_array_with_path(object, arg, &list, oc.mode, oc.path);
+		add_object_array_with_path(object, arg, &list, oc.mode,
+					   oc.path);
 		free(oc.path);
 	}
 
@@ -1076,7 +1087,8 @@ int cmd_grep(int argc, const char **argv, const char *prefix)
 
 	parse_pathspec(&pathspec, 0,
 		       PATHSPEC_PREFER_CWD |
-		       (opt.max_depth != -1 ? PATHSPEC_MAXDEPTH_VALID : 0),
+			       (opt.max_depth != -1 ? PATHSPEC_MAXDEPTH_VALID :
+						      0),
 		       prefix, argv + i);
 	pathspec.max_depth = opt.max_depth;
 	pathspec.recursive = 1;
@@ -1087,7 +1099,8 @@ int cmd_grep(int argc, const char **argv, const char *prefix)
 
 	if (show_in_pager) {
 		if (num_threads > 1)
-			warning(_("invalid option combination, ignoring --threads"));
+			warning(_(
+				"invalid option combination, ignoring --threads"));
 		num_threads = 1;
 	} else if (!HAVE_THREADS && num_threads > 1) {
 		warning(_("no threads support, ignoring --threads"));
@@ -1100,9 +1113,9 @@ int cmd_grep(int argc, const char **argv, const char *prefix)
 	if (num_threads > 1) {
 		if (!HAVE_THREADS)
 			BUG("Somebody got num_threads calculation wrong!");
-		if (!(opt.name_only || opt.unmatch_name_only || opt.count)
-		    && (opt.pre_context || opt.post_context ||
-			opt.file_break || opt.funcbody))
+		if (!(opt.name_only || opt.unmatch_name_only || opt.count) &&
+		    (opt.pre_context || opt.post_context || opt.file_break ||
+		     opt.funcbody))
 			skip_first_line = 1;
 
 		/*
@@ -1142,8 +1155,8 @@ int cmd_grep(int argc, const char **argv, const char *prefix)
 		if (!strcmp("less", pager) || !strcmp("vi", pager)) {
 			struct strbuf buf = STRBUF_INIT;
 			strbuf_addf(&buf, "+/%s%s",
-					strcmp("less", pager) ? "" : "*",
-					opt.pattern_list->pattern);
+				    strcmp("less", pager) ? "" : "*",
+				    opt.pattern_list->pattern);
 			string_list_append(&path_list,
 					   strbuf_detach(&buf, NULL));
 		}

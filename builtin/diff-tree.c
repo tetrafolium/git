@@ -51,9 +51,9 @@ static int stdin_diff_trees(struct tree *tree1, const char *p)
 	if (!tree2 || parse_tree(tree2))
 		return -1;
 	printf("%s %s\n", oid_to_hex(&tree1->object.oid),
-			  oid_to_hex(&tree2->object.oid));
-	diff_tree_oid(&tree1->object.oid, &tree2->object.oid,
-		      "", &log_tree_opt.diffopt);
+	       oid_to_hex(&tree2->object.oid));
+	diff_tree_oid(&tree1->object.oid, &tree2->object.oid, "",
+		      &log_tree_opt.diffopt);
 	log_tree_diff_flush(&log_tree_opt);
 	return 0;
 }
@@ -65,9 +65,9 @@ static int diff_tree_stdin(char *line)
 	struct object *obj;
 	const char *p;
 
-	if (!len || line[len-1] != '\n')
+	if (!len || line[len - 1] != '\n')
 		return -1;
-	line[len-1] = 0;
+	line[len - 1] = 0;
 	if (parse_oid_hex(line, &oid, &p))
 		return -1;
 	obj = parse_object(the_repository, &oid);
@@ -77,23 +77,23 @@ static int diff_tree_stdin(char *line)
 		return stdin_diff_commit((struct commit *)obj, p);
 	if (obj->type == OBJ_TREE)
 		return stdin_diff_trees((struct tree *)obj, p);
-	error("Object %s is a %s, not a commit or tree",
-	      oid_to_hex(&oid), type_name(obj->type));
+	error("Object %s is a %s, not a commit or tree", oid_to_hex(&oid),
+	      type_name(obj->type));
 	return -1;
 }
 
 static const char diff_tree_usage[] =
-"git diff-tree [--stdin] [-m] [-c | --cc] [-s] [-v] [--pretty] [-t] [-r] [--root] "
-"[<common-diff-options>] <tree-ish> [<tree-ish>] [<path>...]\n"
-"  -r            diff recursively\n"
-"  -c            show combined diff for merge commits\n"
-"  --cc          show combined diff for merge commits removing uninteresting hunks\n"
-"  --combined-all-paths\n"
-"                show name of file in all parents for combined diffs\n"
-"  --root        include the initial commit as diff against /dev/null\n"
-COMMON_DIFF_OPTIONS_HELP;
+	"git diff-tree [--stdin] [-m] [-c | --cc] [-s] [-v] [--pretty] [-t] [-r] [--root] "
+	"[<common-diff-options>] <tree-ish> [<tree-ish>] [<path>...]\n"
+	"  -r            diff recursively\n"
+	"  -c            show combined diff for merge commits\n"
+	"  --cc          show combined diff for merge commits removing uninteresting hunks\n"
+	"  --combined-all-paths\n"
+	"                show name of file in all parents for combined diffs\n"
+	"  --root        include the initial commit as diff against /dev/null\n" COMMON_DIFF_OPTIONS_HELP;
 
-static void diff_tree_tweak_rev(struct rev_info *rev, struct setup_revision_opt *opt)
+static void diff_tree_tweak_rev(struct rev_info *rev,
+				struct setup_revision_opt *opt)
 {
 	if (!rev->diffopt.output_format) {
 		if (rev->dense_combined_merges)
@@ -206,11 +206,12 @@ int cmd_diff_tree(int argc, const char **argv, const char *prefix)
 			if (get_oid_hex(line, &oid)) {
 				fputs(line, stdout);
 				fflush(stdout);
-			}
-			else {
+			} else {
 				diff_tree_stdin(line);
-				if (saved_nrl < opt->diffopt.needed_rename_limit)
-					saved_nrl = opt->diffopt.needed_rename_limit;
+				if (saved_nrl <
+				    opt->diffopt.needed_rename_limit)
+					saved_nrl =
+						opt->diffopt.needed_rename_limit;
 				if (opt->diffopt.degraded_cc_to_c)
 					saved_dcctc = 1;
 			}

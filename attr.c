@@ -78,16 +78,15 @@ static int attr_hash_entry_cmp(const void *unused_cmp_data,
  * is a singleton object which is shared between threads.
  * Access to this dictionary must be surrounded with a mutex.
  */
-static struct attr_hashmap g_attr_hashmap = {
-	HASHMAP_INIT(attr_hash_entry_cmp, NULL)
-};
+static struct attr_hashmap g_attr_hashmap = { HASHMAP_INIT(attr_hash_entry_cmp,
+							   NULL) };
 
 /*
  * Retrieve the 'value' stored in a hashmap given the provided 'key'.
  * If there is no matching entry, return NULL.
  */
-static void *attr_hashmap_get(struct attr_hashmap *map,
-			      const char *key, size_t keylen)
+static void *attr_hashmap_get(struct attr_hashmap *map, const char *key,
+			      size_t keylen)
 {
 	struct attr_hash_entry k;
 	struct attr_hash_entry *e;
@@ -101,9 +100,8 @@ static void *attr_hashmap_get(struct attr_hashmap *map,
 }
 
 /* Add 'value' to a hashmap based on the provided 'key'. */
-static void attr_hashmap_add(struct attr_hashmap *map,
-			     const char *key, size_t keylen,
-			     void *value)
+static void attr_hashmap_add(struct attr_hashmap *map, const char *key,
+			     size_t keylen, void *value)
 {
 	struct attr_hash_entry *e;
 
@@ -157,7 +155,8 @@ static void all_attrs_init(struct attr_hashmap *map, struct attr_check *check)
 		check->all_attrs_nr = size;
 
 		hashmap_for_each_entry(&map->map, &iter, e,
-					ent /* member name */) {
+				       ent /* member name */)
+		{
 			const struct git_attr *a = e->value;
 			check->all_attrs[a->attr_nr].attr = a;
 		}
@@ -186,21 +185,20 @@ static int attr_name_valid(const char *name, size_t namelen)
 		return 0;
 	while (namelen--) {
 		char ch = *name++;
-		if (! (ch == '-' || ch == '.' || ch == '_' ||
-		       ('0' <= ch && ch <= '9') ||
-		       ('a' <= ch && ch <= 'z') ||
-		       ('A' <= ch && ch <= 'Z')) )
+		if (!(ch == '-' || ch == '.' || ch == '_' ||
+		      ('0' <= ch && ch <= '9') || ('a' <= ch && ch <= 'z') ||
+		      ('A' <= ch && ch <= 'Z')))
 			return 0;
 	}
 	return 1;
 }
 
-static void report_invalid_attr(const char *name, size_t len,
-				const char *src, int lineno)
+static void report_invalid_attr(const char *name, size_t len, const char *src,
+				int lineno)
 {
 	struct strbuf err = STRBUF_INIT;
-	strbuf_addf(&err, _("%.*s is not a valid attribute name"),
-		    (int) len, name);
+	strbuf_addf(&err, _("%.*s is not a valid attribute name"), (int)len,
+		    name);
 	fprintf(stderr, "%s: %s:%d\n", err.buf, src, lineno);
 	strbuf_release(&err);
 }
@@ -250,7 +248,7 @@ struct pattern {
 	const char *pattern;
 	int patternlen;
 	int nowildcardlen;
-	unsigned flags;		/* PATTERN_FLAG_* */
+	unsigned flags; /* PATTERN_FLAG_* */
 };
 
 /*
@@ -319,8 +317,7 @@ static const char *parse_attr(const char *src, int lineno, const char *cp,
 			e->setto = (*cp == '-') ? ATTR__FALSE : ATTR__UNSET;
 			cp++;
 			len--;
-		}
-		else if (!equals)
+		} else if (!equals)
 			e->setto = ATTR__TRUE;
 		else {
 			e->setto = xmemdupz(equals + 1, ep - equals - 1);
@@ -356,8 +353,8 @@ static struct match_attr *parse_attr_line(const char *line, const char *src,
 	if (strlen(ATTRIBUTE_MACRO_PREFIX) < namelen &&
 	    starts_with(name, ATTRIBUTE_MACRO_PREFIX)) {
 		if (!macro_ok) {
-			fprintf_ln(stderr, _("%s not allowed: %s:%d"),
-				   name, src, lineno);
+			fprintf_ln(stderr, _("%s not allowed: %s:%d"), name,
+				   src, lineno);
 			goto fail_return;
 		}
 		is_macro = 1;
@@ -368,8 +365,7 @@ static struct match_attr *parse_attr_line(const char *line, const char *src,
 			report_invalid_attr(name, namelen, src, lineno);
 			goto fail_return;
 		}
-	}
-	else
+	} else
 		is_macro = 0;
 
 	states += strspn(states, blank);
@@ -381,23 +377,21 @@ static struct match_attr *parse_attr_line(const char *line, const char *src,
 			goto fail_return;
 	}
 
-	res = xcalloc(1,
-		      sizeof(*res) +
-		      sizeof(struct attr_state) * num_attr +
-		      (is_macro ? 0 : namelen + 1));
+	res = xcalloc(1, sizeof(*res) + sizeof(struct attr_state) * num_attr +
+				 (is_macro ? 0 : namelen + 1));
 	if (is_macro) {
 		res->u.attr = git_attr_internal(name, namelen);
 	} else {
 		char *p = (char *)&(res->state[num_attr]);
 		memcpy(p, name, namelen);
 		res->u.pat.pattern = p;
-		parse_path_pattern(&res->u.pat.pattern,
-				      &res->u.pat.patternlen,
-				      &res->u.pat.flags,
-				      &res->u.pat.nowildcardlen);
+		parse_path_pattern(&res->u.pat.pattern, &res->u.pat.patternlen,
+				   &res->u.pat.flags,
+				   &res->u.pat.nowildcardlen);
 		if (res->u.pat.flags & PATTERN_FLAG_NEGATIVE) {
-			warning(_("Negative patterns are ignored in git attributes\n"
-				  "Use '\\!' for literal leading exclamation."));
+			warning(_(
+				"Negative patterns are ignored in git attributes\n"
+				"Use '\\!' for literal leading exclamation."));
 			goto fail_return;
 		}
 	}
@@ -454,13 +448,11 @@ static void attr_stack_free(struct attr_stack *e)
 		int j;
 		for (j = 0; j < a->num_attr; j++) {
 			const char *setto = a->state[j].setto;
-			if (setto == ATTR__TRUE ||
-			    setto == ATTR__FALSE ||
-			    setto == ATTR__UNSET ||
-			    setto == ATTR__UNKNOWN)
+			if (setto == ATTR__TRUE || setto == ATTR__FALSE ||
+			    setto == ATTR__UNSET || setto == ATTR__UNKNOWN)
 				;
 			else
-				free((char *) setto);
+				free((char *)setto);
 		}
 		free(a);
 	}
@@ -499,8 +491,7 @@ static void check_vector_add(struct attr_check *c)
 {
 	vector_lock();
 
-	ALLOC_GROW(check_vector.checks,
-		   check_vector.nr + 1,
+	ALLOC_GROW(check_vector.checks, check_vector.nr + 1,
 		   check_vector.alloc);
 	check_vector.checks[check_vector.nr++] = c;
 
@@ -577,8 +568,7 @@ struct attr_check *attr_check_initl(const char *one, ...)
 		const struct git_attr *attr;
 		param = va_arg(params, const char *);
 		if (!param)
-			BUG("counted %d != ended at %d",
-			    check->nr, cnt);
+			BUG("counted %d != ended at %d", check->nr, cnt);
 		attr = git_attr(param);
 		if (!attr)
 			BUG("%s: not a valid attribute name", param);
@@ -649,11 +639,8 @@ static const char *builtin_attr[] = {
 	NULL,
 };
 
-static void handle_attr_line(struct attr_stack *res,
-			     const char *line,
-			     const char *src,
-			     int lineno,
-			     int macro_ok)
+static void handle_attr_line(struct attr_stack *res, const char *line,
+			     const char *src, int lineno, int macro_ok)
 {
 	struct match_attr *a;
 
@@ -719,8 +706,7 @@ static struct attr_stack *read_attr_from_file(const char *path, int macro_ok)
 }
 
 static struct attr_stack *read_attr_from_index(const struct index_state *istate,
-					       const char *path,
-					       int macro_ok)
+					       const char *path, int macro_ok)
 {
 	struct attr_stack *res;
 	char *buf, *sp;
@@ -734,7 +720,7 @@ static struct attr_stack *read_attr_from_index(const struct index_state *istate,
 		return NULL;
 
 	res = xcalloc(1, sizeof(*res));
-	for (sp = buf; *sp; ) {
+	for (sp = buf; *sp;) {
 		char *ep;
 		int more;
 
@@ -769,7 +755,8 @@ static struct attr_stack *read_attr(const struct index_state *istate,
 				 * We allow operation in a sparsely checked out
 				 * work tree, so read from it.
 				 */
-				res = read_attr_from_index(istate, path, macro_ok);
+				res = read_attr_from_index(istate, path,
+							   macro_ok);
 		}
 	}
 
@@ -783,7 +770,8 @@ static void debug_info(const char *what, struct attr_stack *elem)
 {
 	fprintf(stderr, "%s: %s\n", what, elem->origin ? elem->origin : "()");
 }
-static void debug_set(const char *what, const char *match, struct git_attr *attr, const void *v)
+static void debug_set(const char *what, const char *match,
+		      struct git_attr *attr, const void *v)
 {
 	const char *value = v;
 
@@ -794,15 +782,24 @@ static void debug_set(const char *what, const char *match, struct git_attr *attr
 	else if (ATTR_UNSET(value))
 		value = "unspecified";
 
-	fprintf(stderr, "%s: %s => %s (%s)\n",
-		what, attr->name, (char *) value, match);
+	fprintf(stderr, "%s: %s => %s (%s)\n", what, attr->name, (char *)value,
+		match);
 }
 #define debug_push(a) debug_info("push", (a))
 #define debug_pop(a) debug_info("pop", (a))
 #else
-#define debug_push(a) do { ; } while (0)
-#define debug_pop(a) do { ; } while (0)
-#define debug_set(a,b,c,d) do { ; } while (0)
+#define debug_push(a) \
+	do {          \
+		;     \
+	} while (0)
+#define debug_pop(a) \
+	do {         \
+		;    \
+	} while (0)
+#define debug_set(a, b, c, d) \
+	do {                  \
+		;             \
+	} while (0)
 #endif /* DEBUG_ATTR */
 
 static const char *git_etc_gitattributes(void)
@@ -828,8 +825,9 @@ static int git_attr_system(void)
 
 static GIT_PATH_FUNC(git_path_info_attributes, INFOATTRIBUTES_FILE)
 
-static void push_stack(struct attr_stack **attr_stack_p,
-		       struct attr_stack *elem, char *origin, size_t originlen)
+	static void push_stack(struct attr_stack **attr_stack_p,
+			       struct attr_stack *elem, char *origin,
+			       size_t originlen)
 {
 	if (elem) {
 		elem->origin = origin;
@@ -973,10 +971,9 @@ static void prepare_attr_stack(const struct index_state *istate,
 	strbuf_release(&pathbuf);
 }
 
-static int path_matches(const char *pathname, int pathlen,
-			int basename_offset,
-			const struct pattern *pat,
-			const char *base, int baselen)
+static int path_matches(const char *pathname, int pathlen, int basename_offset,
+			const struct pattern *pat, const char *base,
+			int baselen)
 {
 	const char *pattern = pat->pattern;
 	int prefix = pat->nowildcardlen;
@@ -988,12 +985,11 @@ static int path_matches(const char *pathname, int pathlen,
 	if (pat->flags & PATTERN_FLAG_NODIR) {
 		return match_basename(pathname + basename_offset,
 				      pathlen - basename_offset - isdir,
-				      pattern, prefix,
-				      pat->patternlen, pat->flags);
+				      pattern, prefix, pat->patternlen,
+				      pat->flags);
 	}
-	return match_pathname(pathname, pathlen - isdir,
-			      base, baselen,
-			      pattern, prefix, pat->patternlen, pat->flags);
+	return match_pathname(pathname, pathlen - isdir, base, baselen, pattern,
+			      prefix, pat->patternlen, pat->flags);
 }
 
 static int macroexpand_one(struct all_attrs_item *all_attrs, int nr, int rem);
@@ -1010,7 +1006,8 @@ static int fill_one(const char *what, struct all_attrs_item *all_attrs,
 
 		if (*n == ATTR__UNKNOWN) {
 			debug_set(what,
-				  a->is_macro ? a->u.attr->name : a->u.pat.pattern,
+				  a->is_macro ? a->u.attr->name :
+						a->u.pat.pattern,
 				  attr, v);
 			*n = v;
 			rem--;
@@ -1079,8 +1076,7 @@ static void determine_macros(struct all_attrs_item *all_attrs,
  * Otherwise all attributes are collected.
  */
 static void collect_some_attrs(const struct index_state *istate,
-			       const char *path,
-			       struct attr_check *check)
+			       const char *path, struct attr_check *check)
 {
 	int pathlen, rem, dirlen;
 	const char *cp, *last_slash = NULL;
@@ -1104,11 +1100,11 @@ static void collect_some_attrs(const struct index_state *istate,
 	determine_macros(check->all_attrs, check->stack);
 
 	rem = check->all_attrs_nr;
-	fill(path, pathlen, basename_offset, check->stack, check->all_attrs, rem);
+	fill(path, pathlen, basename_offset, check->stack, check->all_attrs,
+	     rem);
 }
 
-void git_check_attr(const struct index_state *istate,
-		    const char *path,
+void git_check_attr(const struct index_state *istate, const char *path,
 		    struct attr_check *check)
 {
 	int i;
@@ -1124,8 +1120,8 @@ void git_check_attr(const struct index_state *istate,
 	}
 }
 
-void git_all_attrs(const struct index_state *istate,
-		   const char *path, struct attr_check *check)
+void git_all_attrs(const struct index_state *istate, const char *path,
+		   struct attr_check *check)
 {
 	int i;
 

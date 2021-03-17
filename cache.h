@@ -44,21 +44,21 @@ int git_deflate(git_zstream *, int flush);
 unsigned long git_deflate_bound(git_zstream *, unsigned long);
 
 #if defined(DT_UNKNOWN) && !defined(NO_D_TYPE_IN_DIRENT)
-#define DTYPE(de)	((de)->d_type)
+#define DTYPE(de) ((de)->d_type)
 #else
 #undef DT_UNKNOWN
 #undef DT_DIR
 #undef DT_REG
 #undef DT_LNK
-#define DT_UNKNOWN	0
-#define DT_DIR		1
-#define DT_REG		2
-#define DT_LNK		3
-#define DTYPE(de)	DT_UNKNOWN
+#define DT_UNKNOWN 0
+#define DT_DIR 1
+#define DT_REG 2
+#define DT_LNK 3
+#define DTYPE(de) DT_UNKNOWN
 #endif
 
 /* unknown mode (impossible combination S_IFIFO|S_IFCHR) */
-#define S_IFINVALID     0030000
+#define S_IFINVALID 0030000
 
 /*
  * A "directory link" is a link to another git directory.
@@ -66,8 +66,8 @@ unsigned long git_deflate_bound(git_zstream *, unsigned long);
  * The value 0160000 is not normally a valid mode, and
  * also just happens to be S_IFDIR + S_IFLNK
  */
-#define S_IFGITLINK	0160000
-#define S_ISGITLINK(m)	(((m) & S_IFMT) == S_IFGITLINK)
+#define S_IFGITLINK 0160000
+#define S_ISGITLINK(m) (((m)&S_IFMT) == S_IFGITLINK)
 
 /*
  * Some mode bits are also used internally for computations.
@@ -81,8 +81,7 @@ unsigned long git_deflate_bound(git_zstream *, unsigned long);
  */
 
 /* used internally in tree-diff */
-#define S_DIFFTREE_IFXMIN_NEQ	0x80000000
-
+#define S_DIFFTREE_IFXMIN_NEQ 0x80000000
 
 /*
  * Intensive research over the course of many years has shown that
@@ -109,7 +108,7 @@ unsigned long git_deflate_bound(git_zstream *, unsigned long);
  * Basic data structures for the directory cache
  */
 
-#define CACHE_SIGNATURE 0x44495243	/* "DIRC" */
+#define CACHE_SIGNATURE 0x44495243 /* "DIRC" */
 struct cache_header {
 	uint32_t hdr_signature;
 	uint32_t hdr_version;
@@ -146,14 +145,14 @@ struct cache_entry {
 	unsigned int ce_flags;
 	unsigned int mem_pool_allocated;
 	unsigned int ce_namelen;
-	unsigned int index;	/* for link extension */
+	unsigned int index; /* for link extension */
 	struct object_id oid;
 	char name[FLEX_ARRAY]; /* more */
 };
 
 #define CE_STAGEMASK (0x3000)
-#define CE_EXTENDED  (0x4000)
-#define CE_VALID     (0x8000)
+#define CE_EXTENDED (0x4000)
+#define CE_VALID (0x8000)
 #define CE_STAGESHIFT 12
 
 /*
@@ -165,32 +164,32 @@ struct cache_entry {
  *
  * In-memory only flags
  */
-#define CE_UPDATE            (1 << 16)
-#define CE_REMOVE            (1 << 17)
-#define CE_UPTODATE          (1 << 18)
-#define CE_ADDED             (1 << 19)
+#define CE_UPDATE (1 << 16)
+#define CE_REMOVE (1 << 17)
+#define CE_UPTODATE (1 << 18)
+#define CE_ADDED (1 << 19)
 
-#define CE_HASHED            (1 << 20)
-#define CE_FSMONITOR_VALID   (1 << 21)
-#define CE_WT_REMOVE         (1 << 22) /* remove in work directory */
-#define CE_CONFLICTED        (1 << 23)
+#define CE_HASHED (1 << 20)
+#define CE_FSMONITOR_VALID (1 << 21)
+#define CE_WT_REMOVE (1 << 22) /* remove in work directory */
+#define CE_CONFLICTED (1 << 23)
 
-#define CE_UNPACKED          (1 << 24)
+#define CE_UNPACKED (1 << 24)
 #define CE_NEW_SKIP_WORKTREE (1 << 25)
 
 /* used to temporarily mark paths matched by pathspecs */
-#define CE_MATCHED           (1 << 26)
+#define CE_MATCHED (1 << 26)
 
-#define CE_UPDATE_IN_BASE    (1 << 27)
-#define CE_STRIP_NAME        (1 << 28)
+#define CE_UPDATE_IN_BASE (1 << 27)
+#define CE_STRIP_NAME (1 << 28)
 
 /*
  * Extended on-disk flags
  */
-#define CE_INTENT_TO_ADD     (1 << 29)
-#define CE_SKIP_WORKTREE     (1 << 30)
+#define CE_INTENT_TO_ADD (1 << 29)
+#define CE_SKIP_WORKTREE (1 << 30)
 /* CE_EXTENDED2 is for future extension */
-#define CE_EXTENDED2         (1U << 31)
+#define CE_EXTENDED2 (1U << 31)
 
 #define CE_EXTENDED_FLAGS (CE_INTENT_TO_ADD | CE_SKIP_WORKTREE)
 
@@ -221,8 +220,8 @@ static inline void copy_cache_entry(struct cache_entry *dst,
 
 	/* Don't copy hash chain and name */
 	memcpy(&dst->ce_stat_data, &src->ce_stat_data,
-			offsetof(struct cache_entry, name) -
-			offsetof(struct cache_entry, ce_stat_data));
+	       offsetof(struct cache_entry, name) -
+		       offsetof(struct cache_entry, ce_stat_data));
 
 	/* Restore the hash state */
 	dst->ce_flags = (dst->ce_flags & ~CE_HASHED) | state;
@@ -244,7 +243,7 @@ static inline unsigned create_ce_flags(unsigned stage)
 #define ce_mark_uptodate(ce) ((ce)->ce_flags |= CE_UPTODATE)
 #define ce_intent_to_add(ce) ((ce)->ce_flags & CE_INTENT_TO_ADD)
 
-#define ce_permissions(mode) (((mode) & 0100) ? 0755 : 0644)
+#define ce_permissions(mode) (((mode)&0100) ? 0755 : 0644)
 static inline unsigned int create_ce_mode(unsigned int mode)
 {
 	if (S_ISLNK(mode))
@@ -257,8 +256,7 @@ static inline unsigned int ce_mode_from_stat(const struct cache_entry *ce,
 					     unsigned int mode)
 {
 	extern int trust_executable_bit, has_symlinks;
-	if (!has_symlinks && S_ISREG(mode) &&
-	    ce && S_ISLNK(ce->ce_mode))
+	if (!has_symlinks && S_ISREG(mode) && ce && S_ISLNK(ce->ce_mode))
 		return ce->ce_mode;
 	if (!trust_executable_bit && S_ISREG(mode)) {
 		if (ce && S_ISREG(ce->ce_mode))
@@ -290,17 +288,17 @@ static inline unsigned int canon_mode(unsigned int mode)
 	return S_IFGITLINK;
 }
 
-#define cache_entry_size(len) (offsetof(struct cache_entry,name) + (len) + 1)
+#define cache_entry_size(len) (offsetof(struct cache_entry, name) + (len) + 1)
 
-#define SOMETHING_CHANGED	(1 << 0) /* unclassified changes go here */
-#define CE_ENTRY_CHANGED	(1 << 1)
-#define CE_ENTRY_REMOVED	(1 << 2)
-#define CE_ENTRY_ADDED		(1 << 3)
-#define RESOLVE_UNDO_CHANGED	(1 << 4)
-#define CACHE_TREE_CHANGED	(1 << 5)
-#define SPLIT_INDEX_ORDERED	(1 << 6)
-#define UNTRACKED_CHANGED	(1 << 7)
-#define FSMONITOR_CHANGED	(1 << 8)
+#define SOMETHING_CHANGED (1 << 0) /* unclassified changes go here */
+#define CE_ENTRY_CHANGED (1 << 1)
+#define CE_ENTRY_REMOVED (1 << 2)
+#define CE_ENTRY_ADDED (1 << 3)
+#define RESOLVE_UNDO_CHANGED (1 << 4)
+#define CACHE_TREE_CHANGED (1 << 5)
+#define SPLIT_INDEX_ORDERED (1 << 6)
+#define UNTRACKED_CHANGED (1 << 7)
+#define FSMONITOR_CHANGED (1 << 8)
 
 struct split_index;
 struct untracked_cache;
@@ -314,12 +312,9 @@ struct index_state {
 	struct cache_tree *cache_tree;
 	struct split_index *split_index;
 	struct cache_time timestamp;
-	unsigned name_hash_initialized : 1,
-		 initialized : 1,
-		 drop_cache_tree : 1,
-		 updated_workdir : 1,
-		 updated_skipworktree : 1,
-		 fsmonitor_has_run_once : 1;
+	unsigned name_hash_initialized : 1, initialized : 1,
+		drop_cache_tree : 1, updated_workdir : 1,
+		updated_skipworktree : 1, fsmonitor_has_run_once : 1;
 	struct hashmap name_hash;
 	struct hashmap dir_hash;
 	struct object_id oid;
@@ -337,7 +332,6 @@ void add_name_hash(struct index_state *istate, struct cache_entry *ce);
 void remove_name_hash(struct index_state *istate, struct cache_entry *ce);
 void free_name_hash(struct index_state *istate);
 
-
 /* Cache entry creation and cleanup */
 
 /*
@@ -348,8 +342,7 @@ void free_name_hash(struct index_state *istate);
 struct cache_entry *make_cache_entry(struct index_state *istate,
 				     unsigned int mode,
 				     const struct object_id *oid,
-				     const char *path,
-				     int stage,
+				     const char *path, int stage,
 				     unsigned int refresh_options);
 
 struct cache_entry *make_empty_cache_entry(struct index_state *istate,
@@ -362,8 +355,7 @@ struct cache_entry *make_empty_cache_entry(struct index_state *istate,
  */
 struct cache_entry *make_transient_cache_entry(unsigned int mode,
 					       const struct object_id *oid,
-					       const char *path,
-					       int stage);
+					       const char *path, int stage);
 
 struct cache_entry *make_empty_transient_cache_entry(size_t name_len);
 
@@ -383,7 +375,8 @@ int should_validate_cache_entries(void);
  * memory_pool. Takes into account cache_entry fields that are meant
  * for managing the underlying memory allocation of the cache_entry.
  */
-struct cache_entry *dup_cache_entry(const struct cache_entry *ce, struct index_state *istate);
+struct cache_entry *dup_cache_entry(const struct cache_entry *ce,
+				    struct index_state *istate);
 
 /*
  * Validate the cache entries in the index.  This is an internal
@@ -402,32 +395,49 @@ extern struct index_state the_index;
 #define active_cache_tree (the_index.cache_tree)
 
 #define read_cache() repo_read_index(the_repository)
-#define read_cache_from(path) read_index_from(&the_index, (path), (get_git_dir()))
-#define read_cache_preload(pathspec) repo_read_index_preload(the_repository, (pathspec), 0)
+#define read_cache_from(path) \
+	read_index_from(&the_index, (path), (get_git_dir()))
+#define read_cache_preload(pathspec) \
+	repo_read_index_preload(the_repository, (pathspec), 0)
 #define is_cache_unborn() is_index_unborn(&the_index)
 #define read_cache_unmerged() repo_read_index_unmerged(the_repository)
 #define discard_cache() discard_index(&the_index)
 #define unmerged_cache() unmerged_index(&the_index)
-#define cache_name_pos(name, namelen) index_name_pos(&the_index,(name),(namelen))
+#define cache_name_pos(name, namelen) \
+	index_name_pos(&the_index, (name), (namelen))
 #define add_cache_entry(ce, option) add_index_entry(&the_index, (ce), (option))
-#define rename_cache_entry_at(pos, new_name) rename_index_entry_at(&the_index, (pos), (new_name))
+#define rename_cache_entry_at(pos, new_name) \
+	rename_index_entry_at(&the_index, (pos), (new_name))
 #define remove_cache_entry_at(pos) remove_index_entry_at(&the_index, (pos))
 #define remove_file_from_cache(path) remove_file_from_index(&the_index, (path))
-#define add_to_cache(path, st, flags) add_to_index(&the_index, (path), (st), (flags))
-#define add_file_to_cache(path, flags) add_file_to_index(&the_index, (path), (flags))
+#define add_to_cache(path, st, flags) \
+	add_to_index(&the_index, (path), (st), (flags))
+#define add_file_to_cache(path, flags) \
+	add_file_to_index(&the_index, (path), (flags))
 #define chmod_cache_entry(ce, flip) chmod_index_entry(&the_index, (ce), (flip))
-#define refresh_cache(flags) refresh_index(&the_index, (flags), NULL, NULL, NULL)
-#define refresh_and_write_cache(refresh_flags, write_flags, gentle) repo_refresh_and_write_index(the_repository, (refresh_flags), (write_flags), (gentle), NULL, NULL, NULL)
-#define ce_match_stat(ce, st, options) ie_match_stat(&the_index, (ce), (st), (options))
-#define ce_modified(ce, st, options) ie_modified(&the_index, (ce), (st), (options))
-#define cache_dir_exists(name, namelen) index_dir_exists(&the_index, (name), (namelen))
-#define cache_file_exists(name, namelen, igncase) index_file_exists(&the_index, (name), (namelen), (igncase))
-#define cache_name_is_other(name, namelen) index_name_is_other(&the_index, (name), (namelen))
+#define refresh_cache(flags) \
+	refresh_index(&the_index, (flags), NULL, NULL, NULL)
+#define refresh_and_write_cache(refresh_flags, write_flags, gentle)       \
+	repo_refresh_and_write_index(the_repository, (refresh_flags),     \
+				     (write_flags), (gentle), NULL, NULL, \
+				     NULL)
+#define ce_match_stat(ce, st, options) \
+	ie_match_stat(&the_index, (ce), (st), (options))
+#define ce_modified(ce, st, options) \
+	ie_modified(&the_index, (ce), (st), (options))
+#define cache_dir_exists(name, namelen) \
+	index_dir_exists(&the_index, (name), (namelen))
+#define cache_file_exists(name, namelen, igncase) \
+	index_file_exists(&the_index, (name), (namelen), (igncase))
+#define cache_name_is_other(name, namelen) \
+	index_name_is_other(&the_index, (name), (namelen))
 #define resolve_undo_clear() resolve_undo_clear_index(&the_index)
 #define unmerge_cache_entry_at(at) unmerge_index_entry_at(&the_index, at)
 #define unmerge_cache(pathspec) unmerge_index(&the_index, pathspec)
-#define read_blob_data_from_cache(path, sz) read_blob_data_from_index(&the_index, (path), (sz))
-#define hold_locked_index(lock_file, flags) repo_hold_locked_index(the_repository, (lock_file), (flags))
+#define read_blob_data_from_cache(path, sz) \
+	read_blob_data_from_index(&the_index, (path), (sz))
+#define hold_locked_index(lock_file, flags) \
+	repo_hold_locked_index(the_repository, (lock_file), (flags))
 #endif
 
 #define TYPE_BITS 3
@@ -454,8 +464,7 @@ enum object_type {
 static inline enum object_type object_type(unsigned int mode)
 {
 	return S_ISDIR(mode) ? OBJ_TREE :
-		S_ISGITLINK(mode) ? OBJ_COMMIT :
-		OBJ_BLOB;
+			       S_ISGITLINK(mode) ? OBJ_COMMIT : OBJ_BLOB;
 }
 
 /* Double-check local_repo_env below if you add to this list. */
@@ -525,7 +534,7 @@ static inline enum object_type object_type(unsigned int mode)
  * The array is NULL-terminated, which makes it easy to pass in the "env"
  * parameter of a run-command invocation, or to do a simple walk.
  */
-extern const char * const local_repo_env[];
+extern const char *const local_repo_env[];
 
 void setup_git_env(const char *git_dir);
 
@@ -599,12 +608,12 @@ void setup_work_tree(void);
  * both have the same result appended to the buffer.  The return value is
  * either 0 upon success and non-zero if no repository was found.
  */
-int discover_git_directory(struct strbuf *commondir,
-			   struct strbuf *gitdir);
+int discover_git_directory(struct strbuf *commondir, struct strbuf *gitdir);
 const char *setup_git_directory_gently(int *);
 const char *setup_git_directory(void);
 char *prefix_path(const char *prefix, int len, const char *path);
-char *prefix_path_gently(const char *prefix, int len, int *remaining, const char *path);
+char *prefix_path_gently(const char *prefix, int len, int *remaining,
+			 const char *path);
 
 /*
  * Concatenate "prefix" (if len is non-zero) and "path", with no
@@ -619,8 +628,7 @@ char *prefix_path_gently(const char *prefix, int len, int *remaining, const char
 char *prefix_filename(const char *prefix, const char *path);
 
 int check_filename(const char *prefix, const char *name);
-void verify_filename(const char *prefix,
-		     const char *name,
+void verify_filename(const char *prefix, const char *name,
 		     int diagnose_misspelt_rev);
 void verify_non_filename(const char *prefix, const char *name);
 int path_inside_repo(const char *prefix, const char *path);
@@ -629,14 +637,14 @@ int path_inside_repo(const char *prefix, const char *path);
 #define INIT_DB_EXIST_OK 0x0002
 
 int init_db(const char *git_dir, const char *real_git_dir,
-	    const char *template_dir, int hash_algo,
-	    const char *initial_branch, unsigned int flags);
+	    const char *template_dir, int hash_algo, const char *initial_branch,
+	    unsigned int flags);
 void initialize_repository_version(int hash_algo, int reinit);
 
 void sanitize_stdfds(void);
 int daemonize(void);
 
-#define alloc_nr(x) (((x)+16)*3/2)
+#define alloc_nr(x) (((x) + 16) * 3 / 2)
 
 /**
  * Dynamically growing an array using realloc() is error prone and boring.
@@ -681,15 +689,15 @@ int daemonize(void);
  *
  * DO NOT USE any expression with side-effect for 'x', 'nr', or 'alloc'.
  */
-#define ALLOC_GROW(x, nr, alloc) \
-	do { \
-		if ((nr) > alloc) { \
-			if (alloc_nr(alloc) < (nr)) \
-				alloc = (nr); \
-			else \
+#define ALLOC_GROW(x, nr, alloc)                         \
+	do {                                             \
+		if ((nr) > alloc) {                      \
+			if (alloc_nr(alloc) < (nr))      \
+				alloc = (nr);            \
+			else                             \
 				alloc = alloc_nr(alloc); \
-			REALLOC_ARRAY(x, alloc); \
-		} \
+			REALLOC_ARRAY(x, alloc);         \
+		}                                        \
 	} while (0)
 
 /*
@@ -699,32 +707,30 @@ int daemonize(void);
  * DO NOT USE any expression with side-effect for any of the
  * arguments.
  */
-#define ALLOC_GROW_BY(x, nr, increase, alloc) \
-	do { \
-		if (increase) { \
-			size_t new_nr = nr + (increase); \
-			if (new_nr < nr) \
+#define ALLOC_GROW_BY(x, nr, increase, alloc)                            \
+	do {                                                             \
+		if (increase) {                                          \
+			size_t new_nr = nr + (increase);                 \
+			if (new_nr < nr)                                 \
 				BUG("negative growth in ALLOC_GROW_BY"); \
-			ALLOC_GROW(x, new_nr, alloc); \
-			memset((x) + nr, 0, sizeof(*(x)) * (increase)); \
-			nr = new_nr; \
-		} \
+			ALLOC_GROW(x, new_nr, alloc);                    \
+			memset((x) + nr, 0, sizeof(*(x)) * (increase));  \
+			nr = new_nr;                                     \
+		}                                                        \
 	} while (0)
 
 /* Initialize and use the cache information */
 struct lock_file;
-void preload_index(struct index_state *index,
-		   const struct pathspec *pathspec,
+void preload_index(struct index_state *index, const struct pathspec *pathspec,
 		   unsigned int refresh_flags);
 int do_read_index(struct index_state *istate, const char *path,
 		  int must_exist); /* for testting only! */
-int read_index_from(struct index_state *, const char *path,
-		    const char *gitdir);
+int read_index_from(struct index_state *, const char *path, const char *gitdir);
 int is_index_unborn(struct index_state *);
 
 /* For use with `write_locked_index()`. */
-#define COMMIT_LOCK		(1 << 0)
-#define SKIP_IF_UNCHANGED	(1 << 1)
+#define COMMIT_LOCK (1 << 0)
+#define SKIP_IF_UNCHANGED (1 << 1)
 
 /*
  * Write the index while holding an already-taken lock. Close the lock,
@@ -745,7 +751,8 @@ int is_index_unborn(struct index_state *);
  * If `SKIP_IF_UNCHANGED` is given and the index is unchanged, nothing
  * is written (and the lock is rolled back if `COMMIT_LOCK` is given).
  */
-int write_locked_index(struct index_state *, struct lock_file *lock, unsigned flags);
+int write_locked_index(struct index_state *, struct lock_file *lock,
+		       unsigned flags);
 
 int discard_index(struct index_state *);
 void move_index_extensions(struct index_state *dst, struct index_state *src);
@@ -758,15 +765,16 @@ int unmerged_index(const struct index_state *);
  * provided, the space-separated list of files that differ will be appended
  * to it.
  */
-int repo_index_has_changes(struct repository *repo,
-			   struct tree *tree,
+int repo_index_has_changes(struct repository *repo, struct tree *tree,
 			   struct strbuf *sb);
 
 int verify_path(const char *path, unsigned mode);
 int strcmp_offset(const char *s1, const char *s2, size_t *first_change);
 int index_dir_exists(struct index_state *istate, const char *name, int namelen);
 void adjust_dirname_case(struct index_state *istate, char *name);
-struct cache_entry *index_file_exists(struct index_state *istate, const char *name, int namelen, int igncase);
+struct cache_entry *index_file_exists(struct index_state *istate,
+				      const char *name, int namelen,
+				      int igncase);
 
 /*
  * Searches for an entry defined by name and namelen in the given index.
@@ -796,17 +804,17 @@ int index_name_pos(const struct index_state *, const char *name, int namelen);
 static inline int index_pos_to_insert_pos(uintmax_t pos)
 {
 	if (pos > INT_MAX)
-		die("overflow: -1 - %"PRIuMAX, pos);
+		die("overflow: -1 - %" PRIuMAX, pos);
 	return -1 - (int)pos;
 }
 
-#define ADD_CACHE_OK_TO_ADD 1		/* Ok to add */
-#define ADD_CACHE_OK_TO_REPLACE 2	/* Ok to replace file/directory */
-#define ADD_CACHE_SKIP_DFCHECK 4	/* Ok to skip DF conflict checks */
-#define ADD_CACHE_JUST_APPEND 8		/* Append only; tree.c::read_tree() */
-#define ADD_CACHE_NEW_ONLY 16		/* Do not replace existing ones */
-#define ADD_CACHE_KEEP_CACHE_TREE 32	/* Do not invalidate cache-tree */
-#define ADD_CACHE_RENORMALIZE 64        /* Pass along HASH_RENORMALIZE */
+#define ADD_CACHE_OK_TO_ADD 1 /* Ok to add */
+#define ADD_CACHE_OK_TO_REPLACE 2 /* Ok to replace file/directory */
+#define ADD_CACHE_SKIP_DFCHECK 4 /* Ok to skip DF conflict checks */
+#define ADD_CACHE_JUST_APPEND 8 /* Append only; tree.c::read_tree() */
+#define ADD_CACHE_NEW_ONLY 16 /* Do not replace existing ones */
+#define ADD_CACHE_KEEP_CACHE_TREE 32 /* Do not invalidate cache-tree */
+#define ADD_CACHE_RENORMALIZE 64 /* Pass along HASH_RENORMALIZE */
 int add_index_entry(struct index_state *, struct cache_entry *ce, int option);
 void rename_index_entry_at(struct index_state *, int pos, const char *new_name);
 
@@ -817,7 +825,7 @@ void remove_marked_cache_entries(struct index_state *istate, int invalidate);
 int remove_file_from_index(struct index_state *, const char *path);
 #define ADD_CACHE_VERBOSE 1
 #define ADD_CACHE_PRETEND 2
-#define ADD_CACHE_IGNORE_ERRORS	4
+#define ADD_CACHE_IGNORE_ERRORS 4
 #define ADD_CACHE_IGNORE_REMOVAL 8
 #define ADD_CACHE_INTENT 16
 /*
@@ -829,37 +837,45 @@ int remove_file_from_index(struct index_state *, const char *path);
  * the latter will do necessary lstat(2) internally before
  * calling the former.
  */
-int add_to_index(struct index_state *, const char *path, struct stat *, int flags);
+int add_to_index(struct index_state *, const char *path, struct stat *,
+		 int flags);
 int add_file_to_index(struct index_state *, const char *path, int flags);
 
 int chmod_index_entry(struct index_state *, struct cache_entry *ce, char flip);
 int ce_same_name(const struct cache_entry *a, const struct cache_entry *b);
 void set_object_name_for_intent_to_add_entry(struct cache_entry *ce);
 int index_name_is_other(const struct index_state *, const char *, int);
-void *read_blob_data_from_index(const struct index_state *, const char *, unsigned long *);
+void *read_blob_data_from_index(const struct index_state *, const char *,
+				unsigned long *);
 
 /* do stat comparison even if CE_VALID is true */
-#define CE_MATCH_IGNORE_VALID		01
+#define CE_MATCH_IGNORE_VALID 01
 /* do not check the contents but report dirty on racily-clean entries */
-#define CE_MATCH_RACY_IS_DIRTY		02
+#define CE_MATCH_RACY_IS_DIRTY 02
 /* do stat comparison even if CE_SKIP_WORKTREE is true */
-#define CE_MATCH_IGNORE_SKIP_WORKTREE	04
+#define CE_MATCH_IGNORE_SKIP_WORKTREE 04
 /* ignore non-existent files during stat update  */
-#define CE_MATCH_IGNORE_MISSING		0x08
+#define CE_MATCH_IGNORE_MISSING 0x08
 /* enable stat refresh */
-#define CE_MATCH_REFRESH		0x10
-/* don't refresh_fsmonitor state or do stat comparison even if CE_FSMONITOR_VALID is true */
+#define CE_MATCH_REFRESH 0x10
+/* don't refresh_fsmonitor state or do stat comparison even if
+ * CE_FSMONITOR_VALID is true */
 #define CE_MATCH_IGNORE_FSMONITOR 0X20
 int is_racy_timestamp(const struct index_state *istate,
 		      const struct cache_entry *ce);
-int ie_match_stat(struct index_state *, const struct cache_entry *, struct stat *, unsigned int);
-int ie_modified(struct index_state *, const struct cache_entry *, struct stat *, unsigned int);
+int ie_match_stat(struct index_state *, const struct cache_entry *,
+		  struct stat *, unsigned int);
+int ie_modified(struct index_state *, const struct cache_entry *, struct stat *,
+		unsigned int);
 
 #define HASH_WRITE_OBJECT 1
 #define HASH_FORMAT_CHECK 2
-#define HASH_RENORMALIZE  4
-int index_fd(struct index_state *istate, struct object_id *oid, int fd, struct stat *st, enum object_type type, const char *path, unsigned flags);
-int index_path(struct index_state *istate, struct object_id *oid, const char *path, struct stat *st, unsigned flags);
+#define HASH_RENORMALIZE 4
+int index_fd(struct index_state *istate, struct object_id *oid, int fd,
+	     struct stat *st, enum object_type type, const char *path,
+	     unsigned flags);
+int index_path(struct index_state *istate, struct object_id *oid,
+	       const char *path, struct stat *st, unsigned flags);
 
 /*
  * Record to sd the data from st that we use to check whether a file
@@ -877,16 +893,20 @@ int match_stat_data(const struct stat_data *sd, struct stat *st);
 int match_stat_data_racy(const struct index_state *istate,
 			 const struct stat_data *sd, struct stat *st);
 
-void fill_stat_cache_info(struct index_state *istate, struct cache_entry *ce, struct stat *st);
+void fill_stat_cache_info(struct index_state *istate, struct cache_entry *ce,
+			  struct stat *st);
 
-#define REFRESH_REALLY		0x0001	/* ignore_valid */
-#define REFRESH_UNMERGED	0x0002	/* allow unmerged */
-#define REFRESH_QUIET		0x0004	/* be quiet about it */
-#define REFRESH_IGNORE_MISSING	0x0008	/* ignore non-existent */
-#define REFRESH_IGNORE_SUBMODULES	0x0010	/* ignore submodules */
-#define REFRESH_IN_PORCELAIN	0x0020	/* user friendly output, not "needs update" */
-#define REFRESH_PROGRESS	0x0040  /* show progress bar if stderr is tty */
-int refresh_index(struct index_state *, unsigned int flags, const struct pathspec *pathspec, char *seen, const char *header_msg);
+#define REFRESH_REALLY 0x0001 /* ignore_valid */
+#define REFRESH_UNMERGED 0x0002 /* allow unmerged */
+#define REFRESH_QUIET 0x0004 /* be quiet about it */
+#define REFRESH_IGNORE_MISSING 0x0008 /* ignore non-existent */
+#define REFRESH_IGNORE_SUBMODULES 0x0010 /* ignore submodules */
+#define REFRESH_IN_PORCELAIN \
+	0x0020 /* user friendly output, not "needs update" */
+#define REFRESH_PROGRESS 0x0040 /* show progress bar if stderr is tty */
+int refresh_index(struct index_state *, unsigned int flags,
+		  const struct pathspec *pathspec, char *seen,
+		  const char *header_msg);
 /*
  * Refresh the index and write it to disk.
  *
@@ -902,9 +922,14 @@ int refresh_index(struct index_state *, unsigned int flags, const struct pathspe
  * Note that if refreshing the index returns an error, we still write
  * out the index (unless locking fails).
  */
-int repo_refresh_and_write_index(struct repository*, unsigned int refresh_flags, unsigned int write_flags, int gentle, const struct pathspec *, char *seen, const char *header_msg);
+int repo_refresh_and_write_index(struct repository *,
+				 unsigned int refresh_flags,
+				 unsigned int write_flags, int gentle,
+				 const struct pathspec *, char *seen,
+				 const char *header_msg);
 
-struct cache_entry *refresh_cache_entry(struct index_state *, struct cache_entry *, unsigned int);
+struct cache_entry *refresh_cache_entry(struct index_state *,
+					struct cache_entry *, unsigned int);
 
 void set_alternate_index_output(const char *);
 
@@ -1054,14 +1079,12 @@ struct repository_format {
  * to a well-defined, default state before calling
  * `read_repository()`.
  */
-#define REPOSITORY_FORMAT_INIT \
-{ \
-	.version = -1, \
-	.is_bare = -1, \
-	.hash_algo = GIT_HASH_SHA1, \
-	.unknown_extensions = STRING_LIST_INIT_DUP, \
-	.v1_only_extensions = STRING_LIST_INIT_DUP, \
-}
+#define REPOSITORY_FORMAT_INIT                                            \
+	{                                                                 \
+		.version = -1, .is_bare = -1, .hash_algo = GIT_HASH_SHA1, \
+		.unknown_extensions = STRING_LIST_INIT_DUP,               \
+		.v1_only_extensions = STRING_LIST_INIT_DUP,               \
+	}
 
 /*
  * Read the repository format characteristics from the config file "path" into
@@ -1097,13 +1120,13 @@ int verify_repository_format(const struct repository_format *format,
  */
 void check_repository_format(struct repository_format *fmt);
 
-#define MTIME_CHANGED	0x0001
-#define CTIME_CHANGED	0x0002
-#define OWNER_CHANGED	0x0004
-#define MODE_CHANGED    0x0008
-#define INODE_CHANGED   0x0010
-#define DATA_CHANGED    0x0020
-#define TYPE_CHANGED    0x0040
+#define MTIME_CHANGED 0x0001
+#define CTIME_CHANGED 0x0002
+#define OWNER_CHANGED 0x0004
+#define MODE_CHANGED 0x0008
+#define INODE_CHANGED 0x0010
+#define DATA_CHANGED 0x0020
+#define TYPE_CHANGED 0x0040
 
 /*
  * Return an abbreviated sha1 unique within this repository's object database.
@@ -1120,10 +1143,14 @@ void check_repository_format(struct repository_format *fmt);
  * Note that while this version avoids the static buffer, it is not fully
  * reentrant, as it calls into other non-reentrant git code.
  */
-const char *repo_find_unique_abbrev(struct repository *r, const struct object_id *oid, int len);
-#define find_unique_abbrev(oid, len) repo_find_unique_abbrev(the_repository, oid, len)
-int repo_find_unique_abbrev_r(struct repository *r, char *hex, const struct object_id *oid, int len);
-#define find_unique_abbrev_r(hex, oid, len) repo_find_unique_abbrev_r(the_repository, hex, oid, len)
+const char *repo_find_unique_abbrev(struct repository *r,
+				    const struct object_id *oid, int len);
+#define find_unique_abbrev(oid, len) \
+	repo_find_unique_abbrev(the_repository, oid, len)
+int repo_find_unique_abbrev_r(struct repository *r, char *hex,
+			      const struct object_id *oid, int len);
+#define find_unique_abbrev_r(hex, oid, len) \
+	repo_find_unique_abbrev_r(the_repository, hex, oid, len)
 
 /* set default permissions by passing mode arguments to open(2) */
 int git_mkstemps_mode(char *pattern, int suffix_len, int mode);
@@ -1138,11 +1165,11 @@ int git_mkstemp_mode(char *pattern, int mode);
  * reasons.
  */
 enum sharedrepo {
-	PERM_UMASK          = 0,
-	OLD_PERM_GROUP      = 1,
-	OLD_PERM_EVERYBODY  = 2,
-	PERM_GROUP          = 0660,
-	PERM_EVERYBODY      = 0664
+	PERM_UMASK = 0,
+	OLD_PERM_GROUP = 1,
+	OLD_PERM_EVERYBODY = 2,
+	PERM_GROUP = 0660,
+	PERM_EVERYBODY = 0664
 };
 int git_config_perm(const char *var, const char *value);
 int adjust_shared_perm(const char *path);
@@ -1239,7 +1266,8 @@ char *real_pathdup(const char *path, int die_on_error);
 const char *absolute_path(const char *path);
 char *absolute_pathdup(const char *path);
 const char *remove_leading_path(const char *in, const char *prefix);
-const char *relative_path(const char *in, const char *prefix, struct strbuf *sb);
+const char *relative_path(const char *in, const char *prefix,
+			  struct strbuf *sb);
 int normalize_path_copy_len(char *dst, const char *src, int *prefix_len);
 int normalize_path_copy(char *dst, const char *src);
 int longest_ancestor_length(const char *path, struct string_list *prefixes);
@@ -1279,7 +1307,9 @@ char *xdg_cache_home(const char *filename);
 
 int git_open_cloexec(const char *name, int flags);
 #define git_open(name) git_open_cloexec(name, O_RDONLY)
-int unpack_loose_header(git_zstream *stream, unsigned char *map, unsigned long mapsize, void *buffer, unsigned long bufsiz);
+int unpack_loose_header(git_zstream *stream, unsigned char *map,
+			unsigned long mapsize, void *buffer,
+			unsigned long bufsiz);
 int parse_loose_header(const char *hdr, unsigned long *sizep);
 
 int check_object_signature(struct repository *r, const struct object_id *oid,
@@ -1328,20 +1358,19 @@ struct object_context {
 	char *path;
 };
 
-#define GET_OID_QUIETLY           01
-#define GET_OID_COMMIT            02
-#define GET_OID_COMMITTISH        04
-#define GET_OID_TREE             010
-#define GET_OID_TREEISH          020
-#define GET_OID_BLOB             040
+#define GET_OID_QUIETLY 01
+#define GET_OID_COMMIT 02
+#define GET_OID_COMMITTISH 04
+#define GET_OID_TREE 010
+#define GET_OID_TREEISH 020
+#define GET_OID_BLOB 040
 #define GET_OID_FOLLOW_SYMLINKS 0100
-#define GET_OID_RECORD_PATH     0200
-#define GET_OID_ONLY_TO_DIE    04000
+#define GET_OID_RECORD_PATH 0200
+#define GET_OID_ONLY_TO_DIE 04000
 
-#define GET_OID_DISAMBIGUATORS \
-	(GET_OID_COMMIT | GET_OID_COMMITTISH | \
-	GET_OID_TREE | GET_OID_TREEISH | \
-	GET_OID_BLOB)
+#define GET_OID_DISAMBIGUATORS                                \
+	(GET_OID_COMMIT | GET_OID_COMMITTISH | GET_OID_TREE | \
+	 GET_OID_TREEISH | GET_OID_BLOB)
 
 enum get_oid_result {
 	FOUND = 0,
@@ -1363,30 +1392,39 @@ enum get_oid_result {
 
 int repo_get_oid(struct repository *r, const char *str, struct object_id *oid);
 int get_oidf(struct object_id *oid, const char *fmt, ...);
-int repo_get_oid_commit(struct repository *r, const char *str, struct object_id *oid);
-int repo_get_oid_committish(struct repository *r, const char *str, struct object_id *oid);
-int repo_get_oid_tree(struct repository *r, const char *str, struct object_id *oid);
-int repo_get_oid_treeish(struct repository *r, const char *str, struct object_id *oid);
-int repo_get_oid_blob(struct repository *r, const char *str, struct object_id *oid);
-int repo_get_oid_mb(struct repository *r, const char *str, struct object_id *oid);
+int repo_get_oid_commit(struct repository *r, const char *str,
+			struct object_id *oid);
+int repo_get_oid_committish(struct repository *r, const char *str,
+			    struct object_id *oid);
+int repo_get_oid_tree(struct repository *r, const char *str,
+		      struct object_id *oid);
+int repo_get_oid_treeish(struct repository *r, const char *str,
+			 struct object_id *oid);
+int repo_get_oid_blob(struct repository *r, const char *str,
+		      struct object_id *oid);
+int repo_get_oid_mb(struct repository *r, const char *str,
+		    struct object_id *oid);
 void maybe_die_on_misspelt_object_name(struct repository *repo,
-				       const char *name,
-				       const char *prefix);
-enum get_oid_result get_oid_with_context(struct repository *repo, const char *str,
-					 unsigned flags, struct object_id *oid,
+				       const char *name, const char *prefix);
+enum get_oid_result get_oid_with_context(struct repository *repo,
+					 const char *str, unsigned flags,
+					 struct object_id *oid,
 					 struct object_context *oc);
 
-#define get_oid(str, oid)		repo_get_oid(the_repository, str, oid)
-#define get_oid_commit(str, oid)	repo_get_oid_commit(the_repository, str, oid)
-#define get_oid_committish(str, oid)	repo_get_oid_committish(the_repository, str, oid)
-#define get_oid_tree(str, oid)		repo_get_oid_tree(the_repository, str, oid)
-#define get_oid_treeish(str, oid)	repo_get_oid_treeish(the_repository, str, oid)
-#define get_oid_blob(str, oid)		repo_get_oid_blob(the_repository, str, oid)
-#define get_oid_mb(str, oid) 		repo_get_oid_mb(the_repository, str, oid)
+#define get_oid(str, oid) repo_get_oid(the_repository, str, oid)
+#define get_oid_commit(str, oid) repo_get_oid_commit(the_repository, str, oid)
+#define get_oid_committish(str, oid) \
+	repo_get_oid_committish(the_repository, str, oid)
+#define get_oid_tree(str, oid) repo_get_oid_tree(the_repository, str, oid)
+#define get_oid_treeish(str, oid) repo_get_oid_treeish(the_repository, str, oid)
+#define get_oid_blob(str, oid) repo_get_oid_blob(the_repository, str, oid)
+#define get_oid_mb(str, oid) repo_get_oid_mb(the_repository, str, oid)
 
 typedef int each_abbrev_fn(const struct object_id *oid, void *);
-int repo_for_each_abbrev(struct repository *r, const char *prefix, each_abbrev_fn, void *);
-#define for_each_abbrev(prefix, fn, data) repo_for_each_abbrev(the_repository, prefix, fn, data)
+int repo_for_each_abbrev(struct repository *r, const char *prefix,
+			 each_abbrev_fn, void *);
+#define for_each_abbrev(prefix, fn, data) \
+	repo_for_each_abbrev(the_repository, prefix, fn, data)
 
 int set_disambiguate_hint_config(const char *var, const char *value);
 
@@ -1401,7 +1439,8 @@ int get_sha1_hex(const char *hex, unsigned char *sha1);
 int get_oid_hex(const char *hex, struct object_id *sha1);
 
 /* Like get_oid_hex, but for an arbitrary hash algorithm. */
-int get_oid_hex_algop(const char *hex, struct object_id *oid, const struct git_hash_algo *algop);
+int get_oid_hex_algop(const char *hex, struct object_id *oid,
+		      const struct git_hash_algo *algop);
 
 /*
  * Read `len` pairs of hexadecimal digits from `hex` and write the
@@ -1423,11 +1462,14 @@ int hex_to_bytes(unsigned char *binary, const char *hex, size_t len);
  *   printf("%s -> %s", hash_to_hex(one), hash_to_hex(two));
  *   printf("%s -> %s", oid_to_hex(one), oid_to_hex(two));
  */
-char *hash_to_hex_algop_r(char *buffer, const unsigned char *hash, const struct git_hash_algo *);
+char *hash_to_hex_algop_r(char *buffer, const unsigned char *hash,
+			  const struct git_hash_algo *);
 char *oid_to_hex_r(char *out, const struct object_id *oid);
-char *hash_to_hex_algop(const unsigned char *hash, const struct git_hash_algo *);	/* static buffer result! */
-char *hash_to_hex(const unsigned char *hash);						/* same static buffer */
-char *oid_to_hex(const struct object_id *oid);						/* same static buffer */
+char *hash_to_hex_algop(const unsigned char *hash,
+			const struct git_hash_algo *); /* static buffer result!
+							*/
+char *hash_to_hex(const unsigned char *hash); /* same static buffer */
+char *oid_to_hex(const struct object_id *oid); /* same static buffer */
 
 /*
  * Parse a 40-character hexadecimal object ID starting from hex, updating the
@@ -1439,9 +1481,8 @@ char *oid_to_hex(const struct object_id *oid);						/* same static buffer */
 int parse_oid_hex(const char *hex, struct object_id *oid, const char **end);
 
 /* Like parse_oid_hex, but for an arbitrary hash algorithm. */
-int parse_oid_hex_algop(const char *hex, struct object_id *oid, const char **end,
-			const struct git_hash_algo *algo);
-
+int parse_oid_hex_algop(const char *hex, struct object_id *oid,
+			const char **end, const struct git_hash_algo *algo);
 
 /*
  * These functions work like get_oid_hex and parse_oid_hex, but they will parse
@@ -1473,15 +1514,15 @@ int parse_oid_hex_any(const char *hex, struct object_id *oid, const char **end);
  * If the input was ok but there are not N branch switches in the
  * reflog, it returns 0.
  */
-#define INTERPRET_BRANCH_LOCAL (1<<0)
-#define INTERPRET_BRANCH_REMOTE (1<<1)
-#define INTERPRET_BRANCH_HEAD (1<<2)
+#define INTERPRET_BRANCH_LOCAL (1 << 0)
+#define INTERPRET_BRANCH_REMOTE (1 << 1)
+#define INTERPRET_BRANCH_HEAD (1 << 2)
 struct interpret_branch_name_options {
 	/*
 	 * If "allowed" is non-zero, it is a treated as a bitfield of allowable
 	 * expansions: local branches ("refs/heads/"), remote branches
-	 * ("refs/remotes/"), or "HEAD". If no "allowed" bits are set, any expansion is
-	 * allowed, even ones to refs outside of those namespaces.
+	 * ("refs/remotes/"), or "HEAD". If no "allowed" bits are set, any
+	 * expansion is allowed, even ones to refs outside of those namespaces.
 	 */
 	unsigned allowed;
 
@@ -1492,29 +1533,31 @@ struct interpret_branch_name_options {
 	 */
 	unsigned nonfatal_dangling_mark : 1;
 };
-int repo_interpret_branch_name(struct repository *r,
-			       const char *str, int len,
-			       struct strbuf *buf,
-			       const struct interpret_branch_name_options *options);
+int repo_interpret_branch_name(
+	struct repository *r, const char *str, int len, struct strbuf *buf,
+	const struct interpret_branch_name_options *options);
 #define interpret_branch_name(str, len, buf, options) \
 	repo_interpret_branch_name(the_repository, str, len, buf, options)
 
 int validate_headref(const char *ref);
 
-int base_name_compare(const char *name1, int len1, int mode1, const char *name2, int len2, int mode2);
-int df_name_compare(const char *name1, int len1, int mode1, const char *name2, int len2, int mode2);
-int name_compare(const char *name1, size_t len1, const char *name2, size_t len2);
-int cache_name_stage_compare(const char *name1, int len1, int stage1, const char *name2, int len2, int stage2);
+int base_name_compare(const char *name1, int len1, int mode1, const char *name2,
+		      int len2, int mode2);
+int df_name_compare(const char *name1, int len1, int mode1, const char *name2,
+		    int len2, int mode2);
+int name_compare(const char *name1, size_t len1, const char *name2,
+		 size_t len2);
+int cache_name_stage_compare(const char *name1, int len1, int stage1,
+			     const char *name2, int len2, int stage2);
 
 void *read_object_with_reference(struct repository *r,
 				 const struct object_id *oid,
-				 const char *required_type,
-				 unsigned long *size,
+				 const char *required_type, unsigned long *size,
 				 struct object_id *oid_ret);
 
-struct object *repo_peel_to_type(struct repository *r,
-				 const char *name, int namelen,
-				 struct object *o, enum object_type);
+struct object *repo_peel_to_type(struct repository *r, const char *name,
+				 int namelen, struct object *o,
+				 enum object_type);
 #define peel_to_type(name, namelen, obj, type) \
 	repo_peel_to_type(the_repository, name, namelen, obj, type)
 
@@ -1545,10 +1588,11 @@ struct date_mode {
 #define DATE_MODE(t) date_mode_from_type(DATE_##t)
 struct date_mode *date_mode_from_type(enum date_mode_type type);
 
-const char *show_date(timestamp_t time, int timezone, const struct date_mode *mode);
+const char *show_date(timestamp_t time, int timezone,
+		      const struct date_mode *mode);
 void show_date_relative(timestamp_t time, struct strbuf *timebuf);
 void show_date_human(timestamp_t time, int tz, const struct timeval *now,
-			struct strbuf *timebuf);
+		     struct strbuf *timebuf);
 int parse_date(const char *date, struct strbuf *out);
 int parse_date_basic(const char *date, timestamp_t *timestamp, int *offset);
 int parse_expiry_date(const char *date, timestamp_t *timestamp);
@@ -1559,21 +1603,16 @@ timestamp_t approxidate_relative(const char *date);
 void parse_date_format(const char *format, struct date_mode *mode);
 int date_overflows(timestamp_t date);
 
-#define IDENT_STRICT	       1
-#define IDENT_NO_DATE	       2
-#define IDENT_NO_NAME	       4
+#define IDENT_STRICT 1
+#define IDENT_NO_DATE 2
+#define IDENT_NO_NAME 4
 
-enum want_ident {
-	WANT_BLANK_IDENT,
-	WANT_AUTHOR_IDENT,
-	WANT_COMMITTER_IDENT
-};
+enum want_ident { WANT_BLANK_IDENT, WANT_AUTHOR_IDENT, WANT_COMMITTER_IDENT };
 
 const char *git_author_info(int);
 const char *git_committer_info(int);
 const char *fmt_ident(const char *name, const char *email,
-		      enum want_ident whose_ident,
-		      const char *date_str, int);
+		      enum want_ident whose_ident, const char *date_str, int);
 const char *fmt_name(enum want_ident);
 const char *ident_default_name(void);
 const char *ident_default_email(void);
@@ -1627,16 +1666,17 @@ struct checkout {
 	int base_dir_len;
 	struct delayed_checkout *delayed_checkout;
 	struct checkout_metadata meta;
-	unsigned force:1,
-		 quiet:1,
-		 not_new:1,
-		 clone:1,
-		 refresh_cache:1;
+	unsigned force : 1, quiet : 1, not_new : 1, clone : 1,
+		refresh_cache : 1;
 };
-#define CHECKOUT_INIT { NULL, "" }
+#define CHECKOUT_INIT    \
+	{                \
+		NULL, "" \
+	}
 
 #define TEMPORARY_FILENAME_LENGTH 25
-int checkout_entry(struct cache_entry *ce, const struct checkout *state, char *topath, int *nr_checkouts);
+int checkout_entry(struct cache_entry *ce, const struct checkout *state,
+		   char *topath, int *nr_checkouts);
 void enable_delayed_checkout(struct checkout *state);
 int finish_delayed_checkout(struct checkout *state, int *nr_checkouts);
 /*
@@ -1651,7 +1691,10 @@ struct cache_def {
 	int track_flags;
 	int prefix_len_stat_func;
 };
-#define CACHE_DEF_INIT { STRBUF_INIT, 0, 0, 0 }
+#define CACHE_DEF_INIT               \
+	{                            \
+		STRBUF_INIT, 0, 0, 0 \
+	}
 static inline void cache_def_clear(struct cache_def *cache)
 {
 	strbuf_release(&cache->path);
@@ -1725,8 +1768,8 @@ extern const char *git_mailmap_blob;
 
 /* IO helper functions */
 void maybe_flush_or_die(FILE *, const char *);
-__attribute__((format (printf, 2, 3)))
-void fprintf_or_die(FILE *, const char *fmt, ...);
+__attribute__((format(printf, 2, 3))) void fprintf_or_die(FILE *,
+							  const char *fmt, ...);
 
 #define COPY_READ_ERROR (-2)
 #define COPY_WRITE_ERROR (-3)
@@ -1759,8 +1802,8 @@ void write_file_buf(const char *path, const char *buf, size_t len);
  *
  *   write_file(path, "counter: %d", ctr);
  */
-__attribute__((format (printf, 2, 3)))
-void write_file(const char *path, const char *fmt, ...);
+__attribute__((format(printf, 2, 3))) void write_file(const char *path,
+						      const char *fmt, ...);
 
 /* pager.c */
 void setup_pager(void);
@@ -1788,44 +1831,48 @@ void packet_trace_identity(const char *prog);
  * return 0 if success, 1 - if addition of a file failed and
  * ADD_FILES_IGNORE_ERRORS was specified in flags
  */
-int add_files_to_cache(const char *prefix, const struct pathspec *pathspec, int flags);
+int add_files_to_cache(const char *prefix, const struct pathspec *pathspec,
+		       int flags);
 
 /* diff.c */
 extern int diff_auto_refresh_index;
 
 /* match-trees.c */
-void shift_tree(struct repository *, const struct object_id *, const struct object_id *, struct object_id *, int);
-void shift_tree_by(struct repository *, const struct object_id *, const struct object_id *, struct object_id *, const char *);
+void shift_tree(struct repository *, const struct object_id *,
+		const struct object_id *, struct object_id *, int);
+void shift_tree_by(struct repository *, const struct object_id *,
+		   const struct object_id *, struct object_id *, const char *);
 
 /*
  * whitespace rules.
  * used by both diff and apply
  * last two digits are tab width
  */
-#define WS_BLANK_AT_EOL         0100
-#define WS_SPACE_BEFORE_TAB     0200
-#define WS_INDENT_WITH_NON_TAB  0400
-#define WS_CR_AT_EOL           01000
-#define WS_BLANK_AT_EOF        02000
-#define WS_TAB_IN_INDENT       04000
-#define WS_TRAILING_SPACE      (WS_BLANK_AT_EOL|WS_BLANK_AT_EOF)
-#define WS_DEFAULT_RULE (WS_TRAILING_SPACE|WS_SPACE_BEFORE_TAB|8)
-#define WS_TAB_WIDTH_MASK        077
+#define WS_BLANK_AT_EOL 0100
+#define WS_SPACE_BEFORE_TAB 0200
+#define WS_INDENT_WITH_NON_TAB 0400
+#define WS_CR_AT_EOL 01000
+#define WS_BLANK_AT_EOF 02000
+#define WS_TAB_IN_INDENT 04000
+#define WS_TRAILING_SPACE (WS_BLANK_AT_EOL | WS_BLANK_AT_EOF)
+#define WS_DEFAULT_RULE (WS_TRAILING_SPACE | WS_SPACE_BEFORE_TAB | 8)
+#define WS_TAB_WIDTH_MASK 077
 /* All WS_* -- when extended, adapt diff.c emit_symbol */
-#define WS_RULE_MASK           07777
+#define WS_RULE_MASK 07777
 extern unsigned whitespace_rule_cfg;
 unsigned whitespace_rule(struct index_state *, const char *);
 unsigned parse_whitespace_rule(const char *);
 unsigned ws_check(const char *line, int len, unsigned ws_rule);
-void ws_check_emit(const char *line, int len, unsigned ws_rule, FILE *stream, const char *set, const char *reset, const char *ws);
+void ws_check_emit(const char *line, int len, unsigned ws_rule, FILE *stream,
+		   const char *set, const char *reset, const char *ws);
 char *whitespace_error_string(unsigned ws);
 void ws_fix_copy(struct strbuf *, const char *, int, unsigned, int *);
 int ws_blank_line(const char *line, int len, unsigned ws_rule);
-#define ws_tab_width(rule)     ((rule) & WS_TAB_WIDTH_MASK)
+#define ws_tab_width(rule) ((rule)&WS_TAB_WIDTH_MASK)
 
 /* ls-files */
-void overlay_tree_on_index(struct index_state *istate,
-			   const char *tree_name, const char *prefix);
+void overlay_tree_on_index(struct index_state *istate, const char *tree_name,
+			   const char *prefix);
 
 /* setup.c */
 struct startup_info {
@@ -1836,15 +1883,12 @@ extern struct startup_info *startup_info;
 
 /* merge.c */
 struct commit_list;
-int try_merge_command(struct repository *r,
-		const char *strategy, size_t xopts_nr,
-		const char **xopts, struct commit_list *common,
-		const char *head_arg, struct commit_list *remotes);
-int checkout_fast_forward(struct repository *r,
-			  const struct object_id *from,
-			  const struct object_id *to,
-			  int overwrite_ignore);
-
+int try_merge_command(struct repository *r, const char *strategy,
+		      size_t xopts_nr, const char **xopts,
+		      struct commit_list *common, const char *head_arg,
+		      struct commit_list *remotes);
+int checkout_fast_forward(struct repository *r, const struct object_id *from,
+			  const struct object_id *to, int overwrite_ignore);
 
 int sane_execvp(const char *file, char *const argv[]);
 

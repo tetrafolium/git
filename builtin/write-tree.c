@@ -11,9 +11,8 @@
 #include "cache-tree.h"
 #include "parse-options.h"
 
-static const char * const write_tree_usage[] = {
-	N_("git write-tree [--missing-ok] [--prefix=<prefix>/]"),
-	NULL
+static const char *const write_tree_usage[] = {
+	N_("git write-tree [--missing-ok] [--prefix=<prefix>/]"), NULL
 };
 
 int cmd_write_tree(int argc, const char **argv, const char *cmd_prefix)

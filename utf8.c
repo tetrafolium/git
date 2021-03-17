@@ -4,10 +4,10 @@
 
 /* This code is originally from http://www.cl.cam.ac.uk/~mgk25/ucs/ */
 
-static const char utf16_be_bom[] = {'\xFE', '\xFF'};
-static const char utf16_le_bom[] = {'\xFF', '\xFE'};
-static const char utf32_be_bom[] = {'\0', '\0', '\xFE', '\xFF'};
-static const char utf32_le_bom[] = {'\xFF', '\xFE', '\0', '\0'};
+static const char utf16_be_bom[] = { '\xFE', '\xFF' };
+static const char utf16_le_bom[] = { '\xFF', '\xFE' };
+static const char utf32_be_bom[] = { '\0', '\0', '\xFE', '\xFF' };
+static const char utf32_le_bom[] = { '\xFF', '\xFE', '\0', '\0' };
 
 struct interval {
 	ucs_char_t first;
@@ -138,44 +138,39 @@ static ucs_char_t pick_one_utf8_char(const char **start, size_t *remainder_p)
 		incr = 1;
 	} else if ((s[0] & 0xe0) == 0xc0) {
 		/* 110XXXXx 10xxxxxx */
-		if (remainder < 2 ||
-		    (s[1] & 0xc0) != 0x80 ||
+		if (remainder < 2 || (s[1] & 0xc0) != 0x80 ||
 		    (s[0] & 0xfe) == 0xc0)
 			goto invalid;
 		ch = ((s[0] & 0x1f) << 6) | (s[1] & 0x3f);
 		incr = 2;
 	} else if ((s[0] & 0xf0) == 0xe0) {
 		/* 1110XXXX 10Xxxxxx 10xxxxxx */
-		if (remainder < 3 ||
-		    (s[1] & 0xc0) != 0x80 ||
+		if (remainder < 3 || (s[1] & 0xc0) != 0x80 ||
 		    (s[2] & 0xc0) != 0x80 ||
 		    /* overlong? */
 		    (s[0] == 0xe0 && (s[1] & 0xe0) == 0x80) ||
 		    /* surrogate? */
 		    (s[0] == 0xed && (s[1] & 0xe0) == 0xa0) ||
 		    /* U+FFFE or U+FFFF? */
-		    (s[0] == 0xef && s[1] == 0xbf &&
-		     (s[2] & 0xfe) == 0xbe))
+		    (s[0] == 0xef && s[1] == 0xbf && (s[2] & 0xfe) == 0xbe))
 			goto invalid;
-		ch = ((s[0] & 0x0f) << 12) |
-			((s[1] & 0x3f) << 6) | (s[2] & 0x3f);
+		ch = ((s[0] & 0x0f) << 12) | ((s[1] & 0x3f) << 6) |
+		     (s[2] & 0x3f);
 		incr = 3;
 	} else if ((s[0] & 0xf8) == 0xf0) {
 		/* 11110XXX 10XXxxxx 10xxxxxx 10xxxxxx */
-		if (remainder < 4 ||
-		    (s[1] & 0xc0) != 0x80 ||
-		    (s[2] & 0xc0) != 0x80 ||
-		    (s[3] & 0xc0) != 0x80 ||
+		if (remainder < 4 || (s[1] & 0xc0) != 0x80 ||
+		    (s[2] & 0xc0) != 0x80 || (s[3] & 0xc0) != 0x80 ||
 		    /* overlong? */
 		    (s[0] == 0xf0 && (s[1] & 0xf0) == 0x80) ||
 		    /* > U+10FFFF? */
 		    (s[0] == 0xf4 && s[1] > 0x8f) || s[0] > 0xf4)
 			goto invalid;
 		ch = ((s[0] & 0x07) << 18) | ((s[1] & 0x3f) << 12) |
-			((s[2] & 0x3f) << 6) | (s[3] & 0x3f);
+		     ((s[2] & 0x3f) << 6) | (s[3] & 0x3f);
 		incr = 4;
 	} else {
-invalid:
+	invalid:
 		*start = NULL;
 		return 0;
 	}
@@ -264,8 +259,8 @@ static void strbuf_add_indented_text(struct strbuf *buf, const char *text,
  * If indent is negative, assume that already -indent columns have been
  * consumed (and no extra indent is necessary for the first line).
  */
-void strbuf_add_wrapped_text(struct strbuf *buf,
-		const char *text, int indent1, int indent2, int width)
+void strbuf_add_wrapped_text(struct strbuf *buf, const char *text, int indent1,
+			     int indent2, int width)
 {
 	int indent, w, assume_utf8 = 1;
 	const char *bol, *space, *start = text;
@@ -313,17 +308,15 @@ retry:
 					if (*space == '\n') {
 						strbuf_addch(buf, '\n');
 						goto new_line;
-					}
-					else if (!isalnum(*space))
+					} else if (!isalnum(*space))
 						goto new_line;
 					else
 						strbuf_addch(buf, ' ');
 				}
 				w++;
 				text++;
-			}
-			else {
-new_line:
+			} else {
+			new_line:
 				strbuf_addch(buf, '\n');
 				text = bol = space + isspace(*space);
 				space = NULL;
@@ -347,7 +340,7 @@ new_line:
 }
 
 void strbuf_add_wrapped_bytes(struct strbuf *buf, const char *data, int len,
-			     int indent, int indent2, int width)
+			      int indent, int indent2, int width)
 {
 	char *tmp = xstrndup(data, len);
 	strbuf_add_wrapped_text(buf, tmp, indent, indent2, width);
@@ -382,8 +375,8 @@ void strbuf_utf8_replace(struct strbuf *sb_src, int pos, int width,
 			break;
 
 		old = src;
-		n = utf8_width((const char**)&src, NULL);
-		if (!src) 	/* broken utf-8, do nothing */
+		n = utf8_width((const char **)&src, NULL);
+		if (!src) /* broken utf-8, do nothing */
 			goto out;
 		if (n && w >= pos && w < pos + width) {
 			if (subst) {
@@ -468,9 +461,9 @@ int utf8_fprintf(FILE *stream, const char *format, ...)
  */
 #ifndef NO_ICONV
 #if defined(OLD_ICONV) || (defined(__sun__) && !defined(_XPG6))
-	typedef const char * iconv_ibp;
+typedef const char *iconv_ibp;
 #else
-	typedef char * iconv_ibp;
+typedef char *iconv_ibp;
 #endif
 char *reencode_string_iconv(const char *in, size_t insz, iconv_t conv,
 			    size_t bom_len, size_t *outsz_p)
@@ -488,7 +481,7 @@ char *reencode_string_iconv(const char *in, size_t insz, iconv_t conv,
 	while (1) {
 		size_t cnt = iconv(conv, &cp, &insz, &outpos, &outsz);
 
-		if (cnt == (size_t) -1) {
+		if (cnt == (size_t)-1) {
 			size_t sofar;
 			if (errno != E2BIG) {
 				free(out);
@@ -504,8 +497,7 @@ char *reencode_string_iconv(const char *in, size_t insz, iconv_t conv,
 			out = xrealloc(out, outalloc);
 			outpos = out + sofar;
 			outsz = outalloc - sofar - 1;
-		}
-		else {
+		} else {
 			*outpos = '\0';
 			if (outsz_p)
 				*outsz_p = outpos - out;
@@ -537,9 +529,8 @@ static const char *fallback_encoding(const char *name)
 	return name;
 }
 
-char *reencode_string_len(const char *in, size_t insz,
-			  const char *out_encoding, const char *in_encoding,
-			  size_t *outsz)
+char *reencode_string_len(const char *in, size_t insz, const char *out_encoding,
+			  const char *in_encoding, size_t *outsz)
 {
 	iconv_t conv;
 	char *out;
@@ -582,12 +573,12 @@ char *reencode_string_len(const char *in, size_t insz,
 	}
 
 	conv = iconv_open(out_encoding, in_encoding);
-	if (conv == (iconv_t) -1) {
+	if (conv == (iconv_t)-1) {
 		in_encoding = fallback_encoding(in_encoding);
 		out_encoding = fallback_encoding(out_encoding);
 
 		conv = iconv_open(out_encoding, in_encoding);
-		if (conv == (iconv_t) -1)
+		if (conv == (iconv_t)-1)
 			return NULL;
 	}
 	out = reencode_string_iconv(in, insz, conv, bom_len, outsz);
@@ -598,38 +589,40 @@ char *reencode_string_len(const char *in, size_t insz,
 }
 #endif
 
-static int has_bom_prefix(const char *data, size_t len,
-			  const char *bom, size_t bom_len)
+static int has_bom_prefix(const char *data, size_t len, const char *bom,
+			  size_t bom_len)
 {
 	return data && bom && (len >= bom_len) && !memcmp(data, bom, bom_len);
 }
 
 int has_prohibited_utf_bom(const char *enc, const char *data, size_t len)
 {
-	return (
-	  (same_utf_encoding("UTF-16BE", enc) ||
-	   same_utf_encoding("UTF-16LE", enc)) &&
-	  (has_bom_prefix(data, len, utf16_be_bom, sizeof(utf16_be_bom)) ||
-	   has_bom_prefix(data, len, utf16_le_bom, sizeof(utf16_le_bom)))
-	) || (
-	  (same_utf_encoding("UTF-32BE",  enc) ||
-	   same_utf_encoding("UTF-32LE", enc)) &&
-	  (has_bom_prefix(data, len, utf32_be_bom, sizeof(utf32_be_bom)) ||
-	   has_bom_prefix(data, len, utf32_le_bom, sizeof(utf32_le_bom)))
-	);
+	return ((same_utf_encoding("UTF-16BE", enc) ||
+		 same_utf_encoding("UTF-16LE", enc)) &&
+		(has_bom_prefix(data, len, utf16_be_bom,
+				sizeof(utf16_be_bom)) ||
+		 has_bom_prefix(data, len, utf16_le_bom,
+				sizeof(utf16_le_bom)))) ||
+	       ((same_utf_encoding("UTF-32BE", enc) ||
+		 same_utf_encoding("UTF-32LE", enc)) &&
+		(has_bom_prefix(data, len, utf32_be_bom,
+				sizeof(utf32_be_bom)) ||
+		 has_bom_prefix(data, len, utf32_le_bom,
+				sizeof(utf32_le_bom))));
 }
 
 int is_missing_required_utf_bom(const char *enc, const char *data, size_t len)
 {
-	return (
-	   (same_utf_encoding(enc, "UTF-16")) &&
-	   !(has_bom_prefix(data, len, utf16_be_bom, sizeof(utf16_be_bom)) ||
-	     has_bom_prefix(data, len, utf16_le_bom, sizeof(utf16_le_bom)))
-	) || (
-	   (same_utf_encoding(enc, "UTF-32")) &&
-	   !(has_bom_prefix(data, len, utf32_be_bom, sizeof(utf32_be_bom)) ||
-	     has_bom_prefix(data, len, utf32_le_bom, sizeof(utf32_le_bom)))
-	);
+	return ((same_utf_encoding(enc, "UTF-16")) &&
+		!(has_bom_prefix(data, len, utf16_be_bom,
+				 sizeof(utf16_be_bom)) ||
+		  has_bom_prefix(data, len, utf16_le_bom,
+				 sizeof(utf16_le_bom)))) ||
+	       ((same_utf_encoding(enc, "UTF-32")) &&
+		!(has_bom_prefix(data, len, utf32_be_bom,
+				 sizeof(utf32_be_bom)) ||
+		  has_bom_prefix(data, len, utf32_le_bom,
+				 sizeof(utf32_le_bom))));
 }
 
 /*
@@ -653,10 +646,9 @@ int mbs_chrlen(const char **text, size_t *remainder_p, const char *encoding)
 	if (is_encoding_utf8(encoding)) {
 		pick_one_utf8_char(&p, &r);
 
-		chrlen = p ? (p - *text)
-			   : 1 /* not valid UTF-8 -> raw byte sequence */;
-	}
-	else {
+		chrlen = p ? (p - *text) :
+			     1 /* not valid UTF-8 -> raw byte sequence */;
+	} else {
 		/*
 		 * TODO use iconv to decode one char and obtain its chrlen
 		 * for now, let's treat encodings != UTF-8 as one-byte
@@ -714,8 +706,8 @@ static ucs_char_t next_hfs_char(const char **in)
 	}
 }
 
-static int is_hfs_dot_generic(const char *path,
-			      const char *needle, size_t needle_len)
+static int is_hfs_dot_generic(const char *path, const char *needle,
+			      size_t needle_len)
 {
 	ucs_char_t c;
 
@@ -781,15 +773,14 @@ const char utf8_bom[] = "\357\273\277";
 
 int skip_utf8_bom(char **text, size_t len)
 {
-	if (len < strlen(utf8_bom) ||
-	    memcmp(*text, utf8_bom, strlen(utf8_bom)))
+	if (len < strlen(utf8_bom) || memcmp(*text, utf8_bom, strlen(utf8_bom)))
 		return 0;
 	*text += strlen(utf8_bom);
 	return 1;
 }
 
-void strbuf_utf8_align(struct strbuf *buf, align_type position, unsigned int width,
-		       const char *s)
+void strbuf_utf8_align(struct strbuf *buf, align_type position,
+		       unsigned int width, const char *s)
 {
 	int slen = strlen(s);
 	int display_len = utf8_strnwidth(s, slen, 0);
@@ -804,7 +795,8 @@ void strbuf_utf8_align(struct strbuf *buf, align_type position, unsigned int wid
 		strbuf_addf(buf, "%-*s", width + utf8_compensation, s);
 	else if (position == ALIGN_MIDDLE) {
 		int left = (width - display_len) / 2;
-		strbuf_addf(buf, "%*s%-*s", left, "", width - left + utf8_compensation, s);
+		strbuf_addf(buf, "%*s%-*s", left, "",
+			    width - left + utf8_compensation, s);
 	} else if (position == ALIGN_RIGHT)
 		strbuf_addf(buf, "%*s", width + utf8_compensation, s);
 }

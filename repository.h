@@ -139,7 +139,7 @@ struct repository {
 	/* Configurations */
 
 	/* Indicate if a repository has a different 'commondir' from 'gitdir' */
-	unsigned different_commondir:1;
+	unsigned different_commondir : 1;
 };
 
 extern struct repository *the_repository;
@@ -184,8 +184,7 @@ void repo_clear(struct repository *repo);
  * populated then the number of entries will simply be returned.
  */
 int repo_read_index(struct repository *repo);
-int repo_hold_locked_index(struct repository *repo,
-			   struct lock_file *lf,
+int repo_hold_locked_index(struct repository *repo, struct lock_file *lf,
 			   int flags);
 
 int repo_read_index_preload(struct repository *,

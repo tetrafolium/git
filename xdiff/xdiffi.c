@@ -45,7 +45,8 @@ typedef struct s_xdpsplit {
 static long xdl_split(unsigned long const *ha1, long off1, long lim1,
 		      unsigned long const *ha2, long off2, long lim2,
 		      long *kvdf, long *kvdb, int need_min, xdpsplit_t *spl,
-		      xdalgoenv_t *xenv) {
+		      xdalgoenv_t *xenv)
+{
 	long dmin = off1 - lim2, dmax = lim1 - off2;
 	long fmid = off1 - off2, bmid = lim1 - lim2;
 	long odd = (fmid - bmid) & 1;
@@ -87,7 +88,9 @@ static long xdl_split(unsigned long const *ha1, long off1, long lim1,
 				i1 = kvdf[d + 1];
 			prev1 = i1;
 			i2 = i1 - d;
-			for (; i1 < lim1 && i2 < lim2 && ha1[i1] == ha2[i2]; i1++, i2++);
+			for (; i1 < lim1 && i2 < lim2 && ha1[i1] == ha2[i2];
+			     i1++, i2++)
+				;
 			if (i1 - prev1 > xenv->snake_cnt)
 				got_snake = 1;
 			kvdf[d] = i1;
@@ -124,7 +127,10 @@ static long xdl_split(unsigned long const *ha1, long off1, long lim1,
 				i1 = kvdb[d + 1] - 1;
 			prev1 = i1;
 			i2 = i1 - d;
-			for (; i1 > off1 && i2 > off2 && ha1[i1 - 1] == ha2[i2 - 1]; i1--, i2--);
+			for (; i1 > off1 && i2 > off2 &&
+			       ha1[i1 - 1] == ha2[i2 - 1];
+			     i1--, i2--)
+				;
 			if (prev1 - i1 > xenv->snake_cnt)
 				got_snake = 1;
 			kvdb[d] = i1;
@@ -151,7 +157,7 @@ static long xdl_split(unsigned long const *ha1, long off1, long lim1,
 		 */
 		if (got_snake && ec > xenv->heur_min) {
 			for (best = 0, d = fmax; d >= fmin; d -= 2) {
-				dd = d > fmid ? d - fmid: fmid - d;
+				dd = d > fmid ? d - fmid : fmid - d;
 				i1 = kvdf[d];
 				i2 = i1 - d;
 				v = (i1 - off1) + (i2 - off2) - dd;
@@ -159,7 +165,8 @@ static long xdl_split(unsigned long const *ha1, long off1, long lim1,
 				if (v > XDL_K_HEUR * ec && v > best &&
 				    off1 + xenv->snake_cnt <= i1 && i1 < lim1 &&
 				    off2 + xenv->snake_cnt <= i2 && i2 < lim2) {
-					for (k = 1; ha1[i1 - k] == ha2[i2 - k]; k++)
+					for (k = 1; ha1[i1 - k] == ha2[i2 - k];
+					     k++)
 						if (k == xenv->snake_cnt) {
 							best = v;
 							spl->i1 = i1;
@@ -175,7 +182,7 @@ static long xdl_split(unsigned long const *ha1, long off1, long lim1,
 			}
 
 			for (best = 0, d = bmax; d >= bmin; d -= 2) {
-				dd = d > bmid ? d - bmid: bmid - d;
+				dd = d > bmid ? d - bmid : bmid - d;
 				i1 = kvdb[d];
 				i2 = i1 - d;
 				v = (lim1 - i1) + (lim2 - i2) - dd;
@@ -183,7 +190,8 @@ static long xdl_split(unsigned long const *ha1, long off1, long lim1,
 				if (v > XDL_K_HEUR * ec && v > best &&
 				    off1 < i1 && i1 <= lim1 - xenv->snake_cnt &&
 				    off2 < i2 && i2 <= lim2 - xenv->snake_cnt) {
-					for (k = 0; ha1[i1 + k] == ha2[i2 + k]; k++)
+					for (k = 0; ha1[i1 + k] == ha2[i2 + k];
+					     k++)
 						if (k == xenv->snake_cnt - 1) {
 							best = v;
 							spl->i1 = i1;
@@ -247,22 +255,26 @@ static long xdl_split(unsigned long const *ha1, long off1, long lim1,
 	}
 }
 
-
 /*
  * Rule: "Divide et Impera" (divide & conquer). Recursively split the box in
  * sub-boxes by calling the box splitting function. Note that the real job
  * (marking changed lines) is done in the two boundary reaching checks.
  */
-int xdl_recs_cmp(diffdata_t *dd1, long off1, long lim1,
-		 diffdata_t *dd2, long off2, long lim2,
-		 long *kvdf, long *kvdb, int need_min, xdalgoenv_t *xenv) {
+int xdl_recs_cmp(diffdata_t *dd1, long off1, long lim1, diffdata_t *dd2,
+		 long off2, long lim2, long *kvdf, long *kvdb, int need_min,
+		 xdalgoenv_t *xenv)
+{
 	unsigned long const *ha1 = dd1->ha, *ha2 = dd2->ha;
 
 	/*
 	 * Shrink the box by walking through each diagonal snake (SW and NE).
 	 */
-	for (; off1 < lim1 && off2 < lim2 && ha1[off1] == ha2[off2]; off1++, off2++);
-	for (; off1 < lim1 && off2 < lim2 && ha1[lim1 - 1] == ha2[lim2 - 1]; lim1--, lim2--);
+	for (; off1 < lim1 && off2 < lim2 && ha1[off1] == ha2[off2];
+	     off1++, off2++)
+		;
+	for (; off1 < lim1 && off2 < lim2 && ha1[lim1 - 1] == ha2[lim2 - 1];
+	     lim1--, lim2--)
+		;
 
 	/*
 	 * If one dimension is empty, then all records on the other one must
@@ -289,18 +301,16 @@ int xdl_recs_cmp(diffdata_t *dd1, long off1, long lim1,
 		 */
 		if (xdl_split(ha1, off1, lim1, ha2, off2, lim2, kvdf, kvdb,
 			      need_min, &spl, xenv) < 0) {
-
 			return -1;
 		}
 
 		/*
 		 * ... et Impera.
 		 */
-		if (xdl_recs_cmp(dd1, off1, spl.i1, dd2, off2, spl.i2,
-				 kvdf, kvdb, spl.min_lo, xenv) < 0 ||
-		    xdl_recs_cmp(dd1, spl.i1, lim1, dd2, spl.i2, lim2,
-				 kvdf, kvdb, spl.min_hi, xenv) < 0) {
-
+		if (xdl_recs_cmp(dd1, off1, spl.i1, dd2, off2, spl.i2, kvdf,
+				 kvdb, spl.min_lo, xenv) < 0 ||
+		    xdl_recs_cmp(dd1, spl.i1, lim1, dd2, spl.i2, lim2, kvdf,
+				 kvdb, spl.min_hi, xenv) < 0) {
 			return -1;
 		}
 	}
@@ -308,9 +318,9 @@ int xdl_recs_cmp(diffdata_t *dd1, long off1, long lim1,
 	return 0;
 }
 
-
 int xdl_do_diff(mmfile_t *mf1, mmfile_t *mf2, xpparam_t const *xpp,
-		xdfenv_t *xe) {
+		xdfenv_t *xe)
+{
 	long ndiags;
 	long *kvd, *kvdf, *kvdb;
 	xdalgoenv_t xenv;
@@ -323,7 +333,6 @@ int xdl_do_diff(mmfile_t *mf1, mmfile_t *mf2, xpparam_t const *xpp,
 		return xdl_do_histogram_diff(mf1, mf2, xpp, xe);
 
 	if (xdl_prepare_env(mf1, mf2, xpp, xe) < 0) {
-
 		return -1;
 	}
 
@@ -334,8 +343,7 @@ int xdl_do_diff(mmfile_t *mf1, mmfile_t *mf2, xpparam_t const *xpp,
 	 * One is to store the forward path and one to store the backward path.
 	 */
 	ndiags = xe->xdf1.nreff + xe->xdf2.nreff + 3;
-	if (!(kvd = (long *) xdl_malloc((2 * ndiags + 2) * sizeof(long)))) {
-
+	if (!(kvd = (long *)xdl_malloc((2 * ndiags + 2) * sizeof(long)))) {
 		xdl_free_env(xe);
 		return -1;
 	}
@@ -359,9 +367,8 @@ int xdl_do_diff(mmfile_t *mf1, mmfile_t *mf2, xpparam_t const *xpp,
 	dd2.rchg = xe->xdf2.rchg;
 	dd2.rindex = xe->xdf2.rindex;
 
-	if (xdl_recs_cmp(&dd1, 0, dd1.nrec, &dd2, 0, dd2.nrec,
-			 kvdf, kvdb, (xpp->flags & XDF_NEED_MINIMAL) != 0, &xenv) < 0) {
-
+	if (xdl_recs_cmp(&dd1, 0, dd1.nrec, &dd2, 0, dd2.nrec, kvdf, kvdb,
+			 (xpp->flags & XDF_NEED_MINIMAL) != 0, &xenv) < 0) {
 		xdl_free(kvd);
 		xdl_free_env(xe);
 		return -1;
@@ -372,11 +379,12 @@ int xdl_do_diff(mmfile_t *mf1, mmfile_t *mf2, xpparam_t const *xpp,
 	return 0;
 }
 
-
-static xdchange_t *xdl_add_change(xdchange_t *xscr, long i1, long i2, long chg1, long chg2) {
+static xdchange_t *xdl_add_change(xdchange_t *xscr, long i1, long i2, long chg1,
+				  long chg2)
+{
 	xdchange_t *xch;
 
-	if (!(xch = (xdchange_t *) xdl_malloc(sizeof(xdchange_t))))
+	if (!(xch = (xdchange_t *)xdl_malloc(sizeof(xdchange_t))))
 		return NULL;
 
 	xch->next = xscr;
@@ -389,12 +397,10 @@ static xdchange_t *xdl_add_change(xdchange_t *xscr, long i1, long i2, long chg1,
 	return xch;
 }
 
-
 static int recs_match(xrecord_t *rec1, xrecord_t *rec2, long flags)
 {
 	return (rec1->ha == rec2->ha &&
-		xdl_recmatch(rec1->ptr, rec1->size,
-			     rec2->ptr, rec2->size,
+		xdl_recmatch(rec1->ptr, rec1->size, rec2->ptr, rec2->size,
 			     flags));
 }
 
@@ -596,7 +602,8 @@ static void measure_split(const xdfile_t *xdf, long split,
  * Also see that project if you want to improve the weights based on, for
  * example, a larger or more diverse corpus.
  */
-static void score_add_split(const struct split_measurement *m, struct split_score *s)
+static void score_add_split(const struct split_measurement *m,
+			    struct split_score *s)
 {
 	/*
 	 * A place to accumulate penalty factors (positive makes this index more
@@ -639,9 +646,8 @@ static void score_add_split(const struct split_measurement *m, struct split_scor
 		/*
 		 * The line is indented more than its predecessor.
 		 */
-		s->penalty += any_blanks ?
-			RELATIVE_INDENT_WITH_BLANK_PENALTY :
-			RELATIVE_INDENT_PENALTY;
+		s->penalty += any_blanks ? RELATIVE_INDENT_WITH_BLANK_PENALTY :
+					   RELATIVE_INDENT_PENALTY;
 	} else if (indent == m->pre_indent) {
 		/*
 		 * The line has the same indentation level as its predecessor.
@@ -660,16 +666,18 @@ static void score_add_split(const struct split_measurement *m, struct split_scor
 			 * The following line is indented more. So it is likely
 			 * that this line is the start of a block.
 			 */
-			s->penalty += any_blanks ?
-				RELATIVE_OUTDENT_WITH_BLANK_PENALTY :
-				RELATIVE_OUTDENT_PENALTY;
+			s->penalty +=
+				any_blanks ?
+					RELATIVE_OUTDENT_WITH_BLANK_PENALTY :
+					RELATIVE_OUTDENT_PENALTY;
 		} else {
 			/*
 			 * That was probably the end of a block.
 			 */
-			s->penalty += any_blanks ?
-				RELATIVE_DEDENT_WITH_BLANK_PENALTY :
-				RELATIVE_DEDENT_PENALTY;
+			s->penalty +=
+				any_blanks ?
+					RELATIVE_DEDENT_WITH_BLANK_PENALTY :
+					RELATIVE_DEDENT_PENALTY;
 		}
 	}
 }
@@ -807,7 +815,8 @@ static void xdl_bug(const char *msg)
  * This also helps in finding joinable change groups and reducing the diff
  * size.
  */
-int xdl_change_compact(xdfile_t *xdf, xdfile_t *xdfo, long flags) {
+int xdl_change_compact(xdfile_t *xdf, xdfile_t *xdfo, long flags)
+{
 	struct xdlgroup g, go;
 	long earliest_end, end_matching_other;
 	long groupsize;
@@ -909,7 +918,7 @@ int xdl_change_compact(xdfile_t *xdf, xdfile_t *xdfo, long flags) {
 				shift = g.end - INDENT_HEURISTIC_MAX_SLIDING;
 			for (; shift <= g.end; shift++) {
 				struct split_measurement m;
-				struct split_score score = {0, 0};
+				struct split_score score = { 0, 0 };
 
 				measure_split(xdf, shift, &m);
 				score_add_split(&m, &score);
@@ -917,7 +926,8 @@ int xdl_change_compact(xdfile_t *xdf, xdfile_t *xdfo, long flags) {
 				score_add_split(&m, &score);
 				if (best_shift == -1 ||
 				    score_cmp(&score, &best_score) <= 0) {
-					best_score.effective_indent = score.effective_indent;
+					best_score.effective_indent =
+						score.effective_indent;
 					best_score.penalty = score.penalty;
 					best_shift = shift;
 				}
@@ -945,8 +955,8 @@ int xdl_change_compact(xdfile_t *xdf, xdfile_t *xdfo, long flags) {
 	return 0;
 }
 
-
-int xdl_build_script(xdfenv_t *xe, xdchange_t **xscr) {
+int xdl_build_script(xdfenv_t *xe, xdchange_t **xscr)
+{
 	xdchange_t *cscr = NULL, *xch;
 	char *rchg1 = xe->xdf1.rchg, *rchg2 = xe->xdf2.rchg;
 	long i1, i2, l1, l2;
@@ -954,12 +964,16 @@ int xdl_build_script(xdfenv_t *xe, xdchange_t **xscr) {
 	/*
 	 * Trivial. Collects "groups" of changes and creates an edit script.
 	 */
-	for (i1 = xe->xdf1.nrec, i2 = xe->xdf2.nrec; i1 >= 0 || i2 >= 0; i1--, i2--)
+	for (i1 = xe->xdf1.nrec, i2 = xe->xdf2.nrec; i1 >= 0 || i2 >= 0;
+	     i1--, i2--)
 		if (rchg1[i1 - 1] || rchg2[i2 - 1]) {
-			for (l1 = i1; rchg1[i1 - 1]; i1--);
-			for (l2 = i2; rchg2[i2 - 1]; i2--);
+			for (l1 = i1; rchg1[i1 - 1]; i1--)
+				;
+			for (l2 = i2; rchg2[i2 - 1]; i2--)
+				;
 
-			if (!(xch = xdl_add_change(cscr, i1, i2, l1 - i1, l2 - i2))) {
+			if (!(xch = xdl_add_change(cscr, i1, i2, l1 - i1,
+						   l2 - i2))) {
 				xdl_free_script(cscr);
 				return -1;
 			}
@@ -971,8 +985,8 @@ int xdl_build_script(xdfenv_t *xe, xdchange_t **xscr) {
 	return 0;
 }
 
-
-void xdl_free_script(xdchange_t *xscr) {
+void xdl_free_script(xdchange_t *xscr)
+{
 	xdchange_t *xch;
 
 	while ((xch = xscr) != NULL) {
@@ -1009,17 +1023,20 @@ static void xdl_mark_ignorable_lines(xdchange_t *xscr, xdfenv_t *xe, long flags)
 
 		rec = &xe->xdf1.recs[xch->i1];
 		for (i = 0; i < xch->chg1 && ignore; i++)
-			ignore = xdl_blankline(rec[i]->ptr, rec[i]->size, flags);
+			ignore =
+				xdl_blankline(rec[i]->ptr, rec[i]->size, flags);
 
 		rec = &xe->xdf2.recs[xch->i2];
 		for (i = 0; i < xch->chg2 && ignore; i++)
-			ignore = xdl_blankline(rec[i]->ptr, rec[i]->size, flags);
+			ignore =
+				xdl_blankline(rec[i]->ptr, rec[i]->size, flags);
 
 		xch->ignore = ignore;
 	}
 }
 
-static int record_matches_regex(xrecord_t *rec, xpparam_t const *xpp) {
+static int record_matches_regex(xrecord_t *rec, xpparam_t const *xpp)
+{
 	regmatch_t regmatch;
 	int i;
 
@@ -1060,19 +1077,18 @@ static void xdl_mark_ignorable_regex(xdchange_t *xscr, const xdfenv_t *xe,
 }
 
 int xdl_diff(mmfile_t *mf1, mmfile_t *mf2, xpparam_t const *xpp,
-	     xdemitconf_t const *xecfg, xdemitcb_t *ecb) {
+	     xdemitconf_t const *xecfg, xdemitcb_t *ecb)
+{
 	xdchange_t *xscr;
 	xdfenv_t xe;
 	emit_func_t ef = xecfg->hunk_func ? xdl_call_hunk_func : xdl_emit_diff;
 
 	if (xdl_do_diff(mf1, mf2, xpp, &xe) < 0) {
-
 		return -1;
 	}
 	if (xdl_change_compact(&xe.xdf1, &xe.xdf2, xpp->flags) < 0 ||
 	    xdl_change_compact(&xe.xdf2, &xe.xdf1, xpp->flags) < 0 ||
 	    xdl_build_script(&xe, &xscr) < 0) {
-
 		xdl_free_env(&xe);
 		return -1;
 	}
@@ -1084,7 +1100,6 @@ int xdl_diff(mmfile_t *mf1, mmfile_t *mf2, xpparam_t const *xpp,
 			xdl_mark_ignorable_regex(xscr, &xe, xpp);
 
 		if (ef(&xe, xscr, ecb, xecfg) < 0) {
-
 			xdl_free_script(xscr);
 			xdl_free_env(&xe);
 			return -1;

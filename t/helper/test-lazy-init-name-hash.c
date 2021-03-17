@@ -42,11 +42,11 @@ static void dump_run(void)
 	}
 
 	hashmap_for_each_entry(&the_index.dir_hash, &iter_dir, dir,
-				ent /* member name */)
+			       ent /* member name */)
 		printf("dir %08x %7d %s\n", dir->ent.hash, dir->nr, dir->name);
 
 	hashmap_for_each_entry(&the_index.name_hash, &iter_cache, ce,
-				ent /* member name */)
+			       ent /* member name */)
 		printf("name %08x %s\n", ce->ent.hash, ce->name);
 
 	discard_cache();
@@ -68,7 +68,8 @@ static uint64_t time_runs(int try_threaded)
 		t0 = getnanotime();
 		read_cache();
 		t1 = getnanotime();
-		nr_threads_used = test_lazy_init_name_hash(&the_index, try_threaded);
+		nr_threads_used =
+			test_lazy_init_name_hash(&the_index, try_threaded);
 		t2 = getnanotime();
 
 		sum += (t2 - t1);
@@ -78,15 +79,14 @@ static uint64_t time_runs(int try_threaded)
 
 		if (nr_threads_used)
 			printf("%f %f %d multi %d\n",
-				   ((double)(t1 - t0))/1000000000,
-				   ((double)(t2 - t1))/1000000000,
-				   the_index.cache_nr,
-				   nr_threads_used);
+			       ((double)(t1 - t0)) / 1000000000,
+			       ((double)(t2 - t1)) / 1000000000,
+			       the_index.cache_nr, nr_threads_used);
 		else
 			printf("%f %f %d single\n",
-				   ((double)(t1 - t0))/1000000000,
-				   ((double)(t2 - t1))/1000000000,
-				   the_index.cache_nr);
+			       ((double)(t1 - t0)) / 1000000000,
+			       ((double)(t2 - t1)) / 1000000000,
+			       the_index.cache_nr);
 		fflush(stdout);
 
 		discard_cache();
@@ -94,9 +94,8 @@ static uint64_t time_runs(int try_threaded)
 
 	avg = sum / count;
 	if (count > 1)
-		printf("avg %f %s\n",
-			   (double)avg/1000000000,
-			   (try_threaded) ? "multi" : "single");
+		printf("avg %f %s\n", (double)avg / 1000000000,
+		       (try_threaded) ? "multi" : "single");
 
 	return avg;
 }
@@ -140,7 +139,8 @@ static void analyze_run(void)
 			read_cache();
 			the_index.cache_nr = nr; /* cheap truncate of index */
 			t1m = getnanotime();
-			nr_threads_used = test_lazy_init_name_hash(&the_index, 1);
+			nr_threads_used =
+				test_lazy_init_name_hash(&the_index, 1);
 			t2m = getnanotime();
 			sum_multi += (t2m - t1m);
 			the_index.cache_nr = cache_nr_limit;
@@ -148,30 +148,28 @@ static void analyze_run(void)
 
 			if (!nr_threads_used)
 				printf("    [size %8d] [single %f]   non-threaded code path used\n",
-					   nr, ((double)(t2s - t1s))/1000000000);
+				       nr, ((double)(t2s - t1s)) / 1000000000);
 			else
 				printf("    [size %8d] [single %f] %c [multi %f %d]\n",
-					   nr,
-					   ((double)(t2s - t1s))/1000000000,
-					   (((t2s - t1s) < (t2m - t1m)) ? '<' : '>'),
-					   ((double)(t2m - t1m))/1000000000,
-					   nr_threads_used);
+				       nr, ((double)(t2s - t1s)) / 1000000000,
+				       (((t2s - t1s) < (t2m - t1m)) ? '<' :
+								      '>'),
+				       ((double)(t2m - t1m)) / 1000000000,
+				       nr_threads_used);
 			fflush(stdout);
 		}
 		if (count > 1) {
 			avg_single = sum_single / count;
 			avg_multi = sum_multi / count;
 			if (!nr_threads_used)
-				printf("avg [size %8d] [single %f]\n",
-					   nr,
-					   (double)avg_single/1000000000);
+				printf("avg [size %8d] [single %f]\n", nr,
+				       (double)avg_single / 1000000000);
 			else
 				printf("avg [size %8d] [single %f] %c [multi %f %d]\n",
-					   nr,
-					   (double)avg_single/1000000000,
-					   (avg_single < avg_multi ? '<' : '>'),
-					   (double)avg_multi/1000000000,
-					   nr_threads_used);
+				       nr, (double)avg_single / 1000000000,
+				       (avg_single < avg_multi ? '<' : '>'),
+				       (double)avg_multi / 1000000000,
+				       nr_threads_used);
 			fflush(stdout);
 		}
 
@@ -197,7 +195,8 @@ int cmd__lazy_init_name_hash(int argc, const char **argv)
 		OPT_INTEGER('c', "count", &count, "number of passes"),
 		OPT_BOOL('d', "dump", &dump, "dump hash tables"),
 		OPT_BOOL('p', "perf", &perf, "compare single vs multi"),
-		OPT_INTEGER('a', "analyze", &analyze, "analyze different multi sizes"),
+		OPT_INTEGER('a', "analyze", &analyze,
+			    "analyze different multi sizes"),
 		OPT_INTEGER(0, "step", &analyze_step, "analyze step factor"),
 		OPT_END(),
 	};

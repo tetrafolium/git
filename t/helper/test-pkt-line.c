@@ -31,7 +31,7 @@ static void unpack(void)
 	struct packet_reader reader;
 	packet_reader_init(&reader, 0, NULL, 0,
 			   PACKET_READ_GENTLE_ON_EOF |
-			   PACKET_READ_CHOMP_NEWLINE);
+				   PACKET_READ_CHOMP_NEWLINE);
 
 	while (packet_reader_read(&reader) != PACKET_READ_EOF) {
 		switch (reader.status) {
@@ -58,7 +58,7 @@ static void unpack_sideband(void)
 	struct packet_reader reader;
 	packet_reader_init(&reader, 0, NULL, 0,
 			   PACKET_READ_GENTLE_ON_EOF |
-			   PACKET_READ_CHOMP_NEWLINE);
+				   PACKET_READ_CHOMP_NEWLINE);
 
 	while (packet_reader_read(&reader) != PACKET_READ_EOF) {
 		int band;

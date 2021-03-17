@@ -3,8 +3,7 @@
 #include "hashmap.h"
 #include "strbuf.h"
 
-struct test_entry
-{
+struct test_entry {
 	int padding; /* hashmap entry no longer needs to be the first member */
 	struct hashmap_entry ent;
 	/* key and value as two \0-terminated strings */
@@ -34,12 +33,13 @@ static int test_entry_cmp(const void *cmp_data,
 		return strcmp(e1->key, key ? key : e2->key);
 }
 
-static struct test_entry *alloc_test_entry(unsigned int hash,
-					   char *key, char *value)
+static struct test_entry *alloc_test_entry(unsigned int hash, char *key,
+					   char *value)
 {
 	size_t klen = strlen(key);
 	size_t vlen = strlen(value);
-	struct test_entry *entry = xmalloc(st_add4(sizeof(*entry), klen, vlen, 2));
+	struct test_entry *entry =
+		xmalloc(st_add4(sizeof(*entry), klen, vlen, 2));
 	hashmap_entry_init(&entry->ent, hash);
 	memcpy(entry->key, key, klen + 1);
 	memcpy(entry->key + klen + 1, value, vlen + 1);
@@ -58,8 +58,7 @@ static struct test_entry *alloc_test_entry(unsigned int hash,
 static unsigned int hash(unsigned int method, unsigned int i, const char *key)
 {
 	unsigned int hash = 0;
-	switch (method & 3)
-	{
+	switch (method & 3) {
 	case HASH_METHOD_FNV:
 		hash = strhash(key);
 		break;
@@ -176,7 +175,6 @@ int cmd__hashmap(int argc, const char **argv)
 		}
 
 		if (!strcmp("add", cmd) && p1 && p2) {
-
 			/* create entry with key = p1, value = p2 */
 			entry = alloc_test_entry(hash, p1, p2);
 
@@ -184,7 +182,6 @@ int cmd__hashmap(int argc, const char **argv)
 			hashmap_add(&map, &entry->ent);
 
 		} else if (!strcmp("put", cmd) && p1 && p2) {
-
 			/* create entry with key = p1, value = p2 */
 			entry = alloc_test_entry(hash, p1, p2);
 
@@ -197,8 +194,8 @@ int cmd__hashmap(int argc, const char **argv)
 
 		} else if (!strcmp("get", cmd) && p1) {
 			/* lookup entry in hashmap */
-			entry = hashmap_get_entry_from_hash(&map, hash, p1,
-							struct test_entry, ent);
+			entry = hashmap_get_entry_from_hash(
+				&map, hash, p1, struct test_entry, ent);
 
 			/* print result */
 			if (!entry)
@@ -207,7 +204,6 @@ int cmd__hashmap(int argc, const char **argv)
 				puts(get_value(entry));
 
 		} else if (!strcmp("remove", cmd) && p1) {
-
 			/* setup static key */
 			struct hashmap_entry key;
 			struct hashmap_entry *rm;
@@ -215,8 +211,8 @@ int cmd__hashmap(int argc, const char **argv)
 
 			/* remove entry from hashmap */
 			rm = hashmap_remove(&map, &key, p1);
-			entry = rm ? container_of(rm, struct test_entry, ent)
-					: NULL;
+			entry = rm ? container_of(rm, struct test_entry, ent) :
+				     NULL;
 
 			/* print result and free entry*/
 			puts(entry ? get_value(entry) : "NULL");
@@ -226,37 +222,34 @@ int cmd__hashmap(int argc, const char **argv)
 			struct hashmap_iter iter;
 
 			hashmap_for_each_entry(&map, &iter, entry,
-						ent /* member name */)
+					       ent /* member name */)
 				printf("%s %s\n", entry->key, get_value(entry));
 
 		} else if (!strcmp("size", cmd)) {
-
 			/* print table sizes */
 			printf("%u %u\n", map.tablesize,
 			       hashmap_get_size(&map));
 
 		} else if (!strcmp("intern", cmd) && p1) {
-
 			/* test that strintern works */
 			const char *i1 = strintern(p1);
 			const char *i2 = strintern(p1);
 			if (strcmp(i1, p1))
 				printf("strintern(%s) returns %s\n", p1, i1);
 			else if (i1 == p1)
-				printf("strintern(%s) returns input pointer\n", p1);
+				printf("strintern(%s) returns input pointer\n",
+				       p1);
 			else if (i1 != i2)
-				printf("strintern(%s) != strintern(%s)", i1, i2);
+				printf("strintern(%s) != strintern(%s)", i1,
+				       i2);
 			else
 				printf("%s\n", i1);
 
 		} else if (!strcmp("perfhashmap", cmd) && p1 && p2) {
-
 			perf_hashmap(atoi(p1), atoi(p2));
 
 		} else {
-
 			printf("Unknown command %s\n", cmd);
-
 		}
 	}
 

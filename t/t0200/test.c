@@ -1,4 +1,5 @@
-/* This is a phony C program that's only here to test xgettext message extraction */
+/* This is a phony C program that's only here to test xgettext message
+ * extraction */
 
 const char help[] =
 	/* TRANSLATORS: This is a test. You don't need to translate it. */

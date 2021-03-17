@@ -8,11 +8,12 @@
 #include "exec-cmd.h"
 #include "merge-blobs.h"
 
-static const char merge_tree_usage[] = "git merge-tree <base-tree> <branch1> <branch2>";
+static const char merge_tree_usage[] =
+	"git merge-tree <base-tree> <branch1> <branch2>";
 
 struct merge_list {
 	struct merge_list *next;
-	struct merge_list *link;	/* other stages for this object */
+	struct merge_list *link; /* other stages for this object */
 
 	unsigned int stage : 2;
 	unsigned int mode;
@@ -77,8 +78,7 @@ static void *result(struct merge_list *entry, unsigned long *size)
 	their = NULL;
 	if (entry)
 		their = entry->blob;
-	return merge_blobs(the_repository->index, path,
-			   base, our, their, size);
+	return merge_blobs(the_repository->index, path, base, our, their, size);
 }
 
 static void *origin(struct merge_list *entry, unsigned long *size)
@@ -86,8 +86,8 @@ static void *origin(struct merge_list *entry, unsigned long *size)
 	enum object_type type;
 	while (entry) {
 		if (entry->stage == 2)
-			return read_object_file(&entry->blob->object.oid,
-						&type, size);
+			return read_object_file(&entry->blob->object.oid, &type,
+						size);
 		entry = entry->link;
 	}
 	return NULL;
@@ -97,7 +97,7 @@ static int show_outf(void *priv_, mmbuffer_t *mb, int nbuf)
 {
 	int i;
 	for (i = 0; i < nbuf; i++)
-		printf("%.*s", (int) mb[i].size, mb[i].ptr);
+		printf("%.*s", (int)mb[i].size, mb[i].ptr);
 	return 0;
 }
 
@@ -136,8 +136,10 @@ static void show_result_list(struct merge_list *entry)
 	printf("%s\n", explanation(entry));
 	do {
 		struct merge_list *link = entry->link;
-		static const char *desc[4] = { "result", "base", "our", "their" };
-		printf("  %-6s %o %s %s\n", desc[entry->stage], entry->mode, oid_to_hex(&entry->blob->object.oid), entry->path);
+		static const char *desc[4] = { "result", "base", "our",
+					       "their" };
+		printf("  %-6s %o %s %s\n", desc[entry->stage], entry->mode,
+		       oid_to_hex(&entry->blob->object.oid), entry->path);
 		entry = link;
 	} while (entry);
 }
@@ -157,10 +159,8 @@ static void show_result(void)
 /* An empty entry never compares same, not even to another empty entry */
 static int same_entry(struct name_entry *a, struct name_entry *b)
 {
-	return	!is_null_oid(&a->oid) &&
-		!is_null_oid(&b->oid) &&
-		oideq(&a->oid, &b->oid) &&
-		a->mode == b->mode;
+	return !is_null_oid(&a->oid) && !is_null_oid(&b->oid) &&
+	       oideq(&a->oid, &b->oid) && a->mode == b->mode;
 }
 
 static int both_empty(struct name_entry *a, struct name_entry *b)
@@ -168,7 +168,9 @@ static int both_empty(struct name_entry *a, struct name_entry *b)
 	return is_null_oid(&a->oid) && is_null_oid(&b->oid);
 }
 
-static struct merge_list *create_entry(unsigned stage, unsigned mode, const struct object_id *oid, const char *path)
+static struct merge_list *create_entry(unsigned stage, unsigned mode,
+				       const struct object_id *oid,
+				       const char *path)
 {
 	struct merge_list *res = xcalloc(1, sizeof(*res));
 
@@ -179,14 +181,16 @@ static struct merge_list *create_entry(unsigned stage, unsigned mode, const stru
 	return res;
 }
 
-static char *traverse_path(const struct traverse_info *info, const struct name_entry *n)
+static char *traverse_path(const struct traverse_info *info,
+			   const struct name_entry *n)
 {
 	struct strbuf buf = STRBUF_INIT;
 	strbuf_make_traverse_path(&buf, info, n->path, n->pathlen);
 	return strbuf_detach(&buf, NULL);
 }
 
-static void resolve(const struct traverse_info *info, struct name_entry *ours, struct name_entry *result)
+static void resolve(const struct traverse_info *info, struct name_entry *ours,
+		    struct name_entry *result)
 {
 	struct merge_list *orig, *final;
 	const char *path;
@@ -236,8 +240,10 @@ static void unresolved_directory(const struct traverse_info *info,
 	free(newbase);
 }
 
-
-static struct merge_list *link_entry(unsigned stage, const struct traverse_info *info, struct name_entry *n, struct merge_list *entry)
+static struct merge_list *link_entry(unsigned stage,
+				     const struct traverse_info *info,
+				     struct name_entry *n,
+				     struct merge_list *entry)
 {
 	const char *path;
 	struct merge_list *link;
@@ -313,19 +319,22 @@ static void unresolved(const struct traverse_info *info, struct name_entry n[3])
  * The successful merge rules are the same as for the three-way merge
  * in git-read-tree.
  */
-static int threeway_callback(int n, unsigned long mask, unsigned long dirmask, struct name_entry *entry, struct traverse_info *info)
+static int threeway_callback(int n, unsigned long mask, unsigned long dirmask,
+			     struct name_entry *entry,
+			     struct traverse_info *info)
 {
 	/* Same in both? */
-	if (same_entry(entry+1, entry+2) || both_empty(entry+1, entry+2)) {
+	if (same_entry(entry + 1, entry + 2) ||
+	    both_empty(entry + 1, entry + 2)) {
 		/* Modified, added or removed identically */
-		resolve(info, NULL, entry+1);
+		resolve(info, NULL, entry + 1);
 		return mask;
 	}
 
-	if (same_entry(entry+0, entry+1)) {
+	if (same_entry(entry + 0, entry + 1)) {
 		if (!is_null_oid(&entry[2].oid) && !S_ISDIR(entry[2].mode)) {
 			/* We did not touch, they modified -- take theirs */
-			resolve(info, entry+1, entry+2);
+			resolve(info, entry + 1, entry + 2);
 			return mask;
 		}
 		/*
@@ -335,9 +344,11 @@ static int threeway_callback(int n, unsigned long mask, unsigned long dirmask, s
 		 */
 	}
 
-	if (same_entry(entry+0, entry+2) || both_empty(entry+0, entry+2)) {
-		/* We added, modified or removed, they did not touch -- take ours */
-		resolve(info, NULL, entry+1);
+	if (same_entry(entry + 0, entry + 2) ||
+	    both_empty(entry + 0, entry + 2)) {
+		/* We added, modified or removed, they did not touch -- take
+		 * ours */
+		resolve(info, NULL, entry + 1);
 		return mask;
 	}
 
@@ -354,8 +365,7 @@ static void merge_trees(struct tree_desc t[3], const char *base)
 	traverse_trees(&the_index, 3, t, &info);
 }
 
-static void *get_tree_descriptor(struct repository *r,
-				 struct tree_desc *desc,
+static void *get_tree_descriptor(struct repository *r, struct tree_desc *desc,
 				 const char *rev)
 {
 	struct object_id oid;
@@ -378,9 +388,9 @@ int cmd_merge_tree(int argc, const char **argv, const char *prefix)
 	if (argc != 4)
 		usage(merge_tree_usage);
 
-	buf1 = get_tree_descriptor(r, t+0, argv[1]);
-	buf2 = get_tree_descriptor(r, t+1, argv[2]);
-	buf3 = get_tree_descriptor(r, t+2, argv[3]);
+	buf1 = get_tree_descriptor(r, t + 0, argv[1]);
+	buf2 = get_tree_descriptor(r, t + 1, argv[2]);
+	buf3 = get_tree_descriptor(r, t + 2, argv[3]);
 	merge_trees(t, "");
 	free(buf1);
 	free(buf2);

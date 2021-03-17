@@ -3,9 +3,8 @@
 #include "trace2.h"
 #include "parse-options.h"
 
-static const char * const test_tool_usage[] = {
-	"test-tool [-C <directory>] <command [<arguments>...]]",
-	NULL
+static const char *const test_tool_usage[] = {
+	"test-tool [-C <directory>] <command [<arguments>...]]", NULL
 };
 
 struct test_cmd {
@@ -49,7 +48,7 @@ static struct test_cmd cmds[] = {
 	{ "pcre2-config", cmd__pcre2_config },
 	{ "pkt-line", cmd__pkt_line },
 	{ "prio-queue", cmd__prio_queue },
-	{ "proc-receive", cmd__proc_receive},
+	{ "proc-receive", cmd__proc_receive },
 	{ "progress", cmd__progress },
 	{ "reach", cmd__reach },
 	{ "read-cache", cmd__read_cache },
@@ -94,16 +93,15 @@ int cmd_main(int argc, const char **argv)
 {
 	int i;
 	const char *working_directory = NULL;
-	struct option options[] = {
-		OPT_STRING('C', NULL, &working_directory, "directory",
-			   "change the working directory"),
-		OPT_END()
-	};
+	struct option options[] = { OPT_STRING('C', NULL, &working_directory,
+					       "directory",
+					       "change the working directory"),
+				    OPT_END() };
 
 	BUG_exit_code = 99;
 	argc = parse_options(argc, argv, NULL, options, test_tool_usage,
 			     PARSE_OPT_STOP_AT_NON_OPTION |
-			     PARSE_OPT_KEEP_ARGV0);
+				     PARSE_OPT_KEEP_ARGV0);
 
 	if (argc < 2)
 		die_usage();

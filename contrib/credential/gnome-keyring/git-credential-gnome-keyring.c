@@ -30,20 +30,20 @@
 
 #ifdef GNOME_KEYRING_DEFAULT
 
-   /* Modern gnome-keyring */
+/* Modern gnome-keyring */
 
 #include <gnome-keyring-memory.h>
 
 #else
 
-   /*
-    * Support ancient gnome-keyring, circ. RHEL 5.X.
-    * GNOME_KEYRING_DEFAULT seems to have been introduced with Gnome 2.22,
-    * and the other features roughly around Gnome 2.20, 6 months before.
-    * Ubuntu 8.04 used Gnome 2.22 (I think).  Not sure any distro used 2.20.
-    * So the existence/non-existence of GNOME_KEYRING_DEFAULT seems like
-    * a decent thing to use as an indicator.
-    */
+/*
+ * Support ancient gnome-keyring, circ. RHEL 5.X.
+ * GNOME_KEYRING_DEFAULT seems to have been introduced with Gnome 2.22,
+ * and the other features roughly around Gnome 2.20, 6 months before.
+ * Ubuntu 8.04 used Gnome 2.22 (I think).  Not sure any distro used 2.20.
+ * So the existence/non-existence of GNOME_KEYRING_DEFAULT seems like
+ * a decent thing to use as an indicator.
+ */
 
 #define GNOME_KEYRING_DEFAULT NULL
 
@@ -109,14 +109,15 @@ static void wait_for_request_completion(int *done)
 		g_main_context_iteration(mc, TRUE);
 }
 
-static GnomeKeyringResult gnome_keyring_item_delete_sync(const char *keyring, guint32 id)
+static GnomeKeyringResult gnome_keyring_item_delete_sync(const char *keyring,
+							 guint32 id)
 {
 	int done = 0;
 	GnomeKeyringResult result;
 	gpointer data[] = { &done, &result };
 
 	gnome_keyring_item_delete(keyring, id, gnome_keyring_done_cb, data,
-		NULL);
+				  NULL);
 
 	wait_for_request_completion(&done);
 
@@ -138,7 +139,10 @@ struct credential {
 	char *password;
 };
 
-#define CREDENTIAL_INIT { NULL, NULL, 0, NULL, NULL, NULL }
+#define CREDENTIAL_INIT                         \
+	{                                       \
+		NULL, NULL, 0, NULL, NULL, NULL \
+	}
 
 typedef int (*credential_op_cb)(struct credential *);
 
@@ -147,7 +151,10 @@ struct credential_operation {
 	credential_op_cb op;
 };
 
-#define CREDENTIAL_OP_END { NULL, NULL }
+#define CREDENTIAL_OP_END  \
+	{                  \
+		NULL, NULL \
+	}
 
 /* ----------------- GNOME Keyring functions ----------------- */
 
@@ -176,14 +183,8 @@ static int keyring_get(struct credential *c)
 	object = keyring_object(c);
 
 	result = gnome_keyring_find_network_password_sync(
-				c->username,
-				NULL /* domain */,
-				c->host,
-				object,
-				c->protocol,
-				NULL /* authtype */,
-				c->port,
-				&entries);
+		c->username, NULL /* domain */, c->host, object, c->protocol,
+		NULL /* authtype */, c->port, &entries);
 
 	g_free(object);
 
@@ -212,7 +213,6 @@ static int keyring_get(struct credential *c)
 	return EXIT_SUCCESS;
 }
 
-
 static int keyring_store(struct credential *c)
 {
 	guint32 item_id;
@@ -226,23 +226,16 @@ static int keyring_store(struct credential *c)
 	 * we have no primary key. And without a username and password,
 	 * we are not actually storing a credential.
 	 */
-	if (!c->protocol || !(c->host || c->path) ||
-	    !c->username || !c->password)
+	if (!c->protocol || !(c->host || c->path) || !c->username ||
+	    !c->password)
 		return EXIT_FAILURE;
 
 	object = keyring_object(c);
 
 	result = gnome_keyring_set_network_password_sync(
-				GNOME_KEYRING_DEFAULT,
-				c->username,
-				NULL /* domain */,
-				c->host,
-				object,
-				c->protocol,
-				NULL /* authtype */,
-				c->port,
-				c->password,
-				&item_id);
+		GNOME_KEYRING_DEFAULT, c->username, NULL /* domain */, c->host,
+		object, c->protocol, NULL /* authtype */, c->port, c->password,
+		&item_id);
 
 	g_free(object);
 
@@ -276,14 +269,8 @@ static int keyring_erase(struct credential *c)
 	object = keyring_object(c);
 
 	result = gnome_keyring_find_network_password_sync(
-				c->username,
-				NULL /* domain */,
-				c->host,
-				object,
-				c->protocol,
-				NULL /* authtype */,
-				c->port,
-				&entries);
+		c->username, NULL /* domain */, c->host, object, c->protocol,
+		NULL /* authtype */, c->port, &entries);
 
 	g_free(object);
 
@@ -301,8 +288,8 @@ static int keyring_erase(struct credential *c)
 	/* pick the first one from the list (delete all matches?) */
 	password_data = (GnomeKeyringNetworkPasswordData *)entries->data;
 
-	result = gnome_keyring_item_delete_sync(
-		password_data->keyring, password_data->item_id);
+	result = gnome_keyring_item_delete_sync(password_data->keyring,
+						password_data->item_id);
 
 	gnome_keyring_network_password_list_free(entries);
 
@@ -319,7 +306,7 @@ static int keyring_erase(struct credential *c)
  * credential helper main function.
  */
 static struct credential_operation const credential_helper_ops[] = {
-	{ "get",   keyring_get },
+	{ "get", keyring_get },
 	{ "store", keyring_store },
 	{ "erase", keyring_erase },
 	CREDENTIAL_OP_END
@@ -355,7 +342,7 @@ static int credential_read(struct credential *c)
 	while (fgets(buf, 1024, stdin)) {
 		line_len = strlen(buf);
 
-		if (line_len && buf[line_len-1] == '\n')
+		if (line_len && buf[line_len - 1] == '\n')
 			buf[--line_len] = '\0';
 
 		if (!line_len)

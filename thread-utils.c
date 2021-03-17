@@ -2,7 +2,7 @@
 #include "thread-utils.h"
 
 #if defined(hpux) || defined(__hpux) || defined(_hpux)
-#  include <sys/pstat.h>
+#include <sys/pstat.h>
 #endif
 
 /*
@@ -11,11 +11,11 @@
  * with this disgusting nest of #ifdefs.
  */
 #ifndef _SC_NPROCESSORS_ONLN
-#  ifdef _SC_NPROC_ONLN
-#    define _SC_NPROCESSORS_ONLN _SC_NPROC_ONLN
-#  elif defined _SC_CRAY_NCPU
-#    define _SC_NPROCESSORS_ONLN _SC_CRAY_NCPU
-#  endif
+#ifdef _SC_NPROC_ONLN
+#define _SC_NPROCESSORS_ONLN _SC_NPROC_ONLN
+#elif defined _SC_CRAY_NCPU
+#define _SC_NPROCESSORS_ONLN _SC_CRAY_NCPU
+#endif
 #endif
 
 int online_cpus(void)
@@ -44,12 +44,12 @@ int online_cpus(void)
 	int cpucount;
 
 	mib[0] = CTL_HW;
-#  ifdef HW_AVAILCPU
+#ifdef HW_AVAILCPU
 	mib[1] = HW_AVAILCPU;
 	len = sizeof(cpucount);
 	if (!sysctl(mib, 2, &cpucount, &len, NULL, 0))
 		return cpucount;
-#  endif /* HW_AVAILCPU */
+#endif /* HW_AVAILCPU */
 	mib[1] = HW_NCPU;
 	len = sizeof(cpucount);
 	if (!sysctl(mib, 2, &cpucount, &len, NULL, 0))

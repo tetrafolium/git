@@ -26,8 +26,8 @@ static void update_progress(struct connectivity_progress *cp)
 		display_progress(cp->progress, cp->count);
 }
 
-static int add_one_ref(const char *path, const struct object_id *oid,
-		       int flag, void *cb_data)
+static int add_one_ref(const char *path, const struct object_id *oid, int flag,
+		       void *cb_data)
 {
 	struct rev_info *revs = (struct rev_info *)cb_data;
 	struct object *object;
@@ -62,8 +62,7 @@ struct recent_data {
 	timestamp_t timestamp;
 };
 
-static void add_recent_object(const struct object_id *oid,
-			      timestamp_t mtime,
+static void add_recent_object(const struct object_id *oid, timestamp_t mtime,
 			      struct recent_data *data)
 {
 	struct object *obj;
@@ -95,8 +94,8 @@ static void add_recent_object(const struct object_id *oid,
 		obj = (struct object *)lookup_blob(the_repository, oid);
 		break;
 	default:
-		die("unknown object type for %s: %s",
-		    oid_to_hex(oid), type_name(type));
+		die("unknown object type for %s: %s", oid_to_hex(oid),
+		    type_name(type));
 	}
 
 	if (!obj)
@@ -105,8 +104,8 @@ static void add_recent_object(const struct object_id *oid,
 	add_pending_object(data->revs, obj, "");
 }
 
-static int add_recent_loose(const struct object_id *oid,
-			    const char *path, void *data)
+static int add_recent_loose(const struct object_id *oid, const char *path,
+			    void *data)
 {
 	struct stat st;
 	struct object *obj = lookup_object(the_repository, oid);
@@ -130,9 +129,8 @@ static int add_recent_loose(const struct object_id *oid,
 	return 0;
 }
 
-static int add_recent_packed(const struct object_id *oid,
-			     struct packed_git *p, uint32_t pos,
-			     void *data)
+static int add_recent_packed(const struct object_id *oid, struct packed_git *p,
+			     uint32_t pos, void *data)
 {
 	struct object *obj = lookup_object(the_repository, oid);
 
@@ -177,12 +175,9 @@ static void *lookup_object_by_type(struct repository *r,
 	}
 }
 
-static int mark_object_seen(const struct object_id *oid,
-			     enum object_type type,
-			     int exclude,
-			     uint32_t name_hash,
-			     struct packed_git *found_pack,
-			     off_t found_offset)
+static int mark_object_seen(const struct object_id *oid, enum object_type type,
+			    int exclude, uint32_t name_hash,
+			    struct packed_git *found_pack, off_t found_offset)
 {
 	struct object *obj = lookup_object_by_type(the_repository, oid, type);
 	if (!obj)

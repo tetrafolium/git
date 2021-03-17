@@ -6,10 +6,7 @@
 #include "fsck.h"
 #include "config.h"
 
-static char const * const builtin_mktag_usage[] = {
-	N_("git mktag"),
-	NULL
-};
+static char const *const builtin_mktag_usage[] = { N_("git mktag"), NULL };
 static int option_strict = 1;
 
 static struct fsck_options fsck_options = FSCK_OPTIONS_STRICT;
@@ -21,15 +18,17 @@ static int mktag_config(const char *var, const char *value, void *cb)
 
 static int mktag_fsck_error_func(struct fsck_options *o,
 				 const struct object_id *oid,
-				 enum object_type object_type,
-				 int msg_type, const char *message)
+				 enum object_type object_type, int msg_type,
+				 const char *message)
 {
 	switch (msg_type) {
 	case FSCK_WARN:
 		if (!option_strict) {
-			fprintf_ln(stderr, _("warning: tag input does not pass fsck: %s"), message);
+			fprintf_ln(
+				stderr,
+				_("warning: tag input does not pass fsck: %s"),
+				message);
 			return 0;
-
 		}
 		/* fallthrough */
 	case FSCK_ERROR:
@@ -38,7 +37,8 @@ static int mktag_fsck_error_func(struct fsck_options *o,
 		 * like missing "tagger" lines are "only" warnings
 		 * under fsck, we've always considered them an error.
 		 */
-		fprintf_ln(stderr, _("error: tag input does not pass fsck: %s"), message);
+		fprintf_ln(stderr, _("error: tag input does not pass fsck: %s"),
+			   message);
 		return 1;
 	default:
 		BUG(_("%d (FSCK_IGNORE?) should never trigger this callback"),
@@ -60,12 +60,12 @@ static int verify_object_in_tag(struct object_id *tagged_oid, int *tagged_type)
 		    oid_to_hex(tagged_oid));
 	if (type != *tagged_type)
 		die(_("object '%s' tagged as '%s', but is a '%s' type"),
-		    oid_to_hex(tagged_oid),
-		    type_name(*tagged_type), type_name(type));
+		    oid_to_hex(tagged_oid), type_name(*tagged_type),
+		    type_name(type));
 
 	repl = lookup_replace_object(the_repository, tagged_oid);
-	ret = check_object_signature(the_repository, repl,
-				     buffer, size, type_name(*tagged_type));
+	ret = check_object_signature(the_repository, repl, buffer, size,
+				     type_name(*tagged_type));
 	free(buffer);
 
 	return ret;
@@ -83,8 +83,7 @@ int cmd_mktag(int argc, const char **argv, const char *prefix)
 	int tagged_type;
 	struct object_id result;
 
-	argc = parse_options(argc, argv, NULL,
-			     builtin_mktag_options,
+	argc = parse_options(argc, argv, NULL, builtin_mktag_options,
 			     builtin_mktag_usage, 0);
 
 	if (strbuf_read(&buf, 0, 0) < 0)

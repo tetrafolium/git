@@ -14,11 +14,9 @@ int cmd__parse_pathspec_file(int argc, const char **argv)
 		NULL
 	};
 
-	struct option options[] = {
-		OPT_PATHSPEC_FROM_FILE(&pathspec_from_file),
-		OPT_PATHSPEC_FILE_NUL(&pathspec_file_nul),
-		OPT_END()
-	};
+	struct option options[] = { OPT_PATHSPEC_FROM_FILE(&pathspec_from_file),
+				    OPT_PATHSPEC_FILE_NUL(&pathspec_file_nul),
+				    OPT_END() };
 
 	parse_options(argc, argv, NULL, options, usage, 0);
 

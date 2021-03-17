@@ -4,13 +4,7 @@
 #include "refspec.h"
 
 static struct refspec_item s_tag_refspec = {
-	0,
-	1,
-	0,
-	0,
-	0,
-	"refs/tags/*",
-	"refs/tags/*"
+	0, 1, 0, 0, 0, "refs/tags/*", "refs/tags/*"
 };
 
 /* See TAG_REFSPEC for the string version */
@@ -20,7 +14,8 @@ const struct refspec_item *tag_refspec = &s_tag_refspec;
  * Parses the provided refspec 'refspec' and populates the refspec_item 'item'.
  * Returns 1 if successful and 0 if the refspec is invalid.
  */
-static int parse_refspec(struct refspec_item *item, const char *refspec, int fetch)
+static int parse_refspec(struct refspec_item *item, const char *refspec,
+			 int fetch)
 {
 	size_t llen;
 	int is_glob;
@@ -75,7 +70,8 @@ static int parse_refspec(struct refspec_item *item, const char *refspec, int fet
 		item->src = xstrdup("HEAD");
 	else
 		item->src = xstrndup(lhs, llen);
-	flags = REFNAME_ALLOW_ONELEVEL | (is_glob ? REFNAME_REFSPEC_PATTERN : 0);
+	flags = REFNAME_ALLOW_ONELEVEL |
+		(is_glob ? REFNAME_REFSPEC_PATTERN : 0);
 
 	if (item->negative) {
 		struct object_id unused;
@@ -88,7 +84,8 @@ static int parse_refspec(struct refspec_item *item, const char *refspec, int fet
 		 */
 		if (!*item->src)
 			return 0; /* negative refspecs must not be empty */
-		else if (llen == the_hash_algo->hexsz && !get_oid_hex(item->src, &unused))
+		else if (llen == the_hash_algo->hexsz &&
+			 !get_oid_hex(item->src, &unused))
 			return 0; /* negative refpsecs cannot be exact sha1 */
 		else if (!check_refname_format(item->src, flags))
 			; /* valid looking ref is ok */
@@ -105,7 +102,8 @@ static int parse_refspec(struct refspec_item *item, const char *refspec, int fet
 		/* LHS */
 		if (!*item->src)
 			; /* empty is ok; it means "HEAD" */
-		else if (llen == the_hash_algo->hexsz && !get_oid_hex(item->src, &unused))
+		else if (llen == the_hash_algo->hexsz &&
+			 !get_oid_hex(item->src, &unused))
 			item->exact_sha1 = 1; /* ok */
 		else if (!check_refname_format(item->src, flags))
 			; /* valid looking ref is ok */
@@ -133,8 +131,7 @@ static int parse_refspec(struct refspec_item *item, const char *refspec, int fet
 		else if (is_glob) {
 			if (check_refname_format(item->src, flags))
 				return 0;
-		}
-		else
+		} else
 			; /* anything goes, for now */
 		/*
 		 * RHS
@@ -258,8 +255,7 @@ int valid_remote_name(const char *name)
 	return result;
 }
 
-void refspec_ref_prefixes(const struct refspec *rs,
-			  struct strvec *ref_prefixes)
+void refspec_ref_prefixes(const struct refspec *rs, struct strvec *ref_prefixes)
 {
 	int i;
 	for (i = 0; i < rs->nr; i++) {
@@ -280,8 +276,7 @@ void refspec_ref_prefixes(const struct refspec *rs,
 
 		if (item->pattern) {
 			const char *glob = strchr(prefix, '*');
-			strvec_pushf(ref_prefixes, "%.*s",
-				     (int)(glob - prefix),
+			strvec_pushf(ref_prefixes, "%.*s", (int)(glob - prefix),
 				     prefix);
 		} else {
 			expand_ref_prefix(ref_prefixes, prefix);

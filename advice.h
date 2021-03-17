@@ -41,7 +41,7 @@ extern int advice_add_empty_pathspec;
  * Add the new config variable to Documentation/config/advice.txt.
  * Call advise_if_enabled to print your advice.
  */
- enum advice_type {
+enum advice_type {
 	ADVICE_ADD_EMBEDDED_REPO,
 	ADVICE_AM_WORK_DIR,
 	ADVICE_CHECKOUT_AMBIGUOUS_REMOTE_BRANCH_NAME,
@@ -75,8 +75,7 @@ extern int advice_add_empty_pathspec;
 };
 
 int git_default_advice_config(const char *var, const char *value);
-__attribute__((format (printf, 1, 2)))
-void advise(const char *advice, ...);
+__attribute__((format(printf, 1, 2))) void advise(const char *advice, ...);
 
 /**
  * Checks if advice type is enabled (can be printed to the user).

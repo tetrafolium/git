@@ -4,7 +4,8 @@
 
 int cmd__urlmatch_normalization(int argc, const char **argv)
 {
-	const char usage[] = "test-tool urlmatch-normalization [-p | -l] <url1> | <url1> <url2>";
+	const char usage[] =
+		"test-tool urlmatch-normalization [-p | -l] <url1> | <url1> <url2>";
 	char *url1, *url2;
 	int opt_p = 0, opt_l = 0;
 

@@ -60,13 +60,9 @@ static int read_patches(const char *range, struct string_list *list,
 		      * else in diffs, but still look reasonable
 		      * (e.g. will not be confusing when debugging)
 		      */
-		     "--output-indicator-new=>",
-		     "--output-indicator-old=<",
-		     "--output-indicator-context=#",
-		     "--no-abbrev-commit",
-		     "--pretty=medium",
-		     "--notes",
-		     NULL);
+		     "--output-indicator-new=>", "--output-indicator-old=<",
+		     "--output-indicator-context=#", "--no-abbrev-commit",
+		     "--pretty=medium", "--notes", NULL);
 	if (other_arg)
 		strvec_pushv(&cp.args, other_arg->v);
 	strvec_push(&cp.args, range);
@@ -150,9 +146,11 @@ static int read_patches(const char *range, struct string_list *list,
 			if (patch.is_new > 0)
 				strbuf_addf(&buf, "%s (new)", patch.new_name);
 			else if (patch.is_delete > 0)
-				strbuf_addf(&buf, "%s (deleted)", patch.old_name);
+				strbuf_addf(&buf, "%s (deleted)",
+					    patch.old_name);
 			else if (patch.is_rename)
-				strbuf_addf(&buf, "%s => %s", patch.old_name, patch.new_name);
+				strbuf_addf(&buf, "%s => %s", patch.old_name,
+					    patch.new_name);
 			else
 				strbuf_addstr(&buf, patch.new_name);
 
@@ -298,8 +296,7 @@ static int diffsize(const char *a, const char *b)
 	mf2.size = strlen(b);
 
 	cfg.ctxlen = 3;
-	if (!xdi_diff_outf(&mf1, &mf2,
-			   diffsize_hunk, diffsize_consume, &count,
+	if (!xdi_diff_outf(&mf1, &mf2, diffsize_hunk, diffsize_consume, &count,
 			   &pp, &cfg))
 		return count;
 
@@ -334,7 +331,8 @@ static void get_correspondences(struct string_list *a, struct string_list *b,
 		}
 
 		c = a_util->matching < 0 ?
-			a_util->diffsize * creation_factor / 100 : COST_MAX;
+			    a_util->diffsize * creation_factor / 100 :
+			    COST_MAX;
 		for (j = b->nr; j < n; j++)
 			cost[i + n * j] = c;
 	}
@@ -343,7 +341,8 @@ static void get_correspondences(struct string_list *a, struct string_list *b,
 		struct patch_util *util = b->items[j].util;
 
 		c = util->matching < 0 ?
-			util->diffsize * creation_factor / 100 : COST_MAX;
+			    util->diffsize * creation_factor / 100 :
+			    COST_MAX;
 		for (i = a->nr; i < n; i++)
 			cost[i + n * j] = c;
 	}
@@ -368,10 +367,8 @@ static void get_correspondences(struct string_list *a, struct string_list *b,
 	free(b2a);
 }
 
-static void output_pair_header(struct diff_options *diffopt,
-			       int patch_no_width,
-			       struct strbuf *buf,
-			       struct strbuf *dashes,
+static void output_pair_header(struct diff_options *diffopt, int patch_no_width,
+			       struct strbuf *buf, struct strbuf *dashes,
 			       struct patch_util *a_util,
 			       struct patch_util *b_util)
 {
@@ -385,9 +382,9 @@ static void output_pair_header(struct diff_options *diffopt,
 	const char *color;
 
 	if (!dashes->len)
-		strbuf_addchars(dashes, '-',
-				strlen(find_unique_abbrev(oid,
-							  DEFAULT_ABBREV)));
+		strbuf_addchars(
+			dashes, '-',
+			strlen(find_unique_abbrev(oid, DEFAULT_ABBREV)));
 
 	if (!b_util) {
 		color = color_old;
@@ -436,10 +433,10 @@ static void output_pair_header(struct diff_options *diffopt,
 	fwrite(buf->buf, buf->len, 1, diffopt->file);
 }
 
-static struct userdiff_driver section_headers = {
-	.funcname = { "^ ## (.*) ##$\n"
-		      "^.?@@ (.*)$", REG_EXTENDED }
-};
+static struct userdiff_driver section_headers = { .funcname = {
+							  "^ ## (.*) ##$\n"
+							  "^.?@@ (.*)$",
+							  REG_EXTENDED } };
 
 static struct diff_filespec *get_filespec(const char *name, const char *p)
 {
@@ -458,8 +455,8 @@ static struct diff_filespec *get_filespec(const char *name, const char *p)
 static void patch_diff(const char *a, const char *b,
 		       struct diff_options *diffopt)
 {
-	diff_queue(&diff_queued_diff,
-		   get_filespec("a", a), get_filespec("b", b));
+	diff_queue(&diff_queued_diff, get_filespec("a", a),
+		   get_filespec("b", b));
 
 	diffcore_std(diffopt);
 	diff_flush(diffopt);
@@ -487,8 +484,7 @@ static void output(struct string_list *a, struct string_list *b,
 	if (!opts.output_format)
 		opts.output_format = DIFF_FORMAT_PATCH;
 	opts.flags.suppress_diff_headers = 1;
-	opts.flags.dual_color_diffed_diffs =
-		range_diff_opts->dual_color;
+	opts.flags.dual_color_diffed_diffs = range_diff_opts->dual_color;
 	opts.flags.suppress_hunk_header_line_count = 1;
 	opts.output_prefix = output_prefix_cb;
 	strbuf_addstr(&indent, "    ");
@@ -515,8 +511,8 @@ static void output(struct string_list *a, struct string_list *b,
 		/* Show unmatched LHS commit whose predecessors were shown. */
 		if (i < a->nr && a_util->matching < 0) {
 			if (!range_diff_opts->right_only)
-				output_pair_header(&opts, patch_no_width,
-					   &buf, &dashes, a_util, NULL);
+				output_pair_header(&opts, patch_no_width, &buf,
+						   &dashes, a_util, NULL);
 			i++;
 			continue;
 		}
@@ -524,16 +520,16 @@ static void output(struct string_list *a, struct string_list *b,
 		/* Show unmatched RHS commits. */
 		while (j < b->nr && b_util->matching < 0) {
 			if (!range_diff_opts->left_only)
-				output_pair_header(&opts, patch_no_width,
-					   &buf, &dashes, NULL, b_util);
+				output_pair_header(&opts, patch_no_width, &buf,
+						   &dashes, NULL, b_util);
 			b_util = ++j < b->nr ? b->items[j].util : NULL;
 		}
 
 		/* Show matching LHS/RHS pair. */
 		if (j < b->nr) {
 			a_util = a->items[b_util->matching].util;
-			output_pair_header(&opts, patch_no_width,
-					   &buf, &dashes, a_util, b_util);
+			output_pair_header(&opts, patch_no_width, &buf, &dashes,
+					   a_util, b_util);
 			if (!(opts.output_format & DIFF_FORMAT_NO_OUTPUT))
 				patch_diff(a->items[b_util->matching].string,
 					   b->items[j].string, &opts);
@@ -555,7 +551,8 @@ int show_range_diff(const char *range1, const char *range2,
 	struct string_list branch2 = STRING_LIST_INIT_DUP;
 
 	if (range_diff_opts->left_only && range_diff_opts->right_only)
-		res = error(_("--left-only and --right-only are mutually exclusive"));
+		res = error(_(
+			"--left-only and --right-only are mutually exclusive"));
 
 	if (!res && read_patches(range1, &branch1, range_diff_opts->other_arg))
 		res = error(_("could not parse log for '%s'"), range1);

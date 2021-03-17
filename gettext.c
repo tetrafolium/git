@@ -10,9 +10,9 @@
 #include "config.h"
 
 #ifndef NO_GETTEXT
-#	include <locale.h>
-#	include <libintl.h>
-#	ifdef GIT_WINDOWS_NATIVE
+#include <locale.h>
+#include <libintl.h>
+#ifdef GIT_WINDOWS_NATIVE
 
 static const char *locale_charset(void)
 {
@@ -30,12 +30,12 @@ static const char *locale_charset(void)
 	return !dot ? env : dot + 1;
 }
 
-#	elif defined HAVE_LIBCHARSET_H
-#		include <libcharset.h>
-#	else
-#		include <langinfo.h>
-#		define locale_charset() nl_langinfo(CODESET)
-#	endif
+#elif defined HAVE_LIBCHARSET_H
+#include <libcharset.h>
+#else
+#include <langinfo.h>
+#define locale_charset() nl_langinfo(CODESET)
+#endif
 #endif
 
 static const char *charset;
@@ -56,9 +56,7 @@ const char *get_preferred_languages(void)
 
 #ifndef NO_GETTEXT
 	retval = setlocale(LC_MESSAGES, NULL);
-	if (retval && *retval &&
-		strcmp(retval, "C") &&
-		strcmp(retval, "POSIX"))
+	if (retval && *retval && strcmp(retval, "C") && strcmp(retval, "POSIX"))
 		return retval;
 #endif
 

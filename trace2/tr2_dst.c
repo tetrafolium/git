@@ -68,9 +68,11 @@ static int tr2_dst_too_many_files(struct tr2_dst *dst, const char *tgt_prefix)
 	struct strbuf path = STRBUF_INIT, sentinel_path = STRBUF_INIT;
 	struct stat statbuf;
 
-	/* Get the config or envvar and decide if we should continue this check */
+	/* Get the config or envvar and decide if we should continue this check
+	 */
 	max_files_var = tr2_sysenv_get(TR2_SYSENV_MAX_FILES);
-	if (max_files_var && *max_files_var && ((max_files = atoi(max_files_var)) >= 0))
+	if (max_files_var && *max_files_var &&
+	    ((max_files = atoi(max_files_var)) >= 0))
 		tr2env_max_files = max_files;
 
 	if (!tr2env_max_files) {
@@ -100,7 +102,8 @@ static int tr2_dst_too_many_files(struct tr2_dst *dst, const char *tgt_prefix)
 
 	if (file_count >= tr2env_max_files) {
 		dst->too_many_files = 1;
-		dst->fd = open(sentinel_path.buf, O_WRONLY | O_CREAT | O_EXCL, 0666);
+		dst->fd = open(sentinel_path.buf, O_WRONLY | O_CREAT | O_EXCL,
+			       0666);
 		ret = -1;
 		goto cleanup;
 	}
@@ -131,13 +134,15 @@ static int tr2_dst_try_auto_path(struct tr2_dst *dst, const char *tgt_prefix)
 
 	too_many_files = tr2_dst_too_many_files(dst, tgt_prefix);
 	if (!too_many_files) {
-		for (attempt_count = 0; attempt_count < MAX_AUTO_ATTEMPTS; attempt_count++) {
+		for (attempt_count = 0; attempt_count < MAX_AUTO_ATTEMPTS;
+		     attempt_count++) {
 			if (attempt_count > 0) {
 				strbuf_setlen(&path, base_path_len);
 				strbuf_addf(&path, ".%d", attempt_count);
 			}
 
-			dst->fd = open(path.buf, O_WRONLY | O_CREAT | O_EXCL, 0666);
+			dst->fd = open(path.buf, O_WRONLY | O_CREAT | O_EXCL,
+				       0666);
 			if (dst->fd != -1)
 				break;
 		}
@@ -154,7 +159,7 @@ static int tr2_dst_try_auto_path(struct tr2_dst *dst, const char *tgt_prefix)
 	if (dst->fd == -1) {
 		if (tr2_dst_want_warning())
 			warning("trace2: could not open '%.*s' for '%s' tracing: %s",
-				(int) base_path_len, path.buf,
+				(int)base_path_len, path.buf,
 				tr2_sysenv_display_name(dst->sysenv_var),
 				strerror(errno));
 
@@ -220,7 +225,7 @@ static int tr2_dst_try_uds_connect(const char *path, int sock_type, int *out_fd)
 }
 
 #define TR2_DST_UDS_TRY_STREAM (1 << 0)
-#define TR2_DST_UDS_TRY_DGRAM  (1 << 1)
+#define TR2_DST_UDS_TRY_DGRAM (1 << 1)
 
 static int tr2_dst_try_unix_domain_socket(struct tr2_dst *dst,
 					  const char *tgt_value)

@@ -48,7 +48,6 @@ int cmd__oidmap(int argc, const char **argv)
 			p2 = strtok(NULL, DELIM);
 
 		if (!strcmp("put", cmd) && p1 && p2) {
-
 			if (get_oid(p1, &oid)) {
 				printf("Unknown oid: %s\n", p1);
 				continue;
@@ -66,7 +65,6 @@ int cmd__oidmap(int argc, const char **argv)
 			free(entry);
 
 		} else if (!strcmp("get", cmd) && p1) {
-
 			if (get_oid(p1, &oid)) {
 				printf("Unknown oid: %s\n", p1);
 				continue;
@@ -79,7 +77,6 @@ int cmd__oidmap(int argc, const char **argv)
 			puts(entry ? entry->name : "NULL");
 
 		} else if (!strcmp("remove", cmd) && p1) {
-
 			if (get_oid(p1, &oid)) {
 				printf("Unknown oid: %s\n", p1);
 				continue;
@@ -93,16 +90,14 @@ int cmd__oidmap(int argc, const char **argv)
 			free(entry);
 
 		} else if (!strcmp("iterate", cmd)) {
-
 			struct oidmap_iter iter;
 			oidmap_iter_init(&map, &iter);
 			while ((entry = oidmap_iter_next(&iter)))
-				printf("%s %s\n", oid_to_hex(&entry->entry.oid), entry->name);
+				printf("%s %s\n", oid_to_hex(&entry->entry.oid),
+				       entry->name);
 
 		} else {
-
 			printf("Unknown command %s\n", cmd);
-
 		}
 	}
 

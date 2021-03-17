@@ -3,7 +3,8 @@
 #include "config.h"
 #include "diff.h"
 
-static void flush_current_id(int patchlen, struct object_id *id, struct object_id *result)
+static void flush_current_id(int patchlen, struct object_id *id,
+			     struct object_id *result)
 {
 	if (patchlen)
 		printf("%s %s\n", oid_to_hex(result), oid_to_hex(id));
@@ -34,7 +35,7 @@ static int scan_hunk_header(const char *p, int *p_before, int *p_after)
 		q += n + 1;
 		n = strspn(q, digits);
 	}
-	if (n == 0 || q[n] != ' ' || q[n+1] != '+')
+	if (n == 0 || q[n] != ' ' || q[n + 1] != '+')
 		return 0;
 
 	r = q + n + 2;

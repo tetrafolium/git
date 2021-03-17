@@ -23,9 +23,8 @@ static void create_output_file(const char *output_file)
 	}
 }
 
-static int run_remote_archiver(int argc, const char **argv,
-			       const char *remote, const char *exec,
-			       const char *name_hint)
+static int run_remote_archiver(int argc, const char **argv, const char *remote,
+			       const char *exec, const char *name_hint)
 {
 	int fd[2], i, rv;
 	struct transport *transport;
@@ -47,7 +46,8 @@ static int run_remote_archiver(int argc, const char **argv,
 	if (name_hint) {
 		const char *format = archive_format_from_filename(name_hint);
 		if (format)
-			packet_write_fmt(fd[1], "argument --format=%s\n", format);
+			packet_write_fmt(fd[1], "argument --format=%s\n",
+					 format);
 	}
 	for (i = 1; i < argc; i++)
 		packet_write_fmt(fd[1], "argument %s\n", argv[i]);
@@ -55,7 +55,7 @@ static int run_remote_archiver(int argc, const char **argv,
 
 	packet_reader_init(&reader, fd[0], NULL, 0,
 			   PACKET_READ_CHOMP_NEWLINE |
-			   PACKET_READ_DIE_ON_ERR_PACKET);
+				   PACKET_READ_DIE_ON_ERR_PACKET);
 
 	if (packet_reader_read(&reader) != PACKET_READ_NORMAL)
 		die(_("git archive: expected ACK/NAK, got a flush packet"));
@@ -75,10 +75,9 @@ static int run_remote_archiver(int argc, const char **argv,
 	return !!rv;
 }
 
-#define PARSE_OPT_KEEP_ALL ( PARSE_OPT_KEEP_DASHDASH | 	\
-			     PARSE_OPT_KEEP_ARGV0 | 	\
-			     PARSE_OPT_KEEP_UNKNOWN |	\
-			     PARSE_OPT_NO_INTERNAL_HELP	)
+#define PARSE_OPT_KEEP_ALL                                \
+	(PARSE_OPT_KEEP_DASHDASH | PARSE_OPT_KEEP_ARGV0 | \
+	 PARSE_OPT_KEEP_UNKNOWN | PARSE_OPT_NO_INTERNAL_HELP)
 
 int cmd_archive(int argc, const char **argv, const char *prefix)
 {
@@ -88,10 +87,11 @@ int cmd_archive(int argc, const char **argv, const char *prefix)
 	struct option local_opts[] = {
 		OPT_FILENAME('o', "output", &output,
 			     N_("write the archive to this file")),
-		OPT_STRING(0, "remote", &remote, N_("repo"),
+		OPT_STRING(
+			0, "remote", &remote, N_("repo"),
 			N_("retrieve the archive from remote repository <repo>")),
 		OPT_STRING(0, "exec", &exec, N_("command"),
-			N_("path to the remote git-upload-archive command")),
+			   N_("path to the remote git-upload-archive command")),
 		OPT_END()
 	};
 

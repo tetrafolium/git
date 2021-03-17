@@ -22,12 +22,10 @@ struct mailinfo {
 	struct strbuf *content[MAX_BOUNDARIES];
 	struct strbuf **content_top;
 	struct strbuf charset;
-	unsigned int format_flowed:1;
-	unsigned int delsp:1;
+	unsigned int format_flowed : 1;
+	unsigned int delsp : 1;
 	char *message_id;
-	enum  {
-		TE_DONTCARE, TE_QP, TE_BASE64
-	} transfer_encoding;
+	enum { TE_DONTCARE, TE_QP, TE_BASE64 } transfer_encoding;
 	int patch_lines;
 	int filter_stage; /* still reading log or are we copying patch? */
 	int header_stage; /* still checking in-body headers? */

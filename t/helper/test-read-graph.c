@@ -18,12 +18,11 @@ int cmd__read_graph(int argc, const char **argv)
 	if (!graph)
 		return 1;
 
-	printf("header: %08x %d %d %d %d\n",
-		ntohl(*(uint32_t*)graph->data),
-		*(unsigned char*)(graph->data + 4),
-		*(unsigned char*)(graph->data + 5),
-		*(unsigned char*)(graph->data + 6),
-		*(unsigned char*)(graph->data + 7));
+	printf("header: %08x %d %d %d %d\n", ntohl(*(uint32_t *)graph->data),
+	       *(unsigned char *)(graph->data + 4),
+	       *(unsigned char *)(graph->data + 5),
+	       *(unsigned char *)(graph->data + 6),
+	       *(unsigned char *)(graph->data + 7));
 	printf("num_commits: %u\n", graph->num_commits);
 	printf("chunks:");
 

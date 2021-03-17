@@ -40,9 +40,8 @@ extern enum branch_track git_branch_track;
  *     that start_name is a tracking branch for (if any).
  *
  */
-void create_branch(struct repository *r,
-		   const char *name, const char *start_name,
-		   int force, int clobber_head_ok,
+void create_branch(struct repository *r, const char *name,
+		   const char *start_name, int force, int clobber_head_ok,
 		   int reflog, int quiet, enum branch_track track);
 
 /*
@@ -78,7 +77,8 @@ void remove_branch_state(struct repository *r, int verbose);
  * Returns 0 on success.
  */
 #define BRANCH_CONFIG_VERBOSE 01
-int install_branch_config(int flag, const char *local, const char *origin, const char *remote);
+int install_branch_config(int flag, const char *local, const char *origin,
+			  const char *remote);
 
 /*
  * Read branch description

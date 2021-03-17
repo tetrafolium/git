@@ -23,23 +23,23 @@ struct fetch_pack_args {
 	 */
 	const struct oid_array *negotiation_tips;
 
-	unsigned deepen_relative:1;
-	unsigned quiet:1;
-	unsigned keep_pack:1;
-	unsigned lock_pack:1;
-	unsigned use_thin_pack:1;
-	unsigned fetch_all:1;
-	unsigned stdin_refs:1;
-	unsigned diag_url:1;
-	unsigned verbose:1;
-	unsigned no_progress:1;
-	unsigned include_tag:1;
-	unsigned stateless_rpc:1;
-	unsigned check_self_contained_and_connected:1;
-	unsigned self_contained_and_connected:1;
-	unsigned cloning:1;
-	unsigned update_shallow:1;
-	unsigned deepen:1;
+	unsigned deepen_relative : 1;
+	unsigned quiet : 1;
+	unsigned keep_pack : 1;
+	unsigned lock_pack : 1;
+	unsigned use_thin_pack : 1;
+	unsigned fetch_all : 1;
+	unsigned stdin_refs : 1;
+	unsigned diag_url : 1;
+	unsigned verbose : 1;
+	unsigned no_progress : 1;
+	unsigned include_tag : 1;
+	unsigned stateless_rpc : 1;
+	unsigned check_self_contained_and_connected : 1;
+	unsigned self_contained_and_connected : 1;
+	unsigned cloning : 1;
+	unsigned update_shallow : 1;
+	unsigned deepen : 1;
 
 	/*
 	 * Indicate that the remote of this request is a promisor remote. The
@@ -48,7 +48,7 @@ struct fetch_pack_args {
 	 * together with a ".promisor" file indicating that the aforementioned
 	 * pack is a promisor pack.
 	 */
-	unsigned from_promisor:1;
+	unsigned from_promisor : 1;
 
 	/*
 	 * Because fetch_pack() overwrites the shallow file upon a
@@ -63,7 +63,7 @@ struct fetch_pack_args {
 	 * repository to satisfy connectivity needs, whereas the
 	 * latter doesn't.
 	 */
-	unsigned connectivity_checked:1;
+	unsigned connectivity_checked : 1;
 };
 
 /*
@@ -71,12 +71,9 @@ struct fetch_pack_args {
  * On return, the names that were found on the remote will have been
  * marked as such.
  */
-struct ref *fetch_pack(struct fetch_pack_args *args,
-		       int fd[],
-		       const struct ref *ref,
-		       struct ref **sought,
-		       int nr_sought,
-		       struct oid_array *shallow,
+struct ref *fetch_pack(struct fetch_pack_args *args, int fd[],
+		       const struct ref *ref, struct ref **sought,
+		       int nr_sought, struct oid_array *shallow,
 		       struct string_list *pack_lockfiles,
 		       enum protocol_version version);
 

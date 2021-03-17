@@ -21,10 +21,8 @@ struct traversal_context {
 	struct filter *filter;
 };
 
-static void process_blob(struct traversal_context *ctx,
-			 struct blob *blob,
-			 struct strbuf *path,
-			 const char *name)
+static void process_blob(struct traversal_context *ctx, struct blob *blob,
+			 struct strbuf *path, const char *name)
 {
 	struct object *obj = &blob->object;
 	size_t pathlen;
@@ -47,14 +45,12 @@ static void process_blob(struct traversal_context *ctx,
 	 * of missing objects.
 	 */
 	if (ctx->revs->exclude_promisor_objects &&
-	    !has_object_file(&obj->oid) &&
-	    is_promisor_object(&obj->oid))
+	    !has_object_file(&obj->oid) && is_promisor_object(&obj->oid))
 		return;
 
 	pathlen = path->len;
 	strbuf_addstr(path, name);
-	r = list_objects_filter__filter_object(ctx->revs->repo,
-					       LOFS_BLOB, obj,
+	r = list_objects_filter__filter_object(ctx->revs->repo, LOFS_BLOB, obj,
 					       path->buf, &path->buf[pathlen],
 					       ctx->filter);
 	if (r & LOFR_MARK_SEEN)
@@ -87,34 +83,31 @@ static void process_blob(struct traversal_context *ctx,
  * any sense what-so-ever to ever do that is another issue.
  */
 static void process_gitlink(struct traversal_context *ctx,
-			    const unsigned char *sha1,
-			    struct strbuf *path,
+			    const unsigned char *sha1, struct strbuf *path,
 			    const char *name)
 {
 	/* Nothing to do */
 }
 
-static void process_tree(struct traversal_context *ctx,
-			 struct tree *tree,
-			 struct strbuf *base,
-			 const char *name);
+static void process_tree(struct traversal_context *ctx, struct tree *tree,
+			 struct strbuf *base, const char *name);
 
 static void process_tree_contents(struct traversal_context *ctx,
-				  struct tree *tree,
-				  struct strbuf *base)
+				  struct tree *tree, struct strbuf *base)
 {
 	struct tree_desc desc;
 	struct name_entry entry;
 	enum interesting match = ctx->revs->diffopt.pathspec.nr == 0 ?
-		all_entries_interesting : entry_not_interesting;
+					 all_entries_interesting :
+					 entry_not_interesting;
 
 	init_tree_desc(&desc, tree->buffer, tree->size);
 
 	while (tree_entry(&desc, &entry)) {
 		if (match != all_entries_interesting) {
-			match = tree_entry_interesting(ctx->revs->repo->index,
-						       &entry, base, 0,
-						       &ctx->revs->diffopt.pathspec);
+			match = tree_entry_interesting(
+				ctx->revs->repo->index, &entry, base, 0,
+				&ctx->revs->diffopt.pathspec);
 			if (match == all_entries_not_interesting)
 				break;
 			if (match == entry_not_interesting)
@@ -122,7 +115,8 @@ static void process_tree_contents(struct traversal_context *ctx,
 		}
 
 		if (S_ISDIR(entry.mode)) {
-			struct tree *t = lookup_tree(ctx->revs->repo, &entry.oid);
+			struct tree *t =
+				lookup_tree(ctx->revs->repo, &entry.oid);
 			if (!t) {
 				die(_("entry '%s' in tree %s has tree mode, "
 				      "but is not a tree"),
@@ -130,12 +124,11 @@ static void process_tree_contents(struct traversal_context *ctx,
 			}
 			t->object.flags |= NOT_USER_GIVEN;
 			process_tree(ctx, t, base, entry.path);
-		}
-		else if (S_ISGITLINK(entry.mode))
-			process_gitlink(ctx, entry.oid.hash,
-					base, entry.path);
+		} else if (S_ISGITLINK(entry.mode))
+			process_gitlink(ctx, entry.oid.hash, base, entry.path);
 		else {
-			struct blob *b = lookup_blob(ctx->revs->repo, &entry.oid);
+			struct blob *b =
+				lookup_blob(ctx->revs->repo, &entry.oid);
 			if (!b) {
 				die(_("entry '%s' in tree %s has blob mode, "
 				      "but is not a blob"),
@@ -147,10 +140,8 @@ static void process_tree_contents(struct traversal_context *ctx,
 	}
 }
 
-static void process_tree(struct traversal_context *ctx,
-			 struct tree *tree,
-			 struct strbuf *base,
-			 const char *name)
+static void process_tree(struct traversal_context *ctx, struct tree *tree,
+			 struct strbuf *base, const char *name)
 {
 	struct object *obj = &tree->object;
 	struct rev_info *revs = ctx->revs;
@@ -184,9 +175,9 @@ static void process_tree(struct traversal_context *ctx,
 	}
 
 	strbuf_addstr(base, name);
-	r = list_objects_filter__filter_object(ctx->revs->repo,
-					       LOFS_BEGIN_TREE, obj,
-					       base->buf, &base->buf[baselen],
+	r = list_objects_filter__filter_object(ctx->revs->repo, LOFS_BEGIN_TREE,
+					       obj, base->buf,
+					       &base->buf[baselen],
 					       ctx->filter);
 	if (r & LOFR_MARK_SEEN)
 		obj->flags |= SEEN;
@@ -200,9 +191,9 @@ static void process_tree(struct traversal_context *ctx,
 	else if (!failed_parse)
 		process_tree_contents(ctx, tree, base);
 
-	r = list_objects_filter__filter_object(ctx->revs->repo,
-					       LOFS_END_TREE, obj,
-					       base->buf, &base->buf[baselen],
+	r = list_objects_filter__filter_object(ctx->revs->repo, LOFS_END_TREE,
+					       obj, base->buf,
+					       &base->buf[baselen],
 					       ctx->filter);
 	if (r & LOFR_MARK_SEEN)
 		obj->flags |= SEEN;
@@ -231,10 +222,8 @@ static void mark_edge_parents_uninteresting(struct commit *commit,
 	}
 }
 
-static void add_edge_parents(struct commit *commit,
-			     struct rev_info *revs,
-			     show_edge_fn show_edge,
-			     struct oidset *set)
+static void add_edge_parents(struct commit *commit, struct rev_info *revs,
+			     show_edge_fn show_edge, struct oidset *set)
 {
 	struct commit_list *parents;
 
@@ -258,8 +247,7 @@ static void add_edge_parents(struct commit *commit,
 	}
 }
 
-void mark_edges_uninteresting(struct rev_info *revs,
-			      show_edge_fn show_edge,
+void mark_edges_uninteresting(struct rev_info *revs, show_edge_fn show_edge,
 			      int sparse)
 {
 	struct commit_list *list;
@@ -286,15 +274,17 @@ void mark_edges_uninteresting(struct rev_info *revs,
 		for (list = revs->commits; list; list = list->next) {
 			struct commit *commit = list->item;
 			if (commit->object.flags & UNINTERESTING) {
-				mark_tree_uninteresting(revs->repo,
-							get_commit_tree(commit));
-				if (revs->edge_hint_aggressive && !(commit->object.flags & SHOWN)) {
+				mark_tree_uninteresting(
+					revs->repo, get_commit_tree(commit));
+				if (revs->edge_hint_aggressive &&
+				    !(commit->object.flags & SHOWN)) {
 					commit->object.flags |= SHOWN;
 					show_edge(commit);
 				}
 				continue;
 			}
-			mark_edge_parents_uninteresting(commit, revs, show_edge);
+			mark_edge_parents_uninteresting(commit, revs,
+							show_edge);
 		}
 	}
 
@@ -302,7 +292,8 @@ void mark_edges_uninteresting(struct rev_info *revs,
 		for (i = 0; i < revs->cmdline.nr; i++) {
 			struct object *obj = revs->cmdline.rev[i].item;
 			struct commit *commit = (struct commit *)obj;
-			if (obj->type != OBJ_COMMIT || !(obj->flags & UNINTERESTING))
+			if (obj->type != OBJ_COMMIT ||
+			    !(obj->flags & UNINTERESTING))
 				continue;
 			mark_tree_uninteresting(revs->repo,
 						get_commit_tree(commit));
@@ -327,7 +318,8 @@ static void traverse_trees_and_blobs(struct traversal_context *ctx,
 	assert(base->len == 0);
 
 	for (i = 0; i < ctx->revs->pending.nr; i++) {
-		struct object_array_entry *pending = ctx->revs->pending.objects + i;
+		struct object_array_entry *pending =
+			ctx->revs->pending.objects + i;
 		struct object *obj = pending->item;
 		const char *name = pending->name;
 		const char *path = pending->path;
@@ -348,8 +340,8 @@ static void traverse_trees_and_blobs(struct traversal_context *ctx,
 			process_blob(ctx, (struct blob *)obj, base, path);
 			continue;
 		}
-		die("unknown pending object %s (%s)",
-		    oid_to_hex(&obj->oid), name);
+		die("unknown pending object %s (%s)", oid_to_hex(&obj->oid),
+		    name);
 	}
 	object_array_clear(&ctx->revs->pending);
 }
@@ -373,7 +365,7 @@ static void do_traverse(struct traversal_context *ctx)
 			add_pending_tree(ctx->revs, tree);
 		} else if (commit->object.parsed) {
 			die(_("unable to load root tree for commit %s"),
-			      oid_to_hex(&commit->object.oid));
+			    oid_to_hex(&commit->object.oid));
 		}
 		ctx->show_commit(commit, ctx->show_data);
 
@@ -389,10 +381,8 @@ static void do_traverse(struct traversal_context *ctx)
 	strbuf_release(&csp);
 }
 
-void traverse_commit_list(struct rev_info *revs,
-			  show_commit_fn show_commit,
-			  show_object_fn show_object,
-			  void *show_data)
+void traverse_commit_list(struct rev_info *revs, show_commit_fn show_commit,
+			  show_object_fn show_object, void *show_data)
 {
 	struct traversal_context ctx;
 	ctx.revs = revs;
@@ -405,11 +395,8 @@ void traverse_commit_list(struct rev_info *revs,
 
 void traverse_commit_list_filtered(
 	struct list_objects_filter_options *filter_options,
-	struct rev_info *revs,
-	show_commit_fn show_commit,
-	show_object_fn show_object,
-	void *show_data,
-	struct oidset *omitted)
+	struct rev_info *revs, show_commit_fn show_commit,
+	show_object_fn show_object, void *show_data, struct oidset *omitted)
 {
 	struct traversal_context ctx;
 

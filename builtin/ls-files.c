@@ -79,16 +79,17 @@ static void write_name(const char *name)
 	 * With "--full-name", prefix_len=0; this caller needs to pass
 	 * an empty string in that case (a NULL is good for "").
 	 */
-	write_name_quoted_relative(name, prefix_len ? prefix : NULL,
-				   stdout, line_terminator);
+	write_name_quoted_relative(name, prefix_len ? prefix : NULL, stdout,
+				   line_terminator);
 }
 
 static const char *get_tag(const struct cache_entry *ce, const char *tag)
 {
 	static char alttag[4];
 
-	if (tag && *tag && ((show_valid_bit && (ce->ce_flags & CE_VALID)) ||
-		(show_fsmonitor_bit && (ce->ce_flags & CE_FSMONITOR_VALID)))) {
+	if (tag && *tag &&
+	    ((show_valid_bit && (ce->ce_flags & CE_VALID)) ||
+	     (show_fsmonitor_bit && (ce->ce_flags & CE_FSMONITOR_VALID)))) {
 		memcpy(alttag, tag, 3);
 
 		if (isalpha(tag[0])) {
@@ -121,8 +122,8 @@ static void print_debug(const struct cache_entry *ce)
 	}
 }
 
-static void show_dir_entry(const struct index_state *istate,
-			   const char *tag, struct dir_entry *ent)
+static void show_dir_entry(const struct index_state *istate, const char *tag,
+			   struct dir_entry *ent)
 {
 	int len = max_prefix_len;
 
@@ -166,10 +167,11 @@ static void show_killed_files(const struct index_state *istate,
 				/* If ent->name is prefix of an entry in the
 				 * cache, it will be killed.
 				 */
-				pos = index_name_pos(istate, ent->name, ent->len);
+				pos = index_name_pos(istate, ent->name,
+						     ent->len);
 				if (0 <= pos)
 					BUG("killed-file %.*s not found",
-						ent->len, ent->name);
+					    ent->len, ent->name);
 				pos = -pos - 1;
 				while (pos < istate->cache_nr &&
 				       ce_stage(istate->cache[pos]))
@@ -188,7 +190,8 @@ static void show_killed_files(const struct index_state *istate,
 					killed = 1;
 				break;
 			}
-			if (0 <= index_name_pos(istate, ent->name, sp - ent->name)) {
+			if (0 <=
+			    index_name_pos(istate, ent->name, sp - ent->name)) {
 				/* If any of the leading directories in
 				 * ent->name is registered in the cache,
 				 * ent->name will be killed.
@@ -208,8 +211,8 @@ static void show_submodule(struct repository *superproject,
 			   struct dir_struct *dir, const char *path)
 {
 	struct repository subrepo;
-	const struct submodule *sub = submodule_from_path(superproject,
-							  &null_oid, path);
+	const struct submodule *sub =
+		submodule_from_path(superproject, &null_oid, path);
 
 	if (repo_submodule_init(&subrepo, superproject, sub))
 		return;
@@ -232,18 +235,16 @@ static void show_ce(struct repository *repo, struct dir_struct *dir,
 	if (recurse_submodules && S_ISGITLINK(ce->ce_mode) &&
 	    is_submodule_active(repo, ce->name)) {
 		show_submodule(repo, dir, ce->name);
-	} else if (match_pathspec(repo->index, &pathspec, fullname, strlen(fullname),
-				  max_prefix_len, ps_matched,
+	} else if (match_pathspec(repo->index, &pathspec, fullname,
+				  strlen(fullname), max_prefix_len, ps_matched,
 				  S_ISDIR(ce->ce_mode) ||
-				  S_ISGITLINK(ce->ce_mode))) {
+					  S_ISGITLINK(ce->ce_mode))) {
 		tag = get_tag(ce, tag);
 
 		if (!show_stage) {
 			fputs(tag, stdout);
 		} else {
-			printf("%s%06o %s %d\t",
-			       tag,
-			       ce->ce_mode,
+			printf("%s%06o %s %d\t", tag, ce->ce_mode,
 			       find_unique_abbrev(&ce->oid, abbrev),
 			       ce_stage(ce));
 		}
@@ -260,7 +261,7 @@ static void show_ru_info(const struct index_state *istate)
 	if (!istate->resolve_undo)
 		return;
 
-	for_each_string_list_item(item, istate->resolve_undo) {
+	for_each_string_list_item (item, istate->resolve_undo) {
 		const char *path = item->string;
 		struct resolve_undo_info *ui = item->util;
 		int i, len;
@@ -275,8 +276,7 @@ static void show_ru_info(const struct index_state *istate)
 			if (!ui->mode[i])
 				continue;
 			printf("%s%06o %s %d\t", tag_resolve_undo, ui->mode[i],
-			       find_unique_abbrev(&ui->oid[i], abbrev),
-			       i + 1);
+			       find_unique_abbrev(&ui->oid[i], abbrev), i + 1);
 			write_name(path);
 		}
 	}
@@ -289,7 +289,8 @@ static int ce_excluded(struct dir_struct *dir, struct index_state *istate,
 	return is_excluded(dir, istate, fullname, &dtype);
 }
 
-static void construct_fullname(struct strbuf *out, const struct repository *repo,
+static void construct_fullname(struct strbuf *out,
+			       const struct repository *repo,
 			       const struct cache_entry *ce)
 {
 	strbuf_reset(out);
@@ -324,7 +325,7 @@ static void show_files(struct repository *repo, struct dir_struct *dir)
 		construct_fullname(&fullname, repo, ce);
 
 		if ((dir->flags & DIR_SHOW_IGNORED) &&
-			!ce_excluded(dir, repo->index, fullname.buf, ce))
+		    !ce_excluded(dir, repo->index, fullname.buf, ce))
 			continue;
 		if (ce->ce_flags & CE_UPDATE)
 			continue;
@@ -332,8 +333,9 @@ static void show_files(struct repository *repo, struct dir_struct *dir)
 		    (!show_unmerged || ce_stage(ce))) {
 			show_ce(repo, dir, ce, fullname.buf,
 				ce_stage(ce) ? tag_unmerged :
-				(ce_skip_worktree(ce) ? tag_skip_worktree :
-				 tag_cached));
+					       (ce_skip_worktree(ce) ?
+							tag_skip_worktree :
+							tag_cached));
 			if (skipping_duplicates)
 				goto skip_to_next_name;
 		}
@@ -358,15 +360,14 @@ static void show_files(struct repository *repo, struct dir_struct *dir)
 		}
 		continue;
 
-skip_to_next_name:
-		{
-			int j;
-			struct cache_entry **cache = repo->index->cache;
-			for (j = i + 1; j < repo->index->cache_nr; j++)
-				if (strcmp(ce->name, cache[j]->name))
-					break;
-			i = j - 1; /* compensate for the for loop */
-		}
+	skip_to_next_name : {
+		int j;
+		struct cache_entry **cache = repo->index->cache;
+		for (j = i + 1; j < repo->index->cache_nr; j++)
+			if (strcmp(ce->name, cache[j]->name))
+				break;
+		i = j - 1; /* compensate for the for loop */
+	}
 	}
 
 	strbuf_release(&fullname);
@@ -375,8 +376,8 @@ skip_to_next_name:
 /*
  * Prune the index to only contain stuff starting with "prefix"
  */
-static void prune_index(struct index_state *istate,
-			const char *prefix, size_t prefixlen)
+static void prune_index(struct index_state *istate, const char *prefix,
+			size_t prefixlen)
 {
 	int pos;
 	unsigned int first, last;
@@ -385,14 +386,14 @@ static void prune_index(struct index_state *istate,
 		return;
 	pos = index_name_pos(istate, prefix, prefixlen);
 	if (pos < 0)
-		pos = -pos-1;
+		pos = -pos - 1;
 	first = pos;
 	last = istate->cache_nr;
 	while (last > first) {
 		int next = first + ((last - first) >> 1);
 		const struct cache_entry *ce = istate->cache[next];
 		if (!strncmp(ce->name, prefix, prefixlen)) {
-			first = next+1;
+			first = next + 1;
 			continue;
 		}
 		last = next;
@@ -428,8 +429,8 @@ static int get_common_prefix_len(const char *common_prefix)
  * that were given from the command line.  We are not
  * going to write this index out.
  */
-void overlay_tree_on_index(struct index_state *istate,
-			   const char *tree_name, const char *prefix)
+void overlay_tree_on_index(struct index_state *istate, const char *tree_name,
+			   const char *prefix)
 {
 	struct tree *tree;
 	struct object_id oid;
@@ -475,20 +476,18 @@ void overlay_tree_on_index(struct index_state *istate,
 			 * need to show it.  We use CE_UPDATE bit to mark
 			 * such an entry.
 			 */
-			if (last_stage0 &&
-			    !strcmp(last_stage0->name, ce->name))
+			if (last_stage0 && !strcmp(last_stage0->name, ce->name))
 				ce->ce_flags |= CE_UPDATE;
 		}
 	}
 }
 
-static const char * const ls_files_usage[] = {
-	N_("git ls-files [<options>] [<file>...]"),
-	NULL
+static const char *const ls_files_usage[] = {
+	N_("git ls-files [<options>] [<file>...]"), NULL
 };
 
-static int option_parse_exclude(const struct option *opt,
-				const char *arg, int unset)
+static int option_parse_exclude(const struct option *opt, const char *arg,
+				int unset)
 {
 	struct string_list *exclude_list = opt->value;
 
@@ -500,8 +499,8 @@ static int option_parse_exclude(const struct option *opt,
 	return 0;
 }
 
-static int option_parse_exclude_from(const struct option *opt,
-				     const char *arg, int unset)
+static int option_parse_exclude_from(const struct option *opt, const char *arg,
+				     int unset)
 {
 	struct dir_struct *dir = opt->value;
 
@@ -537,59 +536,67 @@ int cmd_ls_files(int argc, const char **argv, const char *cmd_prefix)
 	struct option builtin_ls_files_options[] = {
 		/* Think twice before adding "--nul" synonym to this */
 		OPT_SET_INT('z', NULL, &line_terminator,
-			N_("paths are separated with NUL character"), '\0'),
+			    N_("paths are separated with NUL character"), '\0'),
 		OPT_BOOL('t', NULL, &show_tag,
-			N_("identify the file status with tags")),
-		OPT_BOOL('v', NULL, &show_valid_bit,
+			 N_("identify the file status with tags")),
+		OPT_BOOL(
+			'v', NULL, &show_valid_bit,
 			N_("use lowercase letters for 'assume unchanged' files")),
-		OPT_BOOL('f', NULL, &show_fsmonitor_bit,
+		OPT_BOOL(
+			'f', NULL, &show_fsmonitor_bit,
 			N_("use lowercase letters for 'fsmonitor clean' files")),
 		OPT_BOOL('c', "cached", &show_cached,
-			N_("show cached files in the output (default)")),
+			 N_("show cached files in the output (default)")),
 		OPT_BOOL('d', "deleted", &show_deleted,
-			N_("show deleted files in the output")),
+			 N_("show deleted files in the output")),
 		OPT_BOOL('m', "modified", &show_modified,
-			N_("show modified files in the output")),
+			 N_("show modified files in the output")),
 		OPT_BOOL('o', "others", &show_others,
-			N_("show other files in the output")),
+			 N_("show other files in the output")),
 		OPT_BIT('i', "ignored", &dir.flags,
 			N_("show ignored files in the output"),
 			DIR_SHOW_IGNORED),
 		OPT_BOOL('s', "stage", &show_stage,
-			N_("show staged contents' object name in the output")),
-		OPT_BOOL('k', "killed", &show_killed,
+			 N_("show staged contents' object name in the output")),
+		OPT_BOOL(
+			'k', "killed", &show_killed,
 			N_("show files on the filesystem that need to be removed")),
 		OPT_BIT(0, "directory", &dir.flags,
 			N_("show 'other' directories' names only"),
 			DIR_SHOW_OTHER_DIRECTORIES),
 		OPT_BOOL(0, "eol", &show_eol, N_("show line endings of files")),
 		OPT_NEGBIT(0, "empty-directory", &dir.flags,
-			N_("don't show empty directories"),
-			DIR_HIDE_EMPTY_DIRECTORIES),
+			   N_("don't show empty directories"),
+			   DIR_HIDE_EMPTY_DIRECTORIES),
 		OPT_BOOL('u', "unmerged", &show_unmerged,
-			N_("show unmerged files in the output")),
+			 N_("show unmerged files in the output")),
 		OPT_BOOL(0, "resolve-undo", &show_resolve_undo,
-			    N_("show resolve-undo information")),
+			 N_("show resolve-undo information")),
 		OPT_CALLBACK_F('x', "exclude", &exclude_list, N_("pattern"),
-			N_("skip files matching pattern"),
-			PARSE_OPT_NONEG, option_parse_exclude),
+			       N_("skip files matching pattern"),
+			       PARSE_OPT_NONEG, option_parse_exclude),
 		OPT_CALLBACK_F('X', "exclude-from", &dir, N_("file"),
-			N_("exclude patterns are read from <file>"),
-			PARSE_OPT_NONEG, option_parse_exclude_from),
-		OPT_STRING(0, "exclude-per-directory", &dir.exclude_per_dir, N_("file"),
+			       N_("exclude patterns are read from <file>"),
+			       PARSE_OPT_NONEG, option_parse_exclude_from),
+		OPT_STRING(
+			0, "exclude-per-directory", &dir.exclude_per_dir,
+			N_("file"),
 			N_("read additional per-directory exclude patterns in <file>")),
 		OPT_CALLBACK_F(0, "exclude-standard", &dir, NULL,
-			N_("add the standard git exclusions"),
-			PARSE_OPT_NOARG | PARSE_OPT_NONEG,
-			option_parse_exclude_standard),
-		OPT_SET_INT_F(0, "full-name", &prefix_len,
-			      N_("make the output relative to the project top directory"),
-			      0, PARSE_OPT_NONEG),
+			       N_("add the standard git exclusions"),
+			       PARSE_OPT_NOARG | PARSE_OPT_NONEG,
+			       option_parse_exclude_standard),
+		OPT_SET_INT_F(
+			0, "full-name", &prefix_len,
+			N_("make the output relative to the project top directory"),
+			0, PARSE_OPT_NONEG),
 		OPT_BOOL(0, "recurse-submodules", &recurse_submodules,
-			N_("recurse through submodules")),
-		OPT_BOOL(0, "error-unmatch", &error_unmatch,
+			 N_("recurse through submodules")),
+		OPT_BOOL(
+			0, "error-unmatch", &error_unmatch,
 			N_("if any <file> is not in the index, treat this as an error")),
-		OPT_STRING(0, "with-tree", &with_tree, N_("tree-ish"),
+		OPT_STRING(
+			0, "with-tree", &with_tree, N_("tree-ish"),
 			N_("pretend that paths removed since <tree-ish> are still present")),
 		OPT__ABBREV(&abbrev),
 		OPT_BOOL(0, "debug", &debug_mode, N_("show debugging data")),
@@ -611,10 +618,11 @@ int cmd_ls_files(int argc, const char **argv, const char *cmd_prefix)
 		die("index file corrupt");
 
 	argc = parse_options(argc, argv, prefix, builtin_ls_files_options,
-			ls_files_usage, 0);
+			     ls_files_usage, 0);
 	pl = add_pattern_list(&dir, EXC_CMDL, "--exclude option");
 	for (i = 0; i < exclude_list.nr; i++) {
-		add_pattern(exclude_list.items[i].string, "", 0, pl, --exclude_args);
+		add_pattern(exclude_list.items[i].string, "", 0, pl,
+			    --exclude_args);
 	}
 	if (show_tag || show_valid_bit || show_fsmonitor_bit) {
 		tag_cached = "H ";
@@ -626,7 +634,8 @@ int cmd_ls_files(int argc, const char **argv, const char *cmd_prefix)
 		tag_skip_worktree = "S ";
 		tag_resolve_undo = "U ";
 	}
-	if (show_modified || show_others || show_deleted || (dir.flags & DIR_SHOW_IGNORED) || show_killed)
+	if (show_modified || show_others || show_deleted ||
+	    (dir.flags & DIR_SHOW_IGNORED) || show_killed)
 		require_work_tree = 1;
 	if (show_unmerged)
 		/*
@@ -651,9 +660,7 @@ int cmd_ls_files(int argc, const char **argv, const char *cmd_prefix)
 		die("ls-files --recurse-submodules does not support "
 		    "--error-unmatch");
 
-	parse_pathspec(&pathspec, 0,
-		       PATHSPEC_PREFER_CWD,
-		       prefix, argv);
+	parse_pathspec(&pathspec, 0, PATHSPEC_PREFER_CWD, prefix, argv);
 
 	/*
 	 * Find common prefix for all pathspec's
@@ -690,7 +697,8 @@ int cmd_ls_files(int argc, const char **argv, const char *cmd_prefix)
 		 */
 		if (show_stage || show_unmerged)
 			die("ls-files --with-tree is incompatible with -s or -u");
-		overlay_tree_on_index(the_repository->index, with_tree, max_prefix);
+		overlay_tree_on_index(the_repository->index, with_tree,
+				      max_prefix);
 	}
 
 	show_files(the_repository, &dir);

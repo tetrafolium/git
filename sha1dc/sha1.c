@@ -1,9 +1,8 @@
 /***
-* Copyright 2017 Marc Stevens <marc@marc-stevens.nl>, Dan Shumow (danshu@microsoft.com)
-* Distributed under the MIT Software License.
-* See accompanying file LICENSE.txt or copy at
-* https://opensource.org/licenses/MIT
-***/
+ * Copyright 2017 Marc Stevens <marc@marc-stevens.nl>, Dan Shumow
+ *(danshu@microsoft.com) Distributed under the MIT Software License. See
+ *accompanying file LICENSE.txt or copy at https://opensource.org/licenses/MIT
+ ***/
 
 #ifndef SHA1DC_NO_STANDARD_INCLUDES
 #include <string.h>
@@ -26,11 +25,13 @@
 #include "sha1.h"
 #include "ubc_check.h"
 
-#if (defined(__amd64__) || defined(__amd64) || defined(__x86_64__) || defined(__x86_64) || \
-     defined(i386) || defined(__i386) || defined(__i386__) || defined(__i486__)  || \
-     defined(__i586__) || defined(__i686__) || defined(_M_IX86) || defined(__X86__) || \
-     defined(_X86_) || defined(__THW_INTEL__) || defined(__I86__) || defined(__INTEL__) || \
-     defined(__386) || defined(_M_X64) || defined(_M_AMD64))
+#if (defined(__amd64__) || defined(__amd64) || defined(__x86_64__) || \
+     defined(__x86_64) || defined(i386) || defined(__i386) ||         \
+     defined(__i386__) || defined(__i486__) || defined(__i586__) ||   \
+     defined(__i686__) || defined(_M_IX86) || defined(__X86__) ||     \
+     defined(_X86_) || defined(__THW_INTEL__) || defined(__I86__) ||  \
+     defined(__INTEL__) || defined(__386) || defined(_M_X64) ||       \
+     defined(_M_AMD64))
 #define SHA1DC_ON_INTEL_LIKE_PROCESSOR
 #endif
 
@@ -39,8 +40,9 @@
    we only set SHA1DC_BIGENDIAN if one of these conditions is met.
    Note that all MSFT platforms are little endian,
    so none of these will be defined under the MSC compiler.
-   If you are compiling on a big endian platform and your compiler does not define one of these,
-   you will have to add whatever macros your tool chain defines to indicate Big-Endianness.
+   If you are compiling on a big endian platform and your compiler does not
+   define one of these, you will have to add whatever macros your tool chain
+   defines to indicate Big-Endianness.
  */
 
 #if defined(__BYTE_ORDER__) && defined(__ORDER_BIG_ENDIAN__)
@@ -83,7 +85,7 @@
 
 /* Not under GCC-alike or glibc or *BSD or newlib */
 #elif (defined(__ARMEB__) || defined(__THUMBEB__) || defined(__AARCH64EB__) || \
-       defined(__MIPSEB__) || defined(__MIPSEB) || defined(_MIPSEB) || \
+       defined(__MIPSEB__) || defined(__MIPSEB) || defined(_MIPSEB) ||         \
        defined(__sparc))
 /*
  * Should define Big Endian for a whitelist of known processors. See
@@ -102,14 +104,16 @@
  */
 #define SHA1DC_BIGENDIAN
 
-/* Not under GCC-alike or glibc or *BSD or newlib or <processor whitelist> or <os whitelist> */
+/* Not under GCC-alike or glibc or *BSD or newlib or <processor whitelist> or
+ * <os whitelist> */
 #elif defined(SHA1DC_ON_INTEL_LIKE_PROCESSOR)
 /*
  * As a last resort before we do anything else we're not 100% sure
  * about below, we blacklist specific processors here. We could add
  * more, see e.g. https://wiki.debian.org/ArchitectureSpecificsMemo
  */
-#else /* Not under GCC-alike or glibc or *BSD or newlib or <processor whitelist> or <os whitelist> or <processor blacklist> */
+#else /* Not under GCC-alike or glibc or *BSD or newlib or <processor \
+	 whitelist> or <os whitelist> or <processor blacklist> */
 
 /* We do nothing more here for now */
 /*#error "Uncomment this to see if you fall through all the detection"*/
@@ -125,80 +129,149 @@
 /*ENDIANNESS SELECTION*/
 
 #ifndef SHA1DC_FORCE_ALIGNED_ACCESS
-#if defined(SHA1DC_FORCE_UNALIGNED_ACCESS) || defined(SHA1DC_ON_INTEL_LIKE_PROCESSOR)
+#if defined(SHA1DC_FORCE_UNALIGNED_ACCESS) || \
+	defined(SHA1DC_ON_INTEL_LIKE_PROCESSOR)
 #define SHA1DC_ALLOW_UNALIGNED_ACCESS
 #endif /*UNALIGNED ACCESS DETECTION*/
 #endif /*FORCE ALIGNED ACCESS*/
 
-#define rotate_right(x,n) (((x)>>(n))|((x)<<(32-(n))))
-#define rotate_left(x,n)  (((x)<<(n))|((x)>>(32-(n))))
+#define rotate_right(x, n) (((x) >> (n)) | ((x) << (32 - (n))))
+#define rotate_left(x, n) (((x) << (n)) | ((x) >> (32 - (n))))
 
-#define sha1_bswap32(x) \
-	{x = ((x << 8) & 0xFF00FF00) | ((x >> 8) & 0xFF00FF); x = (x << 16) | (x >> 16);}
+#define sha1_bswap32(x)                                              \
+	{                                                            \
+		x = ((x << 8) & 0xFF00FF00) | ((x >> 8) & 0xFF00FF); \
+		x = (x << 16) | (x >> 16);                           \
+	}
 
-#define sha1_mix(W, t)  (rotate_left(W[t - 3] ^ W[t - 8] ^ W[t - 14] ^ W[t - 16], 1))
+#define sha1_mix(W, t) \
+	(rotate_left(W[t - 3] ^ W[t - 8] ^ W[t - 14] ^ W[t - 16], 1))
 
 #ifdef SHA1DC_BIGENDIAN
-	#define sha1_load(m, t, temp)  { temp = m[t]; }
+#define sha1_load(m, t, temp) \
+	{                     \
+		temp = m[t];  \
+	}
 #else
-	#define sha1_load(m, t, temp)  { temp = m[t]; sha1_bswap32(temp); }
+#define sha1_load(m, t, temp)       \
+	{                           \
+		temp = m[t];        \
+		sha1_bswap32(temp); \
+	}
 #endif
 
-#define sha1_store(W, t, x)	*(volatile uint32_t *)&W[t] = x
+#define sha1_store(W, t, x) *(volatile uint32_t *)&W[t] = x
 
-#define sha1_f1(b,c,d) ((d)^((b)&((c)^(d))))
-#define sha1_f2(b,c,d) ((b)^(c)^(d))
-#define sha1_f3(b,c,d) (((b)&(c))+((d)&((b)^(c))))
-#define sha1_f4(b,c,d) ((b)^(c)^(d))
+#define sha1_f1(b, c, d) ((d) ^ ((b) & ((c) ^ (d))))
+#define sha1_f2(b, c, d) ((b) ^ (c) ^ (d))
+#define sha1_f3(b, c, d) (((b) & (c)) + ((d) & ((b) ^ (c))))
+#define sha1_f4(b, c, d) ((b) ^ (c) ^ (d))
 
-#define HASHCLASH_SHA1COMPRESS_ROUND1_STEP(a, b, c, d, e, m, t) \
-	{ e += rotate_left(a, 5) + sha1_f1(b,c,d) + 0x5A827999 + m[t]; b = rotate_left(b, 30); }
-#define HASHCLASH_SHA1COMPRESS_ROUND2_STEP(a, b, c, d, e, m, t) \
-	{ e += rotate_left(a, 5) + sha1_f2(b,c,d) + 0x6ED9EBA1 + m[t]; b = rotate_left(b, 30); }
-#define HASHCLASH_SHA1COMPRESS_ROUND3_STEP(a, b, c, d, e, m, t) \
-	{ e += rotate_left(a, 5) + sha1_f3(b,c,d) + 0x8F1BBCDC + m[t]; b = rotate_left(b, 30); }
-#define HASHCLASH_SHA1COMPRESS_ROUND4_STEP(a, b, c, d, e, m, t) \
-	{ e += rotate_left(a, 5) + sha1_f4(b,c,d) + 0xCA62C1D6 + m[t]; b = rotate_left(b, 30); }
+#define HASHCLASH_SHA1COMPRESS_ROUND1_STEP(a, b, c, d, e, m, t)                \
+	{                                                                      \
+		e += rotate_left(a, 5) + sha1_f1(b, c, d) + 0x5A827999 + m[t]; \
+		b = rotate_left(b, 30);                                        \
+	}
+#define HASHCLASH_SHA1COMPRESS_ROUND2_STEP(a, b, c, d, e, m, t)                \
+	{                                                                      \
+		e += rotate_left(a, 5) + sha1_f2(b, c, d) + 0x6ED9EBA1 + m[t]; \
+		b = rotate_left(b, 30);                                        \
+	}
+#define HASHCLASH_SHA1COMPRESS_ROUND3_STEP(a, b, c, d, e, m, t)                \
+	{                                                                      \
+		e += rotate_left(a, 5) + sha1_f3(b, c, d) + 0x8F1BBCDC + m[t]; \
+		b = rotate_left(b, 30);                                        \
+	}
+#define HASHCLASH_SHA1COMPRESS_ROUND4_STEP(a, b, c, d, e, m, t)                \
+	{                                                                      \
+		e += rotate_left(a, 5) + sha1_f4(b, c, d) + 0xCA62C1D6 + m[t]; \
+		b = rotate_left(b, 30);                                        \
+	}
 
-#define HASHCLASH_SHA1COMPRESS_ROUND1_STEP_BW(a, b, c, d, e, m, t) \
-	{ b = rotate_right(b, 30); e -= rotate_left(a, 5) + sha1_f1(b,c,d) + 0x5A827999 + m[t]; }
-#define HASHCLASH_SHA1COMPRESS_ROUND2_STEP_BW(a, b, c, d, e, m, t) \
-	{ b = rotate_right(b, 30); e -= rotate_left(a, 5) + sha1_f2(b,c,d) + 0x6ED9EBA1 + m[t]; }
-#define HASHCLASH_SHA1COMPRESS_ROUND3_STEP_BW(a, b, c, d, e, m, t) \
-	{ b = rotate_right(b, 30); e -= rotate_left(a, 5) + sha1_f3(b,c,d) + 0x8F1BBCDC + m[t]; }
-#define HASHCLASH_SHA1COMPRESS_ROUND4_STEP_BW(a, b, c, d, e, m, t) \
-	{ b = rotate_right(b, 30); e -= rotate_left(a, 5) + sha1_f4(b,c,d) + 0xCA62C1D6 + m[t]; }
+#define HASHCLASH_SHA1COMPRESS_ROUND1_STEP_BW(a, b, c, d, e, m, t)             \
+	{                                                                      \
+		b = rotate_right(b, 30);                                       \
+		e -= rotate_left(a, 5) + sha1_f1(b, c, d) + 0x5A827999 + m[t]; \
+	}
+#define HASHCLASH_SHA1COMPRESS_ROUND2_STEP_BW(a, b, c, d, e, m, t)             \
+	{                                                                      \
+		b = rotate_right(b, 30);                                       \
+		e -= rotate_left(a, 5) + sha1_f2(b, c, d) + 0x6ED9EBA1 + m[t]; \
+	}
+#define HASHCLASH_SHA1COMPRESS_ROUND3_STEP_BW(a, b, c, d, e, m, t)             \
+	{                                                                      \
+		b = rotate_right(b, 30);                                       \
+		e -= rotate_left(a, 5) + sha1_f3(b, c, d) + 0x8F1BBCDC + m[t]; \
+	}
+#define HASHCLASH_SHA1COMPRESS_ROUND4_STEP_BW(a, b, c, d, e, m, t)             \
+	{                                                                      \
+		b = rotate_right(b, 30);                                       \
+		e -= rotate_left(a, 5) + sha1_f4(b, c, d) + 0xCA62C1D6 + m[t]; \
+	}
 
-#define SHA1COMPRESS_FULL_ROUND1_STEP_LOAD(a, b, c, d, e, m, W, t, temp) \
-	{sha1_load(m, t, temp); sha1_store(W, t, temp); e += temp + rotate_left(a, 5) + sha1_f1(b,c,d) + 0x5A827999; b = rotate_left(b, 30);}
+#define SHA1COMPRESS_FULL_ROUND1_STEP_LOAD(a, b, c, d, e, m, W, t, temp)       \
+	{                                                                      \
+		sha1_load(m, t, temp);                                         \
+		sha1_store(W, t, temp);                                        \
+		e += temp + rotate_left(a, 5) + sha1_f1(b, c, d) + 0x5A827999; \
+		b = rotate_left(b, 30);                                        \
+	}
 
-#define SHA1COMPRESS_FULL_ROUND1_STEP_EXPAND(a, b, c, d, e, W, t, temp) \
-	{temp = sha1_mix(W, t); sha1_store(W, t, temp); e += temp + rotate_left(a, 5) + sha1_f1(b,c,d) + 0x5A827999; b = rotate_left(b, 30); }
+#define SHA1COMPRESS_FULL_ROUND1_STEP_EXPAND(a, b, c, d, e, W, t, temp)        \
+	{                                                                      \
+		temp = sha1_mix(W, t);                                         \
+		sha1_store(W, t, temp);                                        \
+		e += temp + rotate_left(a, 5) + sha1_f1(b, c, d) + 0x5A827999; \
+		b = rotate_left(b, 30);                                        \
+	}
 
-#define SHA1COMPRESS_FULL_ROUND2_STEP(a, b, c, d, e, W, t, temp) \
-	{temp = sha1_mix(W, t); sha1_store(W, t, temp); e += temp + rotate_left(a, 5) + sha1_f2(b,c,d) + 0x6ED9EBA1; b = rotate_left(b, 30); }
+#define SHA1COMPRESS_FULL_ROUND2_STEP(a, b, c, d, e, W, t, temp)               \
+	{                                                                      \
+		temp = sha1_mix(W, t);                                         \
+		sha1_store(W, t, temp);                                        \
+		e += temp + rotate_left(a, 5) + sha1_f2(b, c, d) + 0x6ED9EBA1; \
+		b = rotate_left(b, 30);                                        \
+	}
 
-#define SHA1COMPRESS_FULL_ROUND3_STEP(a, b, c, d, e, W, t, temp) \
-	{temp = sha1_mix(W, t); sha1_store(W, t, temp); e += temp + rotate_left(a, 5) + sha1_f3(b,c,d) + 0x8F1BBCDC; b = rotate_left(b, 30); }
+#define SHA1COMPRESS_FULL_ROUND3_STEP(a, b, c, d, e, W, t, temp)               \
+	{                                                                      \
+		temp = sha1_mix(W, t);                                         \
+		sha1_store(W, t, temp);                                        \
+		e += temp + rotate_left(a, 5) + sha1_f3(b, c, d) + 0x8F1BBCDC; \
+		b = rotate_left(b, 30);                                        \
+	}
 
-#define SHA1COMPRESS_FULL_ROUND4_STEP(a, b, c, d, e, W, t, temp) \
-	{temp = sha1_mix(W, t); sha1_store(W, t, temp); e += temp + rotate_left(a, 5) + sha1_f4(b,c,d) + 0xCA62C1D6; b = rotate_left(b, 30); }
+#define SHA1COMPRESS_FULL_ROUND4_STEP(a, b, c, d, e, W, t, temp)               \
+	{                                                                      \
+		temp = sha1_mix(W, t);                                         \
+		sha1_store(W, t, temp);                                        \
+		e += temp + rotate_left(a, 5) + sha1_f4(b, c, d) + 0xCA62C1D6; \
+		b = rotate_left(b, 30);                                        \
+	}
 
-
-#define SHA1_STORE_STATE(i) states[i][0] = a; states[i][1] = b; states[i][2] = c; states[i][3] = d; states[i][4] = e;
+#define SHA1_STORE_STATE(i) \
+	states[i][0] = a;   \
+	states[i][1] = b;   \
+	states[i][2] = c;   \
+	states[i][3] = d;   \
+	states[i][4] = e;
 
 #ifdef BUILDNOCOLLDETECTSHA1COMPRESSION
 void sha1_compression(uint32_t ihv[5], const uint32_t m[16])
 {
 	uint32_t W[80];
-	uint32_t a,b,c,d,e;
+	uint32_t a, b, c, d, e;
 	unsigned i;
 
 	memcpy(W, m, 16 * 4);
 	for (i = 16; i < 80; ++i)
 		W[i] = sha1_mix(W, i);
 
-	a = ihv[0]; b = ihv[1]; c = ihv[2]; d = ihv[3]; e = ihv[4];
+	a = ihv[0];
+	b = ihv[1];
+	c = ihv[2];
+	d = ihv[3];
+	e = ihv[4];
 
 	HASHCLASH_SHA1COMPRESS_ROUND1_STEP(a, b, c, d, e, W, 0);
 	HASHCLASH_SHA1COMPRESS_ROUND1_STEP(e, a, b, c, d, W, 1);
@@ -284,10 +357,13 @@ void sha1_compression(uint32_t ihv[5], const uint32_t m[16])
 	HASHCLASH_SHA1COMPRESS_ROUND4_STEP(c, d, e, a, b, W, 78);
 	HASHCLASH_SHA1COMPRESS_ROUND4_STEP(b, c, d, e, a, W, 79);
 
-	ihv[0] += a; ihv[1] += b; ihv[2] += c; ihv[3] += d; ihv[4] += e;
+	ihv[0] += a;
+	ihv[1] += b;
+	ihv[2] += c;
+	ihv[3] += d;
+	ihv[4] += e;
 }
 #endif /*BUILDNOCOLLDETECTSHA1COMPRESSION*/
-
 
 static void sha1_compression_W(uint32_t ihv[5], const uint32_t W[80])
 {
@@ -377,12 +453,15 @@ static void sha1_compression_W(uint32_t ihv[5], const uint32_t W[80])
 	HASHCLASH_SHA1COMPRESS_ROUND4_STEP(c, d, e, a, b, W, 78);
 	HASHCLASH_SHA1COMPRESS_ROUND4_STEP(b, c, d, e, a, W, 79);
 
-	ihv[0] += a; ihv[1] += b; ihv[2] += c; ihv[3] += d; ihv[4] += e;
+	ihv[0] += a;
+	ihv[1] += b;
+	ihv[2] += c;
+	ihv[3] += d;
+	ihv[4] += e;
 }
 
-
-
-void sha1_compression_states(uint32_t ihv[5], const uint32_t m[16], uint32_t W[80], uint32_t states[80][5])
+void sha1_compression_states(uint32_t ihv[5], const uint32_t m[16],
+			     uint32_t W[80], uint32_t states[80][5])
 {
 	uint32_t a = ihv[0], b = ihv[1], c = ihv[2], d = ihv[3], e = ihv[4];
 	uint32_t temp;
@@ -487,8 +566,6 @@ void sha1_compression_states(uint32_t ihv[5], const uint32_t m[16], uint32_t W[8
 #endif
 	SHA1COMPRESS_FULL_ROUND1_STEP_EXPAND(b, c, d, e, a, W, 19, temp);
 
-
-
 #ifdef DOSTORESTATE20
 	SHA1_STORE_STATE(20)
 #endif
@@ -588,8 +665,6 @@ void sha1_compression_states(uint32_t ihv[5], const uint32_t m[16], uint32_t W[8
 	SHA1_STORE_STATE(39)
 #endif
 	SHA1COMPRESS_FULL_ROUND2_STEP(b, c, d, e, a, W, 39, temp);
-
-
 
 #ifdef DOSTORESTATE40
 	SHA1_STORE_STATE(40)
@@ -691,9 +766,6 @@ void sha1_compression_states(uint32_t ihv[5], const uint32_t m[16], uint32_t W[8
 #endif
 	SHA1COMPRESS_FULL_ROUND3_STEP(b, c, d, e, a, W, 59, temp);
 
-
-
-
 #ifdef DOSTORESTATE60
 	SHA1_STORE_STATE(60)
 #endif
@@ -794,186 +866,522 @@ void sha1_compression_states(uint32_t ihv[5], const uint32_t m[16], uint32_t W[8
 #endif
 	SHA1COMPRESS_FULL_ROUND4_STEP(b, c, d, e, a, W, 79, temp);
 
-
-
-	ihv[0] += a; ihv[1] += b; ihv[2] += c; ihv[3] += d; ihv[4] += e;
+	ihv[0] += a;
+	ihv[1] += b;
+	ihv[2] += c;
+	ihv[3] += d;
+	ihv[4] += e;
 }
 
-
-
-
-#define SHA1_RECOMPRESS(t) \
-static void sha1recompress_fast_ ## t (uint32_t ihvin[5], uint32_t ihvout[5], const uint32_t me2[80], const uint32_t state[5]) \
-{ \
-	uint32_t a = state[0], b = state[1], c = state[2], d = state[3], e = state[4]; \
-	if (t > 79) HASHCLASH_SHA1COMPRESS_ROUND4_STEP_BW(b, c, d, e, a, me2, 79); \
-	if (t > 78) HASHCLASH_SHA1COMPRESS_ROUND4_STEP_BW(c, d, e, a, b, me2, 78); \
-	if (t > 77) HASHCLASH_SHA1COMPRESS_ROUND4_STEP_BW(d, e, a, b, c, me2, 77); \
-	if (t > 76) HASHCLASH_SHA1COMPRESS_ROUND4_STEP_BW(e, a, b, c, d, me2, 76); \
-	if (t > 75) HASHCLASH_SHA1COMPRESS_ROUND4_STEP_BW(a, b, c, d, e, me2, 75); \
-	if (t > 74) HASHCLASH_SHA1COMPRESS_ROUND4_STEP_BW(b, c, d, e, a, me2, 74); \
-	if (t > 73) HASHCLASH_SHA1COMPRESS_ROUND4_STEP_BW(c, d, e, a, b, me2, 73); \
-	if (t > 72) HASHCLASH_SHA1COMPRESS_ROUND4_STEP_BW(d, e, a, b, c, me2, 72); \
-	if (t > 71) HASHCLASH_SHA1COMPRESS_ROUND4_STEP_BW(e, a, b, c, d, me2, 71); \
-	if (t > 70) HASHCLASH_SHA1COMPRESS_ROUND4_STEP_BW(a, b, c, d, e, me2, 70); \
-	if (t > 69) HASHCLASH_SHA1COMPRESS_ROUND4_STEP_BW(b, c, d, e, a, me2, 69); \
-	if (t > 68) HASHCLASH_SHA1COMPRESS_ROUND4_STEP_BW(c, d, e, a, b, me2, 68); \
-	if (t > 67) HASHCLASH_SHA1COMPRESS_ROUND4_STEP_BW(d, e, a, b, c, me2, 67); \
-	if (t > 66) HASHCLASH_SHA1COMPRESS_ROUND4_STEP_BW(e, a, b, c, d, me2, 66); \
-	if (t > 65) HASHCLASH_SHA1COMPRESS_ROUND4_STEP_BW(a, b, c, d, e, me2, 65); \
-	if (t > 64) HASHCLASH_SHA1COMPRESS_ROUND4_STEP_BW(b, c, d, e, a, me2, 64); \
-	if (t > 63) HASHCLASH_SHA1COMPRESS_ROUND4_STEP_BW(c, d, e, a, b, me2, 63); \
-	if (t > 62) HASHCLASH_SHA1COMPRESS_ROUND4_STEP_BW(d, e, a, b, c, me2, 62); \
-	if (t > 61) HASHCLASH_SHA1COMPRESS_ROUND4_STEP_BW(e, a, b, c, d, me2, 61); \
-	if (t > 60) HASHCLASH_SHA1COMPRESS_ROUND4_STEP_BW(a, b, c, d, e, me2, 60); \
-	if (t > 59) HASHCLASH_SHA1COMPRESS_ROUND3_STEP_BW(b, c, d, e, a, me2, 59); \
-	if (t > 58) HASHCLASH_SHA1COMPRESS_ROUND3_STEP_BW(c, d, e, a, b, me2, 58); \
-	if (t > 57) HASHCLASH_SHA1COMPRESS_ROUND3_STEP_BW(d, e, a, b, c, me2, 57); \
-	if (t > 56) HASHCLASH_SHA1COMPRESS_ROUND3_STEP_BW(e, a, b, c, d, me2, 56); \
-	if (t > 55) HASHCLASH_SHA1COMPRESS_ROUND3_STEP_BW(a, b, c, d, e, me2, 55); \
-	if (t > 54) HASHCLASH_SHA1COMPRESS_ROUND3_STEP_BW(b, c, d, e, a, me2, 54); \
-	if (t > 53) HASHCLASH_SHA1COMPRESS_ROUND3_STEP_BW(c, d, e, a, b, me2, 53); \
-	if (t > 52) HASHCLASH_SHA1COMPRESS_ROUND3_STEP_BW(d, e, a, b, c, me2, 52); \
-	if (t > 51) HASHCLASH_SHA1COMPRESS_ROUND3_STEP_BW(e, a, b, c, d, me2, 51); \
-	if (t > 50) HASHCLASH_SHA1COMPRESS_ROUND3_STEP_BW(a, b, c, d, e, me2, 50); \
-	if (t > 49) HASHCLASH_SHA1COMPRESS_ROUND3_STEP_BW(b, c, d, e, a, me2, 49); \
-	if (t > 48) HASHCLASH_SHA1COMPRESS_ROUND3_STEP_BW(c, d, e, a, b, me2, 48); \
-	if (t > 47) HASHCLASH_SHA1COMPRESS_ROUND3_STEP_BW(d, e, a, b, c, me2, 47); \
-	if (t > 46) HASHCLASH_SHA1COMPRESS_ROUND3_STEP_BW(e, a, b, c, d, me2, 46); \
-	if (t > 45) HASHCLASH_SHA1COMPRESS_ROUND3_STEP_BW(a, b, c, d, e, me2, 45); \
-	if (t > 44) HASHCLASH_SHA1COMPRESS_ROUND3_STEP_BW(b, c, d, e, a, me2, 44); \
-	if (t > 43) HASHCLASH_SHA1COMPRESS_ROUND3_STEP_BW(c, d, e, a, b, me2, 43); \
-	if (t > 42) HASHCLASH_SHA1COMPRESS_ROUND3_STEP_BW(d, e, a, b, c, me2, 42); \
-	if (t > 41) HASHCLASH_SHA1COMPRESS_ROUND3_STEP_BW(e, a, b, c, d, me2, 41); \
-	if (t > 40) HASHCLASH_SHA1COMPRESS_ROUND3_STEP_BW(a, b, c, d, e, me2, 40); \
-	if (t > 39) HASHCLASH_SHA1COMPRESS_ROUND2_STEP_BW(b, c, d, e, a, me2, 39); \
-	if (t > 38) HASHCLASH_SHA1COMPRESS_ROUND2_STEP_BW(c, d, e, a, b, me2, 38); \
-	if (t > 37) HASHCLASH_SHA1COMPRESS_ROUND2_STEP_BW(d, e, a, b, c, me2, 37); \
-	if (t > 36) HASHCLASH_SHA1COMPRESS_ROUND2_STEP_BW(e, a, b, c, d, me2, 36); \
-	if (t > 35) HASHCLASH_SHA1COMPRESS_ROUND2_STEP_BW(a, b, c, d, e, me2, 35); \
-	if (t > 34) HASHCLASH_SHA1COMPRESS_ROUND2_STEP_BW(b, c, d, e, a, me2, 34); \
-	if (t > 33) HASHCLASH_SHA1COMPRESS_ROUND2_STEP_BW(c, d, e, a, b, me2, 33); \
-	if (t > 32) HASHCLASH_SHA1COMPRESS_ROUND2_STEP_BW(d, e, a, b, c, me2, 32); \
-	if (t > 31) HASHCLASH_SHA1COMPRESS_ROUND2_STEP_BW(e, a, b, c, d, me2, 31); \
-	if (t > 30) HASHCLASH_SHA1COMPRESS_ROUND2_STEP_BW(a, b, c, d, e, me2, 30); \
-	if (t > 29) HASHCLASH_SHA1COMPRESS_ROUND2_STEP_BW(b, c, d, e, a, me2, 29); \
-	if (t > 28) HASHCLASH_SHA1COMPRESS_ROUND2_STEP_BW(c, d, e, a, b, me2, 28); \
-	if (t > 27) HASHCLASH_SHA1COMPRESS_ROUND2_STEP_BW(d, e, a, b, c, me2, 27); \
-	if (t > 26) HASHCLASH_SHA1COMPRESS_ROUND2_STEP_BW(e, a, b, c, d, me2, 26); \
-	if (t > 25) HASHCLASH_SHA1COMPRESS_ROUND2_STEP_BW(a, b, c, d, e, me2, 25); \
-	if (t > 24) HASHCLASH_SHA1COMPRESS_ROUND2_STEP_BW(b, c, d, e, a, me2, 24); \
-	if (t > 23) HASHCLASH_SHA1COMPRESS_ROUND2_STEP_BW(c, d, e, a, b, me2, 23); \
-	if (t > 22) HASHCLASH_SHA1COMPRESS_ROUND2_STEP_BW(d, e, a, b, c, me2, 22); \
-	if (t > 21) HASHCLASH_SHA1COMPRESS_ROUND2_STEP_BW(e, a, b, c, d, me2, 21); \
-	if (t > 20) HASHCLASH_SHA1COMPRESS_ROUND2_STEP_BW(a, b, c, d, e, me2, 20); \
-	if (t > 19) HASHCLASH_SHA1COMPRESS_ROUND1_STEP_BW(b, c, d, e, a, me2, 19); \
-	if (t > 18) HASHCLASH_SHA1COMPRESS_ROUND1_STEP_BW(c, d, e, a, b, me2, 18); \
-	if (t > 17) HASHCLASH_SHA1COMPRESS_ROUND1_STEP_BW(d, e, a, b, c, me2, 17); \
-	if (t > 16) HASHCLASH_SHA1COMPRESS_ROUND1_STEP_BW(e, a, b, c, d, me2, 16); \
-	if (t > 15) HASHCLASH_SHA1COMPRESS_ROUND1_STEP_BW(a, b, c, d, e, me2, 15); \
-	if (t > 14) HASHCLASH_SHA1COMPRESS_ROUND1_STEP_BW(b, c, d, e, a, me2, 14); \
-	if (t > 13) HASHCLASH_SHA1COMPRESS_ROUND1_STEP_BW(c, d, e, a, b, me2, 13); \
-	if (t > 12) HASHCLASH_SHA1COMPRESS_ROUND1_STEP_BW(d, e, a, b, c, me2, 12); \
-	if (t > 11) HASHCLASH_SHA1COMPRESS_ROUND1_STEP_BW(e, a, b, c, d, me2, 11); \
-	if (t > 10) HASHCLASH_SHA1COMPRESS_ROUND1_STEP_BW(a, b, c, d, e, me2, 10); \
-	if (t > 9) HASHCLASH_SHA1COMPRESS_ROUND1_STEP_BW(b, c, d, e, a, me2, 9); \
-	if (t > 8) HASHCLASH_SHA1COMPRESS_ROUND1_STEP_BW(c, d, e, a, b, me2, 8); \
-	if (t > 7) HASHCLASH_SHA1COMPRESS_ROUND1_STEP_BW(d, e, a, b, c, me2, 7); \
-	if (t > 6) HASHCLASH_SHA1COMPRESS_ROUND1_STEP_BW(e, a, b, c, d, me2, 6); \
-	if (t > 5) HASHCLASH_SHA1COMPRESS_ROUND1_STEP_BW(a, b, c, d, e, me2, 5); \
-	if (t > 4) HASHCLASH_SHA1COMPRESS_ROUND1_STEP_BW(b, c, d, e, a, me2, 4); \
-	if (t > 3) HASHCLASH_SHA1COMPRESS_ROUND1_STEP_BW(c, d, e, a, b, me2, 3); \
-	if (t > 2) HASHCLASH_SHA1COMPRESS_ROUND1_STEP_BW(d, e, a, b, c, me2, 2); \
-	if (t > 1) HASHCLASH_SHA1COMPRESS_ROUND1_STEP_BW(e, a, b, c, d, me2, 1); \
-	if (t > 0) HASHCLASH_SHA1COMPRESS_ROUND1_STEP_BW(a, b, c, d, e, me2, 0); \
-	ihvin[0] = a; ihvin[1] = b; ihvin[2] = c; ihvin[3] = d; ihvin[4] = e; \
-	a = state[0]; b = state[1]; c = state[2]; d = state[3]; e = state[4]; \
-	if (t <= 0) HASHCLASH_SHA1COMPRESS_ROUND1_STEP(a, b, c, d, e, me2, 0); \
-	if (t <= 1) HASHCLASH_SHA1COMPRESS_ROUND1_STEP(e, a, b, c, d, me2, 1); \
-	if (t <= 2) HASHCLASH_SHA1COMPRESS_ROUND1_STEP(d, e, a, b, c, me2, 2); \
-	if (t <= 3) HASHCLASH_SHA1COMPRESS_ROUND1_STEP(c, d, e, a, b, me2, 3); \
-	if (t <= 4) HASHCLASH_SHA1COMPRESS_ROUND1_STEP(b, c, d, e, a, me2, 4); \
-	if (t <= 5) HASHCLASH_SHA1COMPRESS_ROUND1_STEP(a, b, c, d, e, me2, 5); \
-	if (t <= 6) HASHCLASH_SHA1COMPRESS_ROUND1_STEP(e, a, b, c, d, me2, 6); \
-	if (t <= 7) HASHCLASH_SHA1COMPRESS_ROUND1_STEP(d, e, a, b, c, me2, 7); \
-	if (t <= 8) HASHCLASH_SHA1COMPRESS_ROUND1_STEP(c, d, e, a, b, me2, 8); \
-	if (t <= 9) HASHCLASH_SHA1COMPRESS_ROUND1_STEP(b, c, d, e, a, me2, 9); \
-	if (t <= 10) HASHCLASH_SHA1COMPRESS_ROUND1_STEP(a, b, c, d, e, me2, 10); \
-	if (t <= 11) HASHCLASH_SHA1COMPRESS_ROUND1_STEP(e, a, b, c, d, me2, 11); \
-	if (t <= 12) HASHCLASH_SHA1COMPRESS_ROUND1_STEP(d, e, a, b, c, me2, 12); \
-	if (t <= 13) HASHCLASH_SHA1COMPRESS_ROUND1_STEP(c, d, e, a, b, me2, 13); \
-	if (t <= 14) HASHCLASH_SHA1COMPRESS_ROUND1_STEP(b, c, d, e, a, me2, 14); \
-	if (t <= 15) HASHCLASH_SHA1COMPRESS_ROUND1_STEP(a, b, c, d, e, me2, 15); \
-	if (t <= 16) HASHCLASH_SHA1COMPRESS_ROUND1_STEP(e, a, b, c, d, me2, 16); \
-	if (t <= 17) HASHCLASH_SHA1COMPRESS_ROUND1_STEP(d, e, a, b, c, me2, 17); \
-	if (t <= 18) HASHCLASH_SHA1COMPRESS_ROUND1_STEP(c, d, e, a, b, me2, 18); \
-	if (t <= 19) HASHCLASH_SHA1COMPRESS_ROUND1_STEP(b, c, d, e, a, me2, 19); \
-	if (t <= 20) HASHCLASH_SHA1COMPRESS_ROUND2_STEP(a, b, c, d, e, me2, 20); \
-	if (t <= 21) HASHCLASH_SHA1COMPRESS_ROUND2_STEP(e, a, b, c, d, me2, 21); \
-	if (t <= 22) HASHCLASH_SHA1COMPRESS_ROUND2_STEP(d, e, a, b, c, me2, 22); \
-	if (t <= 23) HASHCLASH_SHA1COMPRESS_ROUND2_STEP(c, d, e, a, b, me2, 23); \
-	if (t <= 24) HASHCLASH_SHA1COMPRESS_ROUND2_STEP(b, c, d, e, a, me2, 24); \
-	if (t <= 25) HASHCLASH_SHA1COMPRESS_ROUND2_STEP(a, b, c, d, e, me2, 25); \
-	if (t <= 26) HASHCLASH_SHA1COMPRESS_ROUND2_STEP(e, a, b, c, d, me2, 26); \
-	if (t <= 27) HASHCLASH_SHA1COMPRESS_ROUND2_STEP(d, e, a, b, c, me2, 27); \
-	if (t <= 28) HASHCLASH_SHA1COMPRESS_ROUND2_STEP(c, d, e, a, b, me2, 28); \
-	if (t <= 29) HASHCLASH_SHA1COMPRESS_ROUND2_STEP(b, c, d, e, a, me2, 29); \
-	if (t <= 30) HASHCLASH_SHA1COMPRESS_ROUND2_STEP(a, b, c, d, e, me2, 30); \
-	if (t <= 31) HASHCLASH_SHA1COMPRESS_ROUND2_STEP(e, a, b, c, d, me2, 31); \
-	if (t <= 32) HASHCLASH_SHA1COMPRESS_ROUND2_STEP(d, e, a, b, c, me2, 32); \
-	if (t <= 33) HASHCLASH_SHA1COMPRESS_ROUND2_STEP(c, d, e, a, b, me2, 33); \
-	if (t <= 34) HASHCLASH_SHA1COMPRESS_ROUND2_STEP(b, c, d, e, a, me2, 34); \
-	if (t <= 35) HASHCLASH_SHA1COMPRESS_ROUND2_STEP(a, b, c, d, e, me2, 35); \
-	if (t <= 36) HASHCLASH_SHA1COMPRESS_ROUND2_STEP(e, a, b, c, d, me2, 36); \
-	if (t <= 37) HASHCLASH_SHA1COMPRESS_ROUND2_STEP(d, e, a, b, c, me2, 37); \
-	if (t <= 38) HASHCLASH_SHA1COMPRESS_ROUND2_STEP(c, d, e, a, b, me2, 38); \
-	if (t <= 39) HASHCLASH_SHA1COMPRESS_ROUND2_STEP(b, c, d, e, a, me2, 39); \
-	if (t <= 40) HASHCLASH_SHA1COMPRESS_ROUND3_STEP(a, b, c, d, e, me2, 40); \
-	if (t <= 41) HASHCLASH_SHA1COMPRESS_ROUND3_STEP(e, a, b, c, d, me2, 41); \
-	if (t <= 42) HASHCLASH_SHA1COMPRESS_ROUND3_STEP(d, e, a, b, c, me2, 42); \
-	if (t <= 43) HASHCLASH_SHA1COMPRESS_ROUND3_STEP(c, d, e, a, b, me2, 43); \
-	if (t <= 44) HASHCLASH_SHA1COMPRESS_ROUND3_STEP(b, c, d, e, a, me2, 44); \
-	if (t <= 45) HASHCLASH_SHA1COMPRESS_ROUND3_STEP(a, b, c, d, e, me2, 45); \
-	if (t <= 46) HASHCLASH_SHA1COMPRESS_ROUND3_STEP(e, a, b, c, d, me2, 46); \
-	if (t <= 47) HASHCLASH_SHA1COMPRESS_ROUND3_STEP(d, e, a, b, c, me2, 47); \
-	if (t <= 48) HASHCLASH_SHA1COMPRESS_ROUND3_STEP(c, d, e, a, b, me2, 48); \
-	if (t <= 49) HASHCLASH_SHA1COMPRESS_ROUND3_STEP(b, c, d, e, a, me2, 49); \
-	if (t <= 50) HASHCLASH_SHA1COMPRESS_ROUND3_STEP(a, b, c, d, e, me2, 50); \
-	if (t <= 51) HASHCLASH_SHA1COMPRESS_ROUND3_STEP(e, a, b, c, d, me2, 51); \
-	if (t <= 52) HASHCLASH_SHA1COMPRESS_ROUND3_STEP(d, e, a, b, c, me2, 52); \
-	if (t <= 53) HASHCLASH_SHA1COMPRESS_ROUND3_STEP(c, d, e, a, b, me2, 53); \
-	if (t <= 54) HASHCLASH_SHA1COMPRESS_ROUND3_STEP(b, c, d, e, a, me2, 54); \
-	if (t <= 55) HASHCLASH_SHA1COMPRESS_ROUND3_STEP(a, b, c, d, e, me2, 55); \
-	if (t <= 56) HASHCLASH_SHA1COMPRESS_ROUND3_STEP(e, a, b, c, d, me2, 56); \
-	if (t <= 57) HASHCLASH_SHA1COMPRESS_ROUND3_STEP(d, e, a, b, c, me2, 57); \
-	if (t <= 58) HASHCLASH_SHA1COMPRESS_ROUND3_STEP(c, d, e, a, b, me2, 58); \
-	if (t <= 59) HASHCLASH_SHA1COMPRESS_ROUND3_STEP(b, c, d, e, a, me2, 59); \
-	if (t <= 60) HASHCLASH_SHA1COMPRESS_ROUND4_STEP(a, b, c, d, e, me2, 60); \
-	if (t <= 61) HASHCLASH_SHA1COMPRESS_ROUND4_STEP(e, a, b, c, d, me2, 61); \
-	if (t <= 62) HASHCLASH_SHA1COMPRESS_ROUND4_STEP(d, e, a, b, c, me2, 62); \
-	if (t <= 63) HASHCLASH_SHA1COMPRESS_ROUND4_STEP(c, d, e, a, b, me2, 63); \
-	if (t <= 64) HASHCLASH_SHA1COMPRESS_ROUND4_STEP(b, c, d, e, a, me2, 64); \
-	if (t <= 65) HASHCLASH_SHA1COMPRESS_ROUND4_STEP(a, b, c, d, e, me2, 65); \
-	if (t <= 66) HASHCLASH_SHA1COMPRESS_ROUND4_STEP(e, a, b, c, d, me2, 66); \
-	if (t <= 67) HASHCLASH_SHA1COMPRESS_ROUND4_STEP(d, e, a, b, c, me2, 67); \
-	if (t <= 68) HASHCLASH_SHA1COMPRESS_ROUND4_STEP(c, d, e, a, b, me2, 68); \
-	if (t <= 69) HASHCLASH_SHA1COMPRESS_ROUND4_STEP(b, c, d, e, a, me2, 69); \
-	if (t <= 70) HASHCLASH_SHA1COMPRESS_ROUND4_STEP(a, b, c, d, e, me2, 70); \
-	if (t <= 71) HASHCLASH_SHA1COMPRESS_ROUND4_STEP(e, a, b, c, d, me2, 71); \
-	if (t <= 72) HASHCLASH_SHA1COMPRESS_ROUND4_STEP(d, e, a, b, c, me2, 72); \
-	if (t <= 73) HASHCLASH_SHA1COMPRESS_ROUND4_STEP(c, d, e, a, b, me2, 73); \
-	if (t <= 74) HASHCLASH_SHA1COMPRESS_ROUND4_STEP(b, c, d, e, a, me2, 74); \
-	if (t <= 75) HASHCLASH_SHA1COMPRESS_ROUND4_STEP(a, b, c, d, e, me2, 75); \
-	if (t <= 76) HASHCLASH_SHA1COMPRESS_ROUND4_STEP(e, a, b, c, d, me2, 76); \
-	if (t <= 77) HASHCLASH_SHA1COMPRESS_ROUND4_STEP(d, e, a, b, c, me2, 77); \
-	if (t <= 78) HASHCLASH_SHA1COMPRESS_ROUND4_STEP(c, d, e, a, b, me2, 78); \
-	if (t <= 79) HASHCLASH_SHA1COMPRESS_ROUND4_STEP(b, c, d, e, a, me2, 79); \
-	ihvout[0] = ihvin[0] + a; ihvout[1] = ihvin[1] + b; ihvout[2] = ihvin[2] + c; ihvout[3] = ihvin[3] + d; ihvout[4] = ihvin[4] + e; \
-}
+#define SHA1_RECOMPRESS(t)                                                     \
+	static void sha1recompress_fast_##t(uint32_t ihvin[5],                 \
+					    uint32_t ihvout[5],                \
+					    const uint32_t me2[80],            \
+					    const uint32_t state[5])           \
+	{                                                                      \
+		uint32_t a = state[0], b = state[1], c = state[2],             \
+			 d = state[3], e = state[4];                           \
+		if (t > 79)                                                    \
+			HASHCLASH_SHA1COMPRESS_ROUND4_STEP_BW(b, c, d, e, a,   \
+							      me2, 79);        \
+		if (t > 78)                                                    \
+			HASHCLASH_SHA1COMPRESS_ROUND4_STEP_BW(c, d, e, a, b,   \
+							      me2, 78);        \
+		if (t > 77)                                                    \
+			HASHCLASH_SHA1COMPRESS_ROUND4_STEP_BW(d, e, a, b, c,   \
+							      me2, 77);        \
+		if (t > 76)                                                    \
+			HASHCLASH_SHA1COMPRESS_ROUND4_STEP_BW(e, a, b, c, d,   \
+							      me2, 76);        \
+		if (t > 75)                                                    \
+			HASHCLASH_SHA1COMPRESS_ROUND4_STEP_BW(a, b, c, d, e,   \
+							      me2, 75);        \
+		if (t > 74)                                                    \
+			HASHCLASH_SHA1COMPRESS_ROUND4_STEP_BW(b, c, d, e, a,   \
+							      me2, 74);        \
+		if (t > 73)                                                    \
+			HASHCLASH_SHA1COMPRESS_ROUND4_STEP_BW(c, d, e, a, b,   \
+							      me2, 73);        \
+		if (t > 72)                                                    \
+			HASHCLASH_SHA1COMPRESS_ROUND4_STEP_BW(d, e, a, b, c,   \
+							      me2, 72);        \
+		if (t > 71)                                                    \
+			HASHCLASH_SHA1COMPRESS_ROUND4_STEP_BW(e, a, b, c, d,   \
+							      me2, 71);        \
+		if (t > 70)                                                    \
+			HASHCLASH_SHA1COMPRESS_ROUND4_STEP_BW(a, b, c, d, e,   \
+							      me2, 70);        \
+		if (t > 69)                                                    \
+			HASHCLASH_SHA1COMPRESS_ROUND4_STEP_BW(b, c, d, e, a,   \
+							      me2, 69);        \
+		if (t > 68)                                                    \
+			HASHCLASH_SHA1COMPRESS_ROUND4_STEP_BW(c, d, e, a, b,   \
+							      me2, 68);        \
+		if (t > 67)                                                    \
+			HASHCLASH_SHA1COMPRESS_ROUND4_STEP_BW(d, e, a, b, c,   \
+							      me2, 67);        \
+		if (t > 66)                                                    \
+			HASHCLASH_SHA1COMPRESS_ROUND4_STEP_BW(e, a, b, c, d,   \
+							      me2, 66);        \
+		if (t > 65)                                                    \
+			HASHCLASH_SHA1COMPRESS_ROUND4_STEP_BW(a, b, c, d, e,   \
+							      me2, 65);        \
+		if (t > 64)                                                    \
+			HASHCLASH_SHA1COMPRESS_ROUND4_STEP_BW(b, c, d, e, a,   \
+							      me2, 64);        \
+		if (t > 63)                                                    \
+			HASHCLASH_SHA1COMPRESS_ROUND4_STEP_BW(c, d, e, a, b,   \
+							      me2, 63);        \
+		if (t > 62)                                                    \
+			HASHCLASH_SHA1COMPRESS_ROUND4_STEP_BW(d, e, a, b, c,   \
+							      me2, 62);        \
+		if (t > 61)                                                    \
+			HASHCLASH_SHA1COMPRESS_ROUND4_STEP_BW(e, a, b, c, d,   \
+							      me2, 61);        \
+		if (t > 60)                                                    \
+			HASHCLASH_SHA1COMPRESS_ROUND4_STEP_BW(a, b, c, d, e,   \
+							      me2, 60);        \
+		if (t > 59)                                                    \
+			HASHCLASH_SHA1COMPRESS_ROUND3_STEP_BW(b, c, d, e, a,   \
+							      me2, 59);        \
+		if (t > 58)                                                    \
+			HASHCLASH_SHA1COMPRESS_ROUND3_STEP_BW(c, d, e, a, b,   \
+							      me2, 58);        \
+		if (t > 57)                                                    \
+			HASHCLASH_SHA1COMPRESS_ROUND3_STEP_BW(d, e, a, b, c,   \
+							      me2, 57);        \
+		if (t > 56)                                                    \
+			HASHCLASH_SHA1COMPRESS_ROUND3_STEP_BW(e, a, b, c, d,   \
+							      me2, 56);        \
+		if (t > 55)                                                    \
+			HASHCLASH_SHA1COMPRESS_ROUND3_STEP_BW(a, b, c, d, e,   \
+							      me2, 55);        \
+		if (t > 54)                                                    \
+			HASHCLASH_SHA1COMPRESS_ROUND3_STEP_BW(b, c, d, e, a,   \
+							      me2, 54);        \
+		if (t > 53)                                                    \
+			HASHCLASH_SHA1COMPRESS_ROUND3_STEP_BW(c, d, e, a, b,   \
+							      me2, 53);        \
+		if (t > 52)                                                    \
+			HASHCLASH_SHA1COMPRESS_ROUND3_STEP_BW(d, e, a, b, c,   \
+							      me2, 52);        \
+		if (t > 51)                                                    \
+			HASHCLASH_SHA1COMPRESS_ROUND3_STEP_BW(e, a, b, c, d,   \
+							      me2, 51);        \
+		if (t > 50)                                                    \
+			HASHCLASH_SHA1COMPRESS_ROUND3_STEP_BW(a, b, c, d, e,   \
+							      me2, 50);        \
+		if (t > 49)                                                    \
+			HASHCLASH_SHA1COMPRESS_ROUND3_STEP_BW(b, c, d, e, a,   \
+							      me2, 49);        \
+		if (t > 48)                                                    \
+			HASHCLASH_SHA1COMPRESS_ROUND3_STEP_BW(c, d, e, a, b,   \
+							      me2, 48);        \
+		if (t > 47)                                                    \
+			HASHCLASH_SHA1COMPRESS_ROUND3_STEP_BW(d, e, a, b, c,   \
+							      me2, 47);        \
+		if (t > 46)                                                    \
+			HASHCLASH_SHA1COMPRESS_ROUND3_STEP_BW(e, a, b, c, d,   \
+							      me2, 46);        \
+		if (t > 45)                                                    \
+			HASHCLASH_SHA1COMPRESS_ROUND3_STEP_BW(a, b, c, d, e,   \
+							      me2, 45);        \
+		if (t > 44)                                                    \
+			HASHCLASH_SHA1COMPRESS_ROUND3_STEP_BW(b, c, d, e, a,   \
+							      me2, 44);        \
+		if (t > 43)                                                    \
+			HASHCLASH_SHA1COMPRESS_ROUND3_STEP_BW(c, d, e, a, b,   \
+							      me2, 43);        \
+		if (t > 42)                                                    \
+			HASHCLASH_SHA1COMPRESS_ROUND3_STEP_BW(d, e, a, b, c,   \
+							      me2, 42);        \
+		if (t > 41)                                                    \
+			HASHCLASH_SHA1COMPRESS_ROUND3_STEP_BW(e, a, b, c, d,   \
+							      me2, 41);        \
+		if (t > 40)                                                    \
+			HASHCLASH_SHA1COMPRESS_ROUND3_STEP_BW(a, b, c, d, e,   \
+							      me2, 40);        \
+		if (t > 39)                                                    \
+			HASHCLASH_SHA1COMPRESS_ROUND2_STEP_BW(b, c, d, e, a,   \
+							      me2, 39);        \
+		if (t > 38)                                                    \
+			HASHCLASH_SHA1COMPRESS_ROUND2_STEP_BW(c, d, e, a, b,   \
+							      me2, 38);        \
+		if (t > 37)                                                    \
+			HASHCLASH_SHA1COMPRESS_ROUND2_STEP_BW(d, e, a, b, c,   \
+							      me2, 37);        \
+		if (t > 36)                                                    \
+			HASHCLASH_SHA1COMPRESS_ROUND2_STEP_BW(e, a, b, c, d,   \
+							      me2, 36);        \
+		if (t > 35)                                                    \
+			HASHCLASH_SHA1COMPRESS_ROUND2_STEP_BW(a, b, c, d, e,   \
+							      me2, 35);        \
+		if (t > 34)                                                    \
+			HASHCLASH_SHA1COMPRESS_ROUND2_STEP_BW(b, c, d, e, a,   \
+							      me2, 34);        \
+		if (t > 33)                                                    \
+			HASHCLASH_SHA1COMPRESS_ROUND2_STEP_BW(c, d, e, a, b,   \
+							      me2, 33);        \
+		if (t > 32)                                                    \
+			HASHCLASH_SHA1COMPRESS_ROUND2_STEP_BW(d, e, a, b, c,   \
+							      me2, 32);        \
+		if (t > 31)                                                    \
+			HASHCLASH_SHA1COMPRESS_ROUND2_STEP_BW(e, a, b, c, d,   \
+							      me2, 31);        \
+		if (t > 30)                                                    \
+			HASHCLASH_SHA1COMPRESS_ROUND2_STEP_BW(a, b, c, d, e,   \
+							      me2, 30);        \
+		if (t > 29)                                                    \
+			HASHCLASH_SHA1COMPRESS_ROUND2_STEP_BW(b, c, d, e, a,   \
+							      me2, 29);        \
+		if (t > 28)                                                    \
+			HASHCLASH_SHA1COMPRESS_ROUND2_STEP_BW(c, d, e, a, b,   \
+							      me2, 28);        \
+		if (t > 27)                                                    \
+			HASHCLASH_SHA1COMPRESS_ROUND2_STEP_BW(d, e, a, b, c,   \
+							      me2, 27);        \
+		if (t > 26)                                                    \
+			HASHCLASH_SHA1COMPRESS_ROUND2_STEP_BW(e, a, b, c, d,   \
+							      me2, 26);        \
+		if (t > 25)                                                    \
+			HASHCLASH_SHA1COMPRESS_ROUND2_STEP_BW(a, b, c, d, e,   \
+							      me2, 25);        \
+		if (t > 24)                                                    \
+			HASHCLASH_SHA1COMPRESS_ROUND2_STEP_BW(b, c, d, e, a,   \
+							      me2, 24);        \
+		if (t > 23)                                                    \
+			HASHCLASH_SHA1COMPRESS_ROUND2_STEP_BW(c, d, e, a, b,   \
+							      me2, 23);        \
+		if (t > 22)                                                    \
+			HASHCLASH_SHA1COMPRESS_ROUND2_STEP_BW(d, e, a, b, c,   \
+							      me2, 22);        \
+		if (t > 21)                                                    \
+			HASHCLASH_SHA1COMPRESS_ROUND2_STEP_BW(e, a, b, c, d,   \
+							      me2, 21);        \
+		if (t > 20)                                                    \
+			HASHCLASH_SHA1COMPRESS_ROUND2_STEP_BW(a, b, c, d, e,   \
+							      me2, 20);        \
+		if (t > 19)                                                    \
+			HASHCLASH_SHA1COMPRESS_ROUND1_STEP_BW(b, c, d, e, a,   \
+							      me2, 19);        \
+		if (t > 18)                                                    \
+			HASHCLASH_SHA1COMPRESS_ROUND1_STEP_BW(c, d, e, a, b,   \
+							      me2, 18);        \
+		if (t > 17)                                                    \
+			HASHCLASH_SHA1COMPRESS_ROUND1_STEP_BW(d, e, a, b, c,   \
+							      me2, 17);        \
+		if (t > 16)                                                    \
+			HASHCLASH_SHA1COMPRESS_ROUND1_STEP_BW(e, a, b, c, d,   \
+							      me2, 16);        \
+		if (t > 15)                                                    \
+			HASHCLASH_SHA1COMPRESS_ROUND1_STEP_BW(a, b, c, d, e,   \
+							      me2, 15);        \
+		if (t > 14)                                                    \
+			HASHCLASH_SHA1COMPRESS_ROUND1_STEP_BW(b, c, d, e, a,   \
+							      me2, 14);        \
+		if (t > 13)                                                    \
+			HASHCLASH_SHA1COMPRESS_ROUND1_STEP_BW(c, d, e, a, b,   \
+							      me2, 13);        \
+		if (t > 12)                                                    \
+			HASHCLASH_SHA1COMPRESS_ROUND1_STEP_BW(d, e, a, b, c,   \
+							      me2, 12);        \
+		if (t > 11)                                                    \
+			HASHCLASH_SHA1COMPRESS_ROUND1_STEP_BW(e, a, b, c, d,   \
+							      me2, 11);        \
+		if (t > 10)                                                    \
+			HASHCLASH_SHA1COMPRESS_ROUND1_STEP_BW(a, b, c, d, e,   \
+							      me2, 10);        \
+		if (t > 9)                                                     \
+			HASHCLASH_SHA1COMPRESS_ROUND1_STEP_BW(b, c, d, e, a,   \
+							      me2, 9);         \
+		if (t > 8)                                                     \
+			HASHCLASH_SHA1COMPRESS_ROUND1_STEP_BW(c, d, e, a, b,   \
+							      me2, 8);         \
+		if (t > 7)                                                     \
+			HASHCLASH_SHA1COMPRESS_ROUND1_STEP_BW(d, e, a, b, c,   \
+							      me2, 7);         \
+		if (t > 6)                                                     \
+			HASHCLASH_SHA1COMPRESS_ROUND1_STEP_BW(e, a, b, c, d,   \
+							      me2, 6);         \
+		if (t > 5)                                                     \
+			HASHCLASH_SHA1COMPRESS_ROUND1_STEP_BW(a, b, c, d, e,   \
+							      me2, 5);         \
+		if (t > 4)                                                     \
+			HASHCLASH_SHA1COMPRESS_ROUND1_STEP_BW(b, c, d, e, a,   \
+							      me2, 4);         \
+		if (t > 3)                                                     \
+			HASHCLASH_SHA1COMPRESS_ROUND1_STEP_BW(c, d, e, a, b,   \
+							      me2, 3);         \
+		if (t > 2)                                                     \
+			HASHCLASH_SHA1COMPRESS_ROUND1_STEP_BW(d, e, a, b, c,   \
+							      me2, 2);         \
+		if (t > 1)                                                     \
+			HASHCLASH_SHA1COMPRESS_ROUND1_STEP_BW(e, a, b, c, d,   \
+							      me2, 1);         \
+		if (t > 0)                                                     \
+			HASHCLASH_SHA1COMPRESS_ROUND1_STEP_BW(a, b, c, d, e,   \
+							      me2, 0);         \
+		ihvin[0] = a;                                                  \
+		ihvin[1] = b;                                                  \
+		ihvin[2] = c;                                                  \
+		ihvin[3] = d;                                                  \
+		ihvin[4] = e;                                                  \
+		a = state[0];                                                  \
+		b = state[1];                                                  \
+		c = state[2];                                                  \
+		d = state[3];                                                  \
+		e = state[4];                                                  \
+		if (t <= 0)                                                    \
+			HASHCLASH_SHA1COMPRESS_ROUND1_STEP(a, b, c, d, e, me2, \
+							   0);                 \
+		if (t <= 1)                                                    \
+			HASHCLASH_SHA1COMPRESS_ROUND1_STEP(e, a, b, c, d, me2, \
+							   1);                 \
+		if (t <= 2)                                                    \
+			HASHCLASH_SHA1COMPRESS_ROUND1_STEP(d, e, a, b, c, me2, \
+							   2);                 \
+		if (t <= 3)                                                    \
+			HASHCLASH_SHA1COMPRESS_ROUND1_STEP(c, d, e, a, b, me2, \
+							   3);                 \
+		if (t <= 4)                                                    \
+			HASHCLASH_SHA1COMPRESS_ROUND1_STEP(b, c, d, e, a, me2, \
+							   4);                 \
+		if (t <= 5)                                                    \
+			HASHCLASH_SHA1COMPRESS_ROUND1_STEP(a, b, c, d, e, me2, \
+							   5);                 \
+		if (t <= 6)                                                    \
+			HASHCLASH_SHA1COMPRESS_ROUND1_STEP(e, a, b, c, d, me2, \
+							   6);                 \
+		if (t <= 7)                                                    \
+			HASHCLASH_SHA1COMPRESS_ROUND1_STEP(d, e, a, b, c, me2, \
+							   7);                 \
+		if (t <= 8)                                                    \
+			HASHCLASH_SHA1COMPRESS_ROUND1_STEP(c, d, e, a, b, me2, \
+							   8);                 \
+		if (t <= 9)                                                    \
+			HASHCLASH_SHA1COMPRESS_ROUND1_STEP(b, c, d, e, a, me2, \
+							   9);                 \
+		if (t <= 10)                                                   \
+			HASHCLASH_SHA1COMPRESS_ROUND1_STEP(a, b, c, d, e, me2, \
+							   10);                \
+		if (t <= 11)                                                   \
+			HASHCLASH_SHA1COMPRESS_ROUND1_STEP(e, a, b, c, d, me2, \
+							   11);                \
+		if (t <= 12)                                                   \
+			HASHCLASH_SHA1COMPRESS_ROUND1_STEP(d, e, a, b, c, me2, \
+							   12);                \
+		if (t <= 13)                                                   \
+			HASHCLASH_SHA1COMPRESS_ROUND1_STEP(c, d, e, a, b, me2, \
+							   13);                \
+		if (t <= 14)                                                   \
+			HASHCLASH_SHA1COMPRESS_ROUND1_STEP(b, c, d, e, a, me2, \
+							   14);                \
+		if (t <= 15)                                                   \
+			HASHCLASH_SHA1COMPRESS_ROUND1_STEP(a, b, c, d, e, me2, \
+							   15);                \
+		if (t <= 16)                                                   \
+			HASHCLASH_SHA1COMPRESS_ROUND1_STEP(e, a, b, c, d, me2, \
+							   16);                \
+		if (t <= 17)                                                   \
+			HASHCLASH_SHA1COMPRESS_ROUND1_STEP(d, e, a, b, c, me2, \
+							   17);                \
+		if (t <= 18)                                                   \
+			HASHCLASH_SHA1COMPRESS_ROUND1_STEP(c, d, e, a, b, me2, \
+							   18);                \
+		if (t <= 19)                                                   \
+			HASHCLASH_SHA1COMPRESS_ROUND1_STEP(b, c, d, e, a, me2, \
+							   19);                \
+		if (t <= 20)                                                   \
+			HASHCLASH_SHA1COMPRESS_ROUND2_STEP(a, b, c, d, e, me2, \
+							   20);                \
+		if (t <= 21)                                                   \
+			HASHCLASH_SHA1COMPRESS_ROUND2_STEP(e, a, b, c, d, me2, \
+							   21);                \
+		if (t <= 22)                                                   \
+			HASHCLASH_SHA1COMPRESS_ROUND2_STEP(d, e, a, b, c, me2, \
+							   22);                \
+		if (t <= 23)                                                   \
+			HASHCLASH_SHA1COMPRESS_ROUND2_STEP(c, d, e, a, b, me2, \
+							   23);                \
+		if (t <= 24)                                                   \
+			HASHCLASH_SHA1COMPRESS_ROUND2_STEP(b, c, d, e, a, me2, \
+							   24);                \
+		if (t <= 25)                                                   \
+			HASHCLASH_SHA1COMPRESS_ROUND2_STEP(a, b, c, d, e, me2, \
+							   25);                \
+		if (t <= 26)                                                   \
+			HASHCLASH_SHA1COMPRESS_ROUND2_STEP(e, a, b, c, d, me2, \
+							   26);                \
+		if (t <= 27)                                                   \
+			HASHCLASH_SHA1COMPRESS_ROUND2_STEP(d, e, a, b, c, me2, \
+							   27);                \
+		if (t <= 28)                                                   \
+			HASHCLASH_SHA1COMPRESS_ROUND2_STEP(c, d, e, a, b, me2, \
+							   28);                \
+		if (t <= 29)                                                   \
+			HASHCLASH_SHA1COMPRESS_ROUND2_STEP(b, c, d, e, a, me2, \
+							   29);                \
+		if (t <= 30)                                                   \
+			HASHCLASH_SHA1COMPRESS_ROUND2_STEP(a, b, c, d, e, me2, \
+							   30);                \
+		if (t <= 31)                                                   \
+			HASHCLASH_SHA1COMPRESS_ROUND2_STEP(e, a, b, c, d, me2, \
+							   31);                \
+		if (t <= 32)                                                   \
+			HASHCLASH_SHA1COMPRESS_ROUND2_STEP(d, e, a, b, c, me2, \
+							   32);                \
+		if (t <= 33)                                                   \
+			HASHCLASH_SHA1COMPRESS_ROUND2_STEP(c, d, e, a, b, me2, \
+							   33);                \
+		if (t <= 34)                                                   \
+			HASHCLASH_SHA1COMPRESS_ROUND2_STEP(b, c, d, e, a, me2, \
+							   34);                \
+		if (t <= 35)                                                   \
+			HASHCLASH_SHA1COMPRESS_ROUND2_STEP(a, b, c, d, e, me2, \
+							   35);                \
+		if (t <= 36)                                                   \
+			HASHCLASH_SHA1COMPRESS_ROUND2_STEP(e, a, b, c, d, me2, \
+							   36);                \
+		if (t <= 37)                                                   \
+			HASHCLASH_SHA1COMPRESS_ROUND2_STEP(d, e, a, b, c, me2, \
+							   37);                \
+		if (t <= 38)                                                   \
+			HASHCLASH_SHA1COMPRESS_ROUND2_STEP(c, d, e, a, b, me2, \
+							   38);                \
+		if (t <= 39)                                                   \
+			HASHCLASH_SHA1COMPRESS_ROUND2_STEP(b, c, d, e, a, me2, \
+							   39);                \
+		if (t <= 40)                                                   \
+			HASHCLASH_SHA1COMPRESS_ROUND3_STEP(a, b, c, d, e, me2, \
+							   40);                \
+		if (t <= 41)                                                   \
+			HASHCLASH_SHA1COMPRESS_ROUND3_STEP(e, a, b, c, d, me2, \
+							   41);                \
+		if (t <= 42)                                                   \
+			HASHCLASH_SHA1COMPRESS_ROUND3_STEP(d, e, a, b, c, me2, \
+							   42);                \
+		if (t <= 43)                                                   \
+			HASHCLASH_SHA1COMPRESS_ROUND3_STEP(c, d, e, a, b, me2, \
+							   43);                \
+		if (t <= 44)                                                   \
+			HASHCLASH_SHA1COMPRESS_ROUND3_STEP(b, c, d, e, a, me2, \
+							   44);                \
+		if (t <= 45)                                                   \
+			HASHCLASH_SHA1COMPRESS_ROUND3_STEP(a, b, c, d, e, me2, \
+							   45);                \
+		if (t <= 46)                                                   \
+			HASHCLASH_SHA1COMPRESS_ROUND3_STEP(e, a, b, c, d, me2, \
+							   46);                \
+		if (t <= 47)                                                   \
+			HASHCLASH_SHA1COMPRESS_ROUND3_STEP(d, e, a, b, c, me2, \
+							   47);                \
+		if (t <= 48)                                                   \
+			HASHCLASH_SHA1COMPRESS_ROUND3_STEP(c, d, e, a, b, me2, \
+							   48);                \
+		if (t <= 49)                                                   \
+			HASHCLASH_SHA1COMPRESS_ROUND3_STEP(b, c, d, e, a, me2, \
+							   49);                \
+		if (t <= 50)                                                   \
+			HASHCLASH_SHA1COMPRESS_ROUND3_STEP(a, b, c, d, e, me2, \
+							   50);                \
+		if (t <= 51)                                                   \
+			HASHCLASH_SHA1COMPRESS_ROUND3_STEP(e, a, b, c, d, me2, \
+							   51);                \
+		if (t <= 52)                                                   \
+			HASHCLASH_SHA1COMPRESS_ROUND3_STEP(d, e, a, b, c, me2, \
+							   52);                \
+		if (t <= 53)                                                   \
+			HASHCLASH_SHA1COMPRESS_ROUND3_STEP(c, d, e, a, b, me2, \
+							   53);                \
+		if (t <= 54)                                                   \
+			HASHCLASH_SHA1COMPRESS_ROUND3_STEP(b, c, d, e, a, me2, \
+							   54);                \
+		if (t <= 55)                                                   \
+			HASHCLASH_SHA1COMPRESS_ROUND3_STEP(a, b, c, d, e, me2, \
+							   55);                \
+		if (t <= 56)                                                   \
+			HASHCLASH_SHA1COMPRESS_ROUND3_STEP(e, a, b, c, d, me2, \
+							   56);                \
+		if (t <= 57)                                                   \
+			HASHCLASH_SHA1COMPRESS_ROUND3_STEP(d, e, a, b, c, me2, \
+							   57);                \
+		if (t <= 58)                                                   \
+			HASHCLASH_SHA1COMPRESS_ROUND3_STEP(c, d, e, a, b, me2, \
+							   58);                \
+		if (t <= 59)                                                   \
+			HASHCLASH_SHA1COMPRESS_ROUND3_STEP(b, c, d, e, a, me2, \
+							   59);                \
+		if (t <= 60)                                                   \
+			HASHCLASH_SHA1COMPRESS_ROUND4_STEP(a, b, c, d, e, me2, \
+							   60);                \
+		if (t <= 61)                                                   \
+			HASHCLASH_SHA1COMPRESS_ROUND4_STEP(e, a, b, c, d, me2, \
+							   61);                \
+		if (t <= 62)                                                   \
+			HASHCLASH_SHA1COMPRESS_ROUND4_STEP(d, e, a, b, c, me2, \
+							   62);                \
+		if (t <= 63)                                                   \
+			HASHCLASH_SHA1COMPRESS_ROUND4_STEP(c, d, e, a, b, me2, \
+							   63);                \
+		if (t <= 64)                                                   \
+			HASHCLASH_SHA1COMPRESS_ROUND4_STEP(b, c, d, e, a, me2, \
+							   64);                \
+		if (t <= 65)                                                   \
+			HASHCLASH_SHA1COMPRESS_ROUND4_STEP(a, b, c, d, e, me2, \
+							   65);                \
+		if (t <= 66)                                                   \
+			HASHCLASH_SHA1COMPRESS_ROUND4_STEP(e, a, b, c, d, me2, \
+							   66);                \
+		if (t <= 67)                                                   \
+			HASHCLASH_SHA1COMPRESS_ROUND4_STEP(d, e, a, b, c, me2, \
+							   67);                \
+		if (t <= 68)                                                   \
+			HASHCLASH_SHA1COMPRESS_ROUND4_STEP(c, d, e, a, b, me2, \
+							   68);                \
+		if (t <= 69)                                                   \
+			HASHCLASH_SHA1COMPRESS_ROUND4_STEP(b, c, d, e, a, me2, \
+							   69);                \
+		if (t <= 70)                                                   \
+			HASHCLASH_SHA1COMPRESS_ROUND4_STEP(a, b, c, d, e, me2, \
+							   70);                \
+		if (t <= 71)                                                   \
+			HASHCLASH_SHA1COMPRESS_ROUND4_STEP(e, a, b, c, d, me2, \
+							   71);                \
+		if (t <= 72)                                                   \
+			HASHCLASH_SHA1COMPRESS_ROUND4_STEP(d, e, a, b, c, me2, \
+							   72);                \
+		if (t <= 73)                                                   \
+			HASHCLASH_SHA1COMPRESS_ROUND4_STEP(c, d, e, a, b, me2, \
+							   73);                \
+		if (t <= 74)                                                   \
+			HASHCLASH_SHA1COMPRESS_ROUND4_STEP(b, c, d, e, a, me2, \
+							   74);                \
+		if (t <= 75)                                                   \
+			HASHCLASH_SHA1COMPRESS_ROUND4_STEP(a, b, c, d, e, me2, \
+							   75);                \
+		if (t <= 76)                                                   \
+			HASHCLASH_SHA1COMPRESS_ROUND4_STEP(e, a, b, c, d, me2, \
+							   76);                \
+		if (t <= 77)                                                   \
+			HASHCLASH_SHA1COMPRESS_ROUND4_STEP(d, e, a, b, c, me2, \
+							   77);                \
+		if (t <= 78)                                                   \
+			HASHCLASH_SHA1COMPRESS_ROUND4_STEP(c, d, e, a, b, me2, \
+							   78);                \
+		if (t <= 79)                                                   \
+			HASHCLASH_SHA1COMPRESS_ROUND4_STEP(b, c, d, e, a, me2, \
+							   79);                \
+		ihvout[0] = ihvin[0] + a;                                      \
+		ihvout[1] = ihvin[1] + b;                                      \
+		ihvout[2] = ihvin[2] + c;                                      \
+		ihvout[3] = ihvin[3] + d;                                      \
+		ihvout[4] = ihvin[4] + e;                                      \
+	}
 
 #ifdef _MSC_VER
 #pragma warning(push)
-#pragma warning(disable: 4127)  /* Compiler complains about the checks in the above macro being constant. */
+#pragma warning(disable : 4127) /* Compiler complains about the checks in the \
+				   above macro being constant. */
 #endif
 
 #ifdef DOSTORESTATE0
@@ -1300,10 +1708,11 @@ SHA1_RECOMPRESS(79)
 #pragma warning(pop)
 #endif
 
-static void sha1_recompression_step(uint32_t step, uint32_t ihvin[5], uint32_t ihvout[5], const uint32_t me2[80], const uint32_t state[5])
+static void sha1_recompression_step(uint32_t step, uint32_t ihvin[5],
+				    uint32_t ihvout[5], const uint32_t me2[80],
+				    const uint32_t state[5])
 {
-	switch (step)
-	{
+	switch (step) {
 #ifdef DOSTORESTATE0
 	case 0:
 		sha1recompress_fast_0(ihvin, ihvout, me2, state);
@@ -1707,12 +2116,9 @@ static void sha1_recompression_step(uint32_t step, uint32_t ihvin[5], uint32_t i
 	default:
 		abort();
 	}
-
 }
 
-
-
-static void sha1_process(SHA1_CTX* ctx, const uint32_t block[16])
+static void sha1_process(SHA1_CTX *ctx, const uint32_t block[16])
 {
 	unsigned i, j;
 	uint32_t ubc_dv_mask[DVMASKSIZE] = { 0xFFFFFFFF };
@@ -1726,34 +2132,53 @@ static void sha1_process(SHA1_CTX* ctx, const uint32_t block[16])
 
 	sha1_compression_states(ctx->ihv, block, ctx->m1, ctx->states);
 
-	if (ctx->detect_coll)
-	{
-		if (ctx->ubc_check)
-		{
+	if (ctx->detect_coll) {
+		if (ctx->ubc_check) {
 			ubc_check(ctx->m1, ubc_dv_mask);
 		}
 
-		if (ubc_dv_mask[0] != 0)
-		{
-			for (i = 0; sha1_dvs[i].dvType != 0; ++i)
-			{
-				if (ubc_dv_mask[0] & ((uint32_t)(1) << sha1_dvs[i].maskb))
-				{
+		if (ubc_dv_mask[0] != 0) {
+			for (i = 0; sha1_dvs[i].dvType != 0; ++i) {
+				if (ubc_dv_mask[0] &
+				    ((uint32_t)(1) << sha1_dvs[i].maskb)) {
 					for (j = 0; j < 80; ++j)
-						ctx->m2[j] = ctx->m1[j] ^ sha1_dvs[i].dm[j];
+						ctx->m2[j] = ctx->m1[j] ^
+							     sha1_dvs[i].dm[j];
 
-					sha1_recompression_step(sha1_dvs[i].testt, ctx->ihv2, ihvtmp, ctx->m2, ctx->states[sha1_dvs[i].testt]);
+					sha1_recompression_step(
+						sha1_dvs[i].testt, ctx->ihv2,
+						ihvtmp, ctx->m2,
+						ctx->states[sha1_dvs[i].testt]);
 
-					/* to verify SHA-1 collision detection code with collisions for reduced-step SHA-1 */
-					if ((0 == ((ihvtmp[0] ^ ctx->ihv[0]) | (ihvtmp[1] ^ ctx->ihv[1]) | (ihvtmp[2] ^ ctx->ihv[2]) | (ihvtmp[3] ^ ctx->ihv[3]) | (ihvtmp[4] ^ ctx->ihv[4])))
-						|| (ctx->reduced_round_coll && 0==((ctx->ihv1[0] ^ ctx->ihv2[0]) | (ctx->ihv1[1] ^ ctx->ihv2[1]) | (ctx->ihv1[2] ^ ctx->ihv2[2]) | (ctx->ihv1[3] ^ ctx->ihv2[3]) | (ctx->ihv1[4] ^ ctx->ihv2[4]))))
-					{
+					/* to verify SHA-1 collision detection
+					 * code with collisions for reduced-step
+					 * SHA-1 */
+					if ((0 ==
+					     ((ihvtmp[0] ^ ctx->ihv[0]) |
+					      (ihvtmp[1] ^ ctx->ihv[1]) |
+					      (ihvtmp[2] ^ ctx->ihv[2]) |
+					      (ihvtmp[3] ^ ctx->ihv[3]) |
+					      (ihvtmp[4] ^ ctx->ihv[4]))) ||
+					    (ctx->reduced_round_coll &&
+					     0 == ((ctx->ihv1[0] ^
+						    ctx->ihv2[0]) |
+						   (ctx->ihv1[1] ^
+						    ctx->ihv2[1]) |
+						   (ctx->ihv1[2] ^
+						    ctx->ihv2[2]) |
+						   (ctx->ihv1[3] ^
+						    ctx->ihv2[3]) |
+						   (ctx->ihv1[4] ^
+						    ctx->ihv2[4])))) {
 						ctx->found_collision = 1;
 
-						if (ctx->safe_hash)
-						{
-							sha1_compression_W(ctx->ihv, ctx->m1);
-							sha1_compression_W(ctx->ihv, ctx->m1);
+						if (ctx->safe_hash) {
+							sha1_compression_W(
+								ctx->ihv,
+								ctx->m1);
+							sha1_compression_W(
+								ctx->ihv,
+								ctx->m1);
 						}
 
 						break;
@@ -1764,7 +2189,7 @@ static void sha1_process(SHA1_CTX* ctx, const uint32_t block[16])
 	}
 }
 
-void SHA1DCInit(SHA1_CTX* ctx)
+void SHA1DCInit(SHA1_CTX *ctx)
 {
 	ctx->total = 0;
 	ctx->ihv[0] = 0x67452301;
@@ -1780,7 +2205,7 @@ void SHA1DCInit(SHA1_CTX* ctx)
 	ctx->callback = NULL;
 }
 
-void SHA1DCSetSafeHash(SHA1_CTX* ctx, int safehash)
+void SHA1DCSetSafeHash(SHA1_CTX *ctx, int safehash)
 {
 	if (safehash)
 		ctx->safe_hash = 1;
@@ -1788,8 +2213,7 @@ void SHA1DCSetSafeHash(SHA1_CTX* ctx, int safehash)
 		ctx->safe_hash = 0;
 }
 
-
-void SHA1DCSetUseUBC(SHA1_CTX* ctx, int ubc_check)
+void SHA1DCSetUseUBC(SHA1_CTX *ctx, int ubc_check)
 {
 	if (ubc_check)
 		ctx->ubc_check = 1;
@@ -1797,7 +2221,7 @@ void SHA1DCSetUseUBC(SHA1_CTX* ctx, int ubc_check)
 		ctx->ubc_check = 0;
 }
 
-void SHA1DCSetUseDetectColl(SHA1_CTX* ctx, int detect_coll)
+void SHA1DCSetUseDetectColl(SHA1_CTX *ctx, int detect_coll)
 {
 	if (detect_coll)
 		ctx->detect_coll = 1;
@@ -1805,7 +2229,7 @@ void SHA1DCSetUseDetectColl(SHA1_CTX* ctx, int detect_coll)
 		ctx->detect_coll = 0;
 }
 
-void SHA1DCSetDetectReducedRoundCollision(SHA1_CTX* ctx, int reduced_round_coll)
+void SHA1DCSetDetectReducedRoundCollision(SHA1_CTX *ctx, int reduced_round_coll)
 {
 	if (reduced_round_coll)
 		ctx->reduced_round_coll = 1;
@@ -1813,12 +2237,12 @@ void SHA1DCSetDetectReducedRoundCollision(SHA1_CTX* ctx, int reduced_round_coll)
 		ctx->reduced_round_coll = 0;
 }
 
-void SHA1DCSetCallback(SHA1_CTX* ctx, collision_block_callback callback)
+void SHA1DCSetCallback(SHA1_CTX *ctx, collision_block_callback callback)
 {
 	ctx->callback = callback;
 }
 
-void SHA1DCUpdate(SHA1_CTX* ctx, const char* buf, size_t len)
+void SHA1DCUpdate(SHA1_CTX *ctx, const char *buf, size_t len)
 {
 	unsigned left, fill;
 
@@ -1828,41 +2252,36 @@ void SHA1DCUpdate(SHA1_CTX* ctx, const char* buf, size_t len)
 	left = ctx->total & 63;
 	fill = 64 - left;
 
-	if (left && len >= fill)
-	{
+	if (left && len >= fill) {
 		ctx->total += fill;
 		memcpy(ctx->buffer + left, buf, fill);
-		sha1_process(ctx, (uint32_t*)(ctx->buffer));
+		sha1_process(ctx, (uint32_t *)(ctx->buffer));
 		buf += fill;
 		len -= fill;
 		left = 0;
 	}
-	while (len >= 64)
-	{
+	while (len >= 64) {
 		ctx->total += 64;
 
 #if defined(SHA1DC_ALLOW_UNALIGNED_ACCESS)
-		sha1_process(ctx, (uint32_t*)(buf));
+		sha1_process(ctx, (uint32_t *)(buf));
 #else
 		memcpy(ctx->buffer, buf, 64);
-		sha1_process(ctx, (uint32_t*)(ctx->buffer));
+		sha1_process(ctx, (uint32_t *)(ctx->buffer));
 #endif /* defined(SHA1DC_ALLOW_UNALIGNED_ACCESS) */
 		buf += 64;
 		len -= 64;
 	}
-	if (len > 0)
-	{
+	if (len > 0) {
 		ctx->total += len;
 		memcpy(ctx->buffer + left, buf, len);
 	}
 }
 
-static const unsigned char sha1_padding[64] =
-{
-	0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+static const unsigned char sha1_padding[64] = {
+	0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	0,    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	0,    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 };
 
 int SHA1DCFinal(unsigned char output[20], SHA1_CTX *ctx)
@@ -1870,7 +2289,7 @@ int SHA1DCFinal(unsigned char output[20], SHA1_CTX *ctx)
 	uint32_t last = ctx->total & 63;
 	uint32_t padn = (last < 56) ? (56 - last) : (120 - last);
 	uint64_t total;
-	SHA1DCUpdate(ctx, (const char*)(sha1_padding), padn);
+	SHA1DCUpdate(ctx, (const char *)(sha1_padding), padn);
 
 	total = ctx->total - padn;
 	total <<= 3;
@@ -1882,7 +2301,7 @@ int SHA1DCFinal(unsigned char output[20], SHA1_CTX *ctx)
 	ctx->buffer[61] = (unsigned char)(total >> 16);
 	ctx->buffer[62] = (unsigned char)(total >> 8);
 	ctx->buffer[63] = (unsigned char)(total);
-	sha1_process(ctx, (uint32_t*)(ctx->buffer));
+	sha1_process(ctx, (uint32_t *)(ctx->buffer));
 	output[0] = (unsigned char)(ctx->ihv[0] >> 24);
 	output[1] = (unsigned char)(ctx->ihv[0] >> 16);
 	output[2] = (unsigned char)(ctx->ihv[0] >> 8);

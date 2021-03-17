@@ -15,9 +15,8 @@
 #include "parse-options.h"
 #include "gpg-interface.h"
 
-static const char * const verify_commit_usage[] = {
-		N_("git verify-commit [-v | --verbose] <commit>..."),
-		NULL
+static const char *const verify_commit_usage[] = {
+	N_("git verify-commit [-v | --verbose] <commit>..."), NULL
 };
 
 static int run_gpg_verify(struct commit *commit, unsigned flags)
@@ -46,13 +45,15 @@ static int verify_commit(const char *name, unsigned flags)
 	if (!obj)
 		return error("%s: unable to read file.", name);
 	if (obj->type != OBJ_COMMIT)
-		return error("%s: cannot verify a non-commit object of type %s.",
-				name, type_name(obj->type));
+		return error(
+			"%s: cannot verify a non-commit object of type %s.",
+			name, type_name(obj->type));
 
 	return run_gpg_verify((struct commit *)obj, flags);
 }
 
-static int git_verify_commit_config(const char *var, const char *value, void *cb)
+static int git_verify_commit_config(const char *var, const char *value,
+				    void *cb)
 {
 	int status = git_gpg_config(var, value, cb);
 	if (status)
@@ -66,7 +67,8 @@ int cmd_verify_commit(int argc, const char **argv, const char *prefix)
 	unsigned flags = 0;
 	const struct option verify_commit_options[] = {
 		OPT__VERBOSE(&verbose, N_("print commit contents")),
-		OPT_BIT(0, "raw", &flags, N_("print raw gpg status output"), GPG_VERIFY_RAW),
+		OPT_BIT(0, "raw", &flags, N_("print raw gpg status output"),
+			GPG_VERIFY_RAW),
 		OPT_END()
 	};
 

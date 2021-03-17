@@ -3,8 +3,7 @@
 
 static int oidmap_neq(const void *hashmap_cmp_fn_data,
 		      const struct hashmap_entry *e1,
-		      const struct hashmap_entry *e2,
-		      const void *keydata)
+		      const struct hashmap_entry *e2, const void *keydata)
 {
 	const struct oidmap_entry *a, *b;
 
@@ -12,7 +11,7 @@ static int oidmap_neq(const void *hashmap_cmp_fn_data,
 	b = container_of(e2, const struct oidmap_entry, internal_entry);
 
 	if (keydata)
-		return !oideq(&a->oid, (const struct object_id *) keydata);
+		return !oideq(&a->oid, (const struct object_id *)keydata);
 	return !oideq(&a->oid, &b->oid);
 }
 

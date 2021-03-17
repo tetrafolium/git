@@ -20,7 +20,8 @@ struct ref_store *packed_ref_store_create(const char *path,
  * hold_lock_file_for_update(). Return 0 on success. On errors, write
  * an error message to `err` and return a nonzero value.
  */
-int packed_refs_lock(struct ref_store *ref_store, int flags, struct strbuf *err);
+int packed_refs_lock(struct ref_store *ref_store, int flags,
+		     struct strbuf *err);
 
 void packed_refs_unlock(struct ref_store *ref_store);
 int packed_refs_is_locked(struct ref_store *ref_store);

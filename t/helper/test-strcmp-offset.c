@@ -15,9 +15,7 @@ int cmd__strcmp_offset(int argc, const char **argv)
 	 * Because different CRTs behave differently, only rely on signs
 	 * of the result values.
 	 */
-	result = (result < 0 ? -1 :
-			  result > 0 ? 1 :
-			  0);
-	printf("%d %"PRIuMAX"\n", result, (uintmax_t)offset);
+	result = (result < 0 ? -1 : result > 0 ? 1 : 0);
+	printf("%d %" PRIuMAX "\n", result, (uintmax_t)offset);
 	return 0;
 }

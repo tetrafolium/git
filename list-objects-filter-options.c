@@ -10,10 +10,9 @@
 #include "trace.h"
 #include "url.h"
 
-static int parse_combine_filter(
-	struct list_objects_filter_options *filter_options,
-	const char *arg,
-	struct strbuf *errbuf);
+static int
+parse_combine_filter(struct list_objects_filter_options *filter_options,
+		     const char *arg, struct strbuf *errbuf);
 
 const char *list_object_filter_config_name(enum list_objects_filter_choice c)
 {
@@ -54,8 +53,7 @@ const char *list_object_filter_config_name(enum list_objects_filter_choice c)
  * convenience of the current command.
  */
 static int gently_parse_list_objects_filter(
-	struct list_objects_filter_options *filter_options,
-	const char *arg,
+	struct list_objects_filter_options *filter_options, const char *arg,
 	struct strbuf *errbuf)
 {
 	const char *v0;
@@ -99,7 +97,6 @@ static int gently_parse_list_objects_filter(
 
 	} else if (skip_prefix(arg, "combine:", &v0)) {
 		return parse_combine_filter(filter_options, v0, errbuf);
-
 	}
 	/*
 	 * Please update _git_fetch() in git-completion.bash when you
@@ -114,8 +111,8 @@ static int gently_parse_list_objects_filter(
 
 static const char *RESERVED_NON_WS = "~`!@#$^&*()[]{}\\;'\",<>?";
 
-static int has_reserved_character(
-	struct strbuf *sub_spec, struct strbuf *errbuf)
+static int has_reserved_character(struct strbuf *sub_spec,
+				  struct strbuf *errbuf)
 {
 	const char *c = sub_spec->buf;
 	while (*c) {
@@ -132,10 +129,9 @@ static int has_reserved_character(
 	return 0;
 }
 
-static int parse_combine_subfilter(
-	struct list_objects_filter_options *filter_options,
-	struct strbuf *subspec,
-	struct strbuf *errbuf)
+static int
+parse_combine_subfilter(struct list_objects_filter_options *filter_options,
+			struct strbuf *subspec, struct strbuf *errbuf)
 {
 	size_t new_index = filter_options->sub_nr;
 	char *decoded;
@@ -147,17 +143,16 @@ static int parse_combine_subfilter(
 	decoded = url_percent_decode(subspec->buf);
 
 	result = has_reserved_character(subspec, errbuf) ||
-		gently_parse_list_objects_filter(
-			&filter_options->sub[new_index], decoded, errbuf);
+		 gently_parse_list_objects_filter(
+			 &filter_options->sub[new_index], decoded, errbuf);
 
 	free(decoded);
 	return result;
 }
 
-static int parse_combine_filter(
-	struct list_objects_filter_options *filter_options,
-	const char *arg,
-	struct strbuf *errbuf)
+static int
+parse_combine_filter(struct list_objects_filter_options *filter_options,
+		     const char *arg, struct strbuf *errbuf)
 {
 	struct strbuf **subspecs = strbuf_split_str(arg, '+', 0);
 	size_t sub;
@@ -179,8 +174,8 @@ static int parse_combine_filter(
 			assert(subspecs[sub]->buf[last] == '+');
 			strbuf_remove(subspecs[sub], last, 1);
 		}
-		result = parse_combine_subfilter(
-			filter_options, subspecs[sub], errbuf);
+		result = parse_combine_subfilter(filter_options, subspecs[sub],
+						 errbuf);
 	}
 
 	filter_options->choice = LOFC_COMBINE;
@@ -201,8 +196,9 @@ static int allow_unencoded(char ch)
 	return !strchr(RESERVED_NON_WS, ch);
 }
 
-static void filter_spec_append_urlencode(
-	struct list_objects_filter_options *filter, const char *raw)
+static void
+filter_spec_append_urlencode(struct list_objects_filter_options *filter,
+			     const char *raw)
 {
 	struct strbuf buf = STRBUF_INIT;
 	strbuf_addstr_urlencode(&buf, raw, allow_unencoded);
@@ -214,8 +210,8 @@ static void filter_spec_append_urlencode(
  * Changes filter_options into an equivalent LOFC_COMBINE filter options
  * instance. Does not do anything if filter_options is already LOFC_COMBINE.
  */
-static void transform_to_combine_type(
-	struct list_objects_filter_options *filter_options)
+static void
+transform_to_combine_type(struct list_objects_filter_options *filter_options)
 {
 	assert(filter_options->choice);
 	if (filter_options->choice == LOFC_COMBINE)
@@ -250,8 +246,7 @@ void list_objects_filter_die_if_populated(
 }
 
 void parse_list_objects_filter(
-	struct list_objects_filter_options *filter_options,
-	const char *arg)
+	struct list_objects_filter_options *filter_options, const char *arg)
 {
 	struct strbuf errbuf = STRBUF_INIT;
 	int parse_error;
@@ -259,8 +254,8 @@ void parse_list_objects_filter(
 	if (!filter_options->choice) {
 		string_list_append(&filter_options->filter_spec, xstrdup(arg));
 
-		parse_error = gently_parse_list_objects_filter(
-			filter_options, arg, &errbuf);
+		parse_error = gently_parse_list_objects_filter(filter_options,
+							       arg, &errbuf);
 	} else {
 		/*
 		 * Make filter_options an LOFC_COMBINE spec so we can trivially
@@ -281,8 +276,8 @@ void parse_list_objects_filter(
 		die("%s", errbuf.buf);
 }
 
-int opt_parse_list_objects_filter(const struct option *opt,
-				  const char *arg, int unset)
+int opt_parse_list_objects_filter(const struct option *opt, const char *arg,
+				  int unset)
 {
 	struct list_objects_filter_options *filter_options = opt->value;
 
@@ -299,27 +294,26 @@ const char *list_objects_filter_spec(struct list_objects_filter_options *filter)
 		BUG("no filter_spec available for this filter");
 	if (filter->filter_spec.nr != 1) {
 		struct strbuf concatted = STRBUF_INIT;
-		strbuf_add_separated_string_list(
-			&concatted, "", &filter->filter_spec);
+		strbuf_add_separated_string_list(&concatted, "",
+						 &filter->filter_spec);
 		string_list_clear(&filter->filter_spec, /*free_util=*/0);
-		string_list_append(
-			&filter->filter_spec, strbuf_detach(&concatted, NULL));
+		string_list_append(&filter->filter_spec,
+				   strbuf_detach(&concatted, NULL));
 	}
 
 	return filter->filter_spec.items[0].string;
 }
 
-const char *expand_list_objects_filter_spec(
-	struct list_objects_filter_options *filter)
+const char *
+expand_list_objects_filter_spec(struct list_objects_filter_options *filter)
 {
 	if (filter->choice == LOFC_BLOB_LIMIT) {
 		struct strbuf expanded_spec = STRBUF_INIT;
 		strbuf_addf(&expanded_spec, "blob:limit=%lu",
 			    filter->blob_limit_value);
 		string_list_clear(&filter->filter_spec, /*free_util=*/0);
-		string_list_append(
-			&filter->filter_spec,
-			strbuf_detach(&expanded_spec, NULL));
+		string_list_append(&filter->filter_spec,
+				   strbuf_detach(&expanded_spec, NULL));
 	}
 
 	return list_objects_filter_spec(filter);
@@ -340,9 +334,8 @@ void list_objects_filter_release(
 	memset(filter_options, 0, sizeof(*filter_options));
 }
 
-void partial_clone_register(
-	const char *remote,
-	struct list_objects_filter_options *filter_options)
+void partial_clone_register(const char *remote,
+			    struct list_objects_filter_options *filter_options)
 {
 	struct promisor_remote *promisor_remote;
 	char *cfg_name;
@@ -381,8 +374,7 @@ void partial_clone_register(
 }
 
 void partial_clone_get_default_filter_spec(
-	struct list_objects_filter_options *filter_options,
-	const char *remote)
+	struct list_objects_filter_options *filter_options, const char *remote)
 {
 	struct promisor_remote *promisor = promisor_remote_find(remote);
 	struct strbuf errbuf = STRBUF_INIT;
@@ -395,8 +387,7 @@ void partial_clone_get_default_filter_spec(
 
 	string_list_append(&filter_options->filter_spec,
 			   promisor->partial_clone_filter);
-	gently_parse_list_objects_filter(filter_options,
-					 promisor->partial_clone_filter,
-					 &errbuf);
+	gently_parse_list_objects_filter(
+		filter_options, promisor->partial_clone_filter, &errbuf);
 	strbuf_release(&errbuf);
 }

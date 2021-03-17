@@ -23,8 +23,8 @@ int optbug(const struct option *opt, const char *reason)
 }
 
 static enum parse_opt_result get_arg(struct parse_opt_ctx_t *p,
-				     const struct option *opt,
-				     int flags, const char **arg)
+				     const struct option *opt, int flags,
+				     const char **arg)
 {
 	if (p->opt) {
 		*arg = p->opt;
@@ -41,16 +41,15 @@ static enum parse_opt_result get_arg(struct parse_opt_ctx_t *p,
 
 static void fix_filename(const char *prefix, const char **file)
 {
-	if (!file || !*file || !prefix || is_absolute_path(*file)
-	    || !strcmp("-", *file))
+	if (!file || !*file || !prefix || is_absolute_path(*file) ||
+	    !strcmp("-", *file))
 		return;
 	*file = prefix_filename(prefix, *file);
 }
 
-static enum parse_opt_result opt_command_mode_error(
-	const struct option *opt,
-	const struct option *all_opts,
-	int flags)
+static enum parse_opt_result
+opt_command_mode_error(const struct option *opt, const struct option *all_opts,
+		       int flags)
 {
 	const struct option *that;
 	struct strbuf that_name = STRBUF_INIT;
@@ -60,8 +59,7 @@ static enum parse_opt_result opt_command_mode_error(
 	 * already, and report that this is not compatible with it.
 	 */
 	for (that = all_opts; that->type != OPTION_END; that++) {
-		if (that == opt ||
-		    !(that->flags & PARSE_OPT_CMDMODE) ||
+		if (that == opt || !(that->flags & PARSE_OPT_CMDMODE) ||
 		    that->value != opt->value ||
 		    that->defval != *(int *)opt->value)
 			continue;
@@ -70,8 +68,8 @@ static enum parse_opt_result opt_command_mode_error(
 			strbuf_addf(&that_name, "--%s", that->long_name);
 		else
 			strbuf_addf(&that_name, "-%c", that->short_name);
-		error(_("%s is incompatible with %s"),
-		      optname(opt, flags), that_name.buf);
+		error(_("%s is incompatible with %s"), optname(opt, flags),
+		      that_name.buf);
 		strbuf_release(&that_name);
 		return PARSE_OPT_ERROR;
 	}
@@ -81,8 +79,7 @@ static enum parse_opt_result opt_command_mode_error(
 
 static enum parse_opt_result get_value(struct parse_opt_ctx_t *p,
 				       const struct option *opt,
-				       const struct option *all_opts,
-				       int flags)
+				       const struct option *all_opts, int flags)
 {
 	const char *s, *arg;
 	const int unset = flags & OPT_UNSET;
@@ -99,8 +96,8 @@ static enum parse_opt_result get_value(struct parse_opt_ctx_t *p,
 	 * Giving the same mode option twice, although unnecessary,
 	 * is not a grave error, so let it pass.
 	 */
-	if ((opt->flags & PARSE_OPT_CMDMODE) &&
-	    *(int *)opt->value && *(int *)opt->value != opt->defval)
+	if ((opt->flags & PARSE_OPT_CMDMODE) && *(int *)opt->value &&
+	    *(int *)opt->value != opt->defval)
 		return opt_command_mode_error(opt, all_opts, flags);
 
 	switch (opt->type) {
@@ -144,7 +141,8 @@ static enum parse_opt_result get_value(struct parse_opt_ctx_t *p,
 		else if (opt->flags & PARSE_OPT_OPTARG && !p->opt)
 			*(const char **)opt->value = (const char *)opt->defval;
 		else
-			return get_arg(p, opt, flags, (const char **)opt->value);
+			return get_arg(p, opt, flags,
+				       (const char **)opt->value);
 		return 0;
 
 	case OPTION_FILENAME:
@@ -160,8 +158,7 @@ static enum parse_opt_result get_value(struct parse_opt_ctx_t *p,
 			fix_filename(p->prefix, (const char **)opt->value);
 		return err;
 
-	case OPTION_CALLBACK:
-	{
+	case OPTION_CALLBACK: {
 		const char *p_arg = NULL;
 		int p_unset;
 
@@ -270,8 +267,7 @@ static int has_string(const char *it, const char **array)
 	return 0;
 }
 
-static int is_alias(struct parse_opt_ctx_t *ctx,
-		    const struct option *one_opt,
+static int is_alias(struct parse_opt_ctx_t *ctx, const struct option *one_opt,
 		    const struct option *another_opt)
 {
 	const char **group;
@@ -291,9 +287,9 @@ static int is_alias(struct parse_opt_ctx_t *ctx,
 	return 0;
 }
 
-static enum parse_opt_result parse_long_opt(
-	struct parse_opt_ctx_t *p, const char *arg,
-	const struct option *options)
+static enum parse_opt_result parse_long_opt(struct parse_opt_ctx_t *p,
+					    const char *arg,
+					    const struct option *options)
 {
 	const struct option *all_opts = options;
 	const char *arg_end = strchrnul(arg, '=');
@@ -307,7 +303,7 @@ static enum parse_opt_result parse_long_opt(
 		if (!long_name)
 			continue;
 
-again:
+	again:
 		if (!skip_prefix(arg, long_name, &rest))
 			rest = NULL;
 		if (options->type == OPTION_ARGUMENT) {
@@ -327,7 +323,7 @@ again:
 			/* abbreviated? */
 			if (!(p->flags & PARSE_OPT_KEEP_UNKNOWN) &&
 			    !strncmp(long_name, arg, arg_end - arg)) {
-is_abbreviated:
+			is_abbreviated:
 				if (abbrev_option &&
 				    !is_alias(p, abbrev_option, options)) {
 					/*
@@ -385,11 +381,10 @@ is_abbreviated:
 	if (ambiguous_option) {
 		error(_("ambiguous option: %s "
 			"(could be --%s%s or --%s%s)"),
-			arg,
-			(ambiguous_flags & OPT_UNSET) ?  "no-" : "",
-			ambiguous_option->long_name,
-			(abbrev_flags & OPT_UNSET) ?  "no-" : "",
-			abbrev_option->long_name);
+		      arg, (ambiguous_flags & OPT_UNSET) ? "no-" : "",
+		      ambiguous_option->long_name,
+		      (abbrev_flags & OPT_UNSET) ? "no-" : "",
+		      abbrev_option->long_name);
 		return PARSE_OPT_HELP;
 	}
 	if (abbrev_option)
@@ -441,7 +436,7 @@ static void parse_options_check(const struct option *opts)
 		if ((opts->flags & PARSE_OPT_LASTARG_DEFAULT) &&
 		    (opts->flags & PARSE_OPT_OPTARG))
 			err |= optbug(opts, "uses incompatible flags "
-					"LASTARG_DEFAULT and OPTARG");
+					    "LASTARG_DEFAULT and OPTARG");
 		if (opts->short_name) {
 			if (0x7F <= opts->short_name)
 				err |= optbug(opts, "invalid short name");
@@ -451,10 +446,10 @@ static void parse_options_check(const struct option *opts)
 		if (opts->flags & PARSE_OPT_NODASH &&
 		    ((opts->flags & PARSE_OPT_OPTARG) ||
 		     !(opts->flags & PARSE_OPT_NOARG) ||
-		     !(opts->flags & PARSE_OPT_NONEG) ||
-		     opts->long_name))
-			err |= optbug(opts, "uses feature "
-					"not supported for dashless options");
+		     !(opts->flags & PARSE_OPT_NONEG) || opts->long_name))
+			err |= optbug(opts,
+				      "uses feature "
+				      "not supported for dashless options");
 		switch (opts->type) {
 		case OPTION_COUNTUP:
 		case OPTION_BIT:
@@ -463,7 +458,8 @@ static void parse_options_check(const struct option *opts)
 		case OPTION_NUMBER:
 			if ((opts->flags & PARSE_OPT_OPTARG) ||
 			    !(opts->flags & PARSE_OPT_NOARG))
-				err |= optbug(opts, "should not accept an argument");
+				err |= optbug(opts,
+					      "should not accept an argument");
 			break;
 		case OPTION_CALLBACK:
 			if (!opts->callback && !opts->ll_callback)
@@ -481,19 +477,20 @@ static void parse_options_check(const struct option *opts)
 			BUG("OPT_ALIAS() should not remain at this point. "
 			    "Are you using parse_options_step() directly?\n"
 			    "That case is not supported yet.");
-		default:
-			; /* ok. (usually accepts an argument) */
+		default:; /* ok. (usually accepts an argument) */
 		}
 		if (opts->argh &&
 		    strcspn(opts->argh, " _") != strlen(opts->argh))
-			err |= optbug(opts, "multi-word argh should use dash to separate words");
+			err |= optbug(
+				opts,
+				"multi-word argh should use dash to separate words");
 	}
 	if (err)
 		exit(128);
 }
 
-static void parse_options_start_1(struct parse_opt_ctx_t *ctx,
-				  int argc, const char **argv, const char *prefix,
+static void parse_options_start_1(struct parse_opt_ctx_t *ctx, int argc,
+				  const char **argv, const char *prefix,
 				  const struct option *options, int flags)
 {
 	ctx->argc = argc;
@@ -503,7 +500,7 @@ static void parse_options_start_1(struct parse_opt_ctx_t *ctx,
 		ctx->argv++;
 	}
 	ctx->total = ctx->argc;
-	ctx->out   = argv;
+	ctx->out = argv;
 	ctx->prefix = prefix;
 	ctx->cpidx = ((flags & PARSE_OPT_KEEP_ARGV0) != 0);
 	ctx->flags = flags;
@@ -511,14 +508,13 @@ static void parse_options_start_1(struct parse_opt_ctx_t *ctx,
 	    (flags & PARSE_OPT_STOP_AT_NON_OPTION) &&
 	    !(flags & PARSE_OPT_ONE_SHOT))
 		BUG("STOP_AT_NON_OPTION and KEEP_UNKNOWN don't go together");
-	if ((flags & PARSE_OPT_ONE_SHOT) &&
-	    (flags & PARSE_OPT_KEEP_ARGV0))
+	if ((flags & PARSE_OPT_ONE_SHOT) && (flags & PARSE_OPT_KEEP_ARGV0))
 		BUG("Can't keep argv0 if you don't have it");
 	parse_options_check(options);
 }
 
-void parse_options_start(struct parse_opt_ctx_t *ctx,
-			 int argc, const char **argv, const char *prefix,
+void parse_options_start(struct parse_opt_ctx_t *ctx, int argc,
+			 const char **argv, const char *prefix,
 			 const struct option *options, int flags)
 {
 	memset(ctx, 0, sizeof(*ctx));
@@ -537,7 +533,7 @@ static void show_negated_gitcomp(const struct option *opts, int show_all,
 		if (!opts->long_name)
 			continue;
 		if (!show_all &&
-			(opts->flags & (PARSE_OPT_HIDDEN | PARSE_OPT_NOCOMPLETE)))
+		    (opts->flags & (PARSE_OPT_HIDDEN | PARSE_OPT_NOCOMPLETE)))
 			continue;
 		if (opts->flags & PARSE_OPT_NONEG)
 			continue;
@@ -585,7 +581,7 @@ static int show_gitcomp(const struct option *opts, int show_all)
 		if (!opts->long_name)
 			continue;
 		if (!show_all &&
-			(opts->flags & (PARSE_OPT_HIDDEN | PARSE_OPT_NOCOMPLETE)))
+		    (opts->flags & (PARSE_OPT_HIDDEN | PARSE_OPT_NOCOMPLETE)))
 			continue;
 
 		switch (opts->type) {
@@ -694,12 +690,12 @@ static struct option *preprocess_options(struct parse_opt_ctx_t *ctx,
 }
 
 static int usage_with_options_internal(struct parse_opt_ctx_t *,
-				       const char * const *,
+				       const char *const *,
 				       const struct option *, int, int);
 
 int parse_options_step(struct parse_opt_ctx_t *ctx,
 		       const struct option *options,
-		       const char * const usagestr[])
+		       const char *const usagestr[])
 {
 	int internal_help = !(ctx->flags & PARSE_OPT_NO_INTERNAL_HELP);
 
@@ -709,8 +705,7 @@ int parse_options_step(struct parse_opt_ctx_t *ctx,
 	for (; ctx->argc; ctx->argc--, ctx->argv++) {
 		const char *arg = ctx->argv[0];
 
-		if (ctx->flags & PARSE_OPT_ONE_SHOT &&
-		    ctx->argc != ctx->total)
+		if (ctx->flags & PARSE_OPT_ONE_SHOT && ctx->argc != ctx->total)
 			break;
 
 		if (*arg != '-' || !arg[1]) {
@@ -732,7 +727,8 @@ int parse_options_step(struct parse_opt_ctx_t *ctx,
 		 */
 		if (ctx->total == 1 && !strcmp(arg, "--git-completion-helper"))
 			return show_gitcomp(options, 0);
-		if (ctx->total == 1 && !strcmp(arg, "--git-completion-helper-all"))
+		if (ctx->total == 1 &&
+		    !strcmp(arg, "--git-completion-helper-all"))
 			return show_gitcomp(options, 1);
 
 		if (arg[1] != '-') {
@@ -763,8 +759,9 @@ int parse_options_step(struct parse_opt_ctx_t *ctx,
 					if (internal_help && *ctx->opt == 'h')
 						goto show_usage;
 
-					/* fake a short option thing to hide the fact that we may have
-					 * started to parse aggregated stuff
+					/* fake a short option thing to hide the
+					 * fact that we may have started to
+					 * parse aggregated stuff
 					 *
 					 * This is leaky, too bad.
 					 */
@@ -782,8 +779,7 @@ int parse_options_step(struct parse_opt_ctx_t *ctx,
 			continue;
 		}
 
-		if (!arg[2] /* "--" */ ||
-		    !strcmp(arg + 2, "end-of-options")) {
+		if (!arg[2] /* "--" */ || !strcmp(arg + 2, "end-of-options")) {
 			if (!(ctx->flags & PARSE_OPT_KEEP_DASHDASH)) {
 				ctx->argc--;
 				ctx->argv++;
@@ -792,7 +788,8 @@ int parse_options_step(struct parse_opt_ctx_t *ctx,
 		}
 
 		if (internal_help && !strcmp(arg + 2, "help-all"))
-			return usage_with_options_internal(ctx, usagestr, options, 1, 0);
+			return usage_with_options_internal(ctx, usagestr,
+							   options, 1, 0);
 		if (internal_help && !strcmp(arg + 2, "help"))
 			goto show_usage;
 		switch (parse_long_opt(ctx, arg + 2, options)) {
@@ -809,7 +806,7 @@ int parse_options_step(struct parse_opt_ctx_t *ctx,
 			break;
 		}
 		continue;
-unknown:
+	unknown:
 		if (ctx->flags & PARSE_OPT_ONE_SHOT)
 			break;
 		if (!(ctx->flags & PARSE_OPT_KEEP_UNKNOWN))
@@ -819,7 +816,7 @@ unknown:
 	}
 	return PARSE_OPT_DONE;
 
- show_usage:
+show_usage:
 	return usage_with_options_internal(ctx, usagestr, options, 0, 0);
 }
 
@@ -834,7 +831,7 @@ int parse_options_end(struct parse_opt_ctx_t *ctx)
 }
 
 int parse_options(int argc, const char **argv, const char *prefix,
-		  const struct option *options, const char * const usagestr[],
+		  const struct option *options, const char *const usagestr[],
 		  int flags)
 {
 	struct parse_opt_ctx_t ctx;
@@ -879,7 +876,7 @@ static int usage_argh(const struct option *opts, FILE *outfile)
 {
 	const char *s;
 	int literal = (opts->flags & PARSE_OPT_LITERAL_ARGHELP) ||
-		!opts->argh || !!strpbrk(opts->argh, "()<>[]|");
+		      !opts->argh || !!strpbrk(opts->argh, "()<>[]|");
 	if (opts->flags & PARSE_OPT_OPTARG)
 		if (opts->long_name)
 			s = literal ? "[=%s]" : "[=<%s>]";
@@ -891,11 +888,12 @@ static int usage_argh(const struct option *opts, FILE *outfile)
 }
 
 #define USAGE_OPTS_WIDTH 24
-#define USAGE_GAP         2
+#define USAGE_GAP 2
 
 static int usage_with_options_internal(struct parse_opt_ctx_t *ctx,
-				       const char * const *usagestr,
-				       const struct option *opts, int full, int err)
+				       const char *const *usagestr,
+				       const struct option *opts, int full,
+				       int err)
 {
 	FILE *outfile = err ? stderr : stdout;
 	int need_newline;
@@ -947,7 +945,8 @@ static int usage_with_options_internal(struct parse_opt_ctx_t *ctx,
 			if (opts->flags & PARSE_OPT_NODASH)
 				pos += fprintf(outfile, "%c", opts->short_name);
 			else
-				pos += fprintf(outfile, "-%c", opts->short_name);
+				pos += fprintf(outfile, "-%c",
+					       opts->short_name);
 		}
 		if (opts->long_name && opts->short_name)
 			pos += fprintf(outfile, ", ");
@@ -982,16 +981,15 @@ static int usage_with_options_internal(struct parse_opt_ctx_t *ctx,
 	return PARSE_OPT_HELP;
 }
 
-void NORETURN usage_with_options(const char * const *usagestr,
-			const struct option *opts)
+void NORETURN usage_with_options(const char *const *usagestr,
+				 const struct option *opts)
 {
 	usage_with_options_internal(NULL, usagestr, opts, 0, 1);
 	exit(129);
 }
 
-void NORETURN usage_msg_opt(const char *msg,
-		   const char * const *usagestr,
-		   const struct option *options)
+void NORETURN usage_msg_opt(const char *msg, const char *const *usagestr,
+			    const struct option *options)
 {
 	fprintf(stderr, "fatal: %s\n\n", msg);
 	usage_with_options(usagestr, options);

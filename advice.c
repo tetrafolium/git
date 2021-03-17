@@ -36,8 +36,7 @@ int advice_add_empty_pathspec = 1;
 
 static int advice_use_color = -1;
 static char advice_colors[][COLOR_MAXLEN] = {
-	GIT_COLOR_RESET,
-	GIT_COLOR_YELLOW,	/* HINT */
+	GIT_COLOR_RESET, GIT_COLOR_YELLOW, /* HINT */
 };
 
 enum color_advice {
@@ -91,8 +90,10 @@ static struct {
 	{ "ignoredHook", &advice_ignored_hook },
 	{ "waitingForEditor", &advice_waiting_for_editor },
 	{ "graftFileDeprecated", &advice_graft_file_deprecated },
-	{ "checkoutAmbiguousRemoteBranchName", &advice_checkout_ambiguous_remote_branch_name },
-	{ "submoduleAlternateErrorStrategyDie", &advice_submodule_alternate_error_strategy_die },
+	{ "checkoutAmbiguousRemoteBranchName",
+	  &advice_checkout_ambiguous_remote_branch_name },
+	{ "submoduleAlternateErrorStrategyDie",
+	  &advice_submodule_alternate_error_strategy_die },
 	{ "addIgnoredFile", &advice_add_ignored_file },
 	{ "addEmptyPathspec", &advice_add_empty_pathspec },
 
@@ -104,44 +105,47 @@ static struct {
 	const char *key;
 	int enabled;
 } advice_setting[] = {
-	[ADVICE_ADD_EMBEDDED_REPO]			= { "addEmbeddedRepo", 1 },
-	[ADVICE_AM_WORK_DIR] 				= { "amWorkDir", 1 },
-	[ADVICE_CHECKOUT_AMBIGUOUS_REMOTE_BRANCH_NAME] 	= { "checkoutAmbiguousRemoteBranchName", 1 },
-	[ADVICE_COMMIT_BEFORE_MERGE]			= { "commitBeforeMerge", 1 },
-	[ADVICE_DETACHED_HEAD]				= { "detachedHead", 1 },
-	[ADVICE_FETCH_SHOW_FORCED_UPDATES]		= { "fetchShowForcedUpdates", 1 },
-	[ADVICE_GRAFT_FILE_DEPRECATED]			= { "graftFileDeprecated", 1 },
-	[ADVICE_IGNORED_HOOK]				= { "ignoredHook", 1 },
-	[ADVICE_IMPLICIT_IDENTITY]			= { "implicitIdentity", 1 },
-	[ADVICE_NESTED_TAG]				= { "nestedTag", 1 },
-	[ADVICE_OBJECT_NAME_WARNING]			= { "objectNameWarning", 1 },
-	[ADVICE_PUSH_ALREADY_EXISTS]			= { "pushAlreadyExists", 1 },
-	[ADVICE_PUSH_FETCH_FIRST]			= { "pushFetchFirst", 1 },
-	[ADVICE_PUSH_NEEDS_FORCE]			= { "pushNeedsForce", 1 },
-	[ADVICE_PUSH_REF_NEEDS_UPDATE]			= { "pushRefNeedsUpdate", 1 },
+	[ADVICE_ADD_EMBEDDED_REPO] = { "addEmbeddedRepo", 1 },
+	[ADVICE_AM_WORK_DIR] = { "amWorkDir", 1 },
+	[ADVICE_CHECKOUT_AMBIGUOUS_REMOTE_BRANCH_NAME] = { "checkoutAmbiguousRemoteBranchName",
+							   1 },
+	[ADVICE_COMMIT_BEFORE_MERGE] = { "commitBeforeMerge", 1 },
+	[ADVICE_DETACHED_HEAD] = { "detachedHead", 1 },
+	[ADVICE_FETCH_SHOW_FORCED_UPDATES] = { "fetchShowForcedUpdates", 1 },
+	[ADVICE_GRAFT_FILE_DEPRECATED] = { "graftFileDeprecated", 1 },
+	[ADVICE_IGNORED_HOOK] = { "ignoredHook", 1 },
+	[ADVICE_IMPLICIT_IDENTITY] = { "implicitIdentity", 1 },
+	[ADVICE_NESTED_TAG] = { "nestedTag", 1 },
+	[ADVICE_OBJECT_NAME_WARNING] = { "objectNameWarning", 1 },
+	[ADVICE_PUSH_ALREADY_EXISTS] = { "pushAlreadyExists", 1 },
+	[ADVICE_PUSH_FETCH_FIRST] = { "pushFetchFirst", 1 },
+	[ADVICE_PUSH_NEEDS_FORCE] = { "pushNeedsForce", 1 },
+	[ADVICE_PUSH_REF_NEEDS_UPDATE] = { "pushRefNeedsUpdate", 1 },
 
 	/* make this an alias for backward compatibility */
-	[ADVICE_PUSH_UPDATE_REJECTED_ALIAS]		= { "pushNonFastForward", 1 },
+	[ADVICE_PUSH_UPDATE_REJECTED_ALIAS] = { "pushNonFastForward", 1 },
 
-	[ADVICE_PUSH_NON_FF_CURRENT]			= { "pushNonFFCurrent", 1 },
-	[ADVICE_PUSH_NON_FF_MATCHING]			= { "pushNonFFMatching", 1 },
-	[ADVICE_PUSH_UNQUALIFIED_REF_NAME]		= { "pushUnqualifiedRefName", 1 },
-	[ADVICE_PUSH_UPDATE_REJECTED]			= { "pushUpdateRejected", 1 },
-	[ADVICE_RESET_QUIET_WARNING]			= { "resetQuiet", 1 },
-	[ADVICE_RESOLVE_CONFLICT]			= { "resolveConflict", 1 },
-	[ADVICE_RM_HINTS]				= { "rmHints", 1 },
-	[ADVICE_SEQUENCER_IN_USE]			= { "sequencerInUse", 1 },
-	[ADVICE_SET_UPSTREAM_FAILURE]			= { "setUpstreamFailure", 1 },
-	[ADVICE_STATUS_AHEAD_BEHIND_WARNING]		= { "statusAheadBehindWarning", 1 },
-	[ADVICE_STATUS_HINTS]				= { "statusHints", 1 },
-	[ADVICE_STATUS_U_OPTION]			= { "statusUoption", 1 },
-	[ADVICE_SUBMODULE_ALTERNATE_ERROR_STRATEGY_DIE] = { "submoduleAlternateErrorStrategyDie", 1 },
-	[ADVICE_WAITING_FOR_EDITOR]			= { "waitingForEditor", 1 },
+	[ADVICE_PUSH_NON_FF_CURRENT] = { "pushNonFFCurrent", 1 },
+	[ADVICE_PUSH_NON_FF_MATCHING] = { "pushNonFFMatching", 1 },
+	[ADVICE_PUSH_UNQUALIFIED_REF_NAME] = { "pushUnqualifiedRefName", 1 },
+	[ADVICE_PUSH_UPDATE_REJECTED] = { "pushUpdateRejected", 1 },
+	[ADVICE_RESET_QUIET_WARNING] = { "resetQuiet", 1 },
+	[ADVICE_RESOLVE_CONFLICT] = { "resolveConflict", 1 },
+	[ADVICE_RM_HINTS] = { "rmHints", 1 },
+	[ADVICE_SEQUENCER_IN_USE] = { "sequencerInUse", 1 },
+	[ADVICE_SET_UPSTREAM_FAILURE] = { "setUpstreamFailure", 1 },
+	[ADVICE_STATUS_AHEAD_BEHIND_WARNING] = { "statusAheadBehindWarning",
+						 1 },
+	[ADVICE_STATUS_HINTS] = { "statusHints", 1 },
+	[ADVICE_STATUS_U_OPTION] = { "statusUoption", 1 },
+	[ADVICE_SUBMODULE_ALTERNATE_ERROR_STRATEGY_DIE] = { "submoduleAlternateErrorStrategyDie",
+							    1 },
+	[ADVICE_WAITING_FOR_EDITOR] = { "waitingForEditor", 1 },
 };
 
 static const char turn_off_instructions[] =
-N_("\n"
-   "Disable this message with \"git config advice.%s false\"");
+	N_("\n"
+	   "Disable this message with \"git config advice.%s false\"");
 
 static void vadvise(const char *advice, int display_instructions,
 		    const char *key, va_list params)
@@ -156,9 +160,8 @@ static void vadvise(const char *advice, int display_instructions,
 
 	for (cp = buf.buf; *cp; cp = np) {
 		np = strchrnul(cp, '\n');
-		fprintf(stderr,	_("%shint: %.*s%s\n"),
-			advise_get_color(ADVICE_COLOR_HINT),
-			(int)(np - cp), cp,
+		fprintf(stderr, _("%shint: %.*s%s\n"),
+			advise_get_color(ADVICE_COLOR_HINT), (int)(np - cp), cp,
 			advise_get_color(ADVICE_COLOR_RESET));
 		if (*np)
 			np++;
@@ -176,7 +179,7 @@ void advise(const char *advice, ...)
 
 int advice_enabled(enum advice_type type)
 {
-	switch(type) {
+	switch (type) {
 	case ADVICE_PUSH_UPDATE_REJECTED:
 		return advice_setting[ADVICE_PUSH_UPDATE_REJECTED].enabled &&
 		       advice_setting[ADVICE_PUSH_UPDATE_REJECTED_ALIAS].enabled;
@@ -258,15 +261,16 @@ int error_resolve_conflict(const char *me)
 		error(_("Reverting is not possible because you have unmerged files."));
 	else
 		error(_("It is not possible to %s because you have unmerged files."),
-			me);
+		      me);
 
 	if (advice_resolve_conflict)
 		/*
 		 * Message used both when 'git commit' fails and when
 		 * other commands doing a merge do.
 		 */
-		advise(_("Fix them up in the work tree, and then use 'git add/rm <file>'\n"
-			 "as appropriate to mark resolution and make a commit."));
+		advise(_(
+			"Fix them up in the work tree, and then use 'git add/rm <file>'\n"
+			"as appropriate to mark resolution and make a commit."));
 	return -1;
 }
 
@@ -286,23 +290,23 @@ void NORETURN die_conclude_merge(void)
 
 void detach_advice(const char *new_name)
 {
-	const char *fmt =
-	_("Note: switching to '%s'.\n"
-	"\n"
-	"You are in 'detached HEAD' state. You can look around, make experimental\n"
-	"changes and commit them, and you can discard any commits you make in this\n"
-	"state without impacting any branches by switching back to a branch.\n"
-	"\n"
-	"If you want to create a new branch to retain commits you create, you may\n"
-	"do so (now or later) by using -c with the switch command. Example:\n"
-	"\n"
-	"  git switch -c <new-branch-name>\n"
-	"\n"
-	"Or undo this operation with:\n"
-	"\n"
-	"  git switch -\n"
-	"\n"
-	"Turn off this advice by setting config variable advice.detachedHead to false\n\n");
+	const char *fmt = _(
+		"Note: switching to '%s'.\n"
+		"\n"
+		"You are in 'detached HEAD' state. You can look around, make experimental\n"
+		"changes and commit them, and you can discard any commits you make in this\n"
+		"state without impacting any branches by switching back to a branch.\n"
+		"\n"
+		"If you want to create a new branch to retain commits you create, you may\n"
+		"do so (now or later) by using -c with the switch command. Example:\n"
+		"\n"
+		"  git switch -c <new-branch-name>\n"
+		"\n"
+		"Or undo this operation with:\n"
+		"\n"
+		"  git switch -\n"
+		"\n"
+		"Turn off this advice by setting config variable advice.detachedHead to false\n\n");
 
 	fprintf(stderr, fmt, new_name);
 }

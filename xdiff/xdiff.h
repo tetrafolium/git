@@ -34,17 +34,16 @@ extern "C" {
 #define XDF_IGNORE_WHITESPACE_CHANGE (1 << 2)
 #define XDF_IGNORE_WHITESPACE_AT_EOL (1 << 3)
 #define XDF_IGNORE_CR_AT_EOL (1 << 4)
-#define XDF_WHITESPACE_FLAGS (XDF_IGNORE_WHITESPACE | \
-			      XDF_IGNORE_WHITESPACE_CHANGE | \
-			      XDF_IGNORE_WHITESPACE_AT_EOL | \
-			      XDF_IGNORE_CR_AT_EOL)
+#define XDF_WHITESPACE_FLAGS                                    \
+	(XDF_IGNORE_WHITESPACE | XDF_IGNORE_WHITESPACE_CHANGE | \
+	 XDF_IGNORE_WHITESPACE_AT_EOL | XDF_IGNORE_CR_AT_EOL)
 
 #define XDF_IGNORE_BLANK_LINES (1 << 7)
 
 #define XDF_PATIENCE_DIFF (1 << 14)
 #define XDF_HISTOGRAM_DIFF (1 << 15)
 #define XDF_DIFF_ALGORITHM_MASK (XDF_PATIENCE_DIFF | XDF_HISTOGRAM_DIFF)
-#define XDF_DIFF_ALG(x) ((x) & XDF_DIFF_ALGORITHM_MASK)
+#define XDF_DIFF_ALG(x) ((x)&XDF_DIFF_ALGORITHM_MASK)
 
 #define XDF_INDENT_HEURISTIC (1 << 23)
 
@@ -90,14 +89,13 @@ typedef struct s_xpparam {
 
 typedef struct s_xdemitcb {
 	void *priv;
-	int (*out_hunk)(void *,
-			long old_begin, long old_nr,
-			long new_begin, long new_nr,
-			const char *func, long funclen);
+	int (*out_hunk)(void *, long old_begin, long old_nr, long new_begin,
+			long new_nr, const char *func, long funclen);
 	int (*out_line)(void *, mmbuffer_t *, int);
 } xdemitcb_t;
 
-typedef long (*find_func_t)(const char *line, long line_len, char *buffer, long buffer_size, void *priv);
+typedef long (*find_func_t)(const char *line, long line_len, char *buffer,
+			    long buffer_size, void *priv);
 
 typedef int (*xdl_emit_hunk_consume_func_t)(long start_a, long count_a,
 					    long start_b, long count_b,
@@ -116,10 +114,9 @@ typedef struct s_bdiffparam {
 	long bsize;
 } bdiffparam_t;
 
-
 #define xdl_malloc(x) xmalloc(x)
 #define xdl_free(ptr) free(ptr)
-#define xdl_realloc(ptr,x) xrealloc(ptr,x)
+#define xdl_realloc(ptr, x) xrealloc(ptr, x)
 
 void *xdl_mmfile_first(mmfile_t *mmf, long *size);
 long xdl_mmfile_size(mmfile_t *mmf);
@@ -133,15 +130,15 @@ typedef struct s_xmparam {
 	int level;
 	int favor;
 	int style;
-	const char *ancestor;	/* label for orig */
-	const char *file1;	/* label for mf1 */
-	const char *file2;	/* label for mf2 */
+	const char *ancestor; /* label for orig */
+	const char *file1; /* label for mf1 */
+	const char *file2; /* label for mf2 */
 } xmparam_t;
 
 #define DEFAULT_CONFLICT_MARKER_SIZE 7
 
 int xdl_merge(mmfile_t *orig, mmfile_t *mf1, mmfile_t *mf2,
-		xmparam_t const *xmp, mmbuffer_t *result);
+	      xmparam_t const *xmp, mmbuffer_t *result);
 
 #ifdef __cplusplus
 }

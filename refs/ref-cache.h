@@ -11,8 +11,8 @@ struct ref_store;
  * information into the specified ref_dir (shallow or deep, at the
  * option of the ref_store). dirname includes a trailing slash.
  */
-typedef void fill_ref_dir_fn(struct ref_store *ref_store,
-			     struct ref_dir *dir, const char *dirname);
+typedef void fill_ref_dir_fn(struct ref_store *ref_store, struct ref_dir *dir,
+			     const char *dirname);
 
 struct ref_cache {
 	struct ref_entry *root;
@@ -168,9 +168,8 @@ struct ref_dir *get_ref_dir(struct ref_entry *entry);
  * dirname is the name of the directory with a trailing slash (e.g.,
  * "refs/heads/") or "" for the top-level directory.
  */
-struct ref_entry *create_dir_entry(struct ref_cache *cache,
-				   const char *dirname, size_t len,
-				   int incomplete);
+struct ref_entry *create_dir_entry(struct ref_cache *cache, const char *dirname,
+				   size_t len, int incomplete);
 
 struct ref_entry *create_ref_entry(const char *refname,
 				   const struct object_id *oid, int flag);

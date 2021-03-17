@@ -20,25 +20,25 @@ struct commit_list *repo_get_merge_bases_many_dirty(struct repository *r,
 						    struct commit *one, int n,
 						    struct commit **twos);
 #ifndef NO_THE_REPOSITORY_COMPATIBILITY_MACROS
-#define get_merge_bases(r1, r2)           repo_get_merge_bases(the_repository, r1, r2)
-#define get_merge_bases_many(one, n, two) repo_get_merge_bases_many(the_repository, one, n, two)
-#define get_merge_bases_many_dirty(one, n, twos) repo_get_merge_bases_many_dirty(the_repository, one, n, twos)
+#define get_merge_bases(r1, r2) repo_get_merge_bases(the_repository, r1, r2)
+#define get_merge_bases_many(one, n, two) \
+	repo_get_merge_bases_many(the_repository, one, n, two)
+#define get_merge_bases_many_dirty(one, n, twos) \
+	repo_get_merge_bases_many_dirty(the_repository, one, n, twos)
 #endif
 
 struct commit_list *get_octopus_merge_bases(struct commit_list *in);
 
-int repo_is_descendant_of(struct repository *r,
-			  struct commit *commit,
+int repo_is_descendant_of(struct repository *r, struct commit *commit,
 			  struct commit_list *with_commit);
-int repo_in_merge_bases(struct repository *r,
-			struct commit *commit,
+int repo_in_merge_bases(struct repository *r, struct commit *commit,
 			struct commit *reference);
-int repo_in_merge_bases_many(struct repository *r,
-			     struct commit *commit,
+int repo_in_merge_bases_many(struct repository *r, struct commit *commit,
 			     int nr_reference, struct commit **reference);
 #ifndef NO_THE_REPOSITORY_COMPATIBILITY_MACROS
 #define in_merge_bases(c1, c2) repo_in_merge_bases(the_repository, c1, c2)
-#define in_merge_bases_many(c1, n, cs) repo_in_merge_bases_many(the_repository, c1, n, cs)
+#define in_merge_bases_many(c1, n, cs) \
+	repo_in_merge_bases_many(the_repository, c1, n, cs)
 #endif
 
 /*
@@ -65,11 +65,7 @@ int ref_newer(const struct object_id *new_oid, const struct object_id *old_oid);
  * Unknown has to be "0" here, because that's the default value for
  * contains_cache slab entries that have not yet been assigned.
  */
-enum contains_result {
-	CONTAINS_UNKNOWN = 0,
-	CONTAINS_NO,
-	CONTAINS_YES
-};
+enum contains_result { CONTAINS_UNKNOWN = 0, CONTAINS_NO, CONTAINS_YES };
 
 define_commit_slab(contains_cache, enum contains_result);
 
@@ -90,7 +86,6 @@ int can_all_from_reach_with_flag(struct object_array *from,
 				 timestamp_t min_generation);
 int can_all_from_reach(struct commit_list *from, struct commit_list *to,
 		       int commit_date_cutoff);
-
 
 /*
  * Return a list of commits containing the commits in the 'to' array

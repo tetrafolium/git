@@ -47,7 +47,7 @@ struct src_data {
 
 struct origin_data {
 	struct object_id oid;
-	unsigned is_local_branch:1;
+	unsigned is_local_branch : 1;
 };
 
 static void init_src_data(struct src_data *data)
@@ -67,7 +67,7 @@ struct merge_parents {
 		struct object_id given;
 		struct object_id commit;
 		unsigned char used;
-	} *item;
+	} * item;
 };
 
 /*
@@ -90,8 +90,7 @@ static struct merge_parent *find_merge_parent(struct merge_parents *table,
 }
 
 static void add_merge_parent(struct merge_parents *table,
-			     struct object_id *given,
-			     struct object_id *commit)
+			     struct object_id *given, struct object_id *commit)
 {
 	if (table->nr && find_merge_parent(table, given, commit))
 		return;
@@ -193,7 +192,7 @@ static int handle_line(char *line, struct merge_parents *merge_parents)
 }
 
 static void print_joined(const char *singular, const char *plural,
-		struct string_list *list, struct strbuf *out)
+			 struct string_list *list, struct strbuf *out)
 {
 	if (list->nr == 0)
 		return;
@@ -255,10 +254,9 @@ static void record_person_from_buf(int which, struct string_list *people,
 		elem = string_list_insert(people, name_buf);
 		elem->util = (void *)0;
 	}
-	elem->util = (void*)(util_as_integral(elem) + 1);
+	elem->util = (void *)(util_as_integral(elem) + 1);
 	free(name_buf);
 }
-
 
 static void record_person(int which, struct string_list *people,
 			  struct commit *commit)
@@ -279,19 +277,16 @@ static void add_people_count(struct strbuf *out, struct string_list *people)
 	if (people->nr == 1)
 		strbuf_addstr(out, people->items[0].string);
 	else if (people->nr == 2)
-		strbuf_addf(out, "%s (%d) and %s (%d)",
-			    people->items[0].string,
+		strbuf_addf(out, "%s (%d) and %s (%d)", people->items[0].string,
 			    (int)util_as_integral(&people->items[0]),
 			    people->items[1].string,
 			    (int)util_as_integral(&people->items[1]));
 	else if (people->nr)
-		strbuf_addf(out, "%s (%d) and others",
-			    people->items[0].string,
+		strbuf_addf(out, "%s (%d) and others", people->items[0].string,
 			    (int)util_as_integral(&people->items[0]));
 }
 
-static void credit_people(struct strbuf *out,
-			  struct string_list *them,
+static void credit_people(struct strbuf *out, struct string_list *them,
 			  int kind)
 {
 	const char *label;
@@ -306,21 +301,17 @@ static void credit_people(struct strbuf *out,
 	}
 
 	if (!them->nr ||
-	    (them->nr == 1 &&
-	     me &&
-	     skip_prefix(me, them->items->string, &me) &&
+	    (them->nr == 1 && me && skip_prefix(me, them->items->string, &me) &&
 	     starts_with(me, " <")))
 		return;
 	strbuf_addf(out, "\n%c %s ", comment_line_char, label);
 	add_people_count(out, them);
 }
 
-static void add_people_info(struct strbuf *out,
-			    struct string_list *authors,
+static void add_people_info(struct strbuf *out, struct string_list *authors,
 			    struct string_list *committers)
 {
-	QSORT(authors->items, authors->nr,
-	      cmp_string_list_util_as_integral);
+	QSORT(authors->items, authors->nr, cmp_string_list_util_as_integral);
 	QSORT(committers->items, committers->nr,
 	      cmp_string_list_util_as_integral);
 
@@ -328,12 +319,9 @@ static void add_people_info(struct strbuf *out,
 	credit_people(out, committers, 'c');
 }
 
-static void shortlog(const char *name,
-		     struct origin_data *origin_data,
-		     struct commit *head,
-		     struct rev_info *rev,
-		     struct fmt_merge_msg_opts *opts,
-		     struct strbuf *out)
+static void shortlog(const char *name, struct origin_data *origin_data,
+		     struct commit *head, struct rev_info *rev,
+		     struct fmt_merge_msg_opts *opts, struct strbuf *out)
 {
 	int i, count = 0;
 	struct commit *commit;
@@ -347,8 +335,7 @@ static void shortlog(const char *name,
 	int limit = opts->shortlog_len;
 
 	branch = deref_tag(the_repository, parse_object(the_repository, oid),
-			   oid_to_hex(oid),
-			   the_hash_algo->hexsz);
+			   oid_to_hex(oid), the_hash_algo->hexsz);
 	if (!branch || branch->type != OBJ_COMMIT)
 		return;
 
@@ -359,7 +346,7 @@ static void shortlog(const char *name,
 	if (prepare_revision_walk(rev))
 		die("revision walk setup failed");
 	while ((commit = get_revision(rev)) != NULL) {
-		struct pretty_print_context ctx = {0};
+		struct pretty_print_context ctx = { 0 };
 
 		if (commit->parents && commit->parents->next) {
 			/* do not list a merge but count committer */
@@ -425,15 +412,14 @@ static int dest_suppressed(const char *dest_branch)
 {
 	struct string_list_item *item;
 
-	for_each_string_list_item(item, &suppress_dest_patterns) {
+	for_each_string_list_item (item, &suppress_dest_patterns) {
 		if (!wildmatch(item->string, dest_branch, WM_PATHNAME))
 			return 1;
 	}
 	return 0;
 }
 
-static void fmt_merge_msg_title(struct strbuf *out,
-				const char *current_branch)
+static void fmt_merge_msg_title(struct strbuf *out, const char *current_branch)
 {
 	int i = 0;
 	char *sep = "";
@@ -458,13 +444,14 @@ static void fmt_merge_msg_title(struct strbuf *out,
 			strbuf_addstr(out, subsep);
 			subsep = ", ";
 			print_joined("branch ", "branches ", &src_data->branch,
-					out);
+				     out);
 		}
 		if (src_data->r_branch.nr) {
 			strbuf_addstr(out, subsep);
 			subsep = ", ";
-			print_joined("remote-tracking branch ", "remote-tracking branches ",
-					&src_data->r_branch, out);
+			print_joined("remote-tracking branch ",
+				     "remote-tracking branches ",
+				     &src_data->r_branch, out);
 		}
 		if (src_data->tag.nr) {
 			strbuf_addstr(out, subsep);
@@ -474,7 +461,7 @@ static void fmt_merge_msg_title(struct strbuf *out,
 		if (src_data->generic.nr) {
 			strbuf_addstr(out, subsep);
 			print_joined("commit ", "commits ", &src_data->generic,
-					out);
+				     out);
 		}
 		if (strcmp(".", srcs.items[i].string))
 			strbuf_addf(out, " of %s", srcs.items[i].string);
@@ -485,10 +472,8 @@ static void fmt_merge_msg_title(struct strbuf *out,
 	strbuf_addch(out, '\n');
 }
 
-static void fmt_tag_signature(struct strbuf *tagbuf,
-			      struct strbuf *sig,
-			      const char *buf,
-			      unsigned long len)
+static void fmt_tag_signature(struct strbuf *tagbuf, struct strbuf *sig,
+			      const char *buf, unsigned long len)
 {
 	const char *tag_body = strstr(buf, "\n\n");
 	if (tag_body) {
@@ -521,14 +506,15 @@ static void fmt_merge_msg_sigs(struct strbuf *out)
 			goto next;
 
 		if (!parse_signature(buf, size, &payload, &sig))
-			;/* merely annotated */
+			; /* merely annotated */
 		else {
 			buf = payload.buf;
 			len = payload.len;
 			if (check_signature(payload.buf, payload.len, sig.buf,
-					 sig.len, &sigc) &&
-				!sigc.gpg_output)
-				strbuf_addstr(&sig, "gpg verification failed.\n");
+					    sig.len, &sigc) &&
+			    !sigc.gpg_output)
+				strbuf_addstr(&sig,
+					      "gpg verification failed.\n");
 			else
 				strbuf_addstr(&sig, sigc.gpg_output);
 		}
@@ -541,17 +527,18 @@ static void fmt_merge_msg_sigs(struct strbuf *out)
 			if (tag_number == 2) {
 				struct strbuf tagline = STRBUF_INIT;
 				strbuf_addch(&tagline, '\n');
-				strbuf_add_commented_lines(&tagline,
-						origins.items[first_tag].string,
-						strlen(origins.items[first_tag].string));
+				strbuf_add_commented_lines(
+					&tagline,
+					origins.items[first_tag].string,
+					strlen(origins.items[first_tag].string));
 				strbuf_insert(&tagbuf, 0, tagline.buf,
 					      tagline.len);
 				strbuf_release(&tagline);
 			}
 			strbuf_addch(&tagbuf, '\n');
-			strbuf_add_commented_lines(&tagbuf,
-					origins.items[i].string,
-					strlen(origins.items[i].string));
+			strbuf_add_commented_lines(
+				&tagbuf, origins.items[i].string,
+				strlen(origins.items[i].string));
 			fmt_tag_signature(&tagbuf, &sig, buf, len);
 		}
 		strbuf_release(&payload);
@@ -566,8 +553,8 @@ static void fmt_merge_msg_sigs(struct strbuf *out)
 	strbuf_release(&tagbuf);
 }
 
-static void find_merge_parents(struct merge_parents *result,
-			       struct strbuf *in, struct object_id *head)
+static void find_merge_parents(struct merge_parents *result, struct strbuf *in,
+			       struct object_id *head)
 {
 	struct commit_list *parents;
 	struct commit *head_commit;
@@ -586,9 +573,7 @@ static void find_merge_parents(struct merge_parents *result,
 		len = newline ? newline - p : strlen(p);
 		pos += len + !!newline;
 
-		if (parse_oid_hex(p, &oid, &q) ||
-		    q[0] != '\t' ||
-		    q[1] != '\t')
+		if (parse_oid_hex(p, &oid, &q) || q[0] != '\t' || q[1] != '\t')
 			continue; /* skip not-for-merge */
 		/*
 		 * Do not use get_merge_parent() here; we do not have
@@ -596,7 +581,8 @@ static void find_merge_parents(struct merge_parents *result,
 		 * util field yet.
 		 */
 		obj = parse_object(the_repository, &oid);
-		parent = (struct commit *)peel_to_type(NULL, 0, obj, OBJ_COMMIT);
+		parent =
+			(struct commit *)peel_to_type(NULL, 0, obj, OBJ_COMMIT);
 		if (!parent)
 			continue;
 		commit_list_insert(parent, &parents);
@@ -623,7 +609,6 @@ static void find_merge_parents(struct merge_parents *result,
 	}
 	result->nr = j;
 }
-
 
 int fmt_merge_msg(struct strbuf *in, struct strbuf *out,
 		  struct fmt_merge_msg_opts *opts)
@@ -684,8 +669,7 @@ int fmt_merge_msg(struct strbuf *in, struct strbuf *out,
 		strbuf_complete_line(out);
 
 		for (i = 0; i < origins.nr; i++)
-			shortlog(origins.items[i].string,
-				 origins.items[i].util,
+			shortlog(origins.items[i].string, origins.items[i].util,
 				 head, &rev, opts, out);
 	}
 

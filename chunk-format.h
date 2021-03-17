@@ -26,16 +26,12 @@ struct chunkfile *init_chunkfile(struct hashfile *f);
 void free_chunkfile(struct chunkfile *cf);
 int get_num_chunks(struct chunkfile *cf);
 typedef int (*chunk_write_fn)(struct hashfile *f, void *data);
-void add_chunk(struct chunkfile *cf,
-	       uint32_t id,
-	       size_t size,
+void add_chunk(struct chunkfile *cf, uint32_t id, size_t size,
 	       chunk_write_fn fn);
 int write_chunkfile(struct chunkfile *cf, void *data);
 
-int read_table_of_contents(struct chunkfile *cf,
-			   const unsigned char *mfile,
-			   size_t mfile_size,
-			   uint64_t toc_offset,
+int read_table_of_contents(struct chunkfile *cf, const unsigned char *mfile,
+			   size_t mfile_size, uint64_t toc_offset,
 			   int toc_length);
 
 #define CHUNK_NOT_FOUND (-2)
@@ -47,8 +43,7 @@ int read_table_of_contents(struct chunkfile *cf,
  *
  * Returns CHUNK_NOT_FOUND if the chunk does not exist.
  */
-int pair_chunk(struct chunkfile *cf,
-	       uint32_t chunk_id,
+int pair_chunk(struct chunkfile *cf, uint32_t chunk_id,
 	       const unsigned char **p);
 
 typedef int (*chunk_read_fn)(const unsigned char *chunk_start,
@@ -60,9 +55,7 @@ typedef int (*chunk_read_fn)(const unsigned char *chunk_start,
  *
  * Returns CHUNK_NOT_FOUND if the chunk does not exist.
  */
-int read_chunk(struct chunkfile *cf,
-	       uint32_t chunk_id,
-	       chunk_read_fn fn,
+int read_chunk(struct chunkfile *cf, uint32_t chunk_id, chunk_read_fn fn,
 	       void *data);
 
 #endif

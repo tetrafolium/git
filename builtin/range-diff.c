@@ -5,11 +5,10 @@
 #include "config.h"
 #include "revision.h"
 
-static const char * const builtin_range_diff_usage[] = {
-N_("git range-diff [<options>] <old-base>..<old-tip> <new-base>..<new-tip>"),
-N_("git range-diff [<options>] <old-tip>...<new-tip>"),
-N_("git range-diff [<options>] <base> <old-tip> <new-tip>"),
-NULL
+static const char *const builtin_range_diff_usage[] = {
+	N_("git range-diff [<options>] <old-base>..<old-tip> <new-base>..<new-tip>"),
+	N_("git range-diff [<options>] <old-tip>...<new-tip>"),
+	N_("git range-diff [<options>] <base> <old-tip> <new-tip>"), NULL
 };
 
 int cmd_range_diff(int argc, const char **argv, const char *prefix)
@@ -27,10 +26,9 @@ int cmd_range_diff(int argc, const char **argv, const char *prefix)
 			    &range_diff_opts.creation_factor,
 			    N_("Percentage by which creation is weighted")),
 		OPT_BOOL(0, "no-dual-color", &simple_color,
-			    N_("use simple diff colors")),
-		OPT_PASSTHRU_ARGV(0, "notes", &other_arg,
-				  N_("notes"), N_("passed to 'git log'"),
-				  PARSE_OPT_OPTARG),
+			 N_("use simple diff colors")),
+		OPT_PASSTHRU_ARGV(0, "notes", &other_arg, N_("notes"),
+				  N_("passed to 'git log'"), PARSE_OPT_OPTARG),
 		OPT_BOOL(0, "left-only", &left_only,
 			 N_("only emit output related to the first range")),
 		OPT_BOOL(0, "right-only", &right_only,

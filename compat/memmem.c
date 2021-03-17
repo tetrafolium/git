@@ -1,7 +1,7 @@
 #include "../git-compat-util.h"
 
-void *gitmemmem(const void *haystack, size_t haystack_len,
-                const void *needle, size_t needle_len)
+void *gitmemmem(const void *haystack, size_t haystack_len, const void *needle,
+		size_t needle_len)
 {
 	const char *begin = haystack;
 	const char *last_possible = begin + haystack_len - needle_len;

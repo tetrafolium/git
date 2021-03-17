@@ -29,8 +29,7 @@ int has_promisor_remote(void);
  * If oid_nr is 0, this function returns 0 (success) immediately.
  */
 int promisor_remote_get_direct(struct repository *repo,
-			       const struct object_id *oids,
-			       int oid_nr);
+			       const struct object_id *oids, int oid_nr);
 
 /*
  * This should be used only once from setup.c to set the value we got

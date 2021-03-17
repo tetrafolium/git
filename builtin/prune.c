@@ -10,7 +10,7 @@
 #include "object-store.h"
 #include "shallow.h"
 
-static const char * const prune_usage[] = {
+static const char *const prune_usage[] = {
 	N_("git prune [-n] [-v] [--progress] [--expire <time>] [--] [<head>...]"),
 	NULL
 };
@@ -42,7 +42,8 @@ static void perform_reachability_traversal(struct rev_info *revs)
 		return;
 
 	if (show_progress)
-		progress = start_delayed_progress(_("Checking connectivity"), 0);
+		progress =
+			start_delayed_progress(_("Checking connectivity"), 0);
 	mark_reachable_objects(revs, 1, expire, progress);
 	stop_progress(&progress);
 	initialized = 1;
@@ -76,8 +77,8 @@ static int prune_object(const struct object_id *oid, const char *fullpath,
 	if (st.st_mtime > expire)
 		return 0;
 	if (show_only || verbose) {
-		enum object_type type = oid_object_info(the_repository, oid,
-							NULL);
+		enum object_type type =
+			oid_object_info(the_repository, oid, NULL);
 		printf("%s %s\n", oid_to_hex(oid),
 		       (type > 0) ? type_name(type) : "unknown");
 	}
@@ -134,8 +135,10 @@ int cmd_prune(int argc, const char **argv, const char *prefix)
 		OPT_BOOL(0, "progress", &show_progress, N_("show progress")),
 		OPT_EXPIRY_DATE(0, "expire", &expire,
 				N_("expire objects older than <time>")),
-		OPT_BOOL(0, "exclude-promisor-objects", &exclude_promisor_objects,
-			 N_("limit traversal to objects outside promisor packfiles")),
+		OPT_BOOL(
+			0, "exclude-promisor-objects",
+			&exclude_promisor_objects,
+			N_("limit traversal to objects outside promisor packfiles")),
 		OPT_END()
 	};
 	char *s;
@@ -156,11 +159,9 @@ int cmd_prune(int argc, const char **argv, const char *prefix)
 		const char *name = *argv++;
 
 		if (!get_oid(name, &oid)) {
-			struct object *object = parse_object_or_die(&oid,
-								    name);
+			struct object *object = parse_object_or_die(&oid, name);
 			add_pending_object(&revs, object, "");
-		}
-		else
+		} else
 			die("unrecognized argument: %s", name);
 	}
 

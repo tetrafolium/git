@@ -228,8 +228,8 @@ static struct packed_ref_store *packed_downcast(struct ref_store *ref_store,
 	refs = (struct packed_ref_store *)ref_store;
 
 	if ((refs->store_flags & required_flags) != required_flags)
-		BUG("unallowed operation (%s), requires %x, has %x\n",
-		    caller, required_flags, refs->store_flags);
+		BUG("unallowed operation (%s), requires %x, has %x\n", caller,
+		    required_flags, refs->store_flags);
 
 	return refs;
 }
@@ -244,8 +244,8 @@ static void clear_snapshot(struct packed_ref_store *refs)
 	}
 }
 
-static NORETURN void die_unterminated_line(const char *path,
-					   const char *p, size_t len)
+static NORETURN void die_unterminated_line(const char *path, const char *p,
+					   size_t len)
 {
 	if (len < 80)
 		die("unterminated line in %s: %.*s", path, (int)len, p);
@@ -253,8 +253,8 @@ static NORETURN void die_unterminated_line(const char *path,
 		die("unterminated line in %s: %.75s...", path, p);
 }
 
-static NORETURN void die_invalid_line(const char *path,
-				      const char *p, size_t len)
+static NORETURN void die_invalid_line(const char *path, const char *p,
+				      size_t len)
 {
 	const char *eol = memchr(p, '\n', len);
 
@@ -264,7 +264,6 @@ static NORETURN void die_invalid_line(const char *path,
 		die("unexpected line in %s: %.*s", path, (int)(eol - p), p);
 	else
 		die("unexpected line in %s: %.75s...", path, p);
-
 }
 
 struct snapshot_record {
@@ -285,7 +284,9 @@ static int cmp_packed_ref_records(const void *v1, const void *v2)
 			if (*r2 == '\n')
 				return 1;
 			else
-				return (unsigned char)*r1 < (unsigned char)*r2 ? -1 : +1;
+				return (unsigned char)*r1 < (unsigned char)*r2 ?
+					       -1 :
+					       +1;
 		}
 		r1++;
 		r2++;
@@ -307,7 +308,8 @@ static int cmp_record_to_refname(const char *rec, const char *refname)
 		if (!*r2)
 			return 1;
 		if (*r1 != *r2)
-			return (unsigned char)*r1 < (unsigned char)*r2 ? -1 : +1;
+			return (unsigned char)*r1 < (unsigned char)*r2 ? -1 :
+									 +1;
 		r1++;
 		r2++;
 	}
@@ -346,8 +348,7 @@ static void sort_snapshot(struct snapshot *snapshot)
 			/* The safety check should prevent this. */
 			BUG("unterminated line found in packed-refs");
 		if (eol - pos < the_hash_algo->hexsz + 2)
-			die_invalid_line(snapshot->refs->path,
-					 pos, eof - pos);
+			die_invalid_line(snapshot->refs->path, pos, eof - pos);
 		eol++;
 		if (eol < eof && *eol == '^') {
 			/*
@@ -368,8 +369,7 @@ static void sort_snapshot(struct snapshot *snapshot)
 		records[nr].len = eol - pos;
 		nr++;
 
-		if (sorted &&
-		    nr > 1 &&
+		if (sorted && nr > 1 &&
 		    cmp_packed_ref_records(&records[nr - 2],
 					   &records[nr - 1]) >= 0)
 			sorted = 0;
@@ -458,11 +458,11 @@ static void verify_buffer_safe(struct snapshot *snapshot)
 
 	last_line = find_start_of_record(start, eof - 1);
 	if (*(eof - 1) != '\n' || eof - last_line < the_hash_algo->hexsz + 2)
-		die_invalid_line(snapshot->refs->path,
-				 last_line, eof - last_line);
+		die_invalid_line(snapshot->refs->path, last_line,
+				 eof - last_line);
 }
 
-#define SMALL_FILE_SIZE (32*1024)
+#define SMALL_FILE_SIZE (32 * 1024)
 
 /*
  * Depending on `mmap_strategy`, either mmap or read the contents of
@@ -509,7 +509,8 @@ static int load_contents(struct snapshot *snapshot)
 			die_errno("couldn't read %s", snapshot->refs->path);
 		snapshot->mmapped = 0;
 	} else {
-		snapshot->buf = xmmap(NULL, size, PROT_READ, MAP_PRIVATE, fd, 0);
+		snapshot->buf =
+			xmmap(NULL, size, PROT_READ, MAP_PRIVATE, fd, 0);
 		snapshot->mmapped = 1;
 	}
 	close(fd);
@@ -634,15 +635,13 @@ static struct snapshot *create_snapshot(struct packed_ref_store *refs)
 		eol = memchr(snapshot->buf, '\n',
 			     snapshot->eof - snapshot->buf);
 		if (!eol)
-			die_unterminated_line(refs->path,
-					      snapshot->buf,
+			die_unterminated_line(refs->path, snapshot->buf,
 					      snapshot->eof - snapshot->buf);
 
 		tmp = xmemdupz(snapshot->buf, eol - snapshot->buf);
 
 		if (!skip_prefix(tmp, "# pack-refs with:", (const char **)&p))
-			die_invalid_line(refs->path,
-					 snapshot->buf,
+			die_invalid_line(refs->path, snapshot->buf,
 					 snapshot->eof - snapshot->buf);
 
 		string_list_split_in_place(&traits, p, ' ', -1);
@@ -724,9 +723,9 @@ static struct snapshot *get_snapshot(struct packed_ref_store *refs)
 	return refs->snapshot;
 }
 
-static int packed_read_raw_ref(struct ref_store *ref_store,
-			       const char *refname, struct object_id *oid,
-			       struct strbuf *referent, unsigned int *type)
+static int packed_read_raw_ref(struct ref_store *ref_store, const char *refname,
+			       struct object_id *oid, struct strbuf *referent,
+			       unsigned int *type)
 {
 	struct packed_ref_store *refs =
 		packed_downcast(ref_store, REF_STORE_READ, "read_raw_ref");
@@ -798,15 +797,14 @@ static int next_record(struct packed_ref_iterator *iter)
 	iter->base.flags = REF_ISPACKED;
 
 	if (iter->eof - p < the_hash_algo->hexsz + 2 ||
-	    parse_oid_hex(p, &iter->oid, &p) ||
-	    !isspace(*p++))
-		die_invalid_line(iter->snapshot->refs->path,
-				 iter->pos, iter->eof - iter->pos);
+	    parse_oid_hex(p, &iter->oid, &p) || !isspace(*p++))
+		die_invalid_line(iter->snapshot->refs->path, iter->pos,
+				 iter->eof - iter->pos);
 
 	eol = memchr(p, '\n', iter->eof - p);
 	if (!eol)
-		die_unterminated_line(iter->snapshot->refs->path,
-				      iter->pos, iter->eof - iter->pos);
+		die_unterminated_line(iter->snapshot->refs->path, iter->pos,
+				      iter->eof - iter->pos);
 
 	strbuf_add(&iter->refname_buf, p, eol - p);
 	iter->base.refname = iter->refname_buf.buf;
@@ -828,10 +826,9 @@ static int next_record(struct packed_ref_iterator *iter)
 	if (iter->pos < iter->eof && *iter->pos == '^') {
 		p = iter->pos + 1;
 		if (iter->eof - p < the_hash_algo->hexsz + 1 ||
-		    parse_oid_hex(p, &iter->peeled, &p) ||
-		    *p++ != '\n')
-			die_invalid_line(iter->snapshot->refs->path,
-					 iter->pos, iter->eof - iter->pos);
+		    parse_oid_hex(p, &iter->peeled, &p) || *p++ != '\n')
+			die_invalid_line(iter->snapshot->refs->path, iter->pos,
+					 iter->eof - iter->pos);
 		iter->pos = p;
 
 		/*
@@ -878,7 +875,7 @@ static int packed_ref_iterator_advance(struct ref_iterator *ref_iterator)
 }
 
 static int packed_ref_iterator_peel(struct ref_iterator *ref_iterator,
-				   struct object_id *peeled)
+				    struct object_id *peeled)
 {
 	struct packed_ref_iterator *iter =
 		(struct packed_ref_iterator *)ref_iterator;
@@ -906,14 +903,13 @@ static int packed_ref_iterator_abort(struct ref_iterator *ref_iterator)
 }
 
 static struct ref_iterator_vtable packed_ref_iterator_vtable = {
-	packed_ref_iterator_advance,
-	packed_ref_iterator_peel,
+	packed_ref_iterator_advance, packed_ref_iterator_peel,
 	packed_ref_iterator_abort
 };
 
-static struct ref_iterator *packed_ref_iterator_begin(
-		struct ref_store *ref_store,
-		const char *prefix, unsigned int flags)
+static struct ref_iterator *
+packed_ref_iterator_begin(struct ref_store *ref_store, const char *prefix,
+			  unsigned int flags)
 {
 	struct packed_ref_store *refs;
 	struct snapshot *snapshot;
@@ -958,7 +954,8 @@ static struct ref_iterator *packed_ref_iterator_begin(
 
 	if (prefix && *prefix)
 		/* Stop iteration after we've gone *past* prefix: */
-		ref_iterator = prefix_ref_iterator_begin(ref_iterator, prefix, 0);
+		ref_iterator =
+			prefix_ref_iterator_begin(ref_iterator, prefix, 0);
 
 	return ref_iterator;
 }
@@ -998,16 +995,15 @@ int packed_refs_lock(struct ref_store *ref_store, int flags, struct strbuf *err)
 	 * don't write new content to it, but rather to a separate
 	 * tempfile.
 	 */
-	if (hold_lock_file_for_update_timeout(
-			    &refs->lock,
-			    refs->path,
-			    flags, timeout_value) < 0) {
+	if (hold_lock_file_for_update_timeout(&refs->lock, refs->path, flags,
+					      timeout_value) < 0) {
 		unable_to_lock_message(refs->path, errno, err);
 		return -1;
 	}
 
 	if (close_lock_file_gently(&refs->lock)) {
-		strbuf_addf(err, "unable to close %s: %s", refs->path, strerror(errno));
+		strbuf_addf(err, "unable to close %s: %s", refs->path,
+			    strerror(errno));
 		rollback_lock_file(&refs->lock);
 		return -1;
 	}
@@ -1041,10 +1037,9 @@ int packed_refs_lock(struct ref_store *ref_store, int flags, struct strbuf *err)
 
 void packed_refs_unlock(struct ref_store *ref_store)
 {
-	struct packed_ref_store *refs = packed_downcast(
-			ref_store,
-			REF_STORE_READ | REF_STORE_WRITE,
-			"packed_refs_unlock");
+	struct packed_ref_store *refs =
+		packed_downcast(ref_store, REF_STORE_READ | REF_STORE_WRITE,
+				"packed_refs_unlock");
 
 	if (!is_lock_file_locked(&refs->lock))
 		BUG("packed_refs_unlock() called when not locked");
@@ -1053,10 +1048,9 @@ void packed_refs_unlock(struct ref_store *ref_store)
 
 int packed_refs_is_locked(struct ref_store *ref_store)
 {
-	struct packed_ref_store *refs = packed_downcast(
-			ref_store,
-			REF_STORE_READ | REF_STORE_WRITE,
-			"packed_refs_is_locked");
+	struct packed_ref_store *refs =
+		packed_downcast(ref_store, REF_STORE_READ | REF_STORE_WRITE,
+				"packed_refs_is_locked");
 
 	return is_lock_file_locked(&refs->lock);
 }
@@ -1089,8 +1083,7 @@ static int packed_init_db(struct ref_store *ref_store, struct strbuf *err)
  * remain locked when it is done.
  */
 static int write_with_updates(struct packed_ref_store *refs,
-			      struct string_list *updates,
-			      struct strbuf *err)
+			      struct string_list *updates, struct strbuf *err)
 {
 	struct ref_iterator *iter = NULL;
 	size_t i;
@@ -1112,8 +1105,8 @@ static int write_with_updates(struct packed_ref_store *refs,
 	free(packed_refs_path);
 	refs->tempfile = create_tempfile(sb.buf);
 	if (!refs->tempfile) {
-		strbuf_addf(err, "unable to create file %s: %s",
-			    sb.buf, strerror(errno));
+		strbuf_addf(err, "unable to create file %s: %s", sb.buf,
+			    strerror(errno));
 		strbuf_release(&sb);
 		return -1;
 	}
@@ -1166,16 +1159,20 @@ static int write_with_updates(struct packed_ref_store *refs,
 			 */
 			if ((update->flags & REF_HAVE_OLD)) {
 				if (is_null_oid(&update->old_oid)) {
-					strbuf_addf(err, "cannot update ref '%s': "
+					strbuf_addf(err,
+						    "cannot update ref '%s': "
 						    "reference already exists",
 						    update->refname);
 					goto error;
-				} else if (!oideq(&update->old_oid, iter->oid)) {
-					strbuf_addf(err, "cannot update ref '%s': "
-						    "is at %s but expected %s",
-						    update->refname,
-						    oid_to_hex(iter->oid),
-						    oid_to_hex(&update->old_oid));
+				} else if (!oideq(&update->old_oid,
+						  iter->oid)) {
+					strbuf_addf(
+						err,
+						"cannot update ref '%s': "
+						"is at %s but expected %s",
+						update->refname,
+						oid_to_hex(iter->oid),
+						oid_to_hex(&update->old_oid));
 					goto error;
 				}
 			}
@@ -1187,7 +1184,8 @@ static int write_with_updates(struct packed_ref_store *refs,
 				 * the iterator over the unneeded
 				 * value.
 				 */
-				if ((ok = ref_iterator_advance(iter)) != ITER_OK)
+				if ((ok = ref_iterator_advance(iter)) !=
+				    ITER_OK)
 					iter = NULL;
 				cmp = +1;
 			} else {
@@ -1206,10 +1204,12 @@ static int write_with_updates(struct packed_ref_store *refs,
 			 */
 			if ((update->flags & REF_HAVE_OLD) &&
 			    !is_null_oid(&update->old_oid)) {
-				strbuf_addf(err, "cannot update ref '%s': "
-					    "reference is missing but expected %s",
-					    update->refname,
-					    oid_to_hex(&update->old_oid));
+				strbuf_addf(
+					err,
+					"cannot update ref '%s': "
+					"reference is missing but expected %s",
+					update->refname,
+					oid_to_hex(&update->old_oid));
 				goto error;
 			}
 		}
@@ -1220,8 +1220,7 @@ static int write_with_updates(struct packed_ref_store *refs,
 			struct object_id peeled;
 			int peel_error = ref_iterator_peel(iter, &peeled);
 
-			if (write_packed_entry(out, iter->refname,
-					       iter->oid,
+			if (write_packed_entry(out, iter->refname, iter->oid,
 					       peel_error ? NULL : &peeled))
 				goto write_error;
 
@@ -1238,8 +1237,7 @@ static int write_with_updates(struct packed_ref_store *refs,
 			i++;
 		} else {
 			struct object_id peeled;
-			int peel_error = peel_object(&update->new_oid,
-						     &peeled);
+			int peel_error = peel_object(&update->new_oid, &peeled);
 
 			if (write_packed_entry(out, update->refname,
 					       &update->new_oid,
@@ -1252,14 +1250,13 @@ static int write_with_updates(struct packed_ref_store *refs,
 
 	if (ok != ITER_DONE) {
 		strbuf_addstr(err, "unable to write packed-refs file: "
-			      "error iterating over old contents");
+				   "error iterating over old contents");
 		goto error;
 	}
 
 	if (close_tempfile_gently(refs->tempfile)) {
 		strbuf_addf(err, "error closing file %s: %s",
-			    get_tempfile_path(refs->tempfile),
-			    strerror(errno));
+			    get_tempfile_path(refs->tempfile), strerror(errno));
 		strbuf_release(&sb);
 		delete_tempfile(&refs->tempfile);
 		return -1;
@@ -1283,9 +1280,7 @@ int is_packed_transaction_needed(struct ref_store *ref_store,
 				 struct ref_transaction *transaction)
 {
 	struct packed_ref_store *refs = packed_downcast(
-			ref_store,
-			REF_STORE_READ,
-			"is_packed_transaction_needed");
+		ref_store, REF_STORE_READ, "is_packed_transaction_needed");
 	struct strbuf referent = STRBUF_INIT;
 	size_t i;
 	int ret;
@@ -1332,7 +1327,8 @@ int is_packed_transaction_needed(struct ref_store *ref_store,
 			/* Have to check the old value -> needed. */
 			return 1;
 
-		if ((update->flags & REF_HAVE_NEW) && !is_null_oid(&update->new_oid))
+		if ((update->flags & REF_HAVE_NEW) &&
+		    !is_null_oid(&update->new_oid))
 			/* Have to set a new value -> needed. */
 			return 1;
 	}
@@ -1357,8 +1353,8 @@ int is_packed_transaction_needed(struct ref_store *ref_store,
 			 */
 			continue;
 
-		if (!refs_read_raw_ref(ref_store, update->refname,
-				       &oid, &referent, &type) ||
+		if (!refs_read_raw_ref(ref_store, update->refname, &oid,
+				       &referent, &type) ||
 		    errno != ENOENT) {
 			/*
 			 * We have to actually delete that reference
@@ -1383,7 +1379,8 @@ struct packed_transaction_backend_data {
 static void packed_transaction_cleanup(struct packed_ref_store *refs,
 				       struct ref_transaction *transaction)
 {
-	struct packed_transaction_backend_data *data = transaction->backend_data;
+	struct packed_transaction_backend_data *data =
+		transaction->backend_data;
 
 	if (data) {
 		string_list_clear(&data->updates, 0);
@@ -1408,9 +1405,8 @@ static int packed_transaction_prepare(struct ref_store *ref_store,
 				      struct strbuf *err)
 {
 	struct packed_ref_store *refs = packed_downcast(
-			ref_store,
-			REF_STORE_READ | REF_STORE_WRITE | REF_STORE_ODB,
-			"ref_transaction_prepare");
+		ref_store, REF_STORE_READ | REF_STORE_WRITE | REF_STORE_ODB,
+		"ref_transaction_prepare");
 	struct packed_transaction_backend_data *data;
 	size_t i;
 	int ret = TRANSACTION_GENERIC_ERROR;
@@ -1468,9 +1464,8 @@ static int packed_transaction_abort(struct ref_store *ref_store,
 				    struct strbuf *err)
 {
 	struct packed_ref_store *refs = packed_downcast(
-			ref_store,
-			REF_STORE_READ | REF_STORE_WRITE | REF_STORE_ODB,
-			"ref_transaction_abort");
+		ref_store, REF_STORE_READ | REF_STORE_WRITE | REF_STORE_ODB,
+		"ref_transaction_abort");
 
 	packed_transaction_cleanup(refs, transaction);
 	return 0;
@@ -1481,9 +1476,8 @@ static int packed_transaction_finish(struct ref_store *ref_store,
 				     struct strbuf *err)
 {
 	struct packed_ref_store *refs = packed_downcast(
-			ref_store,
-			REF_STORE_READ | REF_STORE_WRITE | REF_STORE_ODB,
-			"ref_transaction_finish");
+		ref_store, REF_STORE_READ | REF_STORE_WRITE | REF_STORE_ODB,
+		"ref_transaction_finish");
 	int ret = TRANSACTION_GENERIC_ERROR;
 	char *packed_refs_path;
 
@@ -1491,8 +1485,8 @@ static int packed_transaction_finish(struct ref_store *ref_store,
 
 	packed_refs_path = get_locked_file_path(&refs->lock);
 	if (rename_tempfile(&refs->tempfile, packed_refs_path)) {
-		strbuf_addf(err, "error replacing %s: %s",
-			    refs->path, strerror(errno));
+		strbuf_addf(err, "error replacing %s: %s", refs->path,
+			    strerror(errno));
 		goto cleanup;
 	}
 
@@ -1504,15 +1498,16 @@ cleanup:
 	return ret;
 }
 
-static int packed_initial_transaction_commit(struct ref_store *ref_store,
-					    struct ref_transaction *transaction,
-					    struct strbuf *err)
+static int
+packed_initial_transaction_commit(struct ref_store *ref_store,
+				  struct ref_transaction *transaction,
+				  struct strbuf *err)
 {
 	return ref_transaction_commit(transaction, err);
 }
 
 static int packed_delete_refs(struct ref_store *ref_store, const char *msg,
-			     struct string_list *refnames, unsigned int flags)
+			      struct string_list *refnames, unsigned int flags)
 {
 	struct packed_ref_store *refs =
 		packed_downcast(ref_store, REF_STORE_WRITE, "delete_refs");
@@ -1536,7 +1531,7 @@ static int packed_delete_refs(struct ref_store *ref_store, const char *msg,
 	if (!transaction)
 		return -1;
 
-	for_each_string_list_item(item, refnames) {
+	for_each_string_list_item (item, refnames) {
 		if (ref_transaction_delete(transaction, item->string, NULL,
 					   flags, msg, &err)) {
 			warning(_("could not delete reference %s: %s"),
@@ -1571,27 +1566,27 @@ static int packed_pack_refs(struct ref_store *ref_store, unsigned int flags)
 }
 
 static int packed_create_symref(struct ref_store *ref_store,
-			       const char *refname, const char *target,
-			       const char *logmsg)
+				const char *refname, const char *target,
+				const char *logmsg)
 {
 	BUG("packed reference store does not support symrefs");
 }
 
 static int packed_rename_ref(struct ref_store *ref_store,
-			    const char *oldrefname, const char *newrefname,
-			    const char *logmsg)
+			     const char *oldrefname, const char *newrefname,
+			     const char *logmsg)
 {
 	BUG("packed reference store does not support renaming references");
 }
 
-static int packed_copy_ref(struct ref_store *ref_store,
-			   const char *oldrefname, const char *newrefname,
-			   const char *logmsg)
+static int packed_copy_ref(struct ref_store *ref_store, const char *oldrefname,
+			   const char *newrefname, const char *logmsg)
 {
 	BUG("packed reference store does not support copying references");
 }
 
-static struct ref_iterator *packed_reflog_iterator_begin(struct ref_store *ref_store)
+static struct ref_iterator *
+packed_reflog_iterator_begin(struct ref_store *ref_store)
 {
 	return empty_ref_iterator_begin();
 }
@@ -1612,27 +1607,27 @@ static int packed_for_each_reflog_ent_reverse(struct ref_store *ref_store,
 }
 
 static int packed_reflog_exists(struct ref_store *ref_store,
-			       const char *refname)
+				const char *refname)
 {
 	return 0;
 }
 
 static int packed_create_reflog(struct ref_store *ref_store,
-			       const char *refname, int force_create,
-			       struct strbuf *err)
+				const char *refname, int force_create,
+				struct strbuf *err)
 {
 	BUG("packed reference store does not support reflogs");
 }
 
 static int packed_delete_reflog(struct ref_store *ref_store,
-			       const char *refname)
+				const char *refname)
 {
 	return 0;
 }
 
 static int packed_reflog_expire(struct ref_store *ref_store,
-				const char *refname, const struct object_id *oid,
-				unsigned int flags,
+				const char *refname,
+				const struct object_id *oid, unsigned int flags,
 				reflog_expiry_prepare_fn prepare_fn,
 				reflog_expiry_should_prune_fn should_prune_fn,
 				reflog_expiry_cleanup_fn cleanup_fn,
@@ -1641,30 +1636,28 @@ static int packed_reflog_expire(struct ref_store *ref_store,
 	return 0;
 }
 
-struct ref_storage_be refs_be_packed = {
-	NULL,
-	"packed",
-	packed_ref_store_create,
-	packed_init_db,
-	packed_transaction_prepare,
-	packed_transaction_finish,
-	packed_transaction_abort,
-	packed_initial_transaction_commit,
+struct ref_storage_be refs_be_packed = { NULL,
+					 "packed",
+					 packed_ref_store_create,
+					 packed_init_db,
+					 packed_transaction_prepare,
+					 packed_transaction_finish,
+					 packed_transaction_abort,
+					 packed_initial_transaction_commit,
 
-	packed_pack_refs,
-	packed_create_symref,
-	packed_delete_refs,
-	packed_rename_ref,
-	packed_copy_ref,
+					 packed_pack_refs,
+					 packed_create_symref,
+					 packed_delete_refs,
+					 packed_rename_ref,
+					 packed_copy_ref,
 
-	packed_ref_iterator_begin,
-	packed_read_raw_ref,
+					 packed_ref_iterator_begin,
+					 packed_read_raw_ref,
 
-	packed_reflog_iterator_begin,
-	packed_for_each_reflog_ent,
-	packed_for_each_reflog_ent_reverse,
-	packed_reflog_exists,
-	packed_create_reflog,
-	packed_delete_reflog,
-	packed_reflog_expire
-};
+					 packed_reflog_iterator_begin,
+					 packed_for_each_reflog_ent,
+					 packed_for_each_reflog_ent_reverse,
+					 packed_reflog_exists,
+					 packed_create_reflog,
+					 packed_delete_reflog,
+					 packed_reflog_expire };

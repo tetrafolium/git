@@ -81,16 +81,14 @@ void list_objects_filter_die_if_populated(
  * Dies and prints a user-facing message if an error occurs.
  */
 void parse_list_objects_filter(
-	struct list_objects_filter_options *filter_options,
-	const char *arg);
+	struct list_objects_filter_options *filter_options, const char *arg);
 
-int opt_parse_list_objects_filter(const struct option *opt,
-				  const char *arg, int unset);
+int opt_parse_list_objects_filter(const struct option *opt, const char *arg,
+				  int unset);
 
-#define OPT_PARSE_LIST_OBJECTS_FILTER(fo) \
+#define OPT_PARSE_LIST_OBJECTS_FILTER(fo)               \
 	OPT_CALLBACK(0, CL_ARG__FILTER, fo, N_("args"), \
-	  N_("object filtering"), \
-	  opt_parse_list_objects_filter)
+		     N_("object filtering"), opt_parse_list_objects_filter)
 
 /*
  * Translates abbreviated numbers in the filter's filter_spec into their
@@ -100,8 +98,8 @@ int opt_parse_list_objects_filter(const struct option *opt,
  * This form should be used instead of the raw list_objects_filter_spec()
  * value when communicating with a remote process or subprocess.
  */
-const char *expand_list_objects_filter_spec(
-	struct list_objects_filter_options *filter);
+const char *
+expand_list_objects_filter_spec(struct list_objects_filter_options *filter);
 
 /*
  * Returns the filter spec string more or less in the form as the user
@@ -109,8 +107,8 @@ const char *expand_list_objects_filter_spec(
  * messages.  Returns a string owned by the list_objects_filter_options
  * object.
  */
-const char *list_objects_filter_spec(
-	struct list_objects_filter_options *filter);
+const char *
+list_objects_filter_spec(struct list_objects_filter_options *filter);
 
 void list_objects_filter_release(
 	struct list_objects_filter_options *filter_options);
@@ -122,11 +120,9 @@ static inline void list_objects_filter_set_no_filter(
 	filter_options->no_filter = 1;
 }
 
-void partial_clone_register(
-	const char *remote,
-	struct list_objects_filter_options *filter_options);
+void partial_clone_register(const char *remote,
+			    struct list_objects_filter_options *filter_options);
 void partial_clone_get_default_filter_spec(
-	struct list_objects_filter_options *filter_options,
-	const char *remote);
+	struct list_objects_filter_options *filter_options, const char *remote);
 
 #endif /* LIST_OBJECTS_FILTER_OPTIONS_H */

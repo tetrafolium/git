@@ -6,9 +6,9 @@
 struct pathspec;
 struct repository;
 
-#define RERERE_AUTOUPDATE   01
+#define RERERE_AUTOUPDATE 01
 #define RERERE_NOAUTOUPDATE 02
-#define RERERE_READONLY     04
+#define RERERE_READONLY 04
 
 /*
  * Marks paths that have been hand-resolved and added to the
@@ -23,7 +23,7 @@ struct rerere_id {
 	int variant;
 };
 
-int setup_rerere(struct repository *,struct string_list *, int);
+int setup_rerere(struct repository *, struct string_list *, int);
 #ifndef NO_THE_REPOSITORY_COMPATIBILITY_MACROS
 #define rerere(flags) repo_rerere(the_repository, flags)
 #endif
@@ -40,7 +40,8 @@ int rerere_remaining(struct repository *, struct string_list *);
 void rerere_clear(struct repository *, struct string_list *);
 void rerere_gc(struct repository *, struct string_list *);
 
-#define OPT_RERERE_AUTOUPDATE(v) OPT_UYN(0, "rerere-autoupdate", (v), \
-	N_("update the index with reused conflict resolution if possible"))
+#define OPT_RERERE_AUTOUPDATE(v)             \
+	OPT_UYN(0, "rerere-autoupdate", (v), \
+		N_("update the index with reused conflict resolution if possible"))
 
 #endif

@@ -2,7 +2,7 @@
 #include "../strbuf.h"
 
 /* Adapted from libiberty's basename.c.  */
-char *gitbasename (char *path)
+char *gitbasename(char *path)
 {
 	const char *base;
 

@@ -6,17 +6,15 @@ struct reg_flag {
 	int flag;
 };
 
-static struct reg_flag reg_flags[] = {
-	{ "EXTENDED",	REG_EXTENDED	},
-	{ "NEWLINE",	REG_NEWLINE	},
-	{ "ICASE",	REG_ICASE	},
-	{ "NOTBOL",	REG_NOTBOL	},
-	{ "NOTEOL",	REG_NOTEOL	},
+static struct reg_flag reg_flags[] = { { "EXTENDED", REG_EXTENDED },
+				       { "NEWLINE", REG_NEWLINE },
+				       { "ICASE", REG_ICASE },
+				       { "NOTBOL", REG_NOTBOL },
+				       { "NOTEOL", REG_NOTEOL },
 #ifdef REG_STARTEND
-	{ "STARTEND",	REG_STARTEND	},
+				       { "STARTEND", REG_STARTEND },
 #endif
-	{ NULL, 0 }
-};
+				       { NULL, 0 } };
 
 static int test_regex_bug(void)
 {

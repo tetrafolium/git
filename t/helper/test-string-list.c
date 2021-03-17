@@ -115,7 +115,7 @@ int cmd__string_list(int argc, const char **argv)
 
 		string_list_sort(&list);
 
-		for_each_string_list_item(item, &list)
+		for_each_string_list_item (item, &list)
 			puts(item->string);
 
 		string_list_clear(&list, 0);

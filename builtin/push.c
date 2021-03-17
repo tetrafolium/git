@@ -15,21 +15,17 @@
 #include "send-pack.h"
 #include "color.h"
 
-static const char * const push_usage[] = {
+static const char *const push_usage[] = {
 	N_("git push [<options>] [<repository> [<refspec>...]]"),
 	NULL,
 };
 
 static int push_use_color = -1;
 static char push_colors[][COLOR_MAXLEN] = {
-	GIT_COLOR_RESET,
-	GIT_COLOR_RED,	/* ERROR */
+	GIT_COLOR_RESET, GIT_COLOR_RED, /* ERROR */
 };
 
-enum color_push {
-	PUSH_COLOR_RESET = 0,
-	PUSH_COLOR_ERROR = 1
-};
+enum color_push { PUSH_COLOR_RESET = 0, PUSH_COLOR_ERROR = 1 };
 
 static int parse_push_color_slot(const char *slot)
 {
@@ -79,8 +75,8 @@ static void refspec_append_mapped(struct refspec *refspec, const char *ref,
 		query.src = matched->name;
 		if (!query_refspecs(&remote->push, &query) && query.dst) {
 			refspec_appendf(refspec, "%s%s:%s",
-					query.force ? "+" : "",
-					query.src, query.dst);
+					query.force ? "+" : "", query.src,
+					query.dst);
 			return;
 		}
 	}
@@ -89,8 +85,8 @@ static void refspec_append_mapped(struct refspec *refspec, const char *ref,
 	    skip_prefix(matched->name, "refs/heads/", &branch_name)) {
 		struct branch *branch = branch_get(branch_name);
 		if (branch->merge_nr == 1 && branch->merge[0]->src) {
-			refspec_appendf(refspec, "%s:%s",
-					ref, branch->merge[0]->src);
+			refspec_appendf(refspec, "%s:%s", ref,
+					branch->merge[0]->src);
 			return;
 		}
 	}
@@ -174,8 +170,7 @@ static NORETURN void die_push_simple(struct branch *branch,
 	      "\n"
 	      "    git push %s HEAD\n"
 	      "%s"),
-	    remote->name, short_upstream,
-	    remote->name, advice_maybe);
+	    remote->name, short_upstream, remote->name, advice_maybe);
 }
 
 static const char message_detached_head_die[] =
@@ -192,15 +187,14 @@ static void setup_push_upstream(struct remote *remote, struct branch *branch,
 		die(_(message_detached_head_die), remote->name);
 	if (!branch->merge_nr || !branch->merge || !branch->remote_name)
 		die(_("The current branch %s has no upstream branch.\n"
-		    "To push the current branch and set the remote as upstream, use\n"
-		    "\n"
-		    "    git push --set-upstream %s %s\n"),
-		    branch->name,
-		    remote->name,
-		    branch->name);
+		      "To push the current branch and set the remote as upstream, use\n"
+		      "\n"
+		      "    git push --set-upstream %s %s\n"),
+		    branch->name, remote->name, branch->name);
 	if (branch->merge_nr != 1)
 		die(_("The current branch %s has multiple upstream branches, "
-		    "refusing to push."), branch->name);
+		      "refusing to push."),
+		    branch->name);
 	if (triangular)
 		die(_("You are pushing to remote '%s', which is not the upstream of\n"
 		      "your current branch '%s', without telling me what to push\n"
@@ -258,37 +252,37 @@ static void setup_default_push_refspecs(struct remote *remote)
 
 	case PUSH_DEFAULT_NOTHING:
 		die(_("You didn't specify any refspecs to push, and "
-		    "push.default is \"nothing\"."));
+		      "push.default is \"nothing\"."));
 		break;
 	}
 }
 
-static const char message_advice_pull_before_push[] =
-	N_("Updates were rejected because the tip of your current branch is behind\n"
-	   "its remote counterpart. Integrate the remote changes (e.g.\n"
-	   "'git pull ...') before pushing again.\n"
-	   "See the 'Note about fast-forwards' in 'git push --help' for details.");
+static const char message_advice_pull_before_push[] = N_(
+	"Updates were rejected because the tip of your current branch is behind\n"
+	"its remote counterpart. Integrate the remote changes (e.g.\n"
+	"'git pull ...') before pushing again.\n"
+	"See the 'Note about fast-forwards' in 'git push --help' for details.");
 
-static const char message_advice_checkout_pull_push[] =
-	N_("Updates were rejected because a pushed branch tip is behind its remote\n"
-	   "counterpart. Check out this branch and integrate the remote changes\n"
-	   "(e.g. 'git pull ...') before pushing again.\n"
-	   "See the 'Note about fast-forwards' in 'git push --help' for details.");
+static const char message_advice_checkout_pull_push[] = N_(
+	"Updates were rejected because a pushed branch tip is behind its remote\n"
+	"counterpart. Check out this branch and integrate the remote changes\n"
+	"(e.g. 'git pull ...') before pushing again.\n"
+	"See the 'Note about fast-forwards' in 'git push --help' for details.");
 
-static const char message_advice_ref_fetch_first[] =
-	N_("Updates were rejected because the remote contains work that you do\n"
-	   "not have locally. This is usually caused by another repository pushing\n"
-	   "to the same ref. You may want to first integrate the remote changes\n"
-	   "(e.g., 'git pull ...') before pushing again.\n"
-	   "See the 'Note about fast-forwards' in 'git push --help' for details.");
+static const char message_advice_ref_fetch_first[] = N_(
+	"Updates were rejected because the remote contains work that you do\n"
+	"not have locally. This is usually caused by another repository pushing\n"
+	"to the same ref. You may want to first integrate the remote changes\n"
+	"(e.g., 'git pull ...') before pushing again.\n"
+	"See the 'Note about fast-forwards' in 'git push --help' for details.");
 
-static const char message_advice_ref_already_exists[] =
-	N_("Updates were rejected because the tag already exists in the remote.");
+static const char message_advice_ref_already_exists[] = N_(
+	"Updates were rejected because the tag already exists in the remote.");
 
-static const char message_advice_ref_needs_force[] =
-	N_("You cannot update a remote ref that points at a non-commit object,\n"
-	   "or update a remote ref to make it point at a non-commit object,\n"
-	   "without using the '--force' option.\n");
+static const char message_advice_ref_needs_force[] = N_(
+	"You cannot update a remote ref that points at a non-commit object,\n"
+	"or update a remote ref to make it point at a non-commit object,\n"
+	"without using the '--force' option.\n");
 
 static const char message_advice_ref_needs_update[] =
 	N_("Updates were rejected because the tip of the remote-tracking\n"
@@ -349,8 +343,8 @@ static int push_with_options(struct transport *transport, struct refspec *rs,
 	transport->family = family;
 
 	if (receivepack)
-		transport_set_option(transport,
-				     TRANS_OPT_RECEIVEPACK, receivepack);
+		transport_set_option(transport, TRANS_OPT_RECEIVEPACK,
+				     receivepack);
 	transport_set_option(transport, TRANS_OPT_THIN, thin ? "yes" : NULL);
 
 	if (!is_empty_cas(&cas)) {
@@ -363,8 +357,8 @@ static int push_with_options(struct transport *transport, struct refspec *rs,
 	if (verbosity > 0)
 		fprintf(stderr, _("Pushing to %s\n"), anon_url);
 	trace2_region_enter("push", "transport_push", the_repository);
-	err = transport_push(the_repository, transport,
-			     rs, flags, &reject_reasons);
+	err = transport_push(the_repository, transport, rs, flags,
+			     &reject_reasons);
 	trace2_region_leave("push", "transport_push", the_repository);
 	if (err != 0) {
 		fprintf(stderr, "%s", push_get_color(PUSH_COLOR_ERROR));
@@ -394,8 +388,7 @@ static int push_with_options(struct transport *transport, struct refspec *rs,
 	return 1;
 }
 
-static int do_push(int flags,
-		   const struct string_list *push_options,
+static int do_push(int flags, const struct string_list *push_options,
 		   struct remote *remote)
 {
 	int i, errs;
@@ -424,8 +417,7 @@ static int do_push(int flags,
 				errs++;
 		}
 	} else {
-		struct transport *transport =
-			transport_get(remote, NULL);
+		struct transport *transport = transport_get(remote, NULL);
 		if (flags & TRANSPORT_PUSH_OPTIONS)
 			transport->push_options = push_options;
 		if (push_with_options(transport, push_refspec, flags))
@@ -435,14 +427,15 @@ static int do_push(int flags,
 }
 
 static int option_parse_recurse_submodules(const struct option *opt,
-				   const char *arg, int unset)
+					   const char *arg, int unset)
 {
 	int *recurse_submodules = opt->value;
 
 	if (unset)
 		*recurse_submodules = RECURSE_SUBMODULES_OFF;
 	else
-		*recurse_submodules = parse_push_recurse_submodules_arg(opt->long_name, arg);
+		*recurse_submodules =
+			parse_push_recurse_submodules_arg(opt->long_name, arg);
 
 	return 0;
 }
@@ -451,7 +444,8 @@ static void set_push_cert_flags(int *flags, int v)
 {
 	switch (v) {
 	case SEND_PACK_PUSH_CERT_NEVER:
-		*flags &= ~(TRANSPORT_PUSH_CERT_ALWAYS | TRANSPORT_PUSH_CERT_IF_ASKED);
+		*flags &= ~(TRANSPORT_PUSH_CERT_ALWAYS |
+			    TRANSPORT_PUSH_CERT_IF_ASKED);
 		break;
 	case SEND_PACK_PUSH_CERT_ALWAYS:
 		*flags |= TRANSPORT_PUSH_CERT_ALWAYS;
@@ -463,7 +457,6 @@ static void set_push_cert_flags(int *flags, int v)
 		break;
 	}
 }
-
 
 static int git_push_config(const char *k, const char *v, void *cb)
 {
@@ -486,34 +479,39 @@ static int git_push_config(const char *k, const char *v, void *cb)
 		if (!git_config_get_value("push.gpgsign", &value)) {
 			switch (git_parse_maybe_bool(value)) {
 			case 0:
-				set_push_cert_flags(flags, SEND_PACK_PUSH_CERT_NEVER);
+				set_push_cert_flags(flags,
+						    SEND_PACK_PUSH_CERT_NEVER);
 				break;
 			case 1:
-				set_push_cert_flags(flags, SEND_PACK_PUSH_CERT_ALWAYS);
+				set_push_cert_flags(flags,
+						    SEND_PACK_PUSH_CERT_ALWAYS);
 				break;
 			default:
 				if (value && !strcasecmp(value, "if-asked"))
-					set_push_cert_flags(flags, SEND_PACK_PUSH_CERT_IF_ASKED);
+					set_push_cert_flags(
+						flags,
+						SEND_PACK_PUSH_CERT_IF_ASKED);
 				else
-					return error("Invalid value for '%s'", k);
+					return error("Invalid value for '%s'",
+						     k);
 			}
 		}
 	} else if (!strcmp(k, "push.recursesubmodules")) {
 		const char *value;
 		if (!git_config_get_value("push.recursesubmodules", &value))
-			recurse_submodules = parse_push_recurse_submodules_arg(k, value);
+			recurse_submodules =
+				parse_push_recurse_submodules_arg(k, value);
 	} else if (!strcmp(k, "submodule.recurse")) {
-		int val = git_config_bool(k, v) ?
-			RECURSE_SUBMODULES_ON_DEMAND : RECURSE_SUBMODULES_OFF;
+		int val = git_config_bool(k, v) ? RECURSE_SUBMODULES_ON_DEMAND :
+						  RECURSE_SUBMODULES_OFF;
 		recurse_submodules = val;
 	} else if (!strcmp(k, "push.pushoption")) {
 		if (!v)
 			return config_error_nonbool(k);
+		else if (!*v)
+			string_list_clear(&push_options_config, 0);
 		else
-			if (!*v)
-				string_list_clear(&push_options_config, 0);
-			else
-				string_list_append(&push_options_config, v);
+			string_list_append(&push_options_config, v);
 		return 0;
 	} else if (!strcmp(k, "color.push")) {
 		push_use_color = git_config_colorbool(k, v);
@@ -542,7 +540,7 @@ int cmd_push(int argc, const char **argv, const char *prefix)
 	int tags = 0;
 	int push_cert = -1;
 	int rc;
-	const char *repo = NULL;	/* default repository */
+	const char *repo = NULL; /* default repository */
 	struct string_list push_options_cmdline = STRING_LIST_INIT_DUP;
 	struct string_list *push_options;
 	const struct string_list_item *item;
@@ -550,54 +548,76 @@ int cmd_push(int argc, const char **argv, const char *prefix)
 
 	struct option options[] = {
 		OPT__VERBOSITY(&verbosity),
-		OPT_STRING( 0 , "repo", &repo, N_("repository"), N_("repository")),
-		OPT_BIT( 0 , "all", &flags, N_("push all refs"), TRANSPORT_PUSH_ALL),
-		OPT_BIT( 0 , "mirror", &flags, N_("mirror all refs"),
-			    (TRANSPORT_PUSH_MIRROR|TRANSPORT_PUSH_FORCE)),
+		OPT_STRING(0, "repo", &repo, N_("repository"),
+			   N_("repository")),
+		OPT_BIT(0, "all", &flags, N_("push all refs"),
+			TRANSPORT_PUSH_ALL),
+		OPT_BIT(0, "mirror", &flags, N_("mirror all refs"),
+			(TRANSPORT_PUSH_MIRROR | TRANSPORT_PUSH_FORCE)),
 		OPT_BOOL('d', "delete", &deleterefs, N_("delete refs")),
-		OPT_BOOL( 0 , "tags", &tags, N_("push tags (can't be used with --all or --mirror)")),
-		OPT_BIT('n' , "dry-run", &flags, N_("dry run"), TRANSPORT_PUSH_DRY_RUN),
-		OPT_BIT( 0,  "porcelain", &flags, N_("machine-readable output"), TRANSPORT_PUSH_PORCELAIN),
-		OPT_BIT('f', "force", &flags, N_("force updates"), TRANSPORT_PUSH_FORCE),
-		OPT_CALLBACK_F(0, CAS_OPT_NAME, &cas, N_("<refname>:<expect>"),
-			       N_("require old value of ref to be at this value"),
-			       PARSE_OPT_OPTARG | PARSE_OPT_LITERAL_ARGHELP, parseopt_push_cas_option),
+		OPT_BOOL(0, "tags", &tags,
+			 N_("push tags (can't be used with --all or --mirror)")),
+		OPT_BIT('n', "dry-run", &flags, N_("dry run"),
+			TRANSPORT_PUSH_DRY_RUN),
+		OPT_BIT(0, "porcelain", &flags, N_("machine-readable output"),
+			TRANSPORT_PUSH_PORCELAIN),
+		OPT_BIT('f', "force", &flags, N_("force updates"),
+			TRANSPORT_PUSH_FORCE),
+		OPT_CALLBACK_F(
+			0, CAS_OPT_NAME, &cas, N_("<refname>:<expect>"),
+			N_("require old value of ref to be at this value"),
+			PARSE_OPT_OPTARG | PARSE_OPT_LITERAL_ARGHELP,
+			parseopt_push_cas_option),
 		OPT_BIT(0, TRANS_OPT_FORCE_IF_INCLUDES, &flags,
 			N_("require remote updates to be integrated locally"),
 			TRANSPORT_PUSH_FORCE_IF_INCLUDES),
-		OPT_CALLBACK(0, "recurse-submodules", &recurse_submodules, "(check|on-demand|no)",
-			     N_("control recursive pushing of submodules"), option_parse_recurse_submodules),
-		OPT_BOOL_F( 0 , "thin", &thin, N_("use thin pack"), PARSE_OPT_NOCOMPLETE),
-		OPT_STRING( 0 , "receive-pack", &receivepack, "receive-pack", N_("receive pack program")),
-		OPT_STRING( 0 , "exec", &receivepack, "receive-pack", N_("receive pack program")),
-		OPT_BIT('u', "set-upstream", &flags, N_("set upstream for git pull/status"),
+		OPT_CALLBACK(0, "recurse-submodules", &recurse_submodules,
+			     "(check|on-demand|no)",
+			     N_("control recursive pushing of submodules"),
+			     option_parse_recurse_submodules),
+		OPT_BOOL_F(0, "thin", &thin, N_("use thin pack"),
+			   PARSE_OPT_NOCOMPLETE),
+		OPT_STRING(0, "receive-pack", &receivepack, "receive-pack",
+			   N_("receive pack program")),
+		OPT_STRING(0, "exec", &receivepack, "receive-pack",
+			   N_("receive pack program")),
+		OPT_BIT('u', "set-upstream", &flags,
+			N_("set upstream for git pull/status"),
 			TRANSPORT_PUSH_SET_UPSTREAM),
-		OPT_BOOL(0, "progress", &progress, N_("force progress reporting")),
+		OPT_BOOL(0, "progress", &progress,
+			 N_("force progress reporting")),
 		OPT_BIT(0, "prune", &flags, N_("prune locally removed refs"),
 			TRANSPORT_PUSH_PRUNE),
-		OPT_BIT(0, "no-verify", &flags, N_("bypass pre-push hook"), TRANSPORT_PUSH_NO_HOOK),
-		OPT_BIT(0, "follow-tags", &flags, N_("push missing but relevant tags"),
+		OPT_BIT(0, "no-verify", &flags, N_("bypass pre-push hook"),
+			TRANSPORT_PUSH_NO_HOOK),
+		OPT_BIT(0, "follow-tags", &flags,
+			N_("push missing but relevant tags"),
 			TRANSPORT_PUSH_FOLLOW_TAGS),
-		OPT_CALLBACK_F(0, "signed", &push_cert, "(yes|no|if-asked)", N_("GPG sign the push"),
-				PARSE_OPT_OPTARG, option_parse_push_signed),
-		OPT_BIT(0, "atomic", &flags, N_("request atomic transaction on remote side"), TRANSPORT_PUSH_ATOMIC),
-		OPT_STRING_LIST('o', "push-option", &push_options_cmdline, N_("server-specific"), N_("option to transmit")),
+		OPT_CALLBACK_F(0, "signed", &push_cert, "(yes|no|if-asked)",
+			       N_("GPG sign the push"), PARSE_OPT_OPTARG,
+			       option_parse_push_signed),
+		OPT_BIT(0, "atomic", &flags,
+			N_("request atomic transaction on remote side"),
+			TRANSPORT_PUSH_ATOMIC),
+		OPT_STRING_LIST('o', "push-option", &push_options_cmdline,
+				N_("server-specific"),
+				N_("option to transmit")),
 		OPT_SET_INT('4', "ipv4", &family, N_("use IPv4 addresses only"),
-				TRANSPORT_FAMILY_IPV4),
+			    TRANSPORT_FAMILY_IPV4),
 		OPT_SET_INT('6', "ipv6", &family, N_("use IPv6 addresses only"),
-				TRANSPORT_FAMILY_IPV6),
+			    TRANSPORT_FAMILY_IPV6),
 		OPT_END()
 	};
 
 	packet_trace_identity("push");
 	git_config(git_push_config, &flags);
 	argc = parse_options(argc, argv, prefix, options, push_usage, 0);
-	push_options = (push_options_cmdline.nr
-		? &push_options_cmdline
-		: &push_options_config);
+	push_options = (push_options_cmdline.nr ? &push_options_cmdline :
+						  &push_options_config);
 	set_push_cert_flags(&flags, push_cert);
 
-	if (deleterefs && (tags || (flags & (TRANSPORT_PUSH_ALL | TRANSPORT_PUSH_MIRROR))))
+	if (deleterefs &&
+	    (tags || (flags & (TRANSPORT_PUSH_ALL | TRANSPORT_PUSH_MIRROR))))
 		die(_("--delete is incompatible with --all, --mirror and --tags"));
 	if (deleterefs && argc < 2)
 		die(_("--delete doesn't make sense without any refs"));
@@ -622,17 +642,17 @@ int cmd_push(int argc, const char **argv, const char *prefix)
 		if (repo)
 			die(_("bad repository '%s'"), repo);
 		die(_("No configured push destination.\n"
-		    "Either specify the URL from the command-line or configure a remote repository using\n"
-		    "\n"
-		    "    git remote add <name> <url>\n"
-		    "\n"
-		    "and then push using the remote name\n"
-		    "\n"
-		    "    git push <name>\n"));
+		      "Either specify the URL from the command-line or configure a remote repository using\n"
+		      "\n"
+		      "    git remote add <name> <url>\n"
+		      "\n"
+		      "and then push using the remote name\n"
+		      "\n"
+		      "    git push <name>\n"));
 	}
 
 	if (remote->mirror)
-		flags |= (TRANSPORT_PUSH_MIRROR|TRANSPORT_PUSH_FORCE);
+		flags |= (TRANSPORT_PUSH_MIRROR | TRANSPORT_PUSH_FORCE);
 
 	if (flags & TRANSPORT_PUSH_ALL) {
 		if (tags)
@@ -652,7 +672,7 @@ int cmd_push(int argc, const char **argv, const char *prefix)
 	if (!is_empty_cas(&cas) && (flags & TRANSPORT_PUSH_FORCE_IF_INCLUDES))
 		cas.use_force_if_includes = 1;
 
-	for_each_string_list_item(item, push_options)
+	for_each_string_list_item (item, push_options)
 		if (strchr(item->string, '\n'))
 			die(_("push options must not have new line characters"));
 

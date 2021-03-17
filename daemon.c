@@ -20,18 +20,18 @@ static int reuseaddr;
 static int informative_errors;
 
 static const char daemon_usage[] =
-"git daemon [--verbose] [--syslog] [--export-all]\n"
-"           [--timeout=<n>] [--init-timeout=<n>] [--max-connections=<n>]\n"
-"           [--strict-paths] [--base-path=<path>] [--base-path-relaxed]\n"
-"           [--user-path | --user-path=<path>]\n"
-"           [--interpolated-path=<path>]\n"
-"           [--reuseaddr] [--pid-file=<file>]\n"
-"           [--(enable|disable|allow-override|forbid-override)=<service>]\n"
-"           [--access-hook=<path>]\n"
-"           [--inetd | [--listen=<host_or_ipaddr>] [--port=<n>]\n"
-"                      [--detach] [--user=<user> [--group=<group>]]\n"
-"           [--log-destination=(stderr|syslog|none)]\n"
-"           [<directory>...]";
+	"git daemon [--verbose] [--syslog] [--export-all]\n"
+	"           [--timeout=<n>] [--init-timeout=<n>] [--max-connections=<n>]\n"
+	"           [--strict-paths] [--base-path=<path>] [--base-path-relaxed]\n"
+	"           [--user-path | --user-path=<path>]\n"
+	"           [--interpolated-path=<path>]\n"
+	"           [--reuseaddr] [--pid-file=<file>]\n"
+	"           [--(enable|disable|allow-override|forbid-override)=<service>]\n"
+	"           [--access-hook=<path>]\n"
+	"           [--inetd | [--listen=<host_or_ipaddr>] [--port=<n>]\n"
+	"                      [--detach] [--user=<user> [--group=<group>]]\n"
+	"           [--log-destination=(stderr|syslog|none)]\n"
+	"           [<directory>...]";
 
 /* List of acceptable pathname prefixes */
 static const char **ok_paths;
@@ -60,8 +60,8 @@ struct hostinfo {
 	struct strbuf canon_hostname;
 	struct strbuf ip_address;
 	struct strbuf tcp_port;
-	unsigned int hostname_lookup_done:1;
-	unsigned int saw_extended_args:1;
+	unsigned int hostname_lookup_done : 1;
+	unsigned int saw_extended_args : 1;
 };
 
 static void lookup_hostname(struct hostinfo *hi);
@@ -93,7 +93,7 @@ static void logreport(int priority, const char *err, va_list params)
 		 * logging of different processes will not overlap
 		 * unless they overflow the (rather big) buffers.
 		 */
-		fprintf(stderr, "[%"PRIuMAX"] ", (uintmax_t)getpid());
+		fprintf(stderr, "[%" PRIuMAX "] ", (uintmax_t)getpid());
 		vfprintf(stderr, err, params);
 		fputc('\n', stderr);
 		fflush(stderr);
@@ -105,8 +105,7 @@ static void logreport(int priority, const char *err, va_list params)
 	}
 }
 
-__attribute__((format (printf, 1, 2)))
-static void logerror(const char *err, ...)
+__attribute__((format(printf, 1, 2))) static void logerror(const char *err, ...)
 {
 	va_list params;
 	va_start(params, err);
@@ -114,8 +113,7 @@ static void logerror(const char *err, ...)
 	va_end(params);
 }
 
-__attribute__((format (printf, 1, 2)))
-static void loginfo(const char *err, ...)
+__attribute__((format(printf, 1, 2))) static void loginfo(const char *err, ...)
 {
 	va_list params;
 	if (!verbose)
@@ -198,7 +196,8 @@ static const char *path_ok(const char *directory, struct hostinfo *hi)
 				slash = dir + restlen;
 			namlen = slash - dir;
 			restlen -= namlen;
-			loginfo("userpath <%s>, request <%s>, namlen %d, restlen %d, slash <%s>", user_path, dir, namlen, restlen, slash);
+			loginfo("userpath <%s>, request <%s>, namlen %d, restlen %d, slash <%s>",
+				user_path, dir, namlen, restlen, slash);
 			rlen = snprintf(rpath, sizeof(rpath), "%.*s/%s%.*s",
 					namlen, dir, user_path, restlen, slash);
 			if (rlen >= sizeof(rpath)) {
@@ -207,8 +206,7 @@ static const char *path_ok(const char *directory, struct hostinfo *hi)
 			}
 			dir = rpath;
 		}
-	}
-	else if (interpolated_path && hi->saw_extended_args) {
+	} else if (interpolated_path && hi->saw_extended_args) {
 		struct strbuf expanded_path = STRBUF_INIT;
 		struct expand_path_context context;
 
@@ -217,12 +215,14 @@ static const char *path_ok(const char *directory, struct hostinfo *hi)
 
 		if (*dir != '/') {
 			/* Allow only absolute */
-			logerror("'%s': Non-absolute path denied (interpolated-path active)", dir);
+			logerror(
+				"'%s': Non-absolute path denied (interpolated-path active)",
+				dir);
 			return NULL;
 		}
 
-		strbuf_expand(&expanded_path, interpolated_path,
-			      expand_path, &context);
+		strbuf_expand(&expanded_path, interpolated_path, expand_path,
+			      &context);
 
 		rlen = strlcpy(interp_path, expanded_path.buf,
 			       sizeof(interp_path));
@@ -236,11 +236,12 @@ static const char *path_ok(const char *directory, struct hostinfo *hi)
 		loginfo("Interpolated dir '%s'", interp_path);
 
 		dir = interp_path;
-	}
-	else if (base_path) {
+	} else if (base_path) {
 		if (*dir != '/') {
 			/* Allow only absolute */
-			logerror("'%s': Non-absolute path denied (base-path active)", dir);
+			logerror(
+				"'%s': Non-absolute path denied (base-path active)",
+				dir);
 			return NULL;
 		}
 		rlen = snprintf(rpath, sizeof(rpath), "%s%s", base_path, dir);
@@ -266,7 +267,7 @@ static const char *path_ok(const char *directory, struct hostinfo *hi)
 		return NULL;
 	}
 
-	if ( ok_paths && *ok_paths ) {
+	if (ok_paths && *ok_paths) {
 		const char **pp;
 		int pathlen = strlen(path);
 
@@ -277,23 +278,21 @@ static const char *path_ok(const char *directory, struct hostinfo *hi)
 		 * do not have to say /mnt/pub.
 		 * Do not say /pub/.
 		 */
-		for ( pp = ok_paths ; *pp ; pp++ ) {
+		for (pp = ok_paths; *pp; pp++) {
 			int len = strlen(*pp);
-			if (len <= pathlen &&
-			    !memcmp(*pp, path, len) &&
+			if (len <= pathlen && !memcmp(*pp, path, len) &&
 			    (path[len] == '\0' ||
 			     (!strict_paths && path[len] == '/')))
 				return path;
 		}
-	}
-	else {
+	} else {
 		/* be backwards compatible */
 		if (!strict_paths)
 			return path;
 	}
 
 	logerror("'%s': not in whitelist", path);
-	return NULL;		/* Fallthrough. Deny by default */
+	return NULL; /* Fallthrough. Deny by default */
 }
 
 typedef int (*daemon_service_fn)(const struct strvec *env);
@@ -417,8 +416,8 @@ static int run_service(const char *dir, struct daemon_service *service,
 		strbuf_release(&var);
 	}
 	if (!enabled) {
-		logerror("'%s': service not enabled for '%s'",
-			 service->name, path);
+		logerror("'%s': service not enabled for '%s'", service->name,
+			 path);
 		errno = EACCES;
 		return daemon_error(dir, "service not enabled");
 	}
@@ -537,8 +536,7 @@ static void make_service_overridable(const char *name, int ena)
 	die("No such service %s", name);
 }
 
-static void parse_host_and_port(char *hostport, char **host,
-	char **port)
+static void parse_host_and_port(char *hostport, char **host, char **port)
 {
 	if (*hostport == '[') {
 		char *end;
@@ -663,7 +661,8 @@ static void parse_extra_args(struct hostinfo *hi, struct strvec *env,
 	}
 
 	if (git_protocol.len > 0) {
-		loginfo("Extended attribute \"protocol\": %s", git_protocol.buf);
+		loginfo("Extended attribute \"protocol\": %s",
+			git_protocol.buf);
 		strvec_pushf(env, GIT_PROTOCOL_ENVIRONMENT "=%s",
 			     git_protocol.buf);
 	}
@@ -689,8 +688,8 @@ static void lookup_hostname(struct hostinfo *hi)
 		if (!gai) {
 			struct sockaddr_in *sin_addr = (void *)ai->ai_addr;
 
-			inet_ntop(AF_INET, &sin_addr->sin_addr,
-				  addrbuf, sizeof(addrbuf));
+			inet_ntop(AF_INET, &sin_addr->sin_addr, addrbuf,
+				  sizeof(addrbuf));
 			strbuf_addstr(&hi->ip_address, addrbuf);
 
 			if (ai->ai_canonname)
@@ -716,8 +715,8 @@ static void lookup_hostname(struct hostinfo *hi)
 			sa.sin_port = htons(0);
 			memcpy(&sa.sin_addr, *ap, hent->h_length);
 
-			inet_ntop(hent->h_addrtype, &sa.sin_addr,
-				  addrbuf, sizeof(addrbuf));
+			inet_ntop(hent->h_addrtype, &sa.sin_addr, addrbuf,
+				  sizeof(addrbuf));
 
 			sanitize_client(&hi->canon_hostname, hent->h_name);
 			strbuf_addstr(&hi->ip_address, addrbuf);
@@ -751,7 +750,7 @@ static void set_keep_alive(int sockfd)
 	if (setsockopt(sockfd, SOL_SOCKET, SO_KEEPALIVE, &ka, sizeof(ka)) < 0) {
 		if (errno != ENOTSOCK)
 			logerror("unable to set SO_KEEPALIVE on socket: %s",
-				strerror(errno));
+				 strerror(errno));
 	}
 }
 
@@ -770,12 +769,13 @@ static int execute(void)
 
 	set_keep_alive(0);
 	alarm(init_timeout ? init_timeout : timeout);
-	pktlen = packet_read(0, NULL, NULL, packet_buffer, sizeof(packet_buffer), 0);
+	pktlen = packet_read(0, NULL, NULL, packet_buffer,
+			     sizeof(packet_buffer), 0);
 	alarm(0);
 
 	len = strlen(line);
-	if (len && line[len-1] == '\n')
-		line[len-1] = 0;
+	if (len && line[len - 1] == '\n')
+		line[len - 1] = 0;
 
 	/* parse additional args hidden behind a NUL byte */
 	if (len != pktlen)
@@ -786,11 +786,11 @@ static int execute(void)
 		const char *arg;
 
 		if (skip_prefix(line, "git-", &arg) &&
-		    skip_prefix(arg, s->name, &arg) &&
-		    *arg++ == ' ') {
+		    skip_prefix(arg, s->name, &arg) && *arg++ == ' ') {
 			/*
-			 * Note: The directory here is probably context sensitive,
-			 * and might depend on the actual service being performed.
+			 * Note: The directory here is probably context
+			 * sensitive, and might depend on the actual service
+			 * being performed.
 			 */
 			int rc = run_service(arg, s, &hi, &env);
 			hostinfo_clear(&hi);
@@ -806,22 +806,22 @@ static int execute(void)
 }
 
 static int addrcmp(const struct sockaddr_storage *s1,
-    const struct sockaddr_storage *s2)
+		   const struct sockaddr_storage *s2)
 {
-	const struct sockaddr *sa1 = (const struct sockaddr*) s1;
-	const struct sockaddr *sa2 = (const struct sockaddr*) s2;
+	const struct sockaddr *sa1 = (const struct sockaddr *)s1;
+	const struct sockaddr *sa2 = (const struct sockaddr *)s2;
 
 	if (sa1->sa_family != sa2->sa_family)
 		return sa1->sa_family - sa2->sa_family;
 	if (sa1->sa_family == AF_INET)
 		return memcmp(&((struct sockaddr_in *)s1)->sin_addr,
-		    &((struct sockaddr_in *)s2)->sin_addr,
-		    sizeof(struct in_addr));
+			      &((struct sockaddr_in *)s2)->sin_addr,
+			      sizeof(struct in_addr));
 #ifndef NO_IPV6
 	if (sa1->sa_family == AF_INET6)
 		return memcmp(&((struct sockaddr_in6 *)s1)->sin6_addr,
-		    &((struct sockaddr_in6 *)s2)->sin6_addr,
-		    sizeof(struct in6_addr));
+			      &((struct sockaddr_in6 *)s2)->sin6_addr,
+			      sizeof(struct in6_addr));
 #endif
 	return 0;
 }
@@ -834,9 +834,10 @@ static struct child {
 	struct child *next;
 	struct child_process cld;
 	struct sockaddr_storage address;
-} *firstborn;
+} * firstborn;
 
-static void add_child(struct child_process *cld, struct sockaddr *addr, socklen_t addrlen)
+static void add_child(struct child_process *cld, struct sockaddr *addr,
+		      socklen_t addrlen)
 {
 	struct child *newborn, **cradle;
 
@@ -882,7 +883,8 @@ static void check_dead_children(void)
 			const char *dead = "";
 			if (status)
 				dead = " (with error)";
-			loginfo("[%"PRIuMAX"] Disconnected%s", (uintmax_t)pid, dead);
+			loginfo("[%" PRIuMAX "] Disconnected%s", (uintmax_t)pid,
+				dead);
 
 			/* remove the child */
 			*cradle = blanket->next;
@@ -900,7 +902,7 @@ static void handle(int incoming, struct sockaddr *addr, socklen_t addrlen)
 
 	if (max_connections && live_children >= max_connections) {
 		kill_some_child();
-		sleep(1);  /* give it some time to die */
+		sleep(1); /* give it some time to die */
 		check_dead_children();
 		if (live_children >= max_connections) {
 			close(incoming);
@@ -911,15 +913,16 @@ static void handle(int incoming, struct sockaddr *addr, socklen_t addrlen)
 
 	if (addr->sa_family == AF_INET) {
 		char buf[128] = "";
-		struct sockaddr_in *sin_addr = (void *) addr;
-		inet_ntop(addr->sa_family, &sin_addr->sin_addr, buf, sizeof(buf));
+		struct sockaddr_in *sin_addr = (void *)addr;
+		inet_ntop(addr->sa_family, &sin_addr->sin_addr, buf,
+			  sizeof(buf));
 		strvec_pushf(&cld.env_array, "REMOTE_ADDR=%s", buf);
 		strvec_pushf(&cld.env_array, "REMOTE_PORT=%d",
 			     ntohs(sin_addr->sin_port));
 #ifndef NO_IPV6
 	} else if (addr->sa_family == AF_INET6) {
 		char buf[128] = "";
-		struct sockaddr_in6 *sin6_addr = (void *) addr;
+		struct sockaddr_in6 *sin6_addr = (void *)addr;
 		inet_ntop(AF_INET6, &sin6_addr->sin6_addr, buf, sizeof(buf));
 		strvec_pushf(&cld.env_array, "REMOTE_ADDR=[%s]", buf);
 		strvec_pushf(&cld.env_array, "REMOTE_PORT=%d",
@@ -953,8 +956,7 @@ static int set_reuse_addr(int sockfd)
 
 	if (!reuseaddr)
 		return 0;
-	return setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR,
-			  &on, sizeof(on));
+	return setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on));
 }
 
 struct socketlist {
@@ -974,11 +976,13 @@ static const char *ip2str(int family, struct sockaddr *sin, socklen_t len)
 	switch (family) {
 #ifndef NO_IPV6
 	case AF_INET6:
-		inet_ntop(family, &((struct sockaddr_in6*)sin)->sin6_addr, ip, len);
+		inet_ntop(family, &((struct sockaddr_in6 *)sin)->sin6_addr, ip,
+			  len);
 		break;
 #endif
 	case AF_INET:
-		inet_ntop(family, &((struct sockaddr_in*)sin)->sin_addr, ip, len);
+		inet_ntop(family, &((struct sockaddr_in *)sin)->sin_addr, ip,
+			  len);
 		break;
 	default:
 		xsnprintf(ip, sizeof(ip), "<unknown>");
@@ -988,7 +992,8 @@ static const char *ip2str(int family, struct sockaddr *sin, socklen_t len)
 
 #ifndef NO_IPV6
 
-static int setup_named_sock(char *listen_addr, int listen_port, struct socketlist *socklist)
+static int setup_named_sock(char *listen_addr, int listen_port,
+			    struct socketlist *socklist)
 {
 	int socknum = 0;
 	char pbuf[NI_MAXSERV];
@@ -1005,14 +1010,16 @@ static int setup_named_sock(char *listen_addr, int listen_port, struct socketlis
 
 	gai = getaddrinfo(listen_addr, pbuf, &hints, &ai0);
 	if (gai) {
-		logerror("getaddrinfo() for %s failed: %s", listen_addr, gai_strerror(gai));
+		logerror("getaddrinfo() for %s failed: %s", listen_addr,
+			 gai_strerror(gai));
 		return 0;
 	}
 
 	for (ai = ai0; ai; ai = ai->ai_next) {
 		int sockfd;
 
-		sockfd = socket(ai->ai_family, ai->ai_socktype, ai->ai_protocol);
+		sockfd =
+			socket(ai->ai_family, ai->ai_socktype, ai->ai_protocol);
 		if (sockfd < 0)
 			continue;
 		if (sockfd >= FD_SETSIZE) {
@@ -1024,14 +1031,15 @@ static int setup_named_sock(char *listen_addr, int listen_port, struct socketlis
 #ifdef IPV6_V6ONLY
 		if (ai->ai_family == AF_INET6) {
 			int on = 1;
-			setsockopt(sockfd, IPPROTO_IPV6, IPV6_V6ONLY,
-				   &on, sizeof(on));
+			setsockopt(sockfd, IPPROTO_IPV6, IPV6_V6ONLY, &on,
+				   sizeof(on));
 			/* Note: error is not fatal */
 		}
 #endif
 
 		if (set_reuse_addr(sockfd)) {
-			logerror("Could not set SO_REUSEADDR: %s", strerror(errno));
+			logerror("Could not set SO_REUSEADDR: %s",
+				 strerror(errno));
 			close(sockfd);
 			continue;
 		}
@@ -1040,17 +1048,19 @@ static int setup_named_sock(char *listen_addr, int listen_port, struct socketlis
 
 		if (bind(sockfd, ai->ai_addr, ai->ai_addrlen) < 0) {
 			logerror("Could not bind to %s: %s",
-				 ip2str(ai->ai_family, ai->ai_addr, ai->ai_addrlen),
+				 ip2str(ai->ai_family, ai->ai_addr,
+					ai->ai_addrlen),
 				 strerror(errno));
 			close(sockfd);
-			continue;	/* not fatal */
+			continue; /* not fatal */
 		}
 		if (listen(sockfd, 5) < 0) {
 			logerror("Could not listen to %s: %s",
-				 ip2str(ai->ai_family, ai->ai_addr, ai->ai_addrlen),
+				 ip2str(ai->ai_family, ai->ai_addr,
+					ai->ai_addrlen),
 				 strerror(errno));
 			close(sockfd);
-			continue;	/* not fatal */
+			continue; /* not fatal */
 		}
 
 		flags = fcntl(sockfd, F_GETFD, 0);
@@ -1069,7 +1079,8 @@ static int setup_named_sock(char *listen_addr, int listen_port, struct socketlis
 
 #else /* NO_IPV6 */
 
-static int setup_named_sock(char *listen_addr, int listen_port, struct socketlist *socklist)
+static int setup_named_sock(char *listen_addr, int listen_port,
+			    struct socketlist *socklist)
 {
 	struct sockaddr_in sin;
 	int sockfd;
@@ -1099,7 +1110,7 @@ static int setup_named_sock(char *listen_addr, int listen_port, struct socketlis
 
 	set_keep_alive(sockfd);
 
-	if ( bind(sockfd, (struct sockaddr *)&sin, sizeof sin) < 0 ) {
+	if (bind(sockfd, (struct sockaddr *)&sin, sizeof sin) < 0) {
 		logerror("Could not bind to %s: %s",
 			 ip2str(AF_INET, (struct sockaddr *)&sin, sizeof(sin)),
 			 strerror(errno));
@@ -1126,7 +1137,8 @@ static int setup_named_sock(char *listen_addr, int listen_port, struct socketlis
 
 #endif
 
-static void socksetup(struct string_list *listen_addr, int listen_port, struct socketlist *socklist)
+static void socksetup(struct string_list *listen_addr, int listen_port,
+		      struct socketlist *socklist)
 {
 	if (!listen_addr->nr)
 		setup_named_sock(NULL, listen_port, socklist);
@@ -1137,8 +1149,10 @@ static void socksetup(struct string_list *listen_addr, int listen_port, struct s
 						   listen_port, socklist);
 
 			if (socknum == 0)
-				logerror("unable to allocate any listen sockets for host %s on port %u",
-					 listen_addr->items[i].string, listen_port);
+				logerror(
+					"unable to allocate any listen sockets for host %s on port %u",
+					listen_addr->items[i].string,
+					listen_port);
 		}
 	}
 }
@@ -1165,7 +1179,7 @@ static int service_loop(struct socketlist *socklist)
 		if (poll(pfd, socklist->nr, -1) < 0) {
 			if (errno != EINTR) {
 				logerror("Poll failed, resuming: %s",
-				      strerror(errno));
+					 strerror(errno));
 				sleep(1);
 			}
 			continue;
@@ -1181,7 +1195,8 @@ static int service_loop(struct socketlist *socklist)
 #endif
 				} ss;
 				socklen_t sslen = sizeof(ss);
-				int incoming = accept(pfd[i].fd, &ss.sa, &sslen);
+				int incoming =
+					accept(pfd[i].fd, &ss.sa, &sslen);
 				if (incoming < 0) {
 					switch (errno) {
 					case EAGAIN:
@@ -1208,7 +1223,7 @@ static void drop_privileges(struct credentials *cred)
 }
 
 static struct credentials *prepare_credentials(const char *user_name,
-    const char *group_name)
+					       const char *group_name)
 {
 	die("--user not supported on this platform");
 }
@@ -1223,12 +1238,12 @@ struct credentials {
 static void drop_privileges(struct credentials *cred)
 {
 	if (cred && (initgroups(cred->pass->pw_name, cred->gid) ||
-	    setgid (cred->gid) || setuid(cred->pass->pw_uid)))
+		     setgid(cred->gid) || setuid(cred->pass->pw_uid)))
 		die("cannot drop privileges");
 }
 
 static struct credentials *prepare_credentials(const char *user_name,
-    const char *group_name)
+					       const char *group_name)
 {
 	static struct credentials c;
 
@@ -1251,7 +1266,7 @@ static struct credentials *prepare_credentials(const char *user_name,
 #endif
 
 static int serve(struct string_list *listen_addr, int listen_port,
-    struct credentials *cred)
+		 struct credentials *cred)
 {
 	struct socketlist socklist = { NULL, 0, 0 };
 
@@ -1342,7 +1357,7 @@ int cmd_main(int argc, const char **argv)
 		if (skip_prefix(arg, "--max-connections=", &v)) {
 			max_connections = atoi(v);
 			if (max_connections < 0)
-				max_connections = 0;	        /* unlimited */
+				max_connections = 0; /* unlimited */
 			continue;
 		}
 		if (!strcmp(arg, "--strict-paths")) {
@@ -1414,7 +1429,7 @@ int cmd_main(int argc, const char **argv)
 			continue;
 		}
 		if (!strcmp(arg, "--")) {
-			ok_paths = &argv[i+1];
+			ok_paths = &argv[i + 1];
 			break;
 		} else if (arg[0] != '-') {
 			ok_paths = &argv[i];
@@ -1473,7 +1488,7 @@ int cmd_main(int argc, const char **argv)
 	}
 
 	if (pid_file)
-		write_file(pid_file, "%"PRIuMAX, (uintmax_t) getpid());
+		write_file(pid_file, "%" PRIuMAX, (uintmax_t)getpid());
 
 	/* prepare argv for serving-processes */
 	strvec_push(&cld_argv, argv[0]); /* git-daemon */

@@ -7,9 +7,8 @@
 #include "upload-pack.h"
 #include "serve.h"
 
-static const char * const upload_pack_usage[] = {
-	N_("git upload-pack [<options>] <dir>"),
-	NULL
+static const char *const upload_pack_usage[] = {
+	N_("git upload-pack [<options>] <dir>"), NULL
 };
 
 int cmd_upload_pack(int argc, const char **argv, const char *prefix)
@@ -23,10 +22,12 @@ int cmd_upload_pack(int argc, const char **argv, const char *prefix)
 			 N_("quit after a single request/response exchange")),
 		OPT_BOOL(0, "advertise-refs", &opts.advertise_refs,
 			 N_("exit immediately after initial ref advertisement")),
-		OPT_BOOL(0, "strict", &strict,
-			 N_("do not try <directory>/.git/ if <directory> is no Git directory")),
-		OPT_INTEGER(0, "timeout", &opts.timeout,
-			    N_("interrupt transfer after <n> seconds of inactivity")),
+		OPT_BOOL(
+			0, "strict", &strict,
+			N_("do not try <directory>/.git/ if <directory> is no Git directory")),
+		OPT_INTEGER(
+			0, "timeout", &opts.timeout,
+			N_("interrupt transfer after <n> seconds of inactivity")),
 		OPT_END()
 	};
 

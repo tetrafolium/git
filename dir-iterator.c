@@ -81,8 +81,7 @@ static int push_level(struct dir_iterator_int *iter)
  */
 static int pop_level(struct dir_iterator_int *iter)
 {
-	struct dir_iterator_level *level =
-		&iter->levels[iter->levels_nr - 1];
+	struct dir_iterator_level *level = &iter->levels[iter->levels_nr - 1];
 
 	if (level->dir && closedir(level->dir))
 		warning_errno("error closing directory '%s'",
@@ -107,8 +106,8 @@ static int prepare_next_entry_data(struct dir_iterator_int *iter,
 	 * We have to reset these because the path strbuf might have
 	 * been realloc()ed at the previous strbuf_addstr().
 	 */
-	iter->base.relative_path = iter->base.path.buf +
-				   iter->levels[0].prefix_len;
+	iter->base.relative_path =
+		iter->base.path.buf + iter->levels[0].prefix_len;
 	iter->base.basename = iter->base.path.buf +
 			      iter->levels[iter->levels_nr - 1].prefix_len;
 
@@ -127,8 +126,7 @@ static int prepare_next_entry_data(struct dir_iterator_int *iter,
 
 int dir_iterator_advance(struct dir_iterator *dir_iterator)
 {
-	struct dir_iterator_int *iter =
-		(struct dir_iterator_int *)dir_iterator;
+	struct dir_iterator_int *iter = (struct dir_iterator_int *)dir_iterator;
 
 	if (S_ISDIR(iter->base.st.st_mode) && push_level(iter)) {
 		if (errno != ENOENT && iter->flags & DIR_ITERATOR_PEDANTIC)
@@ -163,7 +161,8 @@ int dir_iterator_advance(struct dir_iterator *dir_iterator)
 			continue;
 
 		if (prepare_next_entry_data(iter, de)) {
-			if (errno != ENOENT && iter->flags & DIR_ITERATOR_PEDANTIC)
+			if (errno != ENOENT &&
+			    iter->flags & DIR_ITERATOR_PEDANTIC)
 				goto error_out;
 			continue;
 		}

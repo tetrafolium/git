@@ -48,7 +48,8 @@ const char *git_sequence_editor(void)
 }
 
 static int launch_specified_editor(const char *editor, const char *path,
-				   struct strbuf *buffer, const char *const *env)
+				   struct strbuf *buffer,
+				   const char *const *env)
 {
 	if (!editor)
 		return error("Terminal is dumb, but EDITOR unset");
@@ -58,15 +59,17 @@ static int launch_specified_editor(const char *editor, const char *path,
 		const char *args[] = { editor, NULL, NULL };
 		struct child_process p = CHILD_PROCESS_INIT;
 		int ret, sig;
-		int print_waiting_for_editor = advice_waiting_for_editor && isatty(2);
+		int print_waiting_for_editor = advice_waiting_for_editor &&
+					       isatty(2);
 
 		if (print_waiting_for_editor) {
 			/*
 			 * A dumb terminal cannot erase the line later on. Add a
 			 * newline to separate the hint from subsequent output.
 			 *
-			 * Make sure that our message is separated with a whitespace
-			 * from further cruft that may be written by the editor.
+			 * Make sure that our message is separated with a
+			 * whitespace from further cruft that may be written by
+			 * the editor.
 			 */
 			const char term = is_terminal_dumb() ? '\n' : ' ';
 
@@ -98,8 +101,9 @@ static int launch_specified_editor(const char *editor, const char *path,
 		if (sig == SIGINT || sig == SIGQUIT)
 			raise(sig);
 		if (ret)
-			return error("There was a problem with the editor '%s'.",
-					editor);
+			return error(
+				"There was a problem with the editor '%s'.",
+				editor);
 
 		if (print_waiting_for_editor && !is_terminal_dumb())
 			/*
@@ -116,7 +120,8 @@ static int launch_specified_editor(const char *editor, const char *path,
 	return 0;
 }
 
-int launch_editor(const char *path, struct strbuf *buffer, const char *const *env)
+int launch_editor(const char *path, struct strbuf *buffer,
+		  const char *const *env)
 {
 	return launch_specified_editor(git_editor(), path, buffer, env);
 }
@@ -124,5 +129,6 @@ int launch_editor(const char *path, struct strbuf *buffer, const char *const *en
 int launch_sequence_editor(const char *path, struct strbuf *buffer,
 			   const char *const *env)
 {
-	return launch_specified_editor(git_sequence_editor(), path, buffer, env);
+	return launch_specified_editor(git_sequence_editor(), path, buffer,
+				       env);
 }

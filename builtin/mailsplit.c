@@ -10,7 +10,7 @@
 #include "strbuf.h"
 
 static const char git_mailsplit_usage[] =
-"git mailsplit [-d<prec>] [-f<n>] [-b] [--keep-cr] -o<directory> [(<mbox>|<Maildir>)...]";
+	"git mailsplit [-d<prec>] [-f<n>] [-b] [--keep-cr] -o<directory> [(<mbox>|<Maildir>)...]";
 
 static int is_from_line(const char *line, int len)
 {
@@ -28,15 +28,12 @@ static int is_from_line(const char *line, int len)
 			break;
 	}
 
-	if (!isdigit(colon[-4]) ||
-	    !isdigit(colon[-2]) ||
-	    !isdigit(colon[-1]) ||
-	    !isdigit(colon[ 1]) ||
-	    !isdigit(colon[ 2]))
+	if (!isdigit(colon[-4]) || !isdigit(colon[-2]) || !isdigit(colon[-1]) ||
+	    !isdigit(colon[1]) || !isdigit(colon[2]))
 		return 0;
 
 	/* year */
-	if (strtol(colon+3, NULL, 10) <= 90)
+	if (strtol(colon + 3, NULL, 10) <= 90)
 		return 0;
 
 	/* Ok, close enough */
@@ -84,9 +81,9 @@ static int split_one(FILE *mbox, const char *name, int allow_bare)
 	 * "From " and having something that looks like a date format.
 	 */
 	for (;;) {
-		if (!keep_cr && buf.len > 1 && buf.buf[buf.len-1] == '\n' &&
-			buf.buf[buf.len-2] == '\r') {
-			strbuf_setlen(&buf, buf.len-2);
+		if (!keep_cr && buf.len > 1 && buf.buf[buf.len - 1] == '\n' &&
+		    buf.buf[buf.len - 2] == '\r') {
+			strbuf_setlen(&buf, buf.len - 2);
 			strbuf_addch(&buf, '\n');
 		}
 
@@ -157,8 +154,7 @@ static int maildir_filename_cmp(const char *a, const char *b)
 			if (na != nb)
 				return na - nb;
 			/* strtol advanced our pointers */
-		}
-		else {
+		} else {
 			if (*a != *b)
 				return (unsigned char)*a - (unsigned char)*b;
 			a++;
@@ -168,8 +164,8 @@ static int maildir_filename_cmp(const char *a, const char *b)
 	return (unsigned char)*a - (unsigned char)*b;
 }
 
-static int split_maildir(const char *maildir, const char *dir,
-	int nr_prec, int skip)
+static int split_maildir(const char *maildir, const char *dir, int nr_prec,
+			 int skip)
 {
 	char *file = NULL;
 	FILE *f = NULL;
@@ -276,41 +272,41 @@ int cmd_mailsplit(int argc, const char **argv, const char *prefix)
 	const char **argp;
 	static const char *stdin_only[] = { "-", NULL };
 
-	for (argp = argv+1; *argp; argp++) {
+	for (argp = argv + 1; *argp; argp++) {
 		const char *arg = *argp;
 
 		if (arg[0] != '-')
 			break;
 		/* do flags here */
-		if ( arg[1] == 'd' ) {
-			nr_prec = strtol(arg+2, NULL, 10);
+		if (arg[1] == 'd') {
+			nr_prec = strtol(arg + 2, NULL, 10);
 			if (nr_prec < 3 || 10 <= nr_prec)
 				usage(git_mailsplit_usage);
 			continue;
-		} else if ( arg[1] == 'f' ) {
-			nr = strtol(arg+2, NULL, 10);
-		} else if ( arg[1] == 'h' ) {
+		} else if (arg[1] == 'f') {
+			nr = strtol(arg + 2, NULL, 10);
+		} else if (arg[1] == 'h') {
 			usage(git_mailsplit_usage);
-		} else if ( arg[1] == 'b' && !arg[2] ) {
+		} else if (arg[1] == 'b' && !arg[2]) {
 			allow_bare = 1;
 		} else if (!strcmp(arg, "--keep-cr")) {
 			keep_cr = 1;
-		} else if ( arg[1] == 'o' && arg[2] ) {
-			dir = arg+2;
+		} else if (arg[1] == 'o' && arg[2]) {
+			dir = arg + 2;
 		} else if (!strcmp(arg, "--mboxrd")) {
 			mboxrd = 1;
-		} else if ( arg[1] == '-' && !arg[2] ) {
-			argp++;	/* -- marks end of options */
+		} else if (arg[1] == '-' && !arg[2]) {
+			argp++; /* -- marks end of options */
 			break;
 		} else {
 			die("unknown option: %s", arg);
 		}
 	}
 
-	if ( !dir ) {
+	if (!dir) {
 		/* Backwards compatibility: if no -o specified, accept
 		   <mbox> <dir> or just <dir> */
-		switch (argc - (argp-argv)) {
+		switch (argc - (argp - argv)) {
 		case 1:
 			dir = argp[0];
 			argp = stdin_only;
@@ -325,7 +321,7 @@ int cmd_mailsplit(int argc, const char **argv, const char *prefix)
 		}
 	} else {
 		/* New usage: if no more argument, parse stdin */
-		if ( !*argp )
+		if (!*argp)
 			argp = stdin_only;
 	}
 

@@ -21,8 +21,8 @@ int cmd__read_cache(int argc, const char **argv)
 		if (name) {
 			int pos;
 
-			refresh_index(&the_index, REFRESH_QUIET,
-				      NULL, NULL, NULL);
+			refresh_index(&the_index, REFRESH_QUIET, NULL, NULL,
+				      NULL);
 			pos = index_name_pos(&the_index, name, strlen(name));
 			if (pos < 0)
 				die("%s not in index", name);

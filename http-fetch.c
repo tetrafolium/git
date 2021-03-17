@@ -5,8 +5,9 @@
 #include "walker.h"
 #include "strvec.h"
 
-static const char http_fetch_usage[] = "git http-fetch "
-"[-c] [-t] [-a] [-v] [--recover] [-w ref] [--stdin | --packfile=hash | commit-id] url";
+static const char http_fetch_usage[] =
+	"git http-fetch "
+	"[-c] [-t] [-a] [-v] [--recover] [-w ref] [--stdin | --packfile=hash | commit-id] url";
 
 static int fetch_using_walker(const char *raw_url, int get_verbosely,
 			      int get_recover, int commits, char **commit_id,
@@ -32,9 +33,9 @@ static int fetch_using_walker(const char *raw_url, int get_verbosely,
 
 	if (walker->corrupt_object_found) {
 		fprintf(stderr,
-"Some loose object were found to be corrupt, but they might be just\n"
-"a false '404 Not Found' error message sent with incorrect HTTP\n"
-"status code.  Suggest running 'git fsck'.\n");
+			"Some loose object were found to be corrupt, but they might be just\n"
+			"a false '404 Not Found' error message sent with incorrect HTTP\n"
+			"status code.  Suggest running 'git fsck'.\n");
 	}
 
 	walker_free(walker);
@@ -45,8 +46,8 @@ static int fetch_using_walker(const char *raw_url, int get_verbosely,
 }
 
 static void fetch_single_packfile(struct object_id *packfile_hash,
-				  const char *url,
-				  const char **index_pack_args) {
+				  const char *url, const char **index_pack_args)
+{
 	struct http_pack_request *preq;
 	struct slot_results results;
 	int ret;
@@ -115,7 +116,8 @@ int cmd_main(int argc, const char **argv)
 
 			packfile = 1;
 			if (parse_oid_hex(p, &packfile_hash, &end) || *end)
-				die(_("argument to --packfile must be a valid hash (got '%s')"), p);
+				die(_("argument to --packfile must be a valid hash (got '%s')"),
+				    p);
 		} else if (skip_prefix(argv[arg], "--index-pack-arg=", &p)) {
 			strvec_push(&index_pack_args, p);
 		}
@@ -145,7 +147,7 @@ int cmd_main(int argc, const char **argv)
 	if (commits_on_stdin) {
 		commits = walker_targets_stdin(&commit_id, &write_ref);
 	} else {
-		commit_id = (char **) &argv[arg++];
+		commit_id = (char **)&argv[arg++];
 		commits = 1;
 	}
 	return fetch_using_walker(argv[arg], get_verbosely, get_recover,

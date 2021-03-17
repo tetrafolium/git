@@ -4,8 +4,7 @@
 #include "parse-options.h"
 
 static const char *const show_index_usage[] = {
-	"git show-index [--object-format=<hash-algorithm>]",
-	NULL
+	"git show-index [--object-format=<hash-algorithm>]", NULL
 };
 
 int cmd_show_index(int argc, const char **argv, const char *prefix)
@@ -23,7 +22,8 @@ int cmd_show_index(int argc, const char **argv, const char *prefix)
 		OPT_END()
 	};
 
-	argc = parse_options(argc, argv, prefix, show_index_options, show_index_usage, 0);
+	argc = parse_options(argc, argv, prefix, show_index_options,
+			     show_index_usage, 0);
 
 	if (hash_name) {
 		hash_algo = hash_algo_by_name(hash_name);
@@ -56,12 +56,14 @@ int cmd_show_index(int argc, const char **argv, const char *prefix)
 	}
 	if (version == 1) {
 		for (i = 0; i < nr; i++) {
-			unsigned int offset, entry[(GIT_MAX_RAWSZ + 4) / sizeof(unsigned int)];
+			unsigned int offset, entry[(GIT_MAX_RAWSZ + 4) /
+						   sizeof(unsigned int)];
 
 			if (fread(entry, 4 + hashsz, 1, stdin) != 1)
 				die("unable to read entry %u/%u", i, nr);
 			offset = ntohl(entry[0]);
-			printf("%u %s\n", offset, hash_to_hex((void *)(entry+1)));
+			printf("%u %s\n", offset,
+			       hash_to_hex((void *)(entry + 1)));
 		}
 	} else {
 		unsigned off64_nr = 0;
@@ -69,7 +71,7 @@ int cmd_show_index(int argc, const char **argv, const char *prefix)
 			struct object_id oid;
 			uint32_t crc;
 			uint32_t off;
-		} *entries;
+		} * entries;
 		ALLOC_ARRAY(entries, nr);
 		for (i = 0; i < nr; i++)
 			if (fread(entries[i].oid.hash, hashsz, 1, stdin) != 1)
@@ -90,14 +92,14 @@ int cmd_show_index(int argc, const char **argv, const char *prefix)
 				if ((off & 0x7fffffff) != off64_nr)
 					die("inconsistent 64b offset index");
 				if (fread(off64, 8, 1, stdin) != 1)
-					die("unable to read 64b offset %u", off64_nr);
+					die("unable to read 64b offset %u",
+					    off64_nr);
 				offset = (((uint64_t)ntohl(off64[0])) << 32) |
-						     ntohl(off64[1]);
+					 ntohl(off64[1]);
 				off64_nr++;
 			}
-			printf("%" PRIuMAX " %s (%08"PRIx32")\n",
-			       (uintmax_t) offset,
-			       oid_to_hex(&entries[i].oid),
+			printf("%" PRIuMAX " %s (%08" PRIx32 ")\n",
+			       (uintmax_t)offset, oid_to_hex(&entries[i].oid),
 			       ntohl(entries[i].crc));
 		}
 		free(entries);

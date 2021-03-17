@@ -24,7 +24,7 @@
  * "object-name.c:ONELINE_SEEN" bits.  And also different from
  * the non-de-dup usage in pack-bitmap.c
  */
-#define FILTER_SHOWN_BUT_REVISIT (1<<21)
+#define FILTER_SHOWN_BUT_REVISIT (1 << 21)
 
 struct subfilter {
 	struct filter *filter;
@@ -38,11 +38,8 @@ struct filter {
 	enum list_objects_filter_result (*filter_object_fn)(
 		struct repository *r,
 		enum list_objects_filter_situation filter_situation,
-		struct object *obj,
-		const char *pathname,
-		const char *filename,
-		struct oidset *omits,
-		void *filter_data);
+		struct object *obj, const char *pathname, const char *filename,
+		struct oidset *omits, void *filter_data);
 
 	/*
 	 * Optional. If this function is supplied and the filter needs
@@ -69,14 +66,12 @@ struct filter {
 	struct oidset *omits;
 };
 
-static enum list_objects_filter_result filter_blobs_none(
-	struct repository *r,
-	enum list_objects_filter_situation filter_situation,
-	struct object *obj,
-	const char *pathname,
-	const char *filename,
-	struct oidset *omits,
-	void *filter_data_)
+static enum list_objects_filter_result
+filter_blobs_none(struct repository *r,
+		  enum list_objects_filter_situation filter_situation,
+		  struct object *obj, const char *pathname,
+		  const char *filename, struct oidset *omits,
+		  void *filter_data_)
 {
 	switch (filter_situation) {
 	default:
@@ -101,9 +96,9 @@ static enum list_objects_filter_result filter_blobs_none(
 	}
 }
 
-static void filter_blobs_none__init(
-	struct list_objects_filter_options *filter_options,
-	struct filter *filter)
+static void
+filter_blobs_none__init(struct list_objects_filter_options *filter_options,
+			struct filter *filter)
 {
 	filter->filter_object_fn = filter_blobs_none;
 	filter->free_fn = free;
@@ -134,10 +129,8 @@ struct seen_map_entry {
 };
 
 /* Returns 1 if the oid was in the omits set before it was invoked. */
-static int filter_trees_update_omits(
-	struct object *obj,
-	struct oidset *omits,
-	int include_it)
+static int filter_trees_update_omits(struct object *obj, struct oidset *omits,
+				     int include_it)
 {
 	if (!omits)
 		return 0;
@@ -148,19 +141,17 @@ static int filter_trees_update_omits(
 		return oidset_insert(omits, &obj->oid);
 }
 
-static enum list_objects_filter_result filter_trees_depth(
-	struct repository *r,
-	enum list_objects_filter_situation filter_situation,
-	struct object *obj,
-	const char *pathname,
-	const char *filename,
-	struct oidset *omits,
-	void *filter_data_)
+static enum list_objects_filter_result
+filter_trees_depth(struct repository *r,
+		   enum list_objects_filter_situation filter_situation,
+		   struct object *obj, const char *pathname,
+		   const char *filename, struct oidset *omits,
+		   void *filter_data_)
 {
 	struct filter_trees_depth_data *filter_data = filter_data_;
 	struct seen_map_entry *seen_info;
 	int include_it = filter_data->current_depth <
-		filter_data->exclude_depth;
+			 filter_data->exclude_depth;
 	int filter_res;
 	int already_seen;
 
@@ -183,8 +174,7 @@ static enum list_objects_filter_result filter_trees_depth(
 		return include_it ? LOFR_MARK_SEEN | LOFR_DO_SHOW : LOFR_ZERO;
 
 	case LOFS_BEGIN_TREE:
-		seen_info = oidmap_get(
-			&filter_data->seen_at_depth, &obj->oid);
+		seen_info = oidmap_get(&filter_data->seen_at_depth, &obj->oid);
 		if (!seen_info) {
 			seen_info = xcalloc(1, sizeof(*seen_info));
 			oidcpy(&seen_info->base.oid, &obj->oid);
@@ -192,8 +182,8 @@ static enum list_objects_filter_result filter_trees_depth(
 			oidmap_put(&filter_data->seen_at_depth, seen_info);
 			already_seen = 0;
 		} else {
-			already_seen =
-				filter_data->current_depth >= seen_info->depth;
+			already_seen = filter_data->current_depth >=
+				       seen_info->depth;
 		}
 
 		if (already_seen) {
@@ -220,7 +210,8 @@ static enum list_objects_filter_result filter_trees_depth(
 	}
 }
 
-static void filter_trees_free(void *filter_data) {
+static void filter_trees_free(void *filter_data)
+{
 	struct filter_trees_depth_data *d = filter_data;
 	if (!d)
 		return;
@@ -228,9 +219,9 @@ static void filter_trees_free(void *filter_data) {
 	free(d);
 }
 
-static void filter_trees_depth__init(
-	struct list_objects_filter_options *filter_options,
-	struct filter *filter)
+static void
+filter_trees_depth__init(struct list_objects_filter_options *filter_options,
+			 struct filter *filter)
 {
 	struct filter_trees_depth_data *d = xcalloc(1, sizeof(*d));
 	oidmap_init(&d->seen_at_depth, 0);
@@ -250,14 +241,12 @@ struct filter_blobs_limit_data {
 	unsigned long max_bytes;
 };
 
-static enum list_objects_filter_result filter_blobs_limit(
-	struct repository *r,
-	enum list_objects_filter_situation filter_situation,
-	struct object *obj,
-	const char *pathname,
-	const char *filename,
-	struct oidset *omits,
-	void *filter_data_)
+static enum list_objects_filter_result
+filter_blobs_limit(struct repository *r,
+		   enum list_objects_filter_situation filter_situation,
+		   struct object *obj, const char *pathname,
+		   const char *filename, struct oidset *omits,
+		   void *filter_data_)
 {
 	struct filter_blobs_limit_data *filter_data = filter_data_;
 	unsigned long object_length;
@@ -305,9 +294,9 @@ include_it:
 	return LOFR_MARK_SEEN | LOFR_DO_SHOW;
 }
 
-static void filter_blobs_limit__init(
-	struct list_objects_filter_options *filter_options,
-	struct filter *filter)
+static void
+filter_blobs_limit__init(struct list_objects_filter_options *filter_options,
+			 struct filter *filter)
 {
 	struct filter_blobs_limit_data *d = xcalloc(1, sizeof(*d));
 	d->max_bytes = filter_options->blob_limit_value;
@@ -353,14 +342,11 @@ struct filter_sparse_data {
 	struct frame *array_frame;
 };
 
-static enum list_objects_filter_result filter_sparse(
-	struct repository *r,
-	enum list_objects_filter_situation filter_situation,
-	struct object *obj,
-	const char *pathname,
-	const char *filename,
-	struct oidset *omits,
-	void *filter_data_)
+static enum list_objects_filter_result
+filter_sparse(struct repository *r,
+	      enum list_objects_filter_situation filter_situation,
+	      struct object *obj, const char *pathname, const char *filename,
+	      struct oidset *omits, void *filter_data_)
 {
 	struct filter_sparse_data *filter_data = filter_data_;
 	int dtype;
@@ -375,10 +361,11 @@ static enum list_objects_filter_result filter_sparse(
 		assert(obj->type == OBJ_TREE);
 		dtype = DT_DIR;
 		match = path_matches_pattern_list(pathname, strlen(pathname),
-						  filename, &dtype, &filter_data->pl,
-						  r->index);
+						  filename, &dtype,
+						  &filter_data->pl, r->index);
 		if (match == UNDECIDED)
-			match = filter_data->array_frame[filter_data->nr - 1].default_match;
+			match = filter_data->array_frame[filter_data->nr - 1]
+					.default_match;
 
 		ALLOC_GROW(filter_data->array_frame, filter_data->nr + 1,
 			   filter_data->alloc);
@@ -421,9 +408,9 @@ static enum list_objects_filter_result filter_sparse(
 			frame->child_prov_omit;
 
 		/*
-		 * If there are NO provisionally omitted child objects (ALL child
-		 * objects in this folder were INCLUDED), then we can mark the
-		 * folder as SEEN (so we will not have to revisit it again).
+		 * If there are NO provisionally omitted child objects (ALL
+		 * child objects in this folder were INCLUDED), then we can mark
+		 * the folder as SEEN (so we will not have to revisit it again).
 		 */
 		if (!frame->child_prov_omit)
 			return LOFR_MARK_SEEN;
@@ -437,8 +424,8 @@ static enum list_objects_filter_result filter_sparse(
 
 		dtype = DT_REG;
 		match = path_matches_pattern_list(pathname, strlen(pathname),
-					    filename, &dtype, &filter_data->pl,
-					    r->index);
+						  filename, &dtype,
+						  &filter_data->pl, r->index);
 		if (match == UNDECIDED)
 			match = frame->default_match;
 		if (match == MATCHED) {
@@ -470,7 +457,6 @@ static enum list_objects_filter_result filter_sparse(
 	}
 }
 
-
 static void filter_sparse_free(void *filter_data)
 {
 	struct filter_sparse_data *d = filter_data;
@@ -478,17 +464,17 @@ static void filter_sparse_free(void *filter_data)
 	free(d);
 }
 
-static void filter_sparse_oid__init(
-	struct list_objects_filter_options *filter_options,
-	struct filter *filter)
+static void
+filter_sparse_oid__init(struct list_objects_filter_options *filter_options,
+			struct filter *filter)
 {
 	struct filter_sparse_data *d = xcalloc(1, sizeof(*d));
 	struct object_context oc;
 	struct object_id sparse_oid;
 
 	if (get_oid_with_context(the_repository,
-				 filter_options->sparse_oid_name,
-				 GET_OID_BLOB, &sparse_oid, &oc))
+				 filter_options->sparse_oid_name, GET_OID_BLOB,
+				 &sparse_oid, &oc))
 		die(_("unable to access sparse blob in '%s'"),
 		    filter_options->sparse_oid_name);
 	if (add_patterns_from_blob_to_list(&sparse_oid, "", 0, &d->pl) < 0)
@@ -511,13 +497,11 @@ struct combine_filter_data {
 	size_t nr;
 };
 
-static enum list_objects_filter_result process_subfilter(
-	struct repository *r,
-	enum list_objects_filter_situation filter_situation,
-	struct object *obj,
-	const char *pathname,
-	const char *filename,
-	struct subfilter *sub)
+static enum list_objects_filter_result
+process_subfilter(struct repository *r,
+		  enum list_objects_filter_situation filter_situation,
+		  struct object *obj, const char *pathname,
+		  const char *filename, struct subfilter *sub)
 {
 	enum list_objects_filter_result result;
 
@@ -554,14 +538,11 @@ static enum list_objects_filter_result process_subfilter(
 	return result;
 }
 
-static enum list_objects_filter_result filter_combine(
-	struct repository *r,
-	enum list_objects_filter_situation filter_situation,
-	struct object *obj,
-	const char *pathname,
-	const char *filename,
-	struct oidset *omits,
-	void *filter_data)
+static enum list_objects_filter_result
+filter_combine(struct repository *r,
+	       enum list_objects_filter_situation filter_situation,
+	       struct object *obj, const char *pathname, const char *filename,
+	       struct oidset *omits, void *filter_data)
 {
 	struct combine_filter_data *d = filter_data;
 	enum list_objects_filter_result combined_result =
@@ -569,9 +550,9 @@ static enum list_objects_filter_result filter_combine(
 	size_t sub;
 
 	for (sub = 0; sub < d->nr; sub++) {
-		enum list_objects_filter_result sub_result = process_subfilter(
-			r, filter_situation, obj, pathname, filename,
-			&d->sub[sub]);
+		enum list_objects_filter_result sub_result =
+			process_subfilter(r, filter_situation, obj, pathname,
+					  filename, &d->sub[sub]);
 		if (!(sub_result & LOFR_DO_SHOW))
 			combined_result &= ~LOFR_DO_SHOW;
 		if (!(sub_result & LOFR_MARK_SEEN))
@@ -596,7 +577,8 @@ static void filter_combine__free(void *filter_data)
 	free(d->sub);
 }
 
-static void add_all(struct oidset *dest, struct oidset *src) {
+static void add_all(struct oidset *dest, struct oidset *src)
+{
 	struct oidset_iter iter;
 	struct object_id *src_oid;
 
@@ -605,9 +587,8 @@ static void add_all(struct oidset *dest, struct oidset *src) {
 		oidset_insert(dest, src_oid);
 }
 
-static void filter_combine__finalize_omits(
-	struct oidset *omits,
-	void *filter_data)
+static void filter_combine__finalize_omits(struct oidset *omits,
+					   void *filter_data)
 {
 	struct combine_filter_data *d = filter_data;
 	size_t sub;
@@ -618,9 +599,9 @@ static void filter_combine__finalize_omits(
 	}
 }
 
-static void filter_combine__init(
-	struct list_objects_filter_options *filter_options,
-	struct filter* filter)
+static void
+filter_combine__init(struct list_objects_filter_options *filter_options,
+		     struct filter *filter)
 {
 	struct combine_filter_data *d = xcalloc(1, sizeof(*d));
 	size_t sub;
@@ -654,9 +635,9 @@ static filter_init_fn s_filters[] = {
 	filter_combine__init,
 };
 
-struct filter *list_objects_filter__init(
-	struct oidset *omitted,
-	struct list_objects_filter_options *filter_options)
+struct filter *
+list_objects_filter__init(struct oidset *omitted,
+			  struct list_objects_filter_options *filter_options)
 {
 	struct filter *filter;
 	filter_init_fn init_fn;
@@ -682,11 +663,8 @@ struct filter *list_objects_filter__init(
 
 enum list_objects_filter_result list_objects_filter__filter_object(
 	struct repository *r,
-	enum list_objects_filter_situation filter_situation,
-	struct object *obj,
-	const char *pathname,
-	const char *filename,
-	struct filter *filter)
+	enum list_objects_filter_situation filter_situation, struct object *obj,
+	const char *pathname, const char *filename, struct filter *filter)
 {
 	if (filter && (obj->flags & NOT_USER_GIVEN))
 		return filter->filter_object_fn(r, filter_situation, obj,

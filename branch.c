@@ -50,22 +50,21 @@ static int should_setup_rebase(const char *origin)
 }
 
 static const char tracking_advice[] =
-N_("\n"
-"After fixing the error cause you may try to fix up\n"
-"the remote tracking information by invoking\n"
-"\"git branch --set-upstream-to=%s%s%s\".");
+	N_("\n"
+	   "After fixing the error cause you may try to fix up\n"
+	   "the remote tracking information by invoking\n"
+	   "\"git branch --set-upstream-to=%s%s%s\".");
 
-int install_branch_config(int flag, const char *local, const char *origin, const char *remote)
+int install_branch_config(int flag, const char *local, const char *origin,
+			  const char *remote)
 {
 	const char *shortname = NULL;
 	struct strbuf key = STRBUF_INIT;
 	int rebasing = should_setup_rebase(origin);
 
-	if (skip_prefix(remote, "refs/heads/", &shortname)
-	    && !strcmp(local, shortname)
-	    && !origin) {
-		warning(_("Not setting branch %s as its own upstream."),
-			local);
+	if (skip_prefix(remote, "refs/heads/", &shortname) &&
+	    !strcmp(local, shortname) && !origin) {
+		warning(_("Not setting branch %s as its own upstream."), local);
 		return 0;
 	}
 
@@ -89,26 +88,30 @@ int install_branch_config(int flag, const char *local, const char *origin, const
 	if (flag & BRANCH_CONFIG_VERBOSE) {
 		if (shortname) {
 			if (origin)
-				printf_ln(rebasing ?
-					  _("Branch '%s' set up to track remote branch '%s' from '%s' by rebasing.") :
-					  _("Branch '%s' set up to track remote branch '%s' from '%s'."),
-					  local, shortname, origin);
+				printf_ln(
+					rebasing ?
+						_("Branch '%s' set up to track remote branch '%s' from '%s' by rebasing.") :
+						_("Branch '%s' set up to track remote branch '%s' from '%s'."),
+					local, shortname, origin);
 			else
-				printf_ln(rebasing ?
-					  _("Branch '%s' set up to track local branch '%s' by rebasing.") :
-					  _("Branch '%s' set up to track local branch '%s'."),
-					  local, shortname);
+				printf_ln(
+					rebasing ?
+						_("Branch '%s' set up to track local branch '%s' by rebasing.") :
+						_("Branch '%s' set up to track local branch '%s'."),
+					local, shortname);
 		} else {
 			if (origin)
-				printf_ln(rebasing ?
-					  _("Branch '%s' set up to track remote ref '%s' by rebasing.") :
-					  _("Branch '%s' set up to track remote ref '%s'."),
-					  local, remote);
+				printf_ln(
+					rebasing ?
+						_("Branch '%s' set up to track remote ref '%s' by rebasing.") :
+						_("Branch '%s' set up to track remote ref '%s'."),
+					local, remote);
 			else
-				printf_ln(rebasing ?
-					  _("Branch '%s' set up to track local ref '%s' by rebasing.") :
-					  _("Branch '%s' set up to track local ref '%s'."),
-					  local, remote);
+				printf_ln(
+					rebasing ?
+						_("Branch '%s' set up to track local ref '%s' by rebasing.") :
+						_("Branch '%s' set up to track local ref '%s'."),
+					local, remote);
 		}
 	}
 
@@ -118,9 +121,7 @@ out_err:
 	strbuf_release(&key);
 	error(_("Unable to write upstream branch configuration"));
 
-	advise(_(tracking_advice),
-	       origin ? origin : "",
-	       origin ? "/" : "",
+	advise(_(tracking_advice), origin ? origin : "", origin ? "/" : "",
 	       shortname ? shortname : remote);
 
 	return -1;
@@ -157,7 +158,7 @@ static void setup_tracking(const char *new_ref, const char *orig_ref,
 		    orig_ref);
 
 	if (install_branch_config(config_flags, new_ref, tracking.remote,
-			      tracking.src ? tracking.src : orig_ref) < 0)
+				  tracking.src ? tracking.src : orig_ref) < 0)
 		exit(-1);
 
 	free(tracking.src);
@@ -229,24 +230,23 @@ static int validate_remote_tracking_branch(char *ref)
 	return !for_each_remote(check_tracking_branch, ref);
 }
 
-static const char upstream_not_branch[] =
-N_("Cannot setup tracking information; starting point '%s' is not a branch.");
+static const char upstream_not_branch[] = N_(
+	"Cannot setup tracking information; starting point '%s' is not a branch.");
 static const char upstream_missing[] =
-N_("the requested upstream branch '%s' does not exist");
+	N_("the requested upstream branch '%s' does not exist");
 static const char upstream_advice[] =
-N_("\n"
-"If you are planning on basing your work on an upstream\n"
-"branch that already exists at the remote, you may need to\n"
-"run \"git fetch\" to retrieve it.\n"
-"\n"
-"If you are planning to push out a new local branch that\n"
-"will track its remote counterpart, you may want to use\n"
-"\"git push -u\" to set the upstream config as you push.");
+	N_("\n"
+	   "If you are planning on basing your work on an upstream\n"
+	   "branch that already exists at the remote, you may need to\n"
+	   "run \"git fetch\" to retrieve it.\n"
+	   "\n"
+	   "If you are planning to push out a new local branch that\n"
+	   "will track its remote counterpart, you may want to use\n"
+	   "\"git push -u\" to set the upstream config as you push.");
 
-void create_branch(struct repository *r,
-		   const char *name, const char *start_name,
-		   int force, int clobber_head_ok, int reflog,
-		   int quiet, enum branch_track track)
+void create_branch(struct repository *r, const char *name,
+		   const char *start_name, int force, int clobber_head_ok,
+		   int reflog, int quiet, enum branch_track track)
 {
 	struct commit *commit;
 	struct object_id oid;
@@ -259,9 +259,9 @@ void create_branch(struct repository *r,
 	if (track == BRANCH_TRACK_EXPLICIT || track == BRANCH_TRACK_OVERRIDE)
 		explicit_tracking = 1;
 
-	if ((track == BRANCH_TRACK_OVERRIDE || clobber_head_ok)
-	    ? validate_branchname(name, &ref)
-	    : validate_new_branchname(name, &ref, force)) {
+	if ((track == BRANCH_TRACK_OVERRIDE || clobber_head_ok) ?
+		    validate_branchname(name, &ref) :
+		    validate_new_branchname(name, &ref, force)) {
 		if (!force)
 			dont_change_ref = 1;
 		else
@@ -321,9 +321,9 @@ void create_branch(struct repository *r,
 
 		transaction = ref_transaction_begin(&err);
 		if (!transaction ||
-		    ref_transaction_update(transaction, ref.buf,
-					   &oid, forcing ? NULL : &null_oid,
-					   0, msg, &err) ||
+		    ref_transaction_update(transaction, ref.buf, &oid,
+					   forcing ? NULL : &null_oid, 0, msg,
+					   &err) ||
 		    ref_transaction_commit(transaction, &err))
 			die("%s", err.buf);
 		ref_transaction_free(transaction);
@@ -362,8 +362,7 @@ void die_if_checked_out(const char *branch, int ignore_current_worktree)
 	if (!wt || (ignore_current_worktree && wt->is_current))
 		return;
 	skip_prefix(branch, "refs/heads/", &branch);
-	die(_("'%s' is already checked out at '%s'"),
-	    branch, wt->path);
+	die(_("'%s' is already checked out at '%s'"), branch, wt->path);
 }
 
 int replace_each_worktree_head_symref(const char *oldref, const char *newref,

@@ -27,24 +27,30 @@ int cmd_merge_file(int argc, const char **argv, const char *prefix)
 {
 	const char *names[3] = { NULL, NULL, NULL };
 	mmfile_t mmfs[3];
-	mmbuffer_t result = {NULL, 0};
-	xmparam_t xmp = {{0}};
+	mmbuffer_t result = { NULL, 0 };
+	xmparam_t xmp = { { 0 } };
 	int ret = 0, i = 0, to_stdout = 0;
 	int quiet = 0;
 	struct option options[] = {
-		OPT_BOOL('p', "stdout", &to_stdout, N_("send results to standard output")),
-		OPT_SET_INT(0, "diff3", &xmp.style, N_("use a diff3 based merge"), XDL_MERGE_DIFF3),
-		OPT_SET_INT(0, "ours", &xmp.favor, N_("for conflicts, use our version"),
+		OPT_BOOL('p', "stdout", &to_stdout,
+			 N_("send results to standard output")),
+		OPT_SET_INT(0, "diff3", &xmp.style,
+			    N_("use a diff3 based merge"), XDL_MERGE_DIFF3),
+		OPT_SET_INT(0, "ours", &xmp.favor,
+			    N_("for conflicts, use our version"),
 			    XDL_MERGE_FAVOR_OURS),
-		OPT_SET_INT(0, "theirs", &xmp.favor, N_("for conflicts, use their version"),
+		OPT_SET_INT(0, "theirs", &xmp.favor,
+			    N_("for conflicts, use their version"),
 			    XDL_MERGE_FAVOR_THEIRS),
-		OPT_SET_INT(0, "union", &xmp.favor, N_("for conflicts, use a union version"),
+		OPT_SET_INT(0, "union", &xmp.favor,
+			    N_("for conflicts, use a union version"),
 			    XDL_MERGE_FAVOR_UNION),
 		OPT_INTEGER(0, "marker-size", &xmp.marker_size,
 			    N_("for conflicts, use this marker size")),
 		OPT__QUIET(&quiet, N_("do not warn about conflicts")),
 		OPT_CALLBACK('L', NULL, names, N_("name"),
-			     N_("set labels for file1/orig-file/file2"), &label_cb),
+			     N_("set labels for file1/orig-file/file2"),
+			     &label_cb),
 		OPT_END(),
 	};
 
@@ -64,7 +70,8 @@ int cmd_merge_file(int argc, const char **argv, const char *prefix)
 		usage_with_options(merge_file_usage, options);
 	if (quiet) {
 		if (!freopen("/dev/null", "w", stderr))
-			return error_errno("failed to redirect stderr to /dev/null");
+			return error_errno(
+				"failed to redirect stderr to /dev/null");
 	}
 
 	for (i = 0; i < 3; i++) {
@@ -82,8 +89,7 @@ int cmd_merge_file(int argc, const char **argv, const char *prefix)
 
 		if (mmfs[i].size > MAX_XDIFF_SIZE ||
 		    buffer_is_binary(mmfs[i].ptr, mmfs[i].size))
-			return error("Cannot merge binary files: %s",
-					argv[i]);
+			return error("Cannot merge binary files: %s", argv[i]);
 	}
 
 	xmp.ancestor = names[1];

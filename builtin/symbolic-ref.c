@@ -4,10 +4,9 @@
 #include "refs.h"
 #include "parse-options.h"
 
-static const char * const git_symbolic_ref_usage[] = {
+static const char *const git_symbolic_ref_usage[] = {
 	N_("git symbolic-ref [<options>] <name> [<ref>]"),
-	N_("git symbolic-ref -d [-q] <name>"),
-	NULL
+	N_("git symbolic-ref -d [-q] <name>"), NULL
 };
 
 static int check_symref(const char *HEAD, int quiet, int shorten, int print)
@@ -36,11 +35,13 @@ int cmd_symbolic_ref(int argc, const char **argv, const char *prefix)
 	int quiet = 0, delete = 0, shorten = 0, ret = 0;
 	const char *msg = NULL;
 	struct option options[] = {
-		OPT__QUIET(&quiet,
+		OPT__QUIET(
+			&quiet,
 			N_("suppress error message for non-symbolic (detached) refs")),
 		OPT_BOOL('d', "delete", &delete, N_("delete symbolic ref")),
 		OPT_BOOL(0, "short", &shorten, N_("shorten ref output")),
-		OPT_STRING('m', NULL, &msg, N_("reason"), N_("reason of the update")),
+		OPT_STRING('m', NULL, &msg, N_("reason"),
+			   N_("reason of the update")),
 		OPT_END(),
 	};
 
@@ -66,8 +67,7 @@ int cmd_symbolic_ref(int argc, const char **argv, const char *prefix)
 		ret = check_symref(argv[0], quiet, shorten, 1);
 		break;
 	case 2:
-		if (!strcmp(argv[0], "HEAD") &&
-		    !starts_with(argv[1], "refs/"))
+		if (!strcmp(argv[0], "HEAD") && !starts_with(argv[1], "refs/"))
 			die("Refusing to point HEAD outside of refs/");
 		ret = !!create_symref(argv[0], argv[1], msg);
 		break;

@@ -64,7 +64,6 @@ static const char **get_store(const char **argv, struct ref_store **refs)
 	return argv + 1;
 }
 
-
 static int cmd_pack_refs(struct ref_store *refs, const char **argv)
 {
 	unsigned int flags = arg_flags(*argv++, "flags");
@@ -102,8 +101,8 @@ static int cmd_rename_ref(struct ref_store *refs, const char **argv)
 	return refs_rename_ref(refs, oldref, newref, logmsg);
 }
 
-static int each_ref(const char *refname, const struct object_id *oid,
-		    int flags, void *cb_data)
+static int each_ref(const char *refname, const struct object_id *oid, int flags,
+		    void *cb_data)
 {
 	printf("%s %s 0x%x\n", oid_to_hex(oid), refname, flags);
 	return 0;
@@ -124,8 +123,8 @@ static int cmd_resolve_ref(struct ref_store *refs, const char **argv)
 	int flags;
 	const char *ref;
 
-	ref = refs_resolve_ref_unsafe(refs, refname, resolve_flags,
-				      &oid, &flags);
+	ref = refs_resolve_ref_unsafe(refs, refname, resolve_flags, &oid,
+				      &flags);
 	printf("%s %s 0x%x\n", oid_to_hex(&oid), ref ? ref : "(null)", flags);
 	return ref ? 0 : 1;
 }
@@ -148,12 +147,11 @@ static int cmd_for_each_reflog(struct ref_store *refs, const char **argv)
 }
 
 static int each_reflog(struct object_id *old_oid, struct object_id *new_oid,
-		       const char *committer, timestamp_t timestamp,
-		       int tz, const char *msg, void *cb_data)
+		       const char *committer, timestamp_t timestamp, int tz,
+		       const char *msg, void *cb_data)
 {
-	printf("%s %s %s %"PRItime" %d %s\n",
-	       oid_to_hex(old_oid), oid_to_hex(new_oid),
-	       committer, timestamp, tz, msg);
+	printf("%s %s %s %" PRItime " %d %s\n", oid_to_hex(old_oid),
+	       oid_to_hex(new_oid), committer, timestamp, tz, msg);
 	return 0;
 }
 
@@ -164,11 +162,13 @@ static int cmd_for_each_reflog_ent(struct ref_store *refs, const char **argv)
 	return refs_for_each_reflog_ent(refs, refname, each_reflog, refs);
 }
 
-static int cmd_for_each_reflog_ent_reverse(struct ref_store *refs, const char **argv)
+static int cmd_for_each_reflog_ent_reverse(struct ref_store *refs,
+					   const char **argv)
 {
 	const char *refname = notnull(*argv++, "refname");
 
-	return refs_for_each_reflog_ent_reverse(refs, refname, each_reflog, refs);
+	return refs_for_each_reflog_ent_reverse(refs, refname, each_reflog,
+						refs);
 }
 
 static int cmd_reflog_exists(struct ref_store *refs, const char **argv)
@@ -231,9 +231,8 @@ static int cmd_update_ref(struct ref_store *refs, const char **argv)
 	    get_oid_hex(new_sha1_buf, &new_oid))
 		die("not sha-1");
 
-	return refs_update_ref(refs, msg, refname,
-			       &new_oid, &old_oid,
-			       flags, UPDATE_REFS_DIE_ON_ERR);
+	return refs_update_ref(refs, msg, refname, &new_oid, &old_oid, flags,
+			       UPDATE_REFS_DIE_ON_ERR);
 }
 
 struct command {

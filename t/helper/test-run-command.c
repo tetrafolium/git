@@ -22,9 +22,7 @@
 #include "parse-options.h"
 
 static int number_callbacks;
-static int parallel_next(struct child_process *cp,
-			 struct strbuf *err,
-			 void *cb,
+static int parallel_next(struct child_process *cp, struct strbuf *err, void *cb,
 			 void **task_cb)
 {
 	struct child_process *d = cb;
@@ -37,18 +35,14 @@ static int parallel_next(struct child_process *cp,
 	return 1;
 }
 
-static int no_job(struct child_process *cp,
-		  struct strbuf *err,
-		  void *cb,
+static int no_job(struct child_process *cp, struct strbuf *err, void *cb,
 		  void **task_cb)
 {
 	strbuf_addstr(err, "no further jobs available\n");
 	return 0;
 }
 
-static int task_finished(int result,
-			 struct strbuf *err,
-			 void *pp_cb,
+static int task_finished(int result, struct strbuf *err, void *pp_cb,
 			 void *pp_task_cb)
 {
 	strbuf_addstr(err, "asking for a quick stop\n");
@@ -60,8 +54,11 @@ struct testsuite {
 	int next;
 	int quiet, immediate, verbose, verbose_log, trace, write_junit_xml;
 };
-#define TESTSUITE_INIT \
-	{ STRING_LIST_INIT_DUP, STRING_LIST_INIT_DUP, -1, 0, 0, 0, 0, 0, 0 }
+#define TESTSUITE_INIT                                                         \
+	{                                                                      \
+		STRING_LIST_INIT_DUP, STRING_LIST_INIT_DUP, -1, 0, 0, 0, 0, 0, \
+			0                                                      \
+	}
 
 static int next_test(struct child_process *cp, struct strbuf *err, void *cb,
 		     void **task_cb)
@@ -117,9 +114,8 @@ static int test_failed(struct strbuf *out, void *cb, void *task_cb)
 	return 0;
 }
 
-static const char * const testsuite_usage[] = {
-	"test-run-command testsuite [<options>] [<pattern>...]",
-	NULL
+static const char *const testsuite_usage[] = {
+	"test-run-command testsuite [<options>] [<pattern>...]", NULL
 };
 
 static int testsuite(int argc, const char **argv)
@@ -145,8 +141,8 @@ static int testsuite(int argc, const char **argv)
 	memset(&suite, 0, sizeof(suite));
 	suite.tests.strdup_strings = suite.failed.strdup_strings = 1;
 
-	argc = parse_options(argc, argv, NULL, options,
-			testsuite_usage, PARSE_OPT_STOP_AT_NON_OPTION);
+	argc = parse_options(argc, argv, NULL, options, testsuite_usage,
+			     PARSE_OPT_STOP_AT_NON_OPTION);
 
 	if (max_jobs <= 0)
 		max_jobs = online_cpus();
@@ -181,8 +177,8 @@ static int testsuite(int argc, const char **argv)
 	if (max_jobs > suite.tests.nr)
 		max_jobs = suite.tests.nr;
 
-	fprintf(stderr, "Running %d tests (%d at a time)\n",
-		suite.tests.nr, max_jobs);
+	fprintf(stderr, "Running %d tests (%d at a time)\n", suite.tests.nr,
+		max_jobs);
 
 	ret = run_processes_parallel(max_jobs, next_test, test_failed,
 				     test_finished, &suite);
@@ -227,9 +223,8 @@ static int quote_stress_test(int argc, const char **argv)
 		OPT_BOOL('m', "msys2", &msys2, "Test quoting for MSYS2's sh"),
 		OPT_END()
 	};
-	const char * const usage[] = {
-		"test-tool run-command quote-stress-test <options>",
-		NULL
+	const char *const usage[] = {
+		"test-tool run-command quote-stress-test <options>", NULL
 	};
 
 	argc = parse_options(argc, argv, NULL, options, usage, 0);
@@ -243,8 +238,8 @@ static int quote_stress_test(int argc, const char **argv)
 
 		strvec_clear(&args);
 		if (msys2)
-			strvec_pushl(&args, "sh", "-c",
-				     "printf %s\\\\0 \"$@\"", "skip", NULL);
+			strvec_pushl(&args, "sh", "-c", "printf %s\\\\0 \"$@\"",
+				     "skip", NULL);
 		else
 			strvec_pushl(&args, "test-tool", "run-command",
 				     "quote-echo", NULL);
@@ -260,12 +255,13 @@ static int quote_stress_test(int argc, const char **argv)
 			for (j = 0; j < arg_count; j++) {
 				char buf[20];
 				size_t min_len = 1;
-				size_t arg_len = min_len +
-					(my_random() % (ARRAY_SIZE(buf) - min_len));
+				size_t arg_len =
+					min_len + (my_random() %
+						   (ARRAY_SIZE(buf) - min_len));
 
 				for (k = 0; k < arg_len; k++)
 					buf[k] = special[my_random() %
-						ARRAY_SIZE(special)];
+							 ARRAY_SIZE(special)];
 				buf[arg_len] = '\0';
 
 				strvec_push(&args, buf);
@@ -286,19 +282,19 @@ static int quote_stress_test(int argc, const char **argv)
 			if (strcmp(arg, out.buf + k))
 				ret = error("incorrectly quoted arg: '%s', "
 					    "echoed back as '%s'",
-					     arg, out.buf + k);
+					    arg, out.buf + k);
 			k += strlen(out.buf + k) + 1;
 		}
 
 		if (k != out.len)
 			ret = error("got %d bytes, but consumed only %d",
-				     (int)out.len, (int)k);
+				    (int)out.len, (int)k);
 
 		if (ret) {
 			fprintf(stderr, "Trial #%d failed. Arguments:\n", i);
 			for (j = 0; j < arg_count; j++)
-				fprintf(stderr, "arg #%d: '%s'\n",
-					(int)j, args.v[j + arg_offset]);
+				fprintf(stderr, "arg #%d: '%s'\n", (int)j,
+					args.v[j + arg_offset]);
 
 			strbuf_release(&out);
 			strvec_clear(&args);
@@ -338,8 +334,8 @@ static int inherit_handle(const char *argv0)
 	xsnprintf(path, sizeof(path), "out-XXXXXX");
 	tmp = xmkstemp(path);
 
-	strvec_pushl(&cp.args,
-		     "test-tool", argv0, "inherited-handle-child", NULL);
+	strvec_pushl(&cp.args, "test-tool", argv0, "inherited-handle-child",
+		     NULL);
 	cp.in = -1;
 	cp.no_stdout = cp.no_stderr = 1;
 	if (start_command(&cp) < 0)
@@ -412,16 +408,16 @@ int cmd__run_command(int argc, const char **argv)
 	proc.argv = (const char **)argv + 3;
 
 	if (!strcmp(argv[1], "run-command-parallel"))
-		exit(run_processes_parallel(jobs, parallel_next,
-					    NULL, NULL, &proc));
+		exit(run_processes_parallel(jobs, parallel_next, NULL, NULL,
+					    &proc));
 
 	if (!strcmp(argv[1], "run-command-abort"))
-		exit(run_processes_parallel(jobs, parallel_next,
-					    NULL, task_finished, &proc));
+		exit(run_processes_parallel(jobs, parallel_next, NULL,
+					    task_finished, &proc));
 
 	if (!strcmp(argv[1], "run-command-no-jobs"))
-		exit(run_processes_parallel(jobs, no_job,
-					    NULL, task_finished, &proc));
+		exit(run_processes_parallel(jobs, no_job, NULL, task_finished,
+					    &proc));
 
 	fprintf(stderr, "check usage\n");
 	return 1;

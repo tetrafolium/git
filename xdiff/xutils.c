@@ -22,8 +22,8 @@
 
 #include "xinclude.h"
 
-
-long xdl_bogosqrt(long n) {
+long xdl_bogosqrt(long n)
+{
 	long i;
 
 	/*
@@ -35,23 +35,22 @@ long xdl_bogosqrt(long n) {
 	return i;
 }
 
-
 int xdl_emit_diffrec(char const *rec, long size, char const *pre, long psize,
-		     xdemitcb_t *ecb) {
+		     xdemitcb_t *ecb)
+{
 	int i = 2;
 	mmbuffer_t mb[3];
 
-	mb[0].ptr = (char *) pre;
+	mb[0].ptr = (char *)pre;
 	mb[0].size = psize;
-	mb[1].ptr = (char *) rec;
+	mb[1].ptr = (char *)rec;
 	mb[1].size = size;
 	if (size > 0 && rec[size - 1] != '\n') {
-		mb[2].ptr = (char *) "\n\\ No newline at end of file\n";
+		mb[2].ptr = (char *)"\n\\ No newline at end of file\n";
 		mb[2].size = strlen(mb[2].ptr);
 		i++;
 	}
 	if (ecb->out_line(ecb->priv, mb, i) < 0) {
-
 		return -1;
 	}
 
@@ -64,15 +63,13 @@ void *xdl_mmfile_first(mmfile_t *mmf, long *size)
 	return mmf->ptr;
 }
 
-
 long xdl_mmfile_size(mmfile_t *mmf)
 {
 	return mmf->size;
 }
 
-
-int xdl_cha_init(chastore_t *cha, long isize, long icount) {
-
+int xdl_cha_init(chastore_t *cha, long isize, long icount)
+{
 	cha->head = cha->tail = NULL;
 	cha->isize = isize;
 	cha->nsize = icount * isize;
@@ -82,8 +79,8 @@ int xdl_cha_init(chastore_t *cha, long isize, long icount) {
 	return 0;
 }
 
-
-void xdl_cha_free(chastore_t *cha) {
+void xdl_cha_free(chastore_t *cha)
+{
 	chanode_t *cur, *tmp;
 
 	for (cur = cha->head; (tmp = cur) != NULL;) {
@@ -92,14 +89,14 @@ void xdl_cha_free(chastore_t *cha) {
 	}
 }
 
-
-void *xdl_cha_alloc(chastore_t *cha) {
+void *xdl_cha_alloc(chastore_t *cha)
+{
 	chanode_t *ancur;
 	void *data;
 
 	if (!(ancur = cha->ancur) || ancur->icurr == cha->nsize) {
-		if (!(ancur = (chanode_t *) xdl_malloc(sizeof(chanode_t) + cha->nsize))) {
-
+		if (!(ancur = (chanode_t *)xdl_malloc(sizeof(chanode_t) +
+						      cha->nsize))) {
 			return NULL;
 		}
 		ancur->icurr = 0;
@@ -112,25 +109,26 @@ void *xdl_cha_alloc(chastore_t *cha) {
 		cha->ancur = ancur;
 	}
 
-	data = (char *) ancur + sizeof(chanode_t) + ancur->icurr;
+	data = (char *)ancur + sizeof(chanode_t) + ancur->icurr;
 	ancur->icurr += cha->isize;
 
 	return data;
 }
 
-long xdl_guess_lines(mmfile_t *mf, long sample) {
+long xdl_guess_lines(mmfile_t *mf, long sample)
+{
 	long nl = 0, size, tsize = 0;
 	char const *data, *cur, *top;
 
 	if ((cur = data = xdl_mmfile_first(mf, &size)) != NULL) {
-		for (top = data + size; nl < sample && cur < top; ) {
+		for (top = data + size; nl < sample && cur < top;) {
 			nl++;
 			if (!(cur = memchr(cur, '\n', top - cur)))
 				cur = top;
 			else
 				cur++;
 		}
-		tsize += (long) (cur - data);
+		tsize += (long)(cur - data);
 	}
 
 	if (nl && tsize)
@@ -158,7 +156,7 @@ int xdl_blankline(const char *line, long size, long flags)
  */
 static int ends_with_optional_cr(const char *l, long s, long i)
 {
-	int complete = s && l[s-1] == '\n';
+	int complete = s && l[s - 1] == '\n';
 
 	if (complete)
 		s--;
@@ -185,7 +183,8 @@ int xdl_recmatch(const char *l1, long s1, const char *l2, long s2, long flags)
 	/*
 	 * -w matches everything that matches with -b, and -b in turn
 	 * matches everything that matches with --ignore-space-at-eol,
-	 * which in turn matches everything that matches with --ignore-cr-at-eol.
+	 * which in turn matches everything that matches with
+	 * --ignore-cr-at-eol.
 	 *
 	 * Each flavor of ignoring needs different logic to skip whitespaces
 	 * while we have both sides to compare.
@@ -249,52 +248,52 @@ int xdl_recmatch(const char *l1, long s1, const char *l2, long s2, long flags)
 	return 1;
 }
 
-static unsigned long xdl_hash_record_with_whitespace(char const **data,
-		char const *top, long flags) {
+static unsigned long
+xdl_hash_record_with_whitespace(char const **data, char const *top, long flags)
+{
 	unsigned long ha = 5381;
 	char const *ptr = *data;
-	int cr_at_eol_only = (flags & XDF_WHITESPACE_FLAGS) == XDF_IGNORE_CR_AT_EOL;
+	int cr_at_eol_only = (flags & XDF_WHITESPACE_FLAGS) ==
+			     XDF_IGNORE_CR_AT_EOL;
 
 	for (; ptr < top && *ptr != '\n'; ptr++) {
 		if (cr_at_eol_only) {
 			/* do not ignore CR at the end of an incomplete line */
-			if (*ptr == '\r' &&
-			    (ptr + 1 < top && ptr[1] == '\n'))
+			if (*ptr == '\r' && (ptr + 1 < top && ptr[1] == '\n'))
 				continue;
-		}
-		else if (XDL_ISSPACE(*ptr)) {
+		} else if (XDL_ISSPACE(*ptr)) {
 			const char *ptr2 = ptr;
 			int at_eol;
-			while (ptr + 1 < top && XDL_ISSPACE(ptr[1])
-					&& ptr[1] != '\n')
+			while (ptr + 1 < top && XDL_ISSPACE(ptr[1]) &&
+			       ptr[1] != '\n')
 				ptr++;
 			at_eol = (top <= ptr + 1 || ptr[1] == '\n');
 			if (flags & XDF_IGNORE_WHITESPACE)
 				; /* already handled */
-			else if (flags & XDF_IGNORE_WHITESPACE_CHANGE
-				 && !at_eol) {
+			else if (flags & XDF_IGNORE_WHITESPACE_CHANGE &&
+				 !at_eol) {
 				ha += (ha << 5);
-				ha ^= (unsigned long) ' ';
-			}
-			else if (flags & XDF_IGNORE_WHITESPACE_AT_EOL
-				 && !at_eol) {
+				ha ^= (unsigned long)' ';
+			} else if (flags & XDF_IGNORE_WHITESPACE_AT_EOL &&
+				   !at_eol) {
 				while (ptr2 != ptr + 1) {
 					ha += (ha << 5);
-					ha ^= (unsigned long) *ptr2;
+					ha ^= (unsigned long)*ptr2;
 					ptr2++;
 				}
 			}
 			continue;
 		}
 		ha += (ha << 5);
-		ha ^= (unsigned long) *ptr;
+		ha ^= (unsigned long)*ptr;
 	}
-	*data = ptr < top ? ptr + 1: ptr;
+	*data = ptr < top ? ptr + 1 : ptr;
 
 	return ha;
 }
 
-unsigned long xdl_hash_record(char const **data, char const *top, long flags) {
+unsigned long xdl_hash_record(char const **data, char const *top, long flags)
+{
 	unsigned long ha = 5381;
 	char const *ptr = *data;
 
@@ -303,22 +302,25 @@ unsigned long xdl_hash_record(char const **data, char const *top, long flags) {
 
 	for (; ptr < top && *ptr != '\n'; ptr++) {
 		ha += (ha << 5);
-		ha ^= (unsigned long) *ptr;
+		ha ^= (unsigned long)*ptr;
 	}
-	*data = ptr < top ? ptr + 1: ptr;
+	*data = ptr < top ? ptr + 1 : ptr;
 
 	return ha;
 }
 
-unsigned int xdl_hashbits(unsigned int size) {
+unsigned int xdl_hashbits(unsigned int size)
+{
 	unsigned int val = 1, bits = 0;
 
-	for (; val < size && bits < CHAR_BIT * sizeof(unsigned int); val <<= 1, bits++);
-	return bits ? bits: 1;
+	for (; val < size && bits < CHAR_BIT * sizeof(unsigned int);
+	     val <<= 1, bits++)
+		;
+	return bits ? bits : 1;
 }
 
-
-int xdl_num_out(char *out, long val) {
+int xdl_num_out(char *out, long val)
+{
 	char *ptr, *str = out;
 	char buf[32];
 
@@ -341,8 +343,8 @@ int xdl_num_out(char *out, long val) {
 }
 
 static int xdl_format_hunk_hdr(long s1, long c1, long s2, long c2,
-			       const char *func, long funclen,
-			       xdemitcb_t *ecb) {
+			       const char *func, long funclen, xdemitcb_t *ecb)
+{
 	int nb = 0;
 	mmbuffer_t mb;
 	char buf[128];
@@ -350,7 +352,7 @@ static int xdl_format_hunk_hdr(long s1, long c1, long s2, long c2,
 	memcpy(buf, "@@ -", 4);
 	nb += 4;
 
-	nb += xdl_num_out(buf + nb, c1 ? s1: s1 - 1);
+	nb += xdl_num_out(buf + nb, c1 ? s1 : s1 - 1);
 
 	if (c1 != 1) {
 		memcpy(buf + nb, ",", 1);
@@ -362,7 +364,7 @@ static int xdl_format_hunk_hdr(long s1, long c1, long s2, long c2,
 	memcpy(buf + nb, " +", 2);
 	nb += 2;
 
-	nb += xdl_num_out(buf + nb, c2 ? s2: s2 - 1);
+	nb += xdl_num_out(buf + nb, c2 ? s2 : s2 - 1);
 
 	if (c2 != 1) {
 		memcpy(buf + nb, ",", 1);
@@ -389,21 +391,19 @@ static int xdl_format_hunk_hdr(long s1, long c1, long s2, long c2,
 	return 0;
 }
 
-int xdl_emit_hunk_hdr(long s1, long c1, long s2, long c2,
-		      const char *func, long funclen,
-		      xdemitcb_t *ecb) {
+int xdl_emit_hunk_hdr(long s1, long c1, long s2, long c2, const char *func,
+		      long funclen, xdemitcb_t *ecb)
+{
 	if (!ecb->out_hunk)
 		return xdl_format_hunk_hdr(s1, c1, s2, c2, func, funclen, ecb);
-	if (ecb->out_hunk(ecb->priv,
-			  c1 ? s1 : s1 - 1, c1,
-			  c2 ? s2 : s2 - 1, c2,
+	if (ecb->out_hunk(ecb->priv, c1 ? s1 : s1 - 1, c1, c2 ? s2 : s2 - 1, c2,
 			  func, funclen) < 0)
 		return -1;
 	return 0;
 }
 
-int xdl_fall_back_diff(xdfenv_t *diff_env, xpparam_t const *xpp,
-		int line1, int count1, int line2, int count2)
+int xdl_fall_back_diff(xdfenv_t *diff_env, xpparam_t const *xpp, int line1,
+		       int count1, int line2, int count2)
 {
 	/*
 	 * This probably does not work outside Git, since
@@ -418,10 +418,12 @@ int xdl_fall_back_diff(xdfenv_t *diff_env, xpparam_t const *xpp,
 
 	subfile1.ptr = (char *)diff_env->xdf1.recs[line1 - 1]->ptr;
 	subfile1.size = diff_env->xdf1.recs[line1 + count1 - 2]->ptr +
-		diff_env->xdf1.recs[line1 + count1 - 2]->size - subfile1.ptr;
+			diff_env->xdf1.recs[line1 + count1 - 2]->size -
+			subfile1.ptr;
 	subfile2.ptr = (char *)diff_env->xdf2.recs[line2 - 1]->ptr;
 	subfile2.size = diff_env->xdf2.recs[line2 + count2 - 2]->ptr +
-		diff_env->xdf2.recs[line2 + count2 - 2]->size - subfile2.ptr;
+			diff_env->xdf2.recs[line2 + count2 - 2]->size -
+			subfile2.ptr;
 	if (xdl_do_diff(&subfile1, &subfile2, xpp, &env) < 0)
 		return -1;
 

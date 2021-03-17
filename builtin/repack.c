@@ -22,16 +22,12 @@ static int write_bitmaps = -1;
 static int use_delta_islands;
 static char *packdir, *packtmp;
 
-static const char *const git_repack_usage[] = {
-	N_("git repack [<options>]"),
-	NULL
-};
+static const char *const git_repack_usage[] = { N_("git repack [<options>]"),
+						NULL };
 
 static const char incremental_bitmap_conflict_error[] = N_(
-"Incremental repacks are incompatible with bitmap indexes.  Use\n"
-"--no-write-bitmap-index or disable the pack.writebitmaps configuration."
-);
-
+	"Incremental repacks are incompatible with bitmap indexes.  Use\n"
+	"--no-write-bitmap-index or disable the pack.writebitmaps configuration.");
 
 static int repack_config(const char *var, const char *value, void *cb)
 {
@@ -162,23 +158,25 @@ static void prepare_pack_objects(struct child_process *cmd,
 	if (args->window)
 		strvec_pushf(&cmd->args, "--window=%s", args->window);
 	if (args->window_memory)
-		strvec_pushf(&cmd->args, "--window-memory=%s", args->window_memory);
+		strvec_pushf(&cmd->args, "--window-memory=%s",
+			     args->window_memory);
 	if (args->depth)
 		strvec_pushf(&cmd->args, "--depth=%s", args->depth);
 	if (args->threads)
 		strvec_pushf(&cmd->args, "--threads=%s", args->threads);
 	if (args->max_pack_size)
-		strvec_pushf(&cmd->args, "--max-pack-size=%s", args->max_pack_size);
+		strvec_pushf(&cmd->args, "--max-pack-size=%s",
+			     args->max_pack_size);
 	if (args->no_reuse_delta)
 		strvec_pushf(&cmd->args, "--no-reuse-delta");
 	if (args->no_reuse_object)
 		strvec_pushf(&cmd->args, "--no-reuse-object");
 	if (args->local)
-		strvec_push(&cmd->args,  "--local");
+		strvec_push(&cmd->args, "--local");
 	if (args->quiet)
-		strvec_push(&cmd->args,  "--quiet");
+		strvec_push(&cmd->args, "--quiet");
 	if (delta_base_offset)
-		strvec_push(&cmd->args,  "--delta-base-offset");
+		strvec_push(&cmd->args, "--delta-base-offset");
 	strvec_push(&cmd->args, packtmp);
 	cmd->git_cmd = 1;
 	cmd->out = -1;
@@ -205,13 +203,10 @@ static int write_oid(const struct object_id *oid, struct packed_git *pack,
 
 static struct {
 	const char *name;
-	unsigned optional:1;
+	unsigned optional : 1;
 } exts[] = {
-	{".pack"},
-	{".idx"},
-	{".rev", 1},
-	{".bitmap", 1},
-	{".promisor", 1},
+	{ ".pack" },	  { ".idx" },	      { ".rev", 1 },
+	{ ".bitmap", 1 }, { ".promisor", 1 },
 };
 
 static unsigned populate_pack_exts(char *name)
@@ -252,8 +247,7 @@ static void repack_promisor_objects(const struct pack_objects_args *args,
 	 * {type -> existing pack order} ordering when computing deltas instead
 	 * of a {type -> size} ordering, which may produce better deltas.
 	 */
-	for_each_packed_object(write_oid, &cmd,
-			       FOR_EACH_OBJECT_PROMISOR_ONLY);
+	for_each_packed_object(write_oid, &cmd, FOR_EACH_OBJECT_PROMISOR_ONLY);
 
 	if (cmd.in == -1)
 		/* No packed objects; cmd was never started */
@@ -281,11 +275,11 @@ static void repack_promisor_objects(const struct pack_objects_args *args,
 		 * concatenate the contents of all .promisor files instead of
 		 * just creating a new empty file.
 		 */
-		promisor_name = mkpathdup("%s-%s.promisor", packtmp,
-					  line.buf);
+		promisor_name = mkpathdup("%s-%s.promisor", packtmp, line.buf);
 		write_promisor_file(promisor_name, NULL, 0);
 
-		item->util = (void *)(uintptr_t)populate_pack_exts(item->string);
+		item->util =
+			(void *)(uintptr_t)populate_pack_exts(item->string);
 
 		free(promisor_name);
 	}
@@ -315,45 +309,47 @@ int cmd_repack(int argc, const char **argv, const char *prefix)
 	int keep_unreachable = 0;
 	struct string_list keep_pack_list = STRING_LIST_INIT_NODUP;
 	int no_update_server_info = 0;
-	struct pack_objects_args po_args = {NULL};
+	struct pack_objects_args po_args = { NULL };
 
 	struct option builtin_repack_options[] = {
 		OPT_BIT('a', NULL, &pack_everything,
-				N_("pack everything in a single pack"), ALL_INTO_ONE),
+			N_("pack everything in a single pack"), ALL_INTO_ONE),
 		OPT_BIT('A', NULL, &pack_everything,
-				N_("same as -a, and turn unreachable objects loose"),
-				   LOOSEN_UNREACHABLE | ALL_INTO_ONE),
+			N_("same as -a, and turn unreachable objects loose"),
+			LOOSEN_UNREACHABLE | ALL_INTO_ONE),
 		OPT_BOOL('d', NULL, &delete_redundant,
-				N_("remove redundant packs, and run git-prune-packed")),
+			 N_("remove redundant packs, and run git-prune-packed")),
 		OPT_BOOL('f', NULL, &po_args.no_reuse_delta,
-				N_("pass --no-reuse-delta to git-pack-objects")),
+			 N_("pass --no-reuse-delta to git-pack-objects")),
 		OPT_BOOL('F', NULL, &po_args.no_reuse_object,
-				N_("pass --no-reuse-object to git-pack-objects")),
+			 N_("pass --no-reuse-object to git-pack-objects")),
 		OPT_BOOL('n', NULL, &no_update_server_info,
-				N_("do not run git-update-server-info")),
+			 N_("do not run git-update-server-info")),
 		OPT__QUIET(&po_args.quiet, N_("be quiet")),
 		OPT_BOOL('l', "local", &po_args.local,
-				N_("pass --local to git-pack-objects")),
+			 N_("pass --local to git-pack-objects")),
 		OPT_BOOL('b', "write-bitmap-index", &write_bitmaps,
-				N_("write bitmap index")),
+			 N_("write bitmap index")),
 		OPT_BOOL('i', "delta-islands", &use_delta_islands,
-				N_("pass --delta-islands to git-pack-objects")),
-		OPT_STRING(0, "unpack-unreachable", &unpack_unreachable, N_("approxidate"),
-				N_("with -A, do not loosen objects older than this")),
+			 N_("pass --delta-islands to git-pack-objects")),
+		OPT_STRING(0, "unpack-unreachable", &unpack_unreachable,
+			   N_("approxidate"),
+			   N_("with -A, do not loosen objects older than this")),
 		OPT_BOOL('k', "keep-unreachable", &keep_unreachable,
-				N_("with -a, repack unreachable objects")),
+			 N_("with -a, repack unreachable objects")),
 		OPT_STRING(0, "window", &po_args.window, N_("n"),
-				N_("size of the window used for delta compression")),
-		OPT_STRING(0, "window-memory", &po_args.window_memory, N_("bytes"),
-				N_("same as the above, but limit memory size instead of entries count")),
+			   N_("size of the window used for delta compression")),
+		OPT_STRING(
+			0, "window-memory", &po_args.window_memory, N_("bytes"),
+			N_("same as the above, but limit memory size instead of entries count")),
 		OPT_STRING(0, "depth", &po_args.depth, N_("n"),
-				N_("limits the maximum delta depth")),
+			   N_("limits the maximum delta depth")),
 		OPT_STRING(0, "threads", &po_args.threads, N_("n"),
-				N_("limits the maximum number of threads")),
-		OPT_STRING(0, "max-pack-size", &po_args.max_pack_size, N_("bytes"),
-				N_("maximum size of each packfile")),
+			   N_("limits the maximum number of threads")),
+		OPT_STRING(0, "max-pack-size", &po_args.max_pack_size,
+			   N_("bytes"), N_("maximum size of each packfile")),
 		OPT_BOOL(0, "pack-kept-objects", &pack_kept_objects,
-				N_("repack objects in packs marked with .keep")),
+			 N_("repack objects in packs marked with .keep")),
 		OPT_STRING_LIST(0, "keep-pack", &keep_pack_list, N_("name"),
 				N_("do not repack this pack")),
 		OPT_END()
@@ -362,7 +358,7 @@ int cmd_repack(int argc, const char **argv, const char *prefix)
 	git_config(repack_config, NULL);
 
 	argc = parse_options(argc, argv, prefix, builtin_repack_options,
-				git_repack_usage, 0);
+			     git_repack_usage, 0);
 
 	if (delete_redundant && repository_format_precious_objects)
 		die(_("cannot delete packs in a precious-objects repo"));
@@ -372,8 +368,7 @@ int cmd_repack(int argc, const char **argv, const char *prefix)
 		die(_("--keep-unreachable and -A are incompatible"));
 
 	if (write_bitmaps < 0) {
-		if (!(pack_everything & ALL_INTO_ONE) ||
-		    !is_bare_repository())
+		if (!(pack_everything & ALL_INTO_ONE) || !is_bare_repository())
 			write_bitmaps = 0;
 	}
 	if (pack_kept_objects < 0)
@@ -418,15 +413,17 @@ int cmd_repack(int argc, const char **argv, const char *prefix)
 				strvec_pushf(&cmd.args,
 					     "--unpack-unreachable=%s",
 					     unpack_unreachable);
-				strvec_push(&cmd.env_array, "GIT_REF_PARANOIA=1");
+				strvec_push(&cmd.env_array,
+					    "GIT_REF_PARANOIA=1");
 			} else if (pack_everything & LOOSEN_UNREACHABLE) {
-				strvec_push(&cmd.args,
-					    "--unpack-unreachable");
+				strvec_push(&cmd.args, "--unpack-unreachable");
 			} else if (keep_unreachable) {
 				strvec_push(&cmd.args, "--keep-unreachable");
-				strvec_push(&cmd.args, "--pack-loose-unreachable");
+				strvec_push(&cmd.args,
+					    "--pack-loose-unreachable");
 			} else {
-				strvec_push(&cmd.env_array, "GIT_REF_PARANOIA=1");
+				strvec_push(&cmd.env_array,
+					    "GIT_REF_PARANOIA=1");
 			}
 		}
 	} else {
@@ -454,8 +451,9 @@ int cmd_repack(int argc, const char **argv, const char *prefix)
 	if (!names.nr && !po_args.quiet)
 		printf_ln(_("Nothing new to pack."));
 
-	for_each_string_list_item(item, &names) {
-		item->util = (void *)(uintptr_t)populate_pack_exts(item->string);
+	for_each_string_list_item (item, &names) {
+		item->util =
+			(void *)(uintptr_t)populate_pack_exts(item->string);
 	}
 
 	close_object_store(the_repository->objects);
@@ -463,24 +461,26 @@ int cmd_repack(int argc, const char **argv, const char *prefix)
 	/*
 	 * Ok we have prepared all new packfiles.
 	 */
-	for_each_string_list_item(item, &names) {
+	for_each_string_list_item (item, &names) {
 		for (ext = 0; ext < ARRAY_SIZE(exts); ext++) {
 			char *fname, *fname_old;
 
-			fname = mkpathdup("%s/pack-%s%s",
-					packdir, item->string, exts[ext].name);
-			fname_old = mkpathdup("%s-%s%s",
-					packtmp, item->string, exts[ext].name);
+			fname = mkpathdup("%s/pack-%s%s", packdir, item->string,
+					  exts[ext].name);
+			fname_old = mkpathdup("%s-%s%s", packtmp, item->string,
+					      exts[ext].name);
 
 			if (((uintptr_t)item->util) & (1 << ext)) {
 				struct stat statbuffer;
 				if (!stat(fname_old, &statbuffer)) {
-					statbuffer.st_mode &= ~(S_IWUSR | S_IWGRP | S_IWOTH);
+					statbuffer.st_mode &=
+						~(S_IWUSR | S_IWGRP | S_IWOTH);
 					chmod(fname_old, statbuffer.st_mode);
 				}
 
 				if (rename(fname_old, fname))
-					die_errno(_("renaming '%s' failed"), fname_old);
+					die_errno(_("renaming '%s' failed"),
+						  fname_old);
 			} else if (!exts[ext].optional)
 				die(_("missing required file: %s"), fname_old);
 			else if (unlink(fname) < 0 && errno != ENOENT)
@@ -498,7 +498,7 @@ int cmd_repack(int argc, const char **argv, const char *prefix)
 		const int hexsz = the_hash_algo->hexsz;
 		int opts = 0;
 		string_list_sort(&names);
-		for_each_string_list_item(item, &existing_packs) {
+		for_each_string_list_item (item, &existing_packs) {
 			char *sha1;
 			size_t len = strlen(item->string);
 			if (len < hexsz)

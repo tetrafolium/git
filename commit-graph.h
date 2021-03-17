@@ -8,7 +8,8 @@
 #define GIT_TEST_COMMIT_GRAPH "GIT_TEST_COMMIT_GRAPH"
 #define GIT_TEST_COMMIT_GRAPH_NO_GDAT "GIT_TEST_COMMIT_GRAPH_NO_GDAT"
 #define GIT_TEST_COMMIT_GRAPH_DIE_ON_PARSE "GIT_TEST_COMMIT_GRAPH_DIE_ON_PARSE"
-#define GIT_TEST_COMMIT_GRAPH_CHANGED_PATHS "GIT_TEST_COMMIT_GRAPH_CHANGED_PATHS"
+#define GIT_TEST_COMMIT_GRAPH_CHANGED_PATHS \
+	"GIT_TEST_COMMIT_GRAPH_CHANGED_PATHS"
 
 /*
  * This method is only used to enhance coverage of the commit-graph
@@ -81,13 +82,13 @@ struct commit_graph {
 	struct bloom_filter_settings *bloom_filter_settings;
 };
 
-struct commit_graph *load_commit_graph_one_fd_st(struct repository *r,
-						 int fd, struct stat *st,
+struct commit_graph *load_commit_graph_one_fd_st(struct repository *r, int fd,
+						 struct stat *st,
 						 struct object_directory *odb);
 struct commit_graph *read_commit_graph_one(struct repository *r,
 					   struct object_directory *odb);
-struct commit_graph *parse_commit_graph(struct repository *r,
-					void *graph_map, size_t graph_size);
+struct commit_graph *parse_commit_graph(struct repository *r, void *graph_map,
+					size_t graph_size);
 
 /*
  * Return 1 if and only if the repository has a commit-graph
@@ -104,17 +105,17 @@ int corrected_commit_dates_enabled(struct repository *r);
 struct bloom_filter_settings *get_bloom_filter_settings(struct repository *r);
 
 enum commit_graph_write_flags {
-	COMMIT_GRAPH_WRITE_APPEND     = (1 << 0),
-	COMMIT_GRAPH_WRITE_PROGRESS   = (1 << 1),
-	COMMIT_GRAPH_WRITE_SPLIT      = (1 << 2),
+	COMMIT_GRAPH_WRITE_APPEND = (1 << 0),
+	COMMIT_GRAPH_WRITE_PROGRESS = (1 << 1),
+	COMMIT_GRAPH_WRITE_SPLIT = (1 << 2),
 	COMMIT_GRAPH_WRITE_BLOOM_FILTERS = (1 << 3),
 	COMMIT_GRAPH_NO_WRITE_BLOOM_FILTERS = (1 << 4),
 };
 
 enum commit_graph_split_flags {
-	COMMIT_GRAPH_SPLIT_UNSPECIFIED      = 0,
+	COMMIT_GRAPH_SPLIT_UNSPECIFIED = 0,
 	COMMIT_GRAPH_SPLIT_MERGE_PROHIBITED = 1,
-	COMMIT_GRAPH_SPLIT_REPLACE          = 2
+	COMMIT_GRAPH_SPLIT_REPLACE = 2
 };
 
 struct commit_graph_opts {
@@ -135,14 +136,14 @@ int write_commit_graph_reachable(struct object_directory *odb,
 				 enum commit_graph_write_flags flags,
 				 const struct commit_graph_opts *opts);
 int write_commit_graph(struct object_directory *odb,
-		       struct string_list *pack_indexes,
-		       struct oidset *commits,
+		       struct string_list *pack_indexes, struct oidset *commits,
 		       enum commit_graph_write_flags flags,
 		       const struct commit_graph_opts *opts);
 
-#define COMMIT_GRAPH_VERIFY_SHALLOW	(1 << 0)
+#define COMMIT_GRAPH_VERIFY_SHALLOW (1 << 0)
 
-int verify_commit_graph(struct repository *r, struct commit_graph *g, int flags);
+int verify_commit_graph(struct repository *r, struct commit_graph *g,
+			int flags);
 
 void close_commit_graph(struct raw_object_store *);
 void free_commit_graph(struct commit_graph *);

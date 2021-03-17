@@ -14,7 +14,7 @@
 #include "worktree.h"
 #include "quote.h"
 
-static const char * const worktree_usage[] = {
+static const char *const worktree_usage[] = {
 	N_("git worktree add [<options>] <path> [<commit-ish>]"),
 	N_("git worktree list [<options>]"),
 	N_("git worktree lock [<options>] <path>"),
@@ -83,7 +83,7 @@ static int prune_cmp(const void *a, const void *b)
 	int c;
 
 	if ((c = fspathcmp(x->string, y->string)))
-	    return c;
+		return c;
 	/*
 	 * paths same; prune_dupes() removes all but the first worktree entry
 	 * having the same path, so sort main worktree ('util' is NULL) above
@@ -126,7 +126,8 @@ static void prune_worktrees(void)
 		if (should_prune_worktree(d->d_name, &reason, &path, expire))
 			prune_worktree(d->d_name, reason.buf);
 		else if (path)
-			string_list_append(&kept, path)->util = xstrdup(d->d_name);
+			string_list_append(&kept, path)->util =
+				xstrdup(d->d_name);
 	}
 	closedir(dir);
 
@@ -209,10 +210,8 @@ static const char *worktree_basename(const char *path, int *olen)
 }
 
 /* check that path is viable location for worktree */
-static void check_candidate_path(const char *path,
-				 int force,
-				 struct worktree **worktrees,
-				 const char *cmd)
+static void check_candidate_path(const char *path, int force,
+				 struct worktree **worktrees, const char *cmd)
 {
 	struct worktree *wt;
 	int locked;
@@ -227,14 +226,16 @@ static void check_candidate_path(const char *path,
 	locked = !!worktree_lock_reason(wt);
 	if ((!locked && force) || (locked && force > 1)) {
 		if (delete_git_dir(wt->id))
-		    die(_("unusable worktree destination '%s'"), path);
+			die(_("unusable worktree destination '%s'"), path);
 		return;
 	}
 
 	if (locked)
-		die(_("'%s' is a missing but locked worktree;\nuse '%s -f -f' to override, or 'unlock' and 'prune' or 'remove' to clear"), path, cmd);
+		die(_("'%s' is a missing but locked worktree;\nuse '%s -f -f' to override, or 'unlock' and 'prune' or 'remove' to clear"),
+		    path, cmd);
 	else
-		die(_("'%s' is a missing but already registered worktree;\nuse '%s -f' to override, or 'prune' or 'remove' to clear"), path, cmd);
+		die(_("'%s' is a missing but already registered worktree;\nuse '%s -f' to override, or 'prune' or 'remove' to clear"),
+		    path, cmd);
 }
 
 static int add_worktree(const char *path, const char *refname,
@@ -320,8 +321,7 @@ static int add_worktree(const char *path, const char *refname,
 	strbuf_realpath(&realpath, sb_git.buf, 1);
 	write_file(sb.buf, "%s", realpath.buf);
 	strbuf_realpath(&realpath, get_git_common_dir(), 1);
-	write_file(sb_git.buf, "gitdir: %s/worktrees/%s",
-		   realpath.buf, name);
+	write_file(sb_git.buf, "gitdir: %s/worktrees/%s", realpath.buf, name);
 	/*
 	 * This is to keep resolve_ref() happy. We need a valid HEAD
 	 * or is_git_directory() will reject the directory. Any value which
@@ -344,8 +344,8 @@ static int add_worktree(const char *path, const char *refname,
 		strvec_pushl(&cp.args, "update-ref", "HEAD",
 			     oid_to_hex(&commit->object.oid), NULL);
 	else {
-		strvec_pushl(&cp.args, "symbolic-ref", "HEAD",
-			     symref.buf, NULL);
+		strvec_pushl(&cp.args, "symbolic-ref", "HEAD", symref.buf,
+			     NULL);
 		if (opts->quiet)
 			strvec_push(&cp.args, "--quiet");
 	}
@@ -358,7 +358,8 @@ static int add_worktree(const char *path, const char *refname,
 	if (opts->checkout) {
 		cp.argv = NULL;
 		strvec_clear(&cp.args);
-		strvec_pushl(&cp.args, "reset", "--hard", "--no-recurse-submodules", NULL);
+		strvec_pushl(&cp.args, "reset", "--hard",
+			     "--no-recurse-submodules", NULL);
 		if (opts->quiet)
 			strvec_push(&cp.args, "--quiet");
 		cp.env = child_env.v;
@@ -385,7 +386,8 @@ done:
 	if (!ret && opts->checkout) {
 		const char *hook = find_hook("post-checkout");
 		if (hook) {
-			const char *env[] = { "GIT_DIR", "GIT_WORK_TREE", NULL };
+			const char *env[] = { "GIT_DIR", "GIT_WORK_TREE",
+					      NULL };
 			cp.git_cmd = 0;
 			cp.no_stdin = 1;
 			cp.stdout_to_stderr = 1;
@@ -395,8 +397,8 @@ done:
 			cp.trace2_hook_name = "post-checkout";
 			strvec_pushl(&cp.args, absolute_path(hook),
 				     oid_to_hex(&null_oid),
-				     oid_to_hex(&commit->object.oid),
-				     "1", NULL);
+				     oid_to_hex(&commit->object.oid), "1",
+				     NULL);
 			ret = run_command(&cp);
 		}
 	}
@@ -411,21 +413,25 @@ done:
 	return ret;
 }
 
-static void print_preparing_worktree_line(int detach,
-					  const char *branch,
+static void print_preparing_worktree_line(int detach, const char *branch,
 					  const char *new_branch,
 					  int force_new_branch)
 {
 	if (force_new_branch) {
-		struct commit *commit = lookup_commit_reference_by_name(new_branch);
+		struct commit *commit =
+			lookup_commit_reference_by_name(new_branch);
 		if (!commit)
-			printf_ln(_("Preparing worktree (new branch '%s')"), new_branch);
+			printf_ln(_("Preparing worktree (new branch '%s')"),
+				  new_branch);
 		else
-			printf_ln(_("Preparing worktree (resetting branch '%s'; was at %s)"),
-				  new_branch,
-				  find_unique_abbrev(&commit->object.oid, DEFAULT_ABBREV));
+			printf_ln(
+				_("Preparing worktree (resetting branch '%s'; was at %s)"),
+				new_branch,
+				find_unique_abbrev(&commit->object.oid,
+						   DEFAULT_ABBREV));
 	} else if (new_branch) {
-		printf_ln(_("Preparing worktree (new branch '%s')"), new_branch);
+		printf_ln(_("Preparing worktree (new branch '%s')"),
+			  new_branch);
 	} else {
 		struct strbuf s = STRBUF_INIT;
 		if (!detach && !strbuf_check_branch_ref(&s, branch) &&
@@ -433,11 +439,13 @@ static void print_preparing_worktree_line(int detach,
 			printf_ln(_("Preparing worktree (checking out '%s')"),
 				  branch);
 		else {
-			struct commit *commit = lookup_commit_reference_by_name(branch);
+			struct commit *commit =
+				lookup_commit_reference_by_name(branch);
 			if (!commit)
 				die(_("invalid reference: %s"), branch);
 			printf_ln(_("Preparing worktree (detached HEAD %s)"),
-				  find_unique_abbrev(&commit->object.oid, DEFAULT_ABBREV));
+				  find_unique_abbrev(&commit->object.oid,
+						     DEFAULT_ABBREV));
 		}
 		strbuf_release(&s);
 	}
@@ -451,8 +459,7 @@ static const char *dwim_branch(const char *path, const char **new_branch)
 	struct strbuf ref = STRBUF_INIT;
 
 	UNLEAK(branchname);
-	if (!strbuf_check_branch_ref(&ref, branchname) &&
-	    ref_exists(ref.buf)) {
+	if (!strbuf_check_branch_ref(&ref, branchname) && ref_exists(ref.buf)) {
 		strbuf_release(&ref);
 		return branchname;
 	}
@@ -476,22 +483,27 @@ static int add(int ac, const char **av, const char *prefix)
 	const char *new_branch = NULL;
 	const char *opt_track = NULL;
 	struct option options[] = {
-		OPT__FORCE(&opts.force,
-			   N_("checkout <branch> even if already checked out in other worktree"),
-			   PARSE_OPT_NOCOMPLETE),
+		OPT__FORCE(
+			&opts.force,
+			N_("checkout <branch> even if already checked out in other worktree"),
+			PARSE_OPT_NOCOMPLETE),
 		OPT_STRING('b', NULL, &new_branch, N_("branch"),
 			   N_("create a new branch")),
 		OPT_STRING('B', NULL, &new_branch_force, N_("branch"),
 			   N_("create or reset a branch")),
-		OPT_BOOL('d', "detach", &opts.detach, N_("detach HEAD at named commit")),
-		OPT_BOOL(0, "checkout", &opts.checkout, N_("populate the new working tree")),
-		OPT_BOOL(0, "lock", &opts.keep_locked, N_("keep the new working tree locked")),
+		OPT_BOOL('d', "detach", &opts.detach,
+			 N_("detach HEAD at named commit")),
+		OPT_BOOL(0, "checkout", &opts.checkout,
+			 N_("populate the new working tree")),
+		OPT_BOOL(0, "lock", &opts.keep_locked,
+			 N_("keep the new working tree locked")),
 		OPT__QUIET(&opts.quiet, N_("suppress progress reporting")),
 		OPT_PASSTHRU(0, "track", &opt_track, NULL,
 			     N_("set up tracking mode (see git-branch(1))"),
 			     PARSE_OPT_NOARG | PARSE_OPT_OPTARG),
-		OPT_BOOL(0, "guess-remote", &guess_remote,
-			 N_("try to match the new branch name with a remote-tracking branch")),
+		OPT_BOOL(
+			0, "guess-remote", &guess_remote,
+			N_("try to match the new branch name with a remote-tracking branch")),
 		OPT_END()
 	};
 
@@ -542,7 +554,8 @@ static int add(int ac, const char **av, const char *prefix)
 		}
 	}
 	if (!opts.quiet)
-		print_preparing_worktree_line(opts.detach, branch, new_branch, !!new_branch_force);
+		print_preparing_worktree_line(opts.detach, branch, new_branch,
+					      !!new_branch_force);
 
 	if (new_branch) {
 		struct child_process cp = CHILD_PROCESS_INIT;
@@ -611,7 +624,7 @@ static void show_worktree(struct worktree *wt, int path_maxlen, int abbrev_len)
 		strbuf_addstr(&sb, "(bare)");
 	else {
 		strbuf_addf(&sb, "%-*s ", abbrev_len,
-				find_unique_abbrev(&wt->head_oid, DEFAULT_ABBREV));
+			    find_unique_abbrev(&wt->head_oid, DEFAULT_ABBREV));
 		if (wt->is_detached)
 			strbuf_addstr(&sb, "(detached HEAD)");
 		else if (wt->head_ref) {
@@ -648,7 +661,8 @@ static void measure_widths(struct worktree **wt, int *abbrev, int *maxlen)
 
 		if (path_len > *maxlen)
 			*maxlen = path_len;
-		sha1_len = strlen(find_unique_abbrev(&wt[i]->head_oid, *abbrev));
+		sha1_len =
+			strlen(find_unique_abbrev(&wt[i]->head_oid, *abbrev));
 		if (sha1_len > *abbrev)
 			*abbrev = sha1_len;
 	}
@@ -676,10 +690,14 @@ static int list(int ac, const char **av, const char *prefix)
 	int porcelain = 0;
 
 	struct option options[] = {
-		OPT_BOOL(0, "porcelain", &porcelain, N_("machine-readable output")),
-		OPT__VERBOSE(&verbose, N_("show extended annotations and reasons, if available")),
-		OPT_EXPIRY_DATE(0, "expire", &expire,
-				N_("add 'prunable' annotation to worktrees older than <time>")),
+		OPT_BOOL(0, "porcelain", &porcelain,
+			 N_("machine-readable output")),
+		OPT__VERBOSE(
+			&verbose,
+			N_("show extended annotations and reasons, if available")),
+		OPT_EXPIRY_DATE(
+			0, "expire", &expire,
+			N_("add 'prunable' annotation to worktrees older than <time>")),
 		OPT_END()
 	};
 
@@ -703,7 +721,8 @@ static int list(int ac, const char **av, const char *prefix)
 			if (porcelain)
 				show_worktree_porcelain(worktrees[i]);
 			else
-				show_worktree(worktrees[i], path_maxlen, abbrev);
+				show_worktree(worktrees[i], path_maxlen,
+					      abbrev);
 		}
 		free_worktrees(worktrees);
 	}
@@ -713,11 +732,10 @@ static int list(int ac, const char **av, const char *prefix)
 static int lock_worktree(int ac, const char **av, const char *prefix)
 {
 	const char *reason = "", *old_reason;
-	struct option options[] = {
-		OPT_STRING(0, "reason", &reason, N_("string"),
-			   N_("reason for locking")),
-		OPT_END()
-	};
+	struct option options[] = { OPT_STRING(0, "reason", &reason,
+					       N_("string"),
+					       N_("reason for locking")),
+				    OPT_END() };
 	struct worktree **worktrees, *wt;
 
 	ac = parse_options(ac, av, prefix, options, worktree_usage, 0);
@@ -734,22 +752,20 @@ static int lock_worktree(int ac, const char **av, const char *prefix)
 	old_reason = worktree_lock_reason(wt);
 	if (old_reason) {
 		if (*old_reason)
-			die(_("'%s' is already locked, reason: %s"),
-			    av[0], old_reason);
+			die(_("'%s' is already locked, reason: %s"), av[0],
+			    old_reason);
 		die(_("'%s' is already locked"), av[0]);
 	}
 
-	write_file(git_common_path("worktrees/%s/locked", wt->id),
-		   "%s", reason);
+	write_file(git_common_path("worktrees/%s/locked", wt->id), "%s",
+		   reason);
 	free_worktrees(worktrees);
 	return 0;
 }
 
 static int unlock_worktree(int ac, const char **av, const char *prefix)
 {
-	struct option options[] = {
-		OPT_END()
-	};
+	struct option options[] = { OPT_END() };
 	struct worktree **worktrees, *wt;
 	int ret;
 
@@ -813,8 +829,8 @@ static int move_worktree(int ac, const char **av, const char *prefix)
 	int force = 0;
 	struct option options[] = {
 		OPT__FORCE(&force,
-			 N_("force move even if worktree is dirty or locked"),
-			 PARSE_OPT_NOCOMPLETE),
+			   N_("force move even if worktree is dirty or locked"),
+			   PARSE_OPT_NOCOMPLETE),
 		OPT_END()
 	};
 	struct worktree **worktrees, *wt;
@@ -884,8 +900,7 @@ static int move_worktree(int ac, const char **av, const char *prefix)
  * it's absolutely safe to do so from _our_ point of view because we
  * know better.
  */
-static void check_clean_worktree(struct worktree *wt,
-				 const char *original_path)
+static void check_clean_worktree(struct worktree *wt, const char *original_path)
 {
 	struct child_process cp;
 	char buf[1];
@@ -898,13 +913,12 @@ static void check_clean_worktree(struct worktree *wt,
 	validate_no_submodules(wt);
 
 	child_process_init(&cp);
-	strvec_pushf(&cp.env_array, "%s=%s/.git",
-		     GIT_DIR_ENVIRONMENT, wt->path);
-	strvec_pushf(&cp.env_array, "%s=%s",
-		     GIT_WORK_TREE_ENVIRONMENT, wt->path);
-	strvec_pushl(&cp.args, "status",
-		     "--porcelain", "--ignore-submodules=none",
-		     NULL);
+	strvec_pushf(&cp.env_array, "%s=%s/.git", GIT_DIR_ENVIRONMENT,
+		     wt->path);
+	strvec_pushf(&cp.env_array, "%s=%s", GIT_WORK_TREE_ENVIRONMENT,
+		     wt->path);
+	strvec_pushl(&cp.args, "status", "--porcelain",
+		     "--ignore-submodules=none", NULL);
 	cp.git_cmd = 1;
 	cp.dir = wt->path;
 	cp.out = -1;
@@ -941,9 +955,10 @@ static int remove_worktree(int ac, const char **av, const char *prefix)
 {
 	int force = 0;
 	struct option options[] = {
-		OPT__FORCE(&force,
-			 N_("force removal even if worktree is dirty or locked"),
-			 PARSE_OPT_NOCOMPLETE),
+		OPT__FORCE(
+			&force,
+			N_("force removal even if worktree is dirty or locked"),
+			PARSE_OPT_NOCOMPLETE),
 		OPT_END()
 	};
 	struct worktree **worktrees, *wt;
@@ -991,7 +1006,8 @@ static int remove_worktree(int ac, const char **av, const char *prefix)
 	return ret;
 }
 
-static void report_repair(int iserr, const char *path, const char *msg, void *cb_data)
+static void report_repair(int iserr, const char *path, const char *msg,
+			  void *cb_data)
 {
 	if (!iserr) {
 		printf_ln(_("repair: %s: %s"), msg, path);
@@ -1006,9 +1022,7 @@ static int repair(int ac, const char **av, const char *prefix)
 {
 	const char **p;
 	const char *self[] = { ".", NULL };
-	struct option options[] = {
-		OPT_END()
-	};
+	struct option options[] = { OPT_END() };
 	int rc = 0;
 
 	ac = parse_options(ac, av, prefix, options, worktree_usage, 0);
@@ -1021,9 +1035,7 @@ static int repair(int ac, const char **av, const char *prefix)
 
 int cmd_worktree(int ac, const char **av, const char *prefix)
 {
-	struct option options[] = {
-		OPT_END()
-	};
+	struct option options[] = { OPT_END() };
 
 	git_config(git_worktree_config, NULL);
 

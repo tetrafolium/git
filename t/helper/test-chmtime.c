@@ -82,7 +82,8 @@ int cmd__chmtime(int argc, const char **argv)
 	if (strcmp(argv[i], "--get") == 0 || strcmp(argv[i], "-g") == 0) {
 		get = 1;
 		++i;
-	} else if (strcmp(argv[i], "--verbose") == 0 || strcmp(argv[i], "-v") == 0) {
+	} else if (strcmp(argv[i], "--verbose") == 0 ||
+		   strcmp(argv[i], "-v") == 0) {
 		verbose = 1;
 		++i;
 	}
@@ -95,7 +96,8 @@ int cmd__chmtime(int argc, const char **argv)
 		++i;
 	} else {
 		if (get == 0) {
-			fprintf(stderr, "Not a base-10 integer: %s\n", argv[i] + 1);
+			fprintf(stderr, "Not a base-10 integer: %s\n",
+				argv[i] + 1);
 			goto usage;
 		}
 	}
@@ -109,14 +111,14 @@ int cmd__chmtime(int argc, const char **argv)
 		uintmax_t mtime;
 
 		if (stat(argv[i], &sb) < 0) {
-			fprintf(stderr, "Failed to stat %s: %s\n",
-			        argv[i], strerror(errno));
+			fprintf(stderr, "Failed to stat %s: %s\n", argv[i],
+				strerror(errno));
 			return 1;
 		}
 
 #ifdef GIT_WINDOWS_NATIVE
 		if (!(sb.st_mode & S_IWUSR) &&
-				chmod(argv[i], sb.st_mode | S_IWUSR)) {
+		    chmod(argv[i], sb.st_mode | S_IWUSR)) {
 			fprintf(stderr, "Could not make user-writable %s: %s",
 				argv[i], strerror(errno));
 			return 1;
@@ -126,16 +128,16 @@ int cmd__chmtime(int argc, const char **argv)
 		utb.actime = sb.st_atime;
 		utb.modtime = set_eq ? set_time : sb.st_mtime + set_time;
 
-		mtime = utb.modtime < 0 ? 0: utb.modtime;
+		mtime = utb.modtime < 0 ? 0 : utb.modtime;
 		if (get) {
-			printf("%"PRIuMAX"\n", mtime);
+			printf("%" PRIuMAX "\n", mtime);
 		} else if (verbose) {
-			printf("%"PRIuMAX"\t%s\n", mtime, argv[i]);
+			printf("%" PRIuMAX "\t%s\n", mtime, argv[i]);
 		}
 
 		if (utb.modtime != sb.st_mtime && utime(argv[i], &utb) < 0) {
 			fprintf(stderr, "Failed to modify time on %s: %s\n",
-			        argv[i], strerror(errno));
+				argv[i], strerror(errno));
 			return 1;
 		}
 	}

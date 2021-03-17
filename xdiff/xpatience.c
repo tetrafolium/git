@@ -66,7 +66,7 @@ struct hashmap {
 		 * Documentation/diff-options.txt for more information.
 		 */
 		unsigned anchor : 1;
-	} *entries, *first, *last;
+	} * entries, *first, *last;
 	/* were common records found? */
 	unsigned long has_matches;
 	mmfile_t *file1, *file2;
@@ -88,8 +88,8 @@ static int is_anchor(xpparam_t const *xpp, const char *line)
 static void insert_record(xpparam_t const *xpp, int line, struct hashmap *map,
 			  int pass)
 {
-	xrecord_t **records = pass == 1 ?
-		map->env->xdf1.recs : map->env->xdf2.recs;
+	xrecord_t **records = pass == 1 ? map->env->xdf1.recs :
+					  map->env->xdf2.recs;
 	xrecord_t *record = records[line - 1], *other;
 	/*
 	 * After xdl_prepare_env() (or more precisely, due to
@@ -106,9 +106,8 @@ static void insert_record(xpparam_t const *xpp, int line, struct hashmap *map,
 	while (map->entries[index].line1) {
 		other = map->env->xdf1.recs[map->entries[index].line1 - 1];
 		if (map->entries[index].hash != record->ha ||
-				!xdl_recmatch(record->ptr, record->size,
-					other->ptr, other->size,
-					map->xpp->flags)) {
+		    !xdl_recmatch(record->ptr, record->size, other->ptr,
+				  other->size, map->xpp->flags)) {
 			if (++index >= map->alloc)
 				index = 0;
 			continue;
@@ -125,7 +124,8 @@ static void insert_record(xpparam_t const *xpp, int line, struct hashmap *map,
 		return;
 	map->entries[index].line1 = line;
 	map->entries[index].hash = record->ha;
-	map->entries[index].anchor = is_anchor(xpp, map->env->xdf1.recs[line - 1]->ptr);
+	map->entries[index].anchor =
+		is_anchor(xpp, map->env->xdf1.recs[line - 1]->ptr);
 	if (!map->first)
 		map->first = map->entries + index;
 	if (map->last) {
@@ -143,10 +143,9 @@ static void insert_record(xpparam_t const *xpp, int line, struct hashmap *map,
  *
  * It is assumed that env has been prepared using xdl_prepare().
  */
-static int fill_hashmap(mmfile_t *file1, mmfile_t *file2,
-		xpparam_t const *xpp, xdfenv_t *env,
-		struct hashmap *result,
-		int line1, int count1, int line2, int count2)
+static int fill_hashmap(mmfile_t *file1, mmfile_t *file2, xpparam_t const *xpp,
+			xdfenv_t *env, struct hashmap *result, int line1,
+			int count1, int line2, int count2)
 {
 	result->file1 = file1;
 	result->file2 = file2;
@@ -155,8 +154,8 @@ static int fill_hashmap(mmfile_t *file1, mmfile_t *file2,
 
 	/* We know exactly how large we want the hash map */
 	result->alloc = count1 * 2;
-	result->entries = (struct entry *)
-		xdl_malloc(result->alloc * sizeof(struct entry));
+	result->entries = (struct entry *)xdl_malloc(result->alloc *
+						     sizeof(struct entry));
 	if (!result->entries)
 		return -1;
 	memset(result->entries, 0, result->alloc * sizeof(struct entry));
@@ -177,7 +176,7 @@ static int fill_hashmap(mmfile_t *file1, mmfile_t *file2,
  * line2, as we construct the sequence with entries ordered by line1).
  */
 static int binary_search(struct entry **sequence, int longest,
-		struct entry *entry)
+			 struct entry *entry)
 {
 	int left = -1, right = longest;
 
@@ -253,16 +252,16 @@ static int match(struct hashmap *map, int line1, int line2)
 {
 	xrecord_t *record1 = map->env->xdf1.recs[line1 - 1];
 	xrecord_t *record2 = map->env->xdf2.recs[line2 - 1];
-	return xdl_recmatch(record1->ptr, record1->size,
-		record2->ptr, record2->size, map->xpp->flags);
+	return xdl_recmatch(record1->ptr, record1->size, record2->ptr,
+			    record2->size, map->xpp->flags);
 }
 
-static int patience_diff(mmfile_t *file1, mmfile_t *file2,
-		xpparam_t const *xpp, xdfenv_t *env,
-		int line1, int count1, int line2, int count2);
+static int patience_diff(mmfile_t *file1, mmfile_t *file2, xpparam_t const *xpp,
+			 xdfenv_t *env, int line1, int count1, int line2,
+			 int count2);
 
 static int walk_common_sequence(struct hashmap *map, struct entry *first,
-		int line1, int count1, int line2, int count2)
+				int line1, int count1, int line2, int count2)
 {
 	int end1 = line1 + count1, end2 = line2 + count2;
 	int next1, next2;
@@ -273,7 +272,7 @@ static int walk_common_sequence(struct hashmap *map, struct entry *first,
 			next1 = first->line1;
 			next2 = first->line2;
 			while (next1 > line1 && next2 > line2 &&
-					match(map, next1 - 1, next2 - 1)) {
+			       match(map, next1 - 1, next2 - 1)) {
 				next1--;
 				next2--;
 			}
@@ -282,7 +281,7 @@ static int walk_common_sequence(struct hashmap *map, struct entry *first,
 			next2 = end2;
 		}
 		while (line1 < next1 && line2 < next2 &&
-				match(map, line1, line2)) {
+		       match(map, line1, line2)) {
 			line1++;
 			line2++;
 		}
@@ -292,19 +291,17 @@ static int walk_common_sequence(struct hashmap *map, struct entry *first,
 			struct hashmap submap;
 
 			memset(&submap, 0, sizeof(submap));
-			if (patience_diff(map->file1, map->file2,
-					map->xpp, map->env,
-					line1, next1 - line1,
-					line2, next2 - line2))
+			if (patience_diff(map->file1, map->file2, map->xpp,
+					  map->env, line1, next1 - line1, line2,
+					  next2 - line2))
 				return -1;
 		}
 
 		if (!first)
 			return 0;
 
-		while (first->next &&
-				first->next->line1 == first->line1 + 1 &&
-				first->next->line2 == first->line2 + 1)
+		while (first->next && first->next->line1 == first->line1 + 1 &&
+		       first->next->line2 == first->line2 + 1)
 			first = first->next;
 
 		line1 = first->line1 + 1;
@@ -314,16 +311,15 @@ static int walk_common_sequence(struct hashmap *map, struct entry *first,
 	}
 }
 
-static int fall_back_to_classic_diff(struct hashmap *map,
-		int line1, int count1, int line2, int count2)
+static int fall_back_to_classic_diff(struct hashmap *map, int line1, int count1,
+				     int line2, int count2)
 {
 	xpparam_t xpp;
 
 	memset(&xpp, 0, sizeof(xpp));
 	xpp.flags = map->xpp->flags & ~XDF_DIFF_ALGORITHM_MASK;
 
-	return xdl_fall_back_diff(map->env, &xpp,
-				  line1, count1, line2, count2);
+	return xdl_fall_back_diff(map->env, &xpp, line1, count1, line2, count2);
 }
 
 /*
@@ -332,9 +328,9 @@ static int fall_back_to_classic_diff(struct hashmap *map,
  *
  * This function assumes that env was prepared with xdl_prepare_env().
  */
-static int patience_diff(mmfile_t *file1, mmfile_t *file2,
-		xpparam_t const *xpp, xdfenv_t *env,
-		int line1, int count1, int line2, int count2)
+static int patience_diff(mmfile_t *file1, mmfile_t *file2, xpparam_t const *xpp,
+			 xdfenv_t *env, int line1, int count1, int line2,
+			 int count2)
 {
 	struct hashmap map;
 	struct entry *first;
@@ -342,25 +338,25 @@ static int patience_diff(mmfile_t *file1, mmfile_t *file2,
 
 	/* trivial case: one side is empty */
 	if (!count1) {
-		while(count2--)
+		while (count2--)
 			env->xdf2.rchg[line2++ - 1] = 1;
 		return 0;
 	} else if (!count2) {
-		while(count1--)
+		while (count1--)
 			env->xdf1.rchg[line1++ - 1] = 1;
 		return 0;
 	}
 
 	memset(&map, 0, sizeof(map));
-	if (fill_hashmap(file1, file2, xpp, env, &map,
-			line1, count1, line2, count2))
+	if (fill_hashmap(file1, file2, xpp, env, &map, line1, count1, line2,
+			 count2))
 		return -1;
 
 	/* are there any matching lines at all? */
 	if (!map.has_matches) {
-		while(count1--)
+		while (count1--)
 			env->xdf1.rchg[line1++ - 1] = 1;
-		while(count2--)
+		while (count2--)
 			env->xdf2.rchg[line2++ - 1] = 1;
 		xdl_free(map.entries);
 		return 0;
@@ -368,23 +364,23 @@ static int patience_diff(mmfile_t *file1, mmfile_t *file2,
 
 	first = find_longest_common_sequence(&map);
 	if (first)
-		result = walk_common_sequence(&map, first,
-			line1, count1, line2, count2);
+		result = walk_common_sequence(&map, first, line1, count1, line2,
+					      count2);
 	else
-		result = fall_back_to_classic_diff(&map,
-			line1, count1, line2, count2);
+		result = fall_back_to_classic_diff(&map, line1, count1, line2,
+						   count2);
 
 	xdl_free(map.entries);
 	return result;
 }
 
-int xdl_do_patience_diff(mmfile_t *file1, mmfile_t *file2,
-		xpparam_t const *xpp, xdfenv_t *env)
+int xdl_do_patience_diff(mmfile_t *file1, mmfile_t *file2, xpparam_t const *xpp,
+			 xdfenv_t *env)
 {
 	if (xdl_prepare_env(file1, file2, xpp, env) < 0)
 		return -1;
 
 	/* environment is cleaned up in xdl_diff() */
-	return patience_diff(file1, file2, xpp, env,
-			1, env->xdf1.nrec, 1, env->xdf2.nrec);
+	return patience_diff(file1, file2, xpp, env, 1, env->xdf1.nrec, 1,
+			     env->xdf2.nrec);
 }

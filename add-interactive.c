@@ -36,8 +36,7 @@ void init_add_i_state(struct add_i_state *s, struct repository *r)
 	if (repo_config_get_value(r, "color.interactive", &value))
 		s->use_color = -1;
 	else
-		s->use_color =
-			git_config_colorbool("color.interactive", value);
+		s->use_color = git_config_colorbool("color.interactive", value);
 	s->use_color = want_color(s->use_color);
 
 	init_color(r, s, "interactive.header", s->header_color, GIT_COLOR_BOLD);
@@ -54,20 +53,19 @@ void init_add_i_state(struct add_i_state *s, struct repository *r)
 		init_color(r, s, "diff.plain", s->context_color,
 			   diff_get_color(s->use_color, DIFF_CONTEXT));
 	init_color(r, s, "diff.old", s->file_old_color,
-		diff_get_color(s->use_color, DIFF_FILE_OLD));
+		   diff_get_color(s->use_color, DIFF_FILE_OLD));
 	init_color(r, s, "diff.new", s->file_new_color,
-		diff_get_color(s->use_color, DIFF_FILE_NEW));
+		   diff_get_color(s->use_color, DIFF_FILE_NEW));
 
-	strlcpy(s->reset_color,
-		s->use_color ? GIT_COLOR_RESET : "", COLOR_MAXLEN);
+	strlcpy(s->reset_color, s->use_color ? GIT_COLOR_RESET : "",
+		COLOR_MAXLEN);
 
 	FREE_AND_NULL(s->interactive_diff_filter);
 	git_config_get_string("interactive.difffilter",
 			      &s->interactive_diff_filter);
 
 	FREE_AND_NULL(s->interactive_diff_algorithm);
-	git_config_get_string("diff.algorithm",
-			      &s->interactive_diff_algorithm);
+	git_config_get_string("diff.algorithm", &s->interactive_diff_algorithm);
 
 	git_config_get_bool("interactive.singlekey", &s->use_single_key);
 }
@@ -102,8 +100,10 @@ struct prefix_item_list {
 	int *selected; /* for multi-selections */
 	size_t min_length, max_length;
 };
-#define PREFIX_ITEM_LIST_INIT \
-	{ STRING_LIST_INIT_DUP, STRING_LIST_INIT_NODUP, NULL, 1, 4 }
+#define PREFIX_ITEM_LIST_INIT                                            \
+	{                                                                \
+		STRING_LIST_INIT_DUP, STRING_LIST_INIT_NODUP, NULL, 1, 4 \
+	}
 
 static void prefix_item_list_clear(struct prefix_item_list *list)
 {
@@ -148,8 +148,8 @@ static void find_unique_prefixes(struct prefix_item_list *list)
 
 	string_list_clear(&list->sorted, 0);
 	/* Avoid reallocating incrementally */
-	list->sorted.items = xmalloc(st_mult(sizeof(*list->sorted.items),
-					     list->items.nr));
+	list->sorted.items =
+		xmalloc(st_mult(sizeof(*list->sorted.items), list->items.nr));
 	list->sorted.nr = list->sorted.alloc = list->items.nr;
 
 	for (i = 0; i < list->items.nr; i++) {
@@ -189,8 +189,8 @@ static ssize_t find_unique(const char *string, struct prefix_item_list *list)
 	struct string_list_item *item;
 
 	if (list->items.nr != list->sorted.nr)
-		BUG("prefix_item_list in inconsistent state (%"PRIuMAX
-		    " vs %"PRIuMAX")",
+		BUG("prefix_item_list in inconsistent state (%" PRIuMAX
+		    " vs %" PRIuMAX ")",
 		    (uintmax_t)list->items.nr, (uintmax_t)list->sorted.nr);
 
 	if (index < 0)
@@ -226,8 +226,7 @@ static void list(struct add_i_state *s, struct string_list *list, int *selected,
 		return;
 
 	if (opts->header)
-		color_fprintf_ln(stdout, s->header_color,
-				 "%s", opts->header);
+		color_fprintf_ln(stdout, s->header_color, "%s", opts->header);
 
 	for (i = 0; i < list->nr; i++) {
 		opts->print_item(i, selected ? selected[i] : 0, list->items + i,
@@ -236,8 +235,7 @@ static void list(struct add_i_state *s, struct string_list *list, int *selected,
 		if ((opts->columns) && ((i + 1) % (opts->columns))) {
 			putchar('\t');
 			last_lf = 0;
-		}
-		else {
+		} else {
 			putchar('\n');
 			last_lf = 1;
 		}
@@ -250,15 +248,14 @@ struct list_and_choose_options {
 	struct list_options list_opts;
 
 	const char *prompt;
-	enum {
-		SINGLETON = (1<<0),
-		IMMEDIATE = (1<<1),
+	enum { SINGLETON = (1 << 0),
+	       IMMEDIATE = (1 << 1),
 	} flags;
 	void (*print_help)(struct add_i_state *s);
 };
 
 #define LIST_AND_CHOOSE_ERROR (-1)
-#define LIST_AND_CHOOSE_QUIT  (-2)
+#define LIST_AND_CHOOSE_QUIT (-2)
 
 /*
  * Returns the selected index in singleton mode, the number of selected items
@@ -403,7 +400,7 @@ static ssize_t list_and_choose(struct add_i_state *s,
 
 struct adddel {
 	uintmax_t add, del;
-	unsigned seen:1, unmerged:1, binary:1;
+	unsigned seen : 1, unmerged : 1, binary : 1;
 };
 
 struct file_item {
@@ -426,8 +423,7 @@ struct pathname_entry {
 
 static int pathname_entry_cmp(const void *unused_cmp_data,
 			      const struct hashmap_entry *he1,
-			      const struct hashmap_entry *he2,
-			      const void *name)
+			      const struct hashmap_entry *he2, const void *name)
 {
 	const struct pathname_entry *e1 =
 		container_of(he1, const struct pathname_entry, ent);
@@ -442,15 +438,14 @@ struct collection_status {
 
 	const char *reference;
 
-	unsigned skip_unseen:1;
+	unsigned skip_unseen : 1;
 	size_t unmerged_count, binary_count;
 	struct string_list *files;
 	struct hashmap file_map;
 };
 
 static void collect_changes_cb(struct diff_queue_struct *q,
-			       struct diff_options *options,
-			       void *data)
+			       struct diff_options *options, void *data)
 {
 	struct collection_status *s = data;
 	struct diffstat_t stat = { 0 };
@@ -484,10 +479,10 @@ static void collect_changes_cb(struct diff_queue_struct *q,
 		}
 
 		file_item = entry->item;
-		adddel = s->mode == FROM_INDEX ?
-			&file_item->index : &file_item->worktree;
-		other_adddel = s->mode == FROM_INDEX ?
-			&file_item->worktree : &file_item->index;
+		adddel = s->mode == FROM_INDEX ? &file_item->index :
+						 &file_item->worktree;
+		other_adddel = s->mode == FROM_INDEX ? &file_item->worktree :
+						       &file_item->index;
 		adddel->seen = 1;
 		adddel->add = stat.files[i]->added;
 		adddel->del = stat.files[i]->deleted;
@@ -514,8 +509,7 @@ enum modified_files_filter {
 static int get_modified_files(struct repository *r,
 			      enum modified_files_filter filter,
 			      struct prefix_item_list *files,
-			      const struct pathspec *ps,
-			      size_t *unmerged_count,
+			      const struct pathspec *ps, size_t *unmerged_count,
 			      size_t *binary_count)
 {
 	struct object_id head_oid;
@@ -542,8 +536,8 @@ static int get_modified_files(struct repository *r,
 			s.mode = (i == 0) ? FROM_WORKTREE : FROM_INDEX;
 		s.skip_unseen = filter && i;
 
-		opt.def = is_initial ?
-			empty_tree_oid_hex() : oid_to_hex(&head_oid);
+		opt.def = is_initial ? empty_tree_oid_hex() :
+				       oid_to_hex(&head_oid);
 
 		init_revisions(&rev, NULL);
 		setup_revisions(0, NULL, &rev, &opt);
@@ -577,14 +571,14 @@ static int get_modified_files(struct repository *r,
 	return 0;
 }
 
-static void render_adddel(struct strbuf *buf,
-				struct adddel *ad, const char *no_changes)
+static void render_adddel(struct strbuf *buf, struct adddel *ad,
+			  const char *no_changes)
 {
 	if (ad->binary)
 		strbuf_addstr(buf, _("binary"));
 	else if (ad->seen)
-		strbuf_addf(buf, "+%"PRIuMAX"/-%"PRIuMAX,
-			    (uintmax_t)ad->add, (uintmax_t)ad->del);
+		strbuf_addf(buf, "+%" PRIuMAX "/-%" PRIuMAX, (uintmax_t)ad->add,
+			    (uintmax_t)ad->del);
 	else
 		strbuf_addstr(buf, no_changes);
 }
@@ -593,23 +587,22 @@ static void render_adddel(struct strbuf *buf,
 static int is_valid_prefix(const char *prefix, size_t prefix_len)
 {
 	return prefix_len && prefix &&
-		/*
-		 * We expect `prefix` to be NUL terminated, therefore this
-		 * `strcspn()` call is okay, even if it might do much more
-		 * work than strictly necessary.
-		 */
-		strcspn(prefix, " \t\r\n,") >= prefix_len &&	/* separators */
-		*prefix != '-' &&				/* deselection */
-		!isdigit(*prefix) &&				/* selection */
-		(prefix_len != 1 ||
-		 (*prefix != '*' &&				/* "all" wildcard */
-		  *prefix != '?'));				/* prompt help */
+	       /*
+		* We expect `prefix` to be NUL terminated, therefore this
+		* `strcspn()` call is okay, even if it might do much more
+		* work than strictly necessary.
+		*/
+	       strcspn(prefix, " \t\r\n,") >= prefix_len && /* separators */
+	       *prefix != '-' && /* deselection */
+	       !isdigit(*prefix) && /* selection */
+	       (prefix_len != 1 || (*prefix != '*' && /* "all" wildcard */
+				    *prefix != '?')); /* prompt help */
 }
 
 struct print_file_item_data {
 	const char *modified_fmt, *color, *reset;
 	struct strbuf buf, name, index, worktree;
-	unsigned only_names:1;
+	unsigned only_names : 1;
 };
 
 static void print_file_item(int i, int selected, struct string_list_item *item,
@@ -699,12 +692,13 @@ static int run_update(struct add_i_state *s, const struct pathspec *ps,
 		}
 	}
 
-	if (!res && write_locked_index(s->r->index, &index_lock, COMMIT_LOCK) < 0)
+	if (!res &&
+	    write_locked_index(s->r->index, &index_lock, COMMIT_LOCK) < 0)
 		res = error(_("could not write index"));
 
 	if (!res)
-		printf(Q_("updated %d path\n",
-			  "updated %d paths\n", count), (int)count);
+		printf(Q_("updated %d path\n", "updated %d paths\n", count),
+		       (int)count);
 
 	putchar('\n');
 	return res;
@@ -741,8 +735,8 @@ static int run_revert(struct add_i_state *s, const struct pathspec *ps,
 	size_t count, i, j;
 
 	struct object_id oid;
-	int is_initial = !resolve_ref_unsafe("HEAD", RESOLVE_REF_READING, &oid,
-					     NULL);
+	int is_initial =
+		!resolve_ref_unsafe("HEAD", RESOLVE_REF_READING, &oid, NULL);
 	struct lock_file index_lock;
 	const char **paths;
 	struct tree *tree;
@@ -785,8 +779,8 @@ static int run_revert(struct add_i_state *s, const struct pathspec *ps,
 	paths[j] = NULL;
 
 	parse_pathspec(&diffopt.pathspec, 0,
-		       PATHSPEC_PREFER_FULL | PATHSPEC_LITERAL_PATH,
-		       NULL, paths);
+		       PATHSPEC_PREFER_FULL | PATHSPEC_LITERAL_PATH, NULL,
+		       paths);
 
 	diffopt.output_format = DIFF_FORMAT_CALLBACK;
 	diffopt.format_callback = revert_from_diff;
@@ -802,16 +796,16 @@ static int run_revert(struct add_i_state *s, const struct pathspec *ps,
 	free(paths);
 	clear_pathspec(&diffopt.pathspec);
 
-	if (!res && write_locked_index(s->r->index, &index_lock,
-				       COMMIT_LOCK) < 0)
+	if (!res &&
+	    write_locked_index(s->r->index, &index_lock, COMMIT_LOCK) < 0)
 		res = -1;
 	else
 		res = repo_refresh_and_write_index(s->r, REFRESH_QUIET, 0, 1,
 						   NULL, NULL, NULL);
 
 	if (!res)
-		printf(Q_("reverted %d path\n",
-			  "reverted %d paths\n", count), (int)count);
+		printf(Q_("reverted %d path\n", "reverted %d paths\n", count),
+		       (int)count);
 
 finish_revert:
 	putchar('\n');
@@ -849,8 +843,8 @@ static int get_untracked_files(struct repository *r,
 }
 
 static int run_add_untracked(struct add_i_state *s, const struct pathspec *ps,
-		      struct prefix_item_list *files,
-		      struct list_and_choose_options *opts)
+			     struct prefix_item_list *files,
+			     struct list_and_choose_options *opts)
 {
 	struct print_file_item_data *d = opts->list_opts.print_item_data;
 	int res = 0, fd;
@@ -892,8 +886,8 @@ static int run_add_untracked(struct add_i_state *s, const struct pathspec *ps,
 		res = error(_("could not write index"));
 
 	if (!res)
-		printf(Q_("added %d path\n",
-			  "added %d paths\n", count), (int)count);
+		printf(Q_("added %d path\n", "added %d paths\n", count),
+		       (int)count);
 
 finish_add_untracked:
 	putchar('\n');
@@ -908,8 +902,8 @@ static int run_patch(struct add_i_state *s, const struct pathspec *ps,
 	ssize_t count, i, j;
 	size_t unmerged_count = 0, binary_count = 0;
 
-	if (get_modified_files(s->r, WORKTREE_ONLY, files, ps,
-			       &unmerged_count, &binary_count) < 0)
+	if (get_modified_files(s->r, WORKTREE_ONLY, files, ps, &unmerged_count,
+			       &binary_count) < 0)
 		return -1;
 
 	if (unmerged_count || binary_count) {
@@ -920,7 +914,7 @@ static int run_patch(struct add_i_state *s, const struct pathspec *ps,
 				free(item);
 				free(files->items.items[i].string);
 			} else if (item->index.unmerged ||
-				 item->worktree.unmerged) {
+				   item->worktree.unmerged) {
 				color_fprintf_ln(stderr, s->error_color,
 						 _("ignoring unmerged: %s"),
 						 files->items.items[i].string);
@@ -969,8 +963,8 @@ static int run_diff(struct add_i_state *s, const struct pathspec *ps,
 	ssize_t count, i;
 
 	struct object_id oid;
-	int is_initial = !resolve_ref_unsafe("HEAD", RESOLVE_REF_READING, &oid,
-					     NULL);
+	int is_initial =
+		!resolve_ref_unsafe("HEAD", RESOLVE_REF_READING, &oid, NULL);
 	if (get_modified_files(s->r, INDEX_ONLY, files, ps, NULL, NULL) < 0)
 		return -1;
 
@@ -987,8 +981,9 @@ static int run_diff(struct add_i_state *s, const struct pathspec *ps,
 		struct strvec args = STRVEC_INIT;
 
 		strvec_pushl(&args, "git", "diff", "-p", "--cached",
-			     oid_to_hex(!is_initial ? &oid :
-					s->r->hash_algo->empty_tree),
+			     oid_to_hex(!is_initial ?
+						&oid :
+						s->r->hash_algo->empty_tree),
 			     "--", NULL);
 		for (i = 0; i < files->items.nr; i++)
 			if (files->selected[i])
@@ -1008,24 +1003,26 @@ static int run_help(struct add_i_state *s, const struct pathspec *unused_ps,
 {
 	color_fprintf_ln(stdout, s->help_color, "status        - %s",
 			 _("show paths with changes"));
-	color_fprintf_ln(stdout, s->help_color, "update        - %s",
-			 _("add working tree state to the staged set of changes"));
-	color_fprintf_ln(stdout, s->help_color, "revert        - %s",
-			 _("revert staged set of changes back to the HEAD version"));
+	color_fprintf_ln(
+		stdout, s->help_color, "update        - %s",
+		_("add working tree state to the staged set of changes"));
+	color_fprintf_ln(
+		stdout, s->help_color, "revert        - %s",
+		_("revert staged set of changes back to the HEAD version"));
 	color_fprintf_ln(stdout, s->help_color, "patch         - %s",
 			 _("pick hunks and update selectively"));
 	color_fprintf_ln(stdout, s->help_color, "diff          - %s",
 			 _("view diff between HEAD and index"));
-	color_fprintf_ln(stdout, s->help_color, "add untracked - %s",
-			 _("add contents of untracked files to the staged set of changes"));
+	color_fprintf_ln(
+		stdout, s->help_color, "add untracked - %s",
+		_("add contents of untracked files to the staged set of changes"));
 
 	return 0;
 }
 
 static void choose_prompt_help(struct add_i_state *s)
 {
-	color_fprintf_ln(stdout, s->help_color, "%s",
-			 _("Prompt help:"));
+	color_fprintf_ln(stdout, s->help_color, "%s", _("Prompt help:"));
 	color_fprintf_ln(stdout, s->help_color, "1          - %s",
 			 _("select a single item"));
 	color_fprintf_ln(stdout, s->help_color, "3-5        - %s",
@@ -1066,9 +1063,9 @@ static void print_command_item(int i, int selected,
 	    !is_valid_prefix(item->string, util->prefix_length))
 		printf(" %2d: %s", i + 1, item->string);
 	else
-		printf(" %2d: %s%.*s%s%s", i + 1,
-		       d->color, (int)util->prefix_length, item->string,
-		       d->reset, item->string + util->prefix_length);
+		printf(" %2d: %s%.*s%s%s", i + 1, d->color,
+		       (int)util->prefix_length, item->string, d->reset,
+		       item->string + util->prefix_length);
 }
 
 static void command_prompt_help(struct add_i_state *s)
@@ -1089,7 +1086,9 @@ int run_add_i(struct repository *r, const struct pathspec *ps)
 	struct print_command_item_data data = { "[", "]" };
 	struct list_and_choose_options main_loop_opts = {
 		{ 4, N_("*** Commands ***"), print_command_item, &data },
-		N_("What now"), SINGLETON | IMMEDIATE, command_prompt_help
+		N_("What now"),
+		SINGLETON | IMMEDIATE,
+		command_prompt_help
 	};
 	struct {
 		const char *string;
@@ -1107,13 +1106,14 @@ int run_add_i(struct repository *r, const struct pathspec *ps)
 	struct prefix_item_list commands = PREFIX_ITEM_LIST_INIT;
 
 	struct print_file_item_data print_file_item_data = {
-		"%12s %12s %s", NULL, NULL,
-		STRBUF_INIT, STRBUF_INIT, STRBUF_INIT, STRBUF_INIT
+		"%12s %12s %s", NULL,	     NULL,	 STRBUF_INIT,
+		STRBUF_INIT,	STRBUF_INIT, STRBUF_INIT
 	};
-	struct list_and_choose_options opts = {
-		{ 0, NULL, print_file_item, &print_file_item_data },
-		NULL, 0, choose_prompt_help
-	};
+	struct list_and_choose_options opts = { { 0, NULL, print_file_item,
+						  &print_file_item_data },
+						NULL,
+						0,
+						choose_prompt_help };
 	struct strbuf header = STRBUF_INIT;
 	struct prefix_item_list files = PREFIX_ITEM_LIST_INIT;
 	ssize_t i;
@@ -1140,14 +1140,13 @@ int run_add_i(struct repository *r, const struct pathspec *ps)
 	print_file_item_data.reset = data.reset;
 
 	strbuf_addstr(&header, "     ");
-	strbuf_addf(&header, print_file_item_data.modified_fmt,
-		    _("staged"), _("unstaged"), _("path"));
+	strbuf_addf(&header, print_file_item_data.modified_fmt, _("staged"),
+		    _("unstaged"), _("path"));
 	opts.list_opts.header = header.buf;
 
-	if (discard_index(r->index) < 0 ||
-	    repo_read_index(r) < 0 ||
-	    repo_refresh_and_write_index(r, REFRESH_QUIET, 0, 1,
-					 NULL, NULL, NULL) < 0)
+	if (discard_index(r->index) < 0 || repo_read_index(r) < 0 ||
+	    repo_refresh_and_write_index(r, REFRESH_QUIET, 0, 1, NULL, NULL,
+					 NULL) < 0)
 		warning(_("could not refresh index"));
 
 	res = run_status(&s, ps, &files, &opts);

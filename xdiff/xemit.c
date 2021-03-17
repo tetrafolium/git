@@ -22,32 +22,31 @@
 
 #include "xinclude.h"
 
-static long xdl_get_rec(xdfile_t *xdf, long ri, char const **rec) {
-
+static long xdl_get_rec(xdfile_t *xdf, long ri, char const **rec)
+{
 	*rec = xdf->recs[ri]->ptr;
 
 	return xdf->recs[ri]->size;
 }
 
-
-static int xdl_emit_record(xdfile_t *xdf, long ri, char const *pre, xdemitcb_t *ecb) {
+static int xdl_emit_record(xdfile_t *xdf, long ri, char const *pre,
+			   xdemitcb_t *ecb)
+{
 	long size, psize = strlen(pre);
 	char const *rec;
 
 	size = xdl_get_rec(xdf, ri, &rec);
 	if (xdl_emit_diffrec(rec, size, pre, psize, ecb) < 0) {
-
 		return -1;
 	}
 
 	return 0;
 }
 
-
 /*
- * Starting at the passed change atom, find the latest change atom to be included
- * inside the differential hunk according to the specified configuration.
- * Also advance xscr if the first changes must be discarded.
+ * Starting at the passed change atom, find the latest change atom to be
+ * included inside the differential hunk according to the specified
+ * configuration. Also advance xscr if the first changes must be discarded.
  */
 xdchange_t *xdl_get_hunk(xdchange_t **xscr, xdemitconf_t const *xecfg)
 {
@@ -75,13 +74,15 @@ xdchange_t *xdl_get_hunk(xdchange_t **xscr, xdemitconf_t const *xecfg)
 		if (distance > max_common)
 			break;
 
-		if (distance < max_ignorable && (!xch->ignore || lxch == xchp)) {
+		if (distance < max_ignorable &&
+		    (!xch->ignore || lxch == xchp)) {
 			lxch = xch;
 			ignored = 0;
 		} else if (distance < max_ignorable && xch->ignore) {
 			ignored += xch->chg2;
 		} else if (lxch != xchp &&
-			   xch->i1 + ignored - (lxch->i1 + lxch->chg1) > max_common) {
+			   xch->i1 + ignored - (lxch->i1 + lxch->chg1) >
+				   max_common) {
 			break;
 		} else if (!xch->ignore) {
 			lxch = xch;
@@ -94,13 +95,12 @@ xdchange_t *xdl_get_hunk(xdchange_t **xscr, xdemitconf_t const *xecfg)
 	return lxch;
 }
 
-
 static long def_ff(const char *rec, long len, char *buf, long sz, void *priv)
 {
-	if (len > 0 &&
-			(isalpha((unsigned char)*rec) || /* identifier? */
-			 *rec == '_' || /* also identifier? */
-			 *rec == '$')) { /* identifiers from VMS and other esoterico */
+	if (len > 0 && (isalpha((unsigned char)*rec) || /* identifier? */
+			*rec == '_' || /* also identifier? */
+			*rec == '$')) { /* identifiers from VMS and other
+					   esoterico */
 		if (len > sz)
 			len = sz;
 		while (0 < len && isspace((unsigned char)rec[len - 1]))
@@ -165,7 +165,8 @@ static int is_empty_rec(xdfile_t *xdf, long ri)
 }
 
 int xdl_emit_diff(xdfenv_t *xe, xdchange_t *xscr, xdemitcb_t *ecb,
-		  xdemitconf_t const *xecfg) {
+		  xdemitconf_t const *xecfg)
+{
 	long s1, s2, e1, e2, lctx;
 	xdchange_t *xch, *xche;
 	long funclineprev = -1;
@@ -177,7 +178,7 @@ int xdl_emit_diff(xdfenv_t *xe, xdchange_t *xscr, xdemitcb_t *ecb,
 		if (!xch)
 			break;
 
-pre_context_calculation:
+	pre_context_calculation:
 		s1 = XDL_MAX(xch->i1 - xecfg->ctxlen, 0);
 		s2 = XDL_MAX(xch->i2 - xecfg->ctxlen, 0);
 
@@ -232,7 +233,7 @@ pre_context_calculation:
 			}
 		}
 
- post_context_calculation:
+	post_context_calculation:
 		lctx = xecfg->ctxlen;
 		lctx = XDL_MIN(lctx, xe->xdf1.nrec - (xche->i1 + xche->chg1));
 		lctx = XDL_MIN(lctx, xe->xdf2.nrec - (xche->i2 + xche->chg2));
@@ -274,8 +275,8 @@ pre_context_calculation:
 		 */
 
 		if (xecfg->flags & XDL_EMIT_FUNCNAMES) {
-			get_func_line(xe, xecfg, &func_line,
-				      s1 - 1, funclineprev);
+			get_func_line(xe, xecfg, &func_line, s1 - 1,
+				      funclineprev);
 			funclineprev = s1 - 1;
 		}
 		if (xdl_emit_hunk_hdr(s1 + 1, e1 - s1, s2 + 1, e2 - s2,
@@ -294,21 +295,24 @@ pre_context_calculation:
 			 * Merge previous with current change atom.
 			 */
 			for (; s1 < xch->i1 && s2 < xch->i2; s1++, s2++)
-				if (xdl_emit_record(&xe->xdf2, s2, " ", ecb) < 0)
+				if (xdl_emit_record(&xe->xdf2, s2, " ", ecb) <
+				    0)
 					return -1;
 
 			/*
 			 * Removes lines from the first file.
 			 */
 			for (s1 = xch->i1; s1 < xch->i1 + xch->chg1; s1++)
-				if (xdl_emit_record(&xe->xdf1, s1, "-", ecb) < 0)
+				if (xdl_emit_record(&xe->xdf1, s1, "-", ecb) <
+				    0)
 					return -1;
 
 			/*
 			 * Adds lines from the second file.
 			 */
 			for (s2 = xch->i2; s2 < xch->i2 + xch->chg2; s2++)
-				if (xdl_emit_record(&xe->xdf2, s2, "+", ecb) < 0)
+				if (xdl_emit_record(&xe->xdf2, s2, "+", ecb) <
+				    0)
 					return -1;
 
 			if (xch == xche)

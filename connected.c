@@ -43,8 +43,8 @@ int check_connected(oid_iterate_fn fn, void *cb_data,
 	if (transport && transport->smart_options &&
 	    transport->smart_options->self_contained_and_connected &&
 	    transport->pack_lockfiles.nr == 1 &&
-	    strip_suffix(transport->pack_lockfiles.items[0].string,
-			 ".keep", &base_len)) {
+	    strip_suffix(transport->pack_lockfiles.items[0].string, ".keep",
+			 &base_len)) {
 		struct strbuf idx_file = STRBUF_INIT;
 		strbuf_add(&idx_file, transport->pack_lockfiles.items[0].string,
 			   base_len);
@@ -70,7 +70,8 @@ int check_connected(oid_iterate_fn fn, void *cb_data,
 		do {
 			struct packed_git *p;
 
-			for (p = get_all_packs(the_repository); p; p = p->next) {
+			for (p = get_all_packs(the_repository); p;
+			     p = p->next) {
 				if (!p->pack_promisor)
 					continue;
 				if (find_pack_entry_one(oid.hash, p))
@@ -81,8 +82,7 @@ int check_connected(oid_iterate_fn fn, void *cb_data,
 			 * object IDs provided by fn.
 			 */
 			goto no_promisor_pack_found;
-promisor_pack_found:
-			;
+		promisor_pack_found:;
 		} while (!fn(cb_data, &oid));
 		return 0;
 	}
@@ -92,7 +92,7 @@ no_promisor_pack_found:
 		strvec_push(&rev_list.args, "--shallow-file");
 		strvec_push(&rev_list.args, opt->shallow_file);
 	}
-	strvec_push(&rev_list.args,"rev-list");
+	strvec_push(&rev_list.args, "rev-list");
 	strvec_push(&rev_list.args, "--objects");
 	strvec_push(&rev_list.args, "--stdin");
 	if (has_promisor_remote())

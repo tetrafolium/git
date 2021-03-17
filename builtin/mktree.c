@@ -14,7 +14,7 @@ static struct treeent {
 	struct object_id oid;
 	int len;
 	char name[FLEX_ARRAY];
-} **entries;
+} * *entries;
 static int alloc, used;
 
 static void append_to_tree(unsigned mode, struct object_id *oid, char *path)
@@ -37,8 +37,8 @@ static int ent_compare(const void *a_, const void *b_)
 {
 	struct treeent *a = *(struct treeent **)a_;
 	struct treeent *b = *(struct treeent **)b_;
-	return base_name_compare(a->name, a->len, a->mode,
-				 b->name, b->len, b->mode);
+	return base_name_compare(a->name, a->len, a->mode, b->name, b->len,
+				 b->mode);
 }
 
 static void write_tree(struct object_id *oid)
@@ -63,8 +63,7 @@ static void write_tree(struct object_id *oid)
 }
 
 static const char *mktree_usage[] = {
-	N_("git mktree [-z] [--missing] [--batch]"),
-	NULL
+	N_("git mktree [-z] [--missing] [--batch]"), NULL
 };
 
 static void mktree_line(char *buf, int nul_term_line, int allow_missing)
@@ -87,18 +86,16 @@ static void mktree_line(char *buf, int nul_term_line, int allow_missing)
 		die("input format error: %s", buf);
 	ptr = ntr + 1; /* type */
 	ntr = strchr(ptr, ' ');
-	if (!ntr || parse_oid_hex(ntr + 1, &oid, &p) ||
-	    *p != '\t')
+	if (!ntr || parse_oid_hex(ntr + 1, &oid, &p) || *p != '\t')
 		die("input format error: %s", buf);
 
 	/* It is perfectly normal if we do not have a commit from a submodule */
 	if (S_ISGITLINK(mode))
 		allow_missing = 1;
 
-
 	*ntr++ = 0; /* now at the beginning of SHA1 */
 
-	path = (char *)p + 1;  /* at the beginning of name */
+	path = (char *)p + 1; /* at the beginning of name */
 	if (!nul_term_line && path[0] == '"') {
 		struct strbuf p_uq = STRBUF_INIT;
 		if (unquote_c_style(&p_uq, path, NULL))
@@ -113,16 +110,18 @@ static void mktree_line(char *buf, int nul_term_line, int allow_missing)
 	mode_type = object_type(mode);
 	if (mode_type != type_from_string(ptr)) {
 		die("entry '%s' object type (%s) doesn't match mode type (%s)",
-			path, ptr, type_name(mode_type));
+		    path, ptr, type_name(mode_type));
 	}
 
 	/* Check the type of object identified by sha1 */
 	obj_type = oid_object_info(the_repository, &oid, NULL);
 	if (obj_type < 0) {
 		if (allow_missing) {
-			; /* no problem - missing objects are presumed to be of the right type */
+			; /* no problem - missing objects are presumed to be of
+			     the right type */
 		} else {
-			die("entry '%s' object %s is unavailable", path, oid_to_hex(&oid));
+			die("entry '%s' object %s is unavailable", path,
+			    oid_to_hex(&oid));
 		}
 	} else {
 		if (obj_type != mode_type) {
@@ -132,7 +131,8 @@ static void mktree_line(char *buf, int nul_term_line, int allow_missing)
 			 * because the new tree entry will never be correct.
 			 */
 			die("entry '%s' object %s is a %s but specified type was (%s)",
-				path, oid_to_hex(&oid), type_name(obj_type), type_name(mode_type));
+			    path, oid_to_hex(&oid), type_name(obj_type),
+			    type_name(mode_type));
 		}
 	}
 
@@ -151,9 +151,12 @@ int cmd_mktree(int ac, const char **av, const char *prefix)
 	strbuf_getline_fn getline_fn;
 
 	const struct option option[] = {
-		OPT_BOOL('z', NULL, &nul_term_line, N_("input is NUL terminated")),
-		OPT_SET_INT( 0 , "missing", &allow_missing, N_("allow missing objects"), 1),
-		OPT_SET_INT( 0 , "batch", &is_batch_mode, N_("allow creation of more than one tree"), 1),
+		OPT_BOOL('z', NULL, &nul_term_line,
+			 N_("input is NUL terminated")),
+		OPT_SET_INT(0, "missing", &allow_missing,
+			    N_("allow missing objects"), 1),
+		OPT_SET_INT(0, "batch", &is_batch_mode,
+			    N_("allow creation of more than one tree"), 1),
 		OPT_END()
 	};
 
@@ -167,7 +170,8 @@ int cmd_mktree(int ac, const char **av, const char *prefix)
 				break;
 			}
 			if (sb.buf[0] == '\0') {
-				/* empty lines denote tree boundaries in batch mode */
+				/* empty lines denote tree boundaries in batch
+				 * mode */
 				if (is_batch_mode)
 					break;
 				die("input format error: (blank line only valid in batch mode)");
@@ -176,9 +180,10 @@ int cmd_mktree(int ac, const char **av, const char *prefix)
 		}
 		if (is_batch_mode && got_eof && used < 1) {
 			/*
-			 * Execution gets here if the last tree entry is terminated with a
-			 * new-line.  The final new-line has been made optional to be
-			 * consistent with the original non-batch behaviour of mktree.
+			 * Execution gets here if the last tree entry is
+			 * terminated with a new-line.  The final new-line has
+			 * been made optional to be consistent with the original
+			 * non-batch behaviour of mktree.
 			 */
 			; /* skip creating an empty tree */
 		} else {
@@ -186,7 +191,7 @@ int cmd_mktree(int ac, const char **av, const char *prefix)
 			puts(oid_to_hex(&oid));
 			fflush(stdout);
 		}
-		used=0; /* reset tree entry buffer for re-use in batch mode */
+		used = 0; /* reset tree entry buffer for re-use in batch mode */
 	}
 	strbuf_release(&sb);
 	exit(0);

@@ -24,7 +24,8 @@ static int merge_entry(int pos, const char *path)
 			break;
 		found++;
 		oid_to_hex_r(hexbuf[stage], &ce->oid);
-		xsnprintf(ownbuf[stage], sizeof(ownbuf[stage]), "%o", ce->ce_mode);
+		xsnprintf(ownbuf[stage], sizeof(ownbuf[stage]), "%o",
+			  ce->ce_mode);
 		arguments[stage] = hexbuf[stage];
 		arguments[stage + 4] = ownbuf[stage];
 	} while (++pos < active_nr);
@@ -52,7 +53,7 @@ static void merge_one_path(const char *path)
 	 * already merged and there is nothing to do.
 	 */
 	if (pos < 0)
-		merge_entry(-pos-1, path);
+		merge_entry(-pos - 1, path);
 }
 
 static void merge_all(void)
@@ -62,7 +63,7 @@ static void merge_all(void)
 		const struct cache_entry *ce = active_cache[i];
 		if (!ce_stage(ce))
 			continue;
-		i += merge_entry(i, ce->name)-1;
+		i += merge_entry(i, ce->name) - 1;
 	}
 }
 

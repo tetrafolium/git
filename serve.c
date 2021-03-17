@@ -10,22 +10,19 @@
 
 static int advertise_sid;
 
-static int always_advertise(struct repository *r,
-			    struct strbuf *value)
+static int always_advertise(struct repository *r, struct strbuf *value)
 {
 	return 1;
 }
 
-static int agent_advertise(struct repository *r,
-			   struct strbuf *value)
+static int agent_advertise(struct repository *r, struct strbuf *value)
 {
 	if (value)
 		strbuf_addstr(value, git_user_agent_sanitized());
 	return 1;
 }
 
-static int object_format_advertise(struct repository *r,
-				   struct strbuf *value)
+static int object_format_advertise(struct repository *r, struct strbuf *value)
 {
 	if (value)
 		strbuf_addstr(value, r->hash_algo->name);
@@ -66,8 +63,7 @@ struct protocol_capability {
 	 *
 	 * This field should be NULL for capabilities which are not commands.
 	 */
-	int (*command)(struct repository *r,
-		       struct strvec *keys,
+	int (*command)(struct repository *r, struct strvec *keys,
 		       struct packet_reader *request);
 };
 
@@ -144,7 +140,8 @@ static int is_command(const char *key, struct protocol_capability **command)
 		if (*command)
 			die("command '%s' requested after already requesting command '%s'",
 			    out, (*command)->name);
-		if (!cmd || !cmd->advertise(the_repository, NULL) || !cmd->command)
+		if (!cmd || !cmd->advertise(the_repository, NULL) ||
+		    !cmd->command)
 			die("invalid command '%s'", out);
 
 		*command = cmd;
@@ -205,8 +202,8 @@ static int process_request(void)
 
 	packet_reader_init(&reader, 0, NULL, 0,
 			   PACKET_READ_CHOMP_NEWLINE |
-			   PACKET_READ_GENTLE_ON_EOF |
-			   PACKET_READ_DIE_ON_ERR_PACKET);
+				   PACKET_READ_GENTLE_ON_EOF |
+				   PACKET_READ_DIE_ON_ERR_PACKET);
 
 	/*
 	 * Check to see if the client closed their end before sending another

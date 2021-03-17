@@ -14,11 +14,13 @@ static int memory_limit_check(size_t size, int gentle)
 	}
 	if (size > limit) {
 		if (gentle) {
-			error("attempting to allocate %"PRIuMAX" over limit %"PRIuMAX,
+			error("attempting to allocate %" PRIuMAX
+			      " over limit %" PRIuMAX,
 			      (uintmax_t)size, (uintmax_t)limit);
 			return -1;
 		} else
-			die("attempting to allocate %"PRIuMAX" over limit %"PRIuMAX,
+			die("attempting to allocate %" PRIuMAX
+			    " over limit %" PRIuMAX,
 			    (uintmax_t)size, (uintmax_t)limit);
 	}
 	return 0;
@@ -74,7 +76,7 @@ static void *do_xmallocz(size_t size, int gentle)
 	}
 	ret = do_xmalloc(size + 1, gentle);
 	if (ret)
-		((char*)ret)[size] = 0;
+		((char *)ret)[size] = 0;
 	return ret;
 }
 
@@ -159,12 +161,12 @@ void *xcalloc(size_t nmemb, size_t size)
  * is broken.
  */
 #ifndef MAX_IO_SIZE
-# define MAX_IO_SIZE_DEFAULT (8*1024*1024)
-# if defined(SSIZE_MAX) && (SSIZE_MAX < MAX_IO_SIZE_DEFAULT)
-#  define MAX_IO_SIZE SSIZE_MAX
-# else
-#  define MAX_IO_SIZE MAX_IO_SIZE_DEFAULT
-# endif
+#define MAX_IO_SIZE_DEFAULT (8 * 1024 * 1024)
+#if defined(SSIZE_MAX) && (SSIZE_MAX < MAX_IO_SIZE_DEFAULT)
+#define MAX_IO_SIZE SSIZE_MAX
+#else
+#define MAX_IO_SIZE MAX_IO_SIZE_DEFAULT
+#endif
 #endif
 
 /**
@@ -194,7 +196,9 @@ int xopen(const char *path, int oflag, ...)
 			continue;
 
 		if ((oflag & O_RDWR) == O_RDWR)
-			die_errno(_("could not open '%s' for reading and writing"), path);
+			die_errno(
+				_("could not open '%s' for reading and writing"),
+				path);
 		else if ((oflag & O_WRONLY) == O_WRONLY)
 			die_errno(_("could not open '%s' for writing"), path);
 		else
@@ -364,7 +368,9 @@ FILE *xfopen(const char *path, const char *mode)
 			continue;
 
 		if (*mode && mode[1] == '+')
-			die_errno(_("could not open '%s' for reading and writing"), path);
+			die_errno(
+				_("could not open '%s' for reading and writing"),
+				path);
 		else if (*mode == 'w' || *mode == 'a')
 			die_errno(_("could not open '%s' for writing"), path);
 		else
@@ -436,7 +442,7 @@ int xmkstemp(char *filename_template)
 		nonrelative_template = absolute_path(filename_template);
 		errno = saved_errno;
 		die_errno("Unable to create temporary file '%s'",
-			nonrelative_template);
+			  nonrelative_template);
 	}
 	return fd;
 }
@@ -448,10 +454,9 @@ int xmkstemp(char *filename_template)
 
 int git_mkstemps_mode(char *pattern, int suffix_len, int mode)
 {
-	static const char letters[] =
-		"abcdefghijklmnopqrstuvwxyz"
-		"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-		"0123456789";
+	static const char letters[] = "abcdefghijklmnopqrstuvwxyz"
+				      "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+				      "0123456789";
 	static const int num_letters = ARRAY_SIZE(letters) - 1;
 	static const char x_pattern[] = "XXXXXX";
 	static const int num_x = ARRAY_SIZE(x_pattern) - 1;
@@ -533,7 +538,7 @@ int xmkstemp_mode(char *filename_template, int mode)
 		nonrelative_template = absolute_path(filename_template);
 		errno = saved_errno;
 		die_errno("Unable to create temporary file '%s'",
-			nonrelative_template);
+			  nonrelative_template);
 	}
 	return fd;
 }
@@ -558,8 +563,7 @@ int unlink_or_msg(const char *file, struct strbuf *err)
 	if (!rc || errno == ENOENT)
 		return 0;
 
-	strbuf_addf(err, "unable to unlink '%s': %s",
-		    file, strerror(errno));
+	strbuf_addf(err, "unable to unlink '%s': %s", file, strerror(errno));
 	return -1;
 }
 

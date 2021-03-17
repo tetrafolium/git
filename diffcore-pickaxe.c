@@ -10,8 +10,7 @@
 #include "commit.h"
 #include "quote.h"
 
-typedef int (*pickaxe_fn)(mmfile_t *one, mmfile_t *two,
-			  struct diff_options *o,
+typedef int (*pickaxe_fn)(mmfile_t *one, mmfile_t *two, struct diff_options *o,
 			  regex_t *regexp, kwset_t kws);
 
 struct diffgrep_cb {
@@ -32,12 +31,11 @@ static void diffgrep_consume(void *priv, char *line, unsigned long len)
 		 * caller early.
 		 */
 		return;
-	data->hit = !regexec_buf(data->regexp, line + 1, len - 1, 1,
-				 &regmatch, 0);
+	data->hit =
+		!regexec_buf(data->regexp, line + 1, len - 1, 1, &regmatch, 0);
 }
 
-static int diff_grep(mmfile_t *one, mmfile_t *two,
-		     struct diff_options *o,
+static int diff_grep(mmfile_t *one, mmfile_t *two, struct diff_options *o,
 		     regex_t *regexp, kwset_t kws)
 {
 	regmatch_t regmatch;
@@ -46,11 +44,11 @@ static int diff_grep(mmfile_t *one, mmfile_t *two,
 	xdemitconf_t xecfg;
 
 	if (!one)
-		return !regexec_buf(regexp, two->ptr, two->size,
-				    1, &regmatch, 0);
+		return !regexec_buf(regexp, two->ptr, two->size, 1, &regmatch,
+				    0);
 	if (!two)
-		return !regexec_buf(regexp, one->ptr, one->size,
-				    1, &regmatch, 0);
+		return !regexec_buf(regexp, one->ptr, one->size, 1, &regmatch,
+				    0);
 
 	/*
 	 * We have both sides; need to run textual diff and see if
@@ -108,8 +106,7 @@ static unsigned int contains(mmfile_t *mf, regex_t *regexp, kwset_t kws)
 	return cnt;
 }
 
-static int has_changes(mmfile_t *one, mmfile_t *two,
-		       struct diff_options *o,
+static int has_changes(mmfile_t *one, mmfile_t *two, struct diff_options *o,
 		       regex_t *regexp, kwset_t kws)
 {
 	unsigned int one_contains = one ? contains(one, regexp, kws) : 0;
@@ -130,10 +127,10 @@ static int pickaxe_match(struct diff_filepair *p, struct diff_options *o,
 		return 0;
 
 	if (o->objfind) {
-		return  (DIFF_FILE_VALID(p->one) &&
-			 oidset_contains(o->objfind, &p->one->oid)) ||
-			(DIFF_FILE_VALID(p->two) &&
-			 oidset_contains(o->objfind, &p->two->oid));
+		return (DIFF_FILE_VALID(p->one) &&
+			oidset_contains(o->objfind, &p->one->oid)) ||
+		       (DIFF_FILE_VALID(p->two) &&
+			oidset_contains(o->objfind, &p->two->oid));
 	}
 
 	if (!o->pickaxe[0])
@@ -154,8 +151,7 @@ static int pickaxe_match(struct diff_filepair *p, struct diff_options *o,
 	if (textconv_one == textconv_two && diff_unmodified_pair(p))
 		return 0;
 
-	if ((o->pickaxe_opts & DIFF_PICKAXE_KIND_G) &&
-	    !o->flags.text &&
+	if ((o->pickaxe_opts & DIFF_PICKAXE_KIND_G) && !o->flags.text &&
 	    ((!textconv_one && diff_filespec_is_binary(o->repo, p->one)) ||
 	     (!textconv_two && diff_filespec_is_binary(o->repo, p->two))))
 		return 0;
@@ -164,8 +160,7 @@ static int pickaxe_match(struct diff_filepair *p, struct diff_options *o,
 	mf2.size = fill_textconv(o->repo, textconv_two, p->two, &mf2.ptr);
 
 	ret = fn(DIFF_FILE_VALID(p->one) ? &mf1 : NULL,
-		 DIFF_FILE_VALID(p->two) ? &mf2 : NULL,
-		 o, regexp, kws);
+		 DIFF_FILE_VALID(p->two) ? &mf2 : NULL, o, regexp, kws);
 
 	if (textconv_one)
 		free(mf1.ptr);
@@ -250,8 +245,10 @@ void diffcore_pickaxe(struct diff_options *o)
 			strbuf_release(&sb);
 			regexp = &regex;
 		} else {
-			kws = kwsalloc(o->pickaxe_opts & DIFF_PICKAXE_IGNORE_CASE
-				       ? tolower_trans_tbl : NULL);
+			kws = kwsalloc(
+				o->pickaxe_opts & DIFF_PICKAXE_IGNORE_CASE ?
+					tolower_trans_tbl :
+					NULL);
 			kwsincr(kws, needle, strlen(needle));
 			kwsprep(kws);
 		}

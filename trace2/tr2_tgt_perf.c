@@ -90,8 +90,7 @@ static void perf_fmt_prepare(const char *event_name,
 			else {
 				size_t avail = TR2FMT_PERF_FL_WIDTH - 3;
 				strbuf_addstr(buf, "...");
-				strbuf_add(buf,
-					   &buf_fl.buf[buf_fl.len - avail],
+				strbuf_add(buf, &buf_fl.buf[buf_fl.len - avail],
 					   avail);
 			}
 
@@ -465,7 +464,7 @@ static void fn_region_leave_printf_va_fl(
 	if (label)
 		strbuf_addf(&buf_payload, "label:%s", label);
 	if (fmt && *fmt) {
-		strbuf_addch(&buf_payload, ' ' );
+		strbuf_addch(&buf_payload, ' ');
 		maybe_append_string_va(&buf_payload, fmt, ap);
 	}
 

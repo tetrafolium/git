@@ -65,19 +65,17 @@ static int uic_printf(struct update_info_ctx *uic, const char *fmt, ...)
  * should return non-zero if it encounters an error.
  */
 static int update_info_file(char *path,
-			int (*generate)(struct update_info_ctx *),
-			int force)
+			    int (*generate)(struct update_info_ctx *),
+			    int force)
 {
 	char *tmp = mkpathdup("%s_XXXXXX", path);
 	int ret = -1;
 	int fd = -1;
 	FILE *to_close;
-	struct update_info_ctx uic = {
-		.cur_fp = NULL,
-		.old_fp = NULL,
-		.cur_sb = STRBUF_INIT,
-		.old_sb = STRBUF_INIT
-	};
+	struct update_info_ctx uic = { .cur_fp = NULL,
+				       .old_fp = NULL,
+				       .cur_sb = STRBUF_INIT,
+				       .old_sb = STRBUF_INIT };
 
 	safe_create_leading_directories(path);
 	fd = git_mkstemp_mode(tmp, 0666);
@@ -145,8 +143,8 @@ out:
 	return ret;
 }
 
-static int add_info_ref(const char *path, const struct object_id *oid,
-			int flag, void *cb_data)
+static int add_info_ref(const char *path, const struct object_id *oid, int flag,
+			void *cb_data)
 {
 	struct update_info_ctx *uic = cb_data;
 	struct object *o = parse_object(the_repository, oid);
@@ -159,8 +157,8 @@ static int add_info_ref(const char *path, const struct object_id *oid,
 	if (o->type == OBJ_TAG) {
 		o = deref_tag(the_repository, o, path, 0);
 		if (o)
-			if (uic_printf(uic, "%s	%s^{}\n",
-				oid_to_hex(&o->oid), path) < 0)
+			if (uic_printf(uic, "%s	%s^{}\n", oid_to_hex(&o->oid),
+				       path) < 0)
 				return -1;
 	}
 	return 0;
@@ -184,7 +182,7 @@ static struct pack_info {
 	struct packed_git *p;
 	int old_num;
 	int new_num;
-} **info;
+} * *info;
 static int num_pack;
 
 static struct pack_info *find_pack_by_name(const char *name)
@@ -207,8 +205,7 @@ static int parse_pack_def(const char *packname, int old_cnt)
 	if (i) {
 		i->old_num = old_cnt;
 		return 0;
-	}
-	else {
+	} else {
 		/* The file describes a pack that is no longer here */
 		return 1;
 	}
@@ -250,7 +247,7 @@ static int read_pack_info_file(const char *infofile)
 	}
 	stale = 0;
 
- out_stale:
+out_stale:
 	strbuf_release(&line);
 	fclose(fp);
 	return stale;

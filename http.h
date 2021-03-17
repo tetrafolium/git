@@ -23,14 +23,18 @@
 #endif
 
 #if LIBCURL_VERSION_NUM < 0x070704
-#define curl_global_cleanup() do { /* nothing */ } while (0)
+#define curl_global_cleanup() \
+	do { /* nothing */    \
+	} while (0)
 #endif
 
 #if LIBCURL_VERSION_NUM < 0x070800
-#define curl_global_init(a) do { /* nothing */ } while (0)
+#define curl_global_init(a) \
+	do { /* nothing */  \
+	} while (0)
 #elif LIBCURL_VERSION_NUM >= 0x070c00
-#define curl_global_init(a) curl_global_init_mem(a, xmalloc, free, \
-						xrealloc, xstrdup, xcalloc)
+#define curl_global_init(a) \
+	curl_global_init_mem(a, xmalloc, free, xrealloc, xstrdup, xcalloc)
 #endif
 
 #if (LIBCURL_VERSION_NUM < 0x070c04) || (LIBCURL_VERSION_NUM == 0x071000)
@@ -48,7 +52,7 @@
 /*
  * CURLOPT_USE_SSL was known as CURLOPT_FTP_SSL up to 7.16.4,
  * and the constants were known as CURLFTPSSL_*
-*/
+ */
 #if !defined(CURLOPT_USE_SSL) && defined(CURLOPT_FTP_SSL)
 #define CURLOPT_USE_SSL CURLOPT_FTP_SSL
 #define CURLUSESSL_TRY CURLFTPSSL_TRY
@@ -107,8 +111,7 @@ void add_fill_function(void *data, int (*fill)(void *));
 void step_active_slots(void);
 #endif
 
-void http_init(struct remote *remote, const char *url,
-	       int proactive_auth);
+void http_init(struct remote *remote, const char *url, int proactive_auth);
 void http_cleanup(void);
 struct curl_slist *http_copy_default_headers(void);
 
@@ -129,13 +132,12 @@ extern enum http_follow_config http_follow_config;
 
 static inline int missing__target(int code, int result)
 {
-	return	/* file:// URL -- do we ever use one??? */
+	return /* file:// URL -- do we ever use one??? */
 		(result == CURLE_FILE_COULDNT_READ_FILE) ||
 		/* http:// and https:// URL */
 		(code == 404 && result == CURLE_HTTP_RETURNED_ERROR) ||
 		/* ftp:// URL */
-		(code == 550 && result == CURLE_FTP_COULDNT_RETR_FILE)
-		;
+		(code == 550 && result == CURLE_FTP_COULDNT_RETR_FILE);
 }
 
 #define missing_target(a) missing__target((a)->http_code, (a)->curl_result)
@@ -151,15 +153,13 @@ void normalize_curl_result(CURLcode *result, long http_code, char *errorstr,
 
 /* Helpers for modifying and creating URLs */
 void append_remote_object_url(struct strbuf *buf, const char *url,
-			      const char *hex,
-			      int only_two_digit_prefix);
+			      const char *hex, int only_two_digit_prefix);
 char *get_remote_object_url(const char *url, const char *hex,
 			    int only_two_digit_prefix);
 
 /* Options for http_get_*() */
 struct http_get_options {
-	unsigned no_cache:1,
-		 initial_request:1;
+	unsigned no_cache : 1, initial_request : 1;
 
 	/* If non-NULL, returns the content-type of the response. */
 	struct strbuf *content_type;
@@ -194,25 +194,25 @@ struct http_get_options {
 };
 
 /* Return values for http_get_*() */
-#define HTTP_OK			0
-#define HTTP_MISSING_TARGET	1
-#define HTTP_ERROR		2
-#define HTTP_START_FAILED	3
-#define HTTP_REAUTH	4
-#define HTTP_NOAUTH	5
+#define HTTP_OK 0
+#define HTTP_MISSING_TARGET 1
+#define HTTP_ERROR 2
+#define HTTP_START_FAILED 3
+#define HTTP_REAUTH 4
+#define HTTP_NOAUTH 5
 
 /*
  * Requests a URL and stores the result in a strbuf.
  *
  * If the result pointer is NULL, a HTTP HEAD request is made instead of GET.
  */
-int http_get_strbuf(const char *url, struct strbuf *result, struct http_get_options *options);
+int http_get_strbuf(const char *url, struct strbuf *result,
+		    struct http_get_options *options);
 
 int http_fetch_ref(const char *base, struct ref *ref);
 
 /* Helpers for fetching packs */
-int http_get_info_packs(const char *base_url,
-			struct packed_git **packs_head);
+int http_get_info_packs(const char *base_url, struct packed_git **packs_head);
 
 struct http_pack_request {
 	char *url;
@@ -230,10 +230,11 @@ struct http_pack_request {
 	struct active_request_slot *slot;
 };
 
-struct http_pack_request *new_http_pack_request(
-	const unsigned char *packed_git_hash, const char *base_url);
-struct http_pack_request *new_direct_http_pack_request(
-	const unsigned char *packed_git_hash, char *url);
+struct http_pack_request *
+new_http_pack_request(const unsigned char *packed_git_hash,
+		      const char *base_url);
+struct http_pack_request *
+new_direct_http_pack_request(const unsigned char *packed_git_hash, char *url);
 int finish_http_pack_request(struct http_pack_request *preq);
 void release_http_pack_request(struct http_pack_request *preq);
 
@@ -263,8 +264,8 @@ struct http_object_request {
 	struct active_request_slot *slot;
 };
 
-struct http_object_request *new_http_object_request(
-	const char *base_url, const struct object_id *oid);
+struct http_object_request *
+new_http_object_request(const char *base_url, const struct object_id *oid);
 void process_http_object_request(struct http_object_request *freq);
 int finish_http_object_request(struct http_object_request *freq);
 void abort_http_object_request(struct http_object_request *freq);

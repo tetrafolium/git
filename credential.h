@@ -92,7 +92,6 @@
  * -----------------------------------------------------------------------
  */
 
-
 /**
  * This struct represents a single username/password combination
  * along with any associated context. All string fields should be
@@ -104,7 +103,6 @@
  * `credential_init`.
  */
 struct credential {
-
 	/**
 	 * A `string_list` of helpers. Each string specifies an external
 	 * helper which will be run, in order, to either acquire or store
@@ -115,11 +113,8 @@ struct credential {
 	 */
 	struct string_list helpers;
 
-	unsigned approved:1,
-		 configured:1,
-		 quit:1,
-		 use_http_path:1,
-		 username_from_proto:1;
+	unsigned approved : 1, configured : 1, quit : 1, use_http_path : 1,
+		username_from_proto : 1;
 
 	char *username;
 	char *password;
@@ -128,7 +123,10 @@ struct credential {
 	char *path;
 };
 
-#define CREDENTIAL_INIT { STRING_LIST_INIT_DUP }
+#define CREDENTIAL_INIT              \
+	{                            \
+		STRING_LIST_INIT_DUP \
+	}
 
 /* Initialize a credential structure, setting all fields to empty. */
 void credential_init(struct credential *);

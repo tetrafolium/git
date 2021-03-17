@@ -15,7 +15,8 @@
 #include "fsck.h"
 
 static int dry_run, quiet, recover, has_errors, strict;
-static const char unpack_usage[] = "git unpack-objects [-n] [-q] [-r] [--strict]";
+static const char unpack_usage[] =
+	"git unpack-objects [-n] [-q] [-r] [--strict]";
 
 /* We always read in 4kB chunks. */
 static unsigned char buffer[4096];
@@ -43,14 +44,16 @@ static struct obj_buffer *lookup_object_buffer(struct object *base)
 	return lookup_decoration(&obj_decorate, base);
 }
 
-static void add_object_buffer(struct object *object, char *buffer, unsigned long size)
+static void add_object_buffer(struct object *object, char *buffer,
+			      unsigned long size)
 {
 	struct obj_buffer *obj;
 	obj = xcalloc(1, sizeof(struct obj_buffer));
 	obj->buffer = buffer;
 	obj->size = size;
 	if (add_decoration(&obj_decorate, object, obj))
-		die("object %s tried to add buffer twice!", oid_to_hex(&object->oid));
+		die("object %s tried to add buffer twice!",
+		    oid_to_hex(&object->oid));
 }
 
 /*
@@ -141,8 +144,8 @@ struct delta_info {
 static struct delta_info *delta_list;
 
 static void add_delta_to_list(unsigned nr, const struct object_id *base_oid,
-			      off_t base_offset,
-			      void *delta, unsigned long size)
+			      off_t base_offset, void *delta,
+			      unsigned long size)
 {
 	struct delta_info *info = xmalloc(sizeof(*info));
 
@@ -162,8 +165,8 @@ struct obj_info {
 };
 
 /* Remember to update object flag allocation in object.h */
-#define FLAG_OPEN (1u<<20)
-#define FLAG_WRITTEN (1u<<21)
+#define FLAG_OPEN (1u << 20)
+#define FLAG_WRITTEN (1u << 21)
 
 static struct obj_info *obj_list;
 static unsigned nr_objects;
@@ -187,7 +190,8 @@ static void write_cached_object(struct object *obj, struct obj_buffer *obj_buf)
  * that have reachability requirements and calls this function.
  * Verify its reachability and validity recursively and write it out.
  */
-static int check_object(struct object *obj, int type, void *data, struct fsck_options *options)
+static int check_object(struct object *obj, int type, void *data,
+			struct fsck_options *options)
 {
 	struct obj_buffer *obj_buf;
 
@@ -230,16 +234,16 @@ static void write_rest(void)
 	}
 }
 
-static void added_object(unsigned nr, enum object_type type,
-			 void *data, unsigned long size);
+static void added_object(unsigned nr, enum object_type type, void *data,
+			 unsigned long size);
 
 /*
  * Write out nr-th object from the list, now we know the contents
  * of it.  Under --strict, this buffers structured objects in-core,
  * to be checked at the end.
  */
-static void write_object(unsigned nr, enum object_type type,
-			 void *buf, unsigned long size)
+static void write_object(unsigned nr, enum object_type type, void *buf,
+			 unsigned long size)
 {
 	if (!strict) {
 		if (write_object_file(buf, size, type_name(type),
@@ -269,8 +273,7 @@ static void write_object(unsigned nr, enum object_type type,
 				 &obj_list[nr].oid);
 		added_object(nr, type, buf, size);
 		obj = parse_object_buffer(the_repository, &obj_list[nr].oid,
-					  type, size, buf,
-					  &eaten);
+					  type, size, buf, &eaten);
 		if (!obj)
 			die("invalid %s", type_name(type));
 		add_object_buffer(obj, buf, size);
@@ -279,16 +282,14 @@ static void write_object(unsigned nr, enum object_type type,
 	}
 }
 
-static void resolve_delta(unsigned nr, enum object_type type,
-			  void *base, unsigned long base_size,
-			  void *delta, unsigned long delta_size)
+static void resolve_delta(unsigned nr, enum object_type type, void *base,
+			  unsigned long base_size, void *delta,
+			  unsigned long delta_size)
 {
 	void *result;
 	unsigned long result_size;
 
-	result = patch_delta(base, base_size,
-			     delta, delta_size,
-			     &result_size);
+	result = patch_delta(base, base_size, delta, delta_size, &result_size);
 	if (!result)
 		die("failed to apply delta");
 	free(delta);
@@ -299,8 +300,8 @@ static void resolve_delta(unsigned nr, enum object_type type,
  * We now know the contents of an object (which is nr-th in the pack);
  * resolve all the deltified objects that are based on it.
  */
-static void added_object(unsigned nr, enum object_type type,
-			 void *data, unsigned long size)
+static void added_object(unsigned nr, enum object_type type, void *data,
+			 unsigned long size)
 {
 	struct delta_info **p = &delta_list;
 	struct delta_info *info;
@@ -310,8 +311,8 @@ static void added_object(unsigned nr, enum object_type type,
 		    info->base_offset == obj_list[nr].offset) {
 			*p = info->next;
 			p = &delta_list;
-			resolve_delta(info->nr, type, data, size,
-				      info->delta, info->size);
+			resolve_delta(info->nr, type, data, size, info->delta,
+				      info->size);
 			free(info);
 			continue;
 		}
@@ -341,8 +342,8 @@ static int resolve_against_held(unsigned nr, const struct object_id *base,
 	obj_buffer = lookup_object_buffer(obj);
 	if (!obj_buffer)
 		return 0;
-	resolve_delta(nr, obj->type, obj_buffer->buffer,
-		      obj_buffer->size, delta_data, delta_size);
+	resolve_delta(nr, obj->type, obj_buffer->buffer, obj_buffer->size,
+		      delta_data, delta_size);
 	return 1;
 }
 
@@ -363,13 +364,14 @@ static void unpack_delta_entry(enum object_type type, unsigned long delta_size,
 		}
 		if (has_object_file(&base_oid))
 			; /* Ok we have this one */
-		else if (resolve_against_held(nr, &base_oid,
-					      delta_data, delta_size))
+		else if (resolve_against_held(nr, &base_oid, delta_data,
+					      delta_size))
 			return; /* we are done */
 		else {
 			/* cannot resolve yet --- queue it */
 			oidclr(&obj_list[nr].oid);
-			add_delta_to_list(nr, &base_oid, 0, delta_data, delta_size);
+			add_delta_to_list(nr, &base_oid, 0, delta_data,
+					  delta_size);
 			return;
 		}
 	} else {
@@ -420,7 +422,8 @@ static void unpack_delta_entry(enum object_type type, unsigned long delta_size,
 			 * has not been resolved yet.
 			 */
 			oidclr(&obj_list[nr].oid);
-			add_delta_to_list(nr, &null_oid, base_offset, delta_data, delta_size);
+			add_delta_to_list(nr, &null_oid, base_offset,
+					  delta_data, delta_size);
 			return;
 		}
 	}
@@ -494,8 +497,8 @@ static void unpack_all(void)
 	if (ntohl(hdr->hdr_signature) != PACK_SIGNATURE)
 		die("bad pack file");
 	if (!pack_version_ok(hdr->hdr_version))
-		die("unknown pack file version %"PRIu32,
-			ntohl(hdr->hdr_version));
+		die("unknown pack file version %" PRIu32,
+		    ntohl(hdr->hdr_version));
 	use(sizeof(struct pack_header));
 
 	if (!quiet)
@@ -522,7 +525,7 @@ int cmd_unpack_objects(int argc, const char **argv, const char *prefix)
 
 	quiet = !isatty(2);
 
-	for (i = 1 ; i < argc; i++) {
+	for (i = 1; i < argc; i++) {
 		const char *arg = argv[i];
 
 		if (*arg == '-') {
@@ -553,10 +556,12 @@ int cmd_unpack_objects(int argc, const char **argv, const char *prefix)
 
 				hdr = (struct pack_header *)buffer;
 				hdr->hdr_signature = htonl(PACK_SIGNATURE);
-				hdr->hdr_version = htonl(strtoul(arg + 14, &c, 10));
+				hdr->hdr_version =
+					htonl(strtoul(arg + 14, &c, 10));
 				if (*c != ',')
 					die("bad %s", arg);
-				hdr->hdr_entries = htonl(strtoul(c + 1, &c, 10));
+				hdr->hdr_entries =
+					htonl(strtoul(c + 1, &c, 10));
 				if (*c)
 					die("bad %s", arg);
 				len = sizeof(*hdr);

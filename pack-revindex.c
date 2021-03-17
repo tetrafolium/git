@@ -43,7 +43,7 @@ static void sort_revindex(struct revindex_entry *entries, unsigned n, off_t max)
 	 * We want to know the bucket that a[i] will go into when we are using
 	 * the digit that is N bits from the (least significant) end.
 	 */
-#define BUCKET_FOR(a, i, bits) (((a)[(i)].offset >> (bits)) & (BUCKETS-1))
+#define BUCKET_FOR(a, i, bits) (((a)[(i)].offset >> (bits)) & (BUCKETS - 1))
 
 	/*
 	 * We need O(n) temporary storage. Rather than do an extra copy of the
@@ -82,7 +82,7 @@ static void sort_revindex(struct revindex_entry *entries, unsigned n, off_t max)
 		for (i = 0; i < n; i++)
 			pos[BUCKET_FOR(from, i, bits)]++;
 		for (i = 1; i < BUCKETS; i++)
-			pos[i] += pos[i-1];
+			pos[i] += pos[i - 1];
 
 		/*
 		 * Now we can drop the elements into their correct buckets (in
@@ -136,7 +136,8 @@ static void create_pack_revindex(struct packed_git *p)
 
 	if (p->index_version > 1) {
 		const uint32_t *off_32 =
-			(uint32_t *)(index + 8 + (size_t)p->num_objects * (hashsz + 4));
+			(uint32_t *)(index + 8 +
+				     (size_t)p->num_objects * (hashsz + 4));
 		const uint32_t *off_64 = off_32 + p->num_objects;
 		for (i = 0; i < num_ent; i++) {
 			const uint32_t off = ntohl(*off_32++);
@@ -150,7 +151,8 @@ static void create_pack_revindex(struct packed_git *p)
 		}
 	} else {
 		for (i = 0; i < num_ent; i++) {
-			const uint32_t hl = *((uint32_t *)(index + (hashsz + 4) * i));
+			const uint32_t hl =
+				*((uint32_t *)(index + (hashsz + 4) * i));
 			p->revindex[i].offset = ntohl(hl);
 			p->revindex[i].nr = i;
 		}
@@ -193,8 +195,7 @@ struct revindex_header {
 	uint32_t hash_id;
 };
 
-static int load_revindex_from_disk(char *revindex_name,
-				   uint32_t num_objects,
+static int load_revindex_from_disk(char *revindex_name, uint32_t num_objects,
 				   const uint32_t **data_p, size_t *len_p)
 {
 	int fd, ret = 0;
@@ -217,12 +218,15 @@ static int load_revindex_from_disk(char *revindex_name,
 	revindex_size = xsize_t(st.st_size);
 
 	if (revindex_size < RIDX_MIN_SIZE) {
-		ret = error(_("reverse-index file %s is too small"), revindex_name);
+		ret = error(_("reverse-index file %s is too small"),
+			    revindex_name);
 		goto cleanup;
 	}
 
-	if (revindex_size - RIDX_MIN_SIZE != st_mult(sizeof(uint32_t), num_objects)) {
-		ret = error(_("reverse-index file %s is corrupt"), revindex_name);
+	if (revindex_size - RIDX_MIN_SIZE !=
+	    st_mult(sizeof(uint32_t), num_objects)) {
+		ret = error(_("reverse-index file %s is corrupt"),
+			    revindex_name);
 		goto cleanup;
 	}
 
@@ -230,17 +234,20 @@ static int load_revindex_from_disk(char *revindex_name,
 	hdr = data;
 
 	if (ntohl(hdr->signature) != RIDX_SIGNATURE) {
-		ret = error(_("reverse-index file %s has unknown signature"), revindex_name);
+		ret = error(_("reverse-index file %s has unknown signature"),
+			    revindex_name);
 		goto cleanup;
 	}
 	if (ntohl(hdr->version) != 1) {
-		ret = error(_("reverse-index file %s has unsupported version %"PRIu32),
-			    revindex_name, ntohl(hdr->version));
+		ret = error(
+			_("reverse-index file %s has unsupported version %" PRIu32),
+			revindex_name, ntohl(hdr->version));
 		goto cleanup;
 	}
 	if (!(ntohl(hdr->hash_id) == 1 || ntohl(hdr->hash_id) == 2)) {
-		ret = error(_("reverse-index file %s has unsupported hash id %"PRIu32),
-			    revindex_name, ntohl(hdr->hash_id));
+		ret = error(
+			_("reverse-index file %s has unsupported hash id %" PRIu32),
+			revindex_name, ntohl(hdr->hash_id));
 		goto cleanup;
 	}
 
@@ -267,14 +274,13 @@ static int load_pack_revindex_from_disk(struct packed_git *p)
 
 	revindex_name = pack_revindex_filename(p);
 
-	ret = load_revindex_from_disk(revindex_name,
-				      p->num_objects,
-				      &p->revindex_map,
-				      &p->revindex_size);
+	ret = load_revindex_from_disk(revindex_name, p->num_objects,
+				      &p->revindex_map, &p->revindex_size);
 	if (ret)
 		goto cleanup;
 
-	p->revindex_data = (const uint32_t *)((const char *)p->revindex_map + RIDX_HEADER_SIZE);
+	p->revindex_data = (const uint32_t *)((const char *)p->revindex_map +
+					      RIDX_HEADER_SIZE);
 
 cleanup:
 	free(revindex_name);
@@ -325,7 +331,7 @@ uint32_t pack_pos_to_index(struct packed_git *p, uint32_t pos)
 	if (!(p->revindex || p->revindex_data))
 		BUG("pack_pos_to_index: reverse index not yet loaded");
 	if (p->num_objects <= pos)
-		BUG("pack_pos_to_index: out-of-bounds object at %"PRIu32, pos);
+		BUG("pack_pos_to_index: out-of-bounds object at %" PRIu32, pos);
 
 	if (p->revindex)
 		return p->revindex[pos].nr;
@@ -338,7 +344,8 @@ off_t pack_pos_to_offset(struct packed_git *p, uint32_t pos)
 	if (!(p->revindex || p->revindex_data))
 		BUG("pack_pos_to_index: reverse index not yet loaded");
 	if (p->num_objects < pos)
-		BUG("pack_pos_to_offset: out-of-bounds object at %"PRIu32, pos);
+		BUG("pack_pos_to_offset: out-of-bounds object at %" PRIu32,
+		    pos);
 
 	if (p->revindex)
 		return p->revindex[pos].offset;

@@ -20,28 +20,24 @@ struct merge_options {
 
 	/* rename related options */
 	int detect_renames;
-	enum {
-		MERGE_DIRECTORY_RENAMES_NONE = 0,
-		MERGE_DIRECTORY_RENAMES_CONFLICT = 1,
-		MERGE_DIRECTORY_RENAMES_TRUE = 2
-	} detect_directory_renames;
+	enum { MERGE_DIRECTORY_RENAMES_NONE = 0,
+	       MERGE_DIRECTORY_RENAMES_CONFLICT = 1,
+	       MERGE_DIRECTORY_RENAMES_TRUE = 2 } detect_directory_renames;
 	int rename_limit;
 	int rename_score;
 	int show_rename_progress;
 
 	/* xdiff-related options (patience, ignore whitespace, ours/theirs) */
 	long xdl_opts;
-	enum {
-		MERGE_VARIANT_NORMAL = 0,
-		MERGE_VARIANT_OURS,
-		MERGE_VARIANT_THEIRS
-	} recursive_variant;
+	enum { MERGE_VARIANT_NORMAL = 0,
+	       MERGE_VARIANT_OURS,
+	       MERGE_VARIANT_THEIRS } recursive_variant;
 
 	/* console output related options */
 	int verbosity;
 	unsigned buffer_output; /* 1: output at end, 2: keep buffered */
-	struct strbuf obuf;     /* output buffer; if buffer_output == 2, caller
-				 * must handle and call strbuf_release */
+	struct strbuf obuf; /* output buffer; if buffer_output == 2, caller
+			     * must handle and call strbuf_release */
 
 	/* miscellaneous control options */
 	const char *subtree_shift;
@@ -73,10 +69,8 @@ int parse_merge_opt(struct merge_options *opt, const char *s);
  *   - new index NOT written to disk
  *   - The working tree is updated with results of the merge
  */
-int merge_trees(struct merge_options *opt,
-		struct tree *head,
-		struct tree *merge,
-		struct tree *merge_base);
+int merge_trees(struct merge_options *opt, struct tree *head,
+		struct tree *merge, struct tree *merge_base);
 
 /*
  * merge_recursive is like merge_trees() but with recursive ancestor
@@ -95,10 +89,8 @@ int merge_trees(struct merge_options *opt,
  *   - new index NOT written to disk
  *   - The working tree is updated with results of the merge
  */
-int merge_recursive(struct merge_options *opt,
-		    struct commit *h1,
-		    struct commit *h2,
-		    struct commit_list *merge_bases,
+int merge_recursive(struct merge_options *opt, struct commit *h1,
+		    struct commit *h2, struct commit_list *merge_bases,
 		    struct commit **result);
 
 /*
@@ -115,8 +107,7 @@ int merge_recursive(struct merge_options *opt,
  */
 int merge_recursive_generic(struct merge_options *opt,
 			    const struct object_id *head,
-			    const struct object_id *merge,
-			    int num_merge_bases,
+			    const struct object_id *merge, int num_merge_bases,
 			    const struct object_id **merge_bases,
 			    struct commit **result);
 

@@ -50,8 +50,9 @@ static const char *system_prefix(void)
 	    !(prefix = strip_path_suffix(executable_dirname, "git"))) {
 		prefix = FALLBACK_RUNTIME_PREFIX;
 		trace_printf("RUNTIME_PREFIX requested, "
-				"but prefix computation failed.  "
-				"Using static fallback '%s'.\n", prefix);
+			     "but prefix computation failed.  "
+			     "Using static fallback '%s'.\n",
+			     prefix);
 	}
 	return prefix;
 }

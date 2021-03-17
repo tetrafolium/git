@@ -14,16 +14,16 @@
 #endif
 
 #ifndef NO_GETTEXT
-#	include <libintl.h>
+#include <libintl.h>
 #else
-#	ifdef gettext
-#		undef gettext
-#	endif
-#	define gettext(s) (s)
-#	ifdef ngettext
-#		undef ngettext
-#	endif
-#	define ngettext(s, p, n) ((n == 1) ? (s) : (p))
+#ifdef gettext
+#undef gettext
+#endif
+#define gettext(s) (s)
+#ifdef ngettext
+#undef ngettext
+#endif
+#define ngettext(s, p, n) ((n == 1) ? (s) : (p))
 #endif
 
 #define FORMAT_PRESERVING(n) __attribute__((format_arg(n)))
@@ -48,8 +48,8 @@ static inline FORMAT_PRESERVING(1) const char *_(const char *msgid)
 	return gettext(msgid);
 }
 
-static inline FORMAT_PRESERVING(1) FORMAT_PRESERVING(2)
-const char *Q_(const char *msgid, const char *plu, unsigned long n)
+static inline FORMAT_PRESERVING(1) FORMAT_PRESERVING(2) const
+	char *Q_(const char *msgid, const char *plu, unsigned long n)
 {
 	return ngettext(msgid, plu, n);
 }

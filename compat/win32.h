@@ -2,11 +2,11 @@
 #define WIN32_H
 
 /* common Win32 functions for MinGW and Cygwin */
-#ifndef GIT_WINDOWS_NATIVE	/* Not defined for Cygwin */
+#ifndef GIT_WINDOWS_NATIVE /* Not defined for Cygwin */
 #include <windows.h>
 #endif
 
-static inline int file_attr_to_st_mode (DWORD attr)
+static inline int file_attr_to_st_mode(DWORD attr)
 {
 	int fMode = S_IREAD;
 	if (attr & FILE_ATTRIBUTE_DIRECTORY)
@@ -18,7 +18,8 @@ static inline int file_attr_to_st_mode (DWORD attr)
 	return fMode;
 }
 
-static inline int get_file_attr(const char *fname, WIN32_FILE_ATTRIBUTE_DATA *fdata)
+static inline int get_file_attr(const char *fname,
+				WIN32_FILE_ATTRIBUTE_DATA *fdata)
 {
 	if (GetFileAttributesExA(fname, GetFileExInfoStandard, fdata))
 		return 0;

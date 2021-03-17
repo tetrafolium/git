@@ -6,10 +6,9 @@
 #include "repository.h"
 #include "commit.h"
 
-static int register_replace_ref(struct repository *r,
-				const char *refname,
-				const struct object_id *oid,
-				int flag, void *cb_data)
+static int register_replace_ref(struct repository *r, const char *refname,
+				const struct object_id *oid, int flag,
+				void *cb_data)
 {
 	/* Get sha1 from refname */
 	const char *slash = strrchr(refname, '/');
@@ -43,8 +42,7 @@ void prepare_replace_object(struct repository *r)
 		return;
 	}
 
-	r->objects->replace_map =
-		xmalloc(sizeof(*r->objects->replace_map));
+	r->objects->replace_map = xmalloc(sizeof(*r->objects->replace_map));
 	oidmap_init(r->objects->replace_map, 0);
 
 	for_each_replace_ref(r, register_replace_ref, NULL);

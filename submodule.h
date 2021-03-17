@@ -13,16 +13,14 @@ struct repository;
 struct string_list;
 struct strbuf;
 
-enum {
-	RECURSE_SUBMODULES_ONLY = -5,
-	RECURSE_SUBMODULES_CHECK = -4,
-	RECURSE_SUBMODULES_ERROR = -3,
-	RECURSE_SUBMODULES_NONE = -2,
-	RECURSE_SUBMODULES_ON_DEMAND = -1,
-	RECURSE_SUBMODULES_OFF = 0,
-	RECURSE_SUBMODULES_DEFAULT = 1,
-	RECURSE_SUBMODULES_ON = 2
-};
+enum { RECURSE_SUBMODULES_ONLY = -5,
+       RECURSE_SUBMODULES_CHECK = -4,
+       RECURSE_SUBMODULES_ERROR = -3,
+       RECURSE_SUBMODULES_NONE = -2,
+       RECURSE_SUBMODULES_ON_DEMAND = -1,
+       RECURSE_SUBMODULES_OFF = 0,
+       RECURSE_SUBMODULES_DEFAULT = 1,
+       RECURSE_SUBMODULES_ON = 2 };
 
 enum submodule_update_type {
 	SM_UPDATE_UNSPECIFIED = 0,
@@ -37,7 +35,10 @@ struct submodule_update_strategy {
 	enum submodule_update_type type;
 	const char *command;
 };
-#define SUBMODULE_UPDATE_STRATEGY_INIT {SM_UPDATE_UNSPECIFIED, NULL}
+#define SUBMODULE_UPDATE_STRATEGY_INIT      \
+	{                                   \
+		SM_UPDATE_UNSPECIFIED, NULL \
+	}
 
 int is_gitmodules_unmerged(const struct index_state *istate);
 int is_writing_gitmodules_ok(void);
@@ -51,7 +52,8 @@ int git_default_submodule_config(const char *var, const char *value, void *cb);
 
 struct option;
 int option_parse_recurse_submodules_worktree_updater(const struct option *opt,
-						     const char *arg, int unset);
+						     const char *arg,
+						     int unset);
 int is_submodule_active(struct repository *repo, const char *path);
 /*
  * Determine if a submodule has been populated at a given 'path' by checking if
@@ -67,11 +69,12 @@ void die_path_inside_submodule(const struct index_state *istate,
 enum submodule_update_type parse_submodule_update_type(const char *value);
 int parse_submodule_update_strategy(const char *value,
 				    struct submodule_update_strategy *dst);
-const char *submodule_strategy_to_string(const struct submodule_update_strategy *s);
+const char *
+submodule_strategy_to_string(const struct submodule_update_strategy *s);
 void handle_ignore_submodules_arg(struct diff_options *, const char *);
 void show_submodule_diff_summary(struct diff_options *o, const char *path,
-			    struct object_id *one, struct object_id *two,
-			    unsigned dirty_submodule);
+				 struct object_id *one, struct object_id *two,
+				 unsigned dirty_submodule);
 void show_submodule_inline_diff(struct diff_options *o, const char *path,
 				struct object_id *one, struct object_id *two,
 				unsigned dirty_submodule);
@@ -84,17 +87,15 @@ int should_update_submodules(void);
 const struct submodule *submodule_from_ce(const struct cache_entry *ce);
 void check_for_new_submodule_commits(struct object_id *oid);
 int fetch_populated_submodules(struct repository *r,
-			       const struct strvec *options,
-			       const char *prefix,
-			       int command_line_option,
-			       int default_option,
+			       const struct strvec *options, const char *prefix,
+			       int command_line_option, int default_option,
 			       int quiet, int max_parallel_jobs);
 unsigned is_submodule_modified(const char *path, int ignore_untracked);
 int submodule_uses_gitfile(const char *path);
 
-#define SUBMODULE_REMOVAL_DIE_ON_ERROR (1<<0)
-#define SUBMODULE_REMOVAL_IGNORE_UNTRACKED (1<<1)
-#define SUBMODULE_REMOVAL_IGNORE_IGNORED_UNTRACKED (1<<2)
+#define SUBMODULE_REMOVAL_DIE_ON_ERROR (1 << 0)
+#define SUBMODULE_REMOVAL_IGNORE_UNTRACKED (1 << 1)
+#define SUBMODULE_REMOVAL_IGNORE_IGNORED_UNTRACKED (1 << 2)
 int bad_to_remove_submodule(const char *path, unsigned flags);
 
 int add_submodule_odb(const char *path);
@@ -103,16 +104,13 @@ int add_submodule_odb(const char *path);
  * Checks if there are submodule changes in a..b. If a is the null OID,
  * checks b and all its ancestors instead.
  */
-int submodule_touches_in_range(struct repository *r,
-			       struct object_id *a,
+int submodule_touches_in_range(struct repository *r, struct object_id *a,
 			       struct object_id *b);
-int find_unpushed_submodules(struct repository *r,
-			     struct oid_array *commits,
+int find_unpushed_submodules(struct repository *r, struct oid_array *commits,
 			     const char *remotes_name,
 			     struct string_list *needs_pushing);
 struct refspec;
-int push_unpushed_submodules(struct repository *r,
-			     struct oid_array *commits,
+int push_unpushed_submodules(struct repository *r, struct oid_array *commits,
 			     const struct remote *remote,
 			     const struct refspec *rs,
 			     const struct string_list *push_options,
@@ -129,11 +127,9 @@ int submodule_to_gitdir(struct strbuf *buf, const char *submodule);
  */
 int validate_submodule_git_dir(char *git_dir, const char *submodule_name);
 
-#define SUBMODULE_MOVE_HEAD_DRY_RUN (1<<0)
-#define SUBMODULE_MOVE_HEAD_FORCE   (1<<1)
-int submodule_move_head(const char *path,
-			const char *old,
-			const char *new_head,
+#define SUBMODULE_MOVE_HEAD_DRY_RUN (1 << 0)
+#define SUBMODULE_MOVE_HEAD_FORCE (1 << 1)
+int submodule_move_head(const char *path, const char *old, const char *new_head,
 			unsigned flags);
 
 void submodule_unset_core_worktree(const struct submodule *sub);
@@ -145,9 +141,8 @@ void submodule_unset_core_worktree(const struct submodule *sub);
  */
 void prepare_submodule_repo_env(struct strvec *out);
 
-#define ABSORB_GITDIR_RECURSE_SUBMODULES (1<<0)
-void absorb_git_dir_into_superproject(const char *path,
-				      unsigned flags);
+#define ABSORB_GITDIR_RECURSE_SUBMODULES (1 << 0)
+void absorb_git_dir_into_superproject(const char *path, unsigned flags);
 
 /*
  * Return the absolute path of the working tree of the superproject, which this

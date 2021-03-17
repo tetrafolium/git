@@ -11,8 +11,8 @@ struct split_index *init_split_index(struct index_state *istate)
 	return istate->split_index;
 }
 
-int read_link_extension(struct index_state *istate,
-			 const void *data_, unsigned long sz)
+int read_link_extension(struct index_state *istate, const void *data_,
+			unsigned long sz)
 {
 	const unsigned char *data = data_;
 	struct split_index *si;
@@ -41,8 +41,7 @@ int read_link_extension(struct index_state *istate,
 	return 0;
 }
 
-int write_link_extension(struct strbuf *sb,
-			 struct index_state *istate)
+int write_link_extension(struct strbuf *sb, struct index_state *istate)
 {
 	struct split_index *si = istate->split_index;
 	strbuf_add(sb, si->base_oid.hash, the_hash_algo->rawsz);
@@ -73,18 +72,17 @@ void move_cache_to_base_index(struct index_state *istate)
 	int i;
 
 	/*
-	 * If there was a previous base index, then transfer ownership of allocated
-	 * entries to the parent index.
+	 * If there was a previous base index, then transfer ownership of
+	 * allocated entries to the parent index.
 	 */
-	if (si->base &&
-		si->base->ce_mem_pool) {
-
+	if (si->base && si->base->ce_mem_pool) {
 		if (!istate->ce_mem_pool) {
 			istate->ce_mem_pool = xmalloc(sizeof(struct mem_pool));
 			mem_pool_init(istate->ce_mem_pool, 0);
 		}
 
-		mem_pool_combine(istate->ce_mem_pool, istate->split_index->base->ce_mem_pool);
+		mem_pool_combine(istate->ce_mem_pool,
+				 istate->split_index->base->ce_mem_pool);
 	}
 
 	si->base = xcalloc(1, sizeof(*si->base));
@@ -126,8 +124,8 @@ static void replace_entry(size_t pos, void *data)
 		die("position for replacement %d exceeds base index size %d",
 		    (int)pos, istate->cache_nr);
 	if (si->nr_replacements >= si->saved_cache_nr)
-		die("too many replacements (%d vs %d)",
-		    si->nr_replacements, si->saved_cache_nr);
+		die("too many replacements (%d vs %d)", si->nr_replacements,
+		    si->saved_cache_nr);
 	dst = istate->cache[pos];
 	if (dst->ce_flags & CE_REMOVE)
 		die("entry %d is marked as both replaced and deleted",
@@ -135,7 +133,8 @@ static void replace_entry(size_t pos, void *data)
 	src = si->saved_cache[si->nr_replacements];
 	if (ce_namelen(src))
 		die("corrupt link extension, entry %d should have "
-		    "zero length name", (int)pos);
+		    "zero length name",
+		    (int)pos);
 	src->index = pos + 1;
 	src->ce_flags |= CE_UPDATE_IN_BASE;
 	src->ce_namelen = dst->ce_namelen;
@@ -151,10 +150,10 @@ void merge_base_index(struct index_state *istate)
 
 	mark_base_index_entries(si->base);
 
-	si->saved_cache	    = istate->cache;
-	si->saved_cache_nr  = istate->cache_nr;
-	istate->cache_nr    = si->base->cache_nr;
-	istate->cache	    = NULL;
+	si->saved_cache = istate->cache;
+	si->saved_cache_nr = istate->cache_nr;
+	istate->cache_nr = si->base->cache_nr;
+	istate->cache = NULL;
 	istate->cache_alloc = 0;
 	ALLOC_GROW(istate->cache, istate->cache_nr, istate->cache_alloc);
 	COPY_ARRAY(istate->cache, si->base->cache, istate->cache_nr);
@@ -169,23 +168,24 @@ void merge_base_index(struct index_state *istate)
 	for (i = si->nr_replacements; i < si->saved_cache_nr; i++) {
 		if (!ce_namelen(si->saved_cache[i]))
 			die("corrupt link extension, entry %d should "
-			    "have non-zero length name", i);
+			    "have non-zero length name",
+			    i);
 		add_index_entry(istate, si->saved_cache[i],
 				ADD_CACHE_OK_TO_ADD |
-				ADD_CACHE_KEEP_CACHE_TREE |
-				/*
-				 * we may have to replay what
-				 * merge-recursive.c:update_stages()
-				 * does, which has this flag on
-				 */
-				ADD_CACHE_SKIP_DFCHECK);
+					ADD_CACHE_KEEP_CACHE_TREE |
+					/*
+					 * we may have to replay what
+					 * merge-recursive.c:update_stages()
+					 * does, which has this flag on
+					 */
+					ADD_CACHE_SKIP_DFCHECK);
 		si->saved_cache[i] = NULL;
 	}
 
 	ewah_free(si->delete_bitmap);
 	ewah_free(si->replace_bitmap);
 	FREE_AND_NULL(si->saved_cache);
-	si->delete_bitmap  = NULL;
+	si->delete_bitmap = NULL;
 	si->replace_bitmap = NULL;
 	si->saved_cache_nr = 0;
 }
@@ -207,7 +207,7 @@ static int compare_ce_content(struct cache_entry *a, struct cache_entry *b)
 	b->ce_flags &= ondisk_flags;
 	ret = memcmp(&a->ce_stat_data, &b->ce_stat_data,
 		     offsetof(struct cache_entry, name) -
-		     offsetof(struct cache_entry, ce_stat_data));
+			     offsetof(struct cache_entry, ce_stat_data));
 	a->ce_flags = ce_flags;
 	b->ce_flags = base_flags;
 
@@ -347,7 +347,7 @@ void prepare_to_write_split_index(struct index_state *istate)
 			else if (ce->ce_flags & CE_UPDATE_IN_BASE) {
 				ewah_set(si->replace_bitmap, i);
 				ce->ce_flags |= CE_STRIP_NAME;
-				ALLOC_GROW(entries, nr_entries+1, nr_alloc);
+				ALLOC_GROW(entries, nr_entries + 1, nr_alloc);
 				entries[nr_entries++] = ce;
 			}
 			if (is_null_oid(&ce->oid))
@@ -359,7 +359,7 @@ void prepare_to_write_split_index(struct index_state *istate)
 		ce = istate->cache[i];
 		if ((!si->base || !ce->index) && !(ce->ce_flags & CE_REMOVE)) {
 			assert(!(ce->ce_flags & CE_STRIP_NAME));
-			ALLOC_GROW(entries, nr_entries+1, nr_alloc);
+			ALLOC_GROW(entries, nr_entries + 1, nr_alloc);
 			entries[nr_entries++] = ce;
 		}
 		ce->ce_flags &= ~CE_MATCHED;
@@ -404,11 +404,10 @@ void discard_split_index(struct index_state *istate)
 	free(si);
 }
 
-void save_or_free_index_entry(struct index_state *istate, struct cache_entry *ce)
+void save_or_free_index_entry(struct index_state *istate,
+			      struct cache_entry *ce)
 {
-	if (ce->index &&
-	    istate->split_index &&
-	    istate->split_index->base &&
+	if (ce->index && istate->split_index && istate->split_index->base &&
 	    ce->index <= istate->split_index->base->cache_nr &&
 	    ce == istate->split_index->base->cache[ce->index - 1])
 		ce->ce_flags |= CE_REMOVE;
@@ -420,14 +419,17 @@ void replace_index_entry_in_base(struct index_state *istate,
 				 struct cache_entry *old_entry,
 				 struct cache_entry *new_entry)
 {
-	if (old_entry->index &&
-	    istate->split_index &&
+	if (old_entry->index && istate->split_index &&
 	    istate->split_index->base &&
 	    old_entry->index <= istate->split_index->base->cache_nr) {
 		new_entry->index = old_entry->index;
-		if (old_entry != istate->split_index->base->cache[new_entry->index - 1])
-			discard_cache_entry(istate->split_index->base->cache[new_entry->index - 1]);
-		istate->split_index->base->cache[new_entry->index - 1] = new_entry;
+		if (old_entry !=
+		    istate->split_index->base->cache[new_entry->index - 1])
+			discard_cache_entry(
+				istate->split_index->base
+					->cache[new_entry->index - 1]);
+		istate->split_index->base->cache[new_entry->index - 1] =
+			new_entry;
 	}
 }
 
@@ -446,12 +448,13 @@ void remove_split_index(struct index_state *istate)
 			/*
 			 * When removing the split index, we need to move
 			 * ownership of the mem_pool associated with the
-			 * base index to the main index. There may be cache entries
-			 * allocated from the base's memory pool that are shared with
-			 * the_index.cache[].
+			 * base index to the main index. There may be cache
+			 * entries allocated from the base's memory pool that
+			 * are shared with the_index.cache[].
 			 */
-			mem_pool_combine(istate->ce_mem_pool,
-					 istate->split_index->base->ce_mem_pool);
+			mem_pool_combine(
+				istate->ce_mem_pool,
+				istate->split_index->base->ce_mem_pool);
 
 			/*
 			 * The split index no longer owns the mem_pool backing

@@ -30,7 +30,6 @@ static void trim_last_path_component(struct strbuf *path)
 	strbuf_setlen(path, i);
 }
 
-
 /* We allow "recursive" symbolic links. Only within reason, though */
 #define MAXDEPTH 5
 
@@ -99,8 +98,8 @@ static int lock_file(struct lock_file *lk, const char *path, int flags,
  * timeout_ms milliseconds. If timeout_ms is 0, try locking the file
  * exactly once. If timeout_ms is -1, try indefinitely.
  */
-static int lock_file_timeout(struct lock_file *lk, const char *path,
-			     int flags, long timeout_ms, int mode)
+static int lock_file_timeout(struct lock_file *lk, const char *path, int flags,
+			     long timeout_ms, int mode)
 {
 	int n = 1;
 	int multiplier = 1;
@@ -138,7 +137,7 @@ static int lock_file_timeout(struct lock_file *lk, const char *path,
 		remaining_ms -= wait_ms;
 
 		/* Recursion: (n+1)^2 = n^2 + 2n + 1 */
-		multiplier += 2*n + 1;
+		multiplier += 2 * n + 1;
 		if (multiplier > BACKOFF_MAX_MULTIPLIER)
 			multiplier = BACKOFF_MAX_MULTIPLIER;
 		else
@@ -149,13 +148,15 @@ static int lock_file_timeout(struct lock_file *lk, const char *path,
 void unable_to_lock_message(const char *path, int err, struct strbuf *buf)
 {
 	if (err == EEXIST) {
-		strbuf_addf(buf, _("Unable to create '%s.lock': %s.\n\n"
-		    "Another git process seems to be running in this repository, e.g.\n"
-		    "an editor opened by 'git commit'. Please make sure all processes\n"
-		    "are terminated then try again. If it still fails, a git process\n"
-		    "may have crashed in this repository earlier:\n"
-		    "remove the file manually to continue."),
-			    absolute_path(path), strerror(err));
+		strbuf_addf(
+			buf,
+			_("Unable to create '%s.lock': %s.\n\n"
+			  "Another git process seems to be running in this repository, e.g.\n"
+			  "an editor opened by 'git commit'. Please make sure all processes\n"
+			  "are terminated then try again. If it still fails, a git process\n"
+			  "may have crashed in this repository earlier:\n"
+			  "remove the file manually to continue."),
+			absolute_path(path), strerror(err));
 	} else
 		strbuf_addf(buf, _("Unable to create '%s.lock': %s"),
 			    absolute_path(path), strerror(err));

@@ -15,9 +15,8 @@
 #include "submodule.h"
 #include "pathspec.h"
 
-static const char * const builtin_rm_usage[] = {
-	N_("git rm [<options>] [--] <file>..."),
-	NULL
+static const char *const builtin_rm_usage[] = {
+	N_("git rm [<options>] [--] <file>..."), NULL
 };
 
 static struct {
@@ -25,7 +24,7 @@ static struct {
 	struct {
 		const char *name;
 		char is_submodule;
-	} *entry;
+	} * entry;
 } list;
 
 static int get_ours_cache_pos(const char *path, int pos)
@@ -41,8 +40,7 @@ static int get_ours_cache_pos(const char *path, int pos)
 }
 
 static void print_error_files(struct string_list *files_list,
-			      const char *main_msg,
-			      const char *hints_msg,
+			      const char *main_msg, const char *hints_msg,
 			      int *errs)
 {
 	if (files_list->nr) {
@@ -51,8 +49,7 @@ static void print_error_files(struct string_list *files_list,
 
 		strbuf_addstr(&err_msg, main_msg);
 		for (i = 0; i < files_list->nr; i++)
-			strbuf_addf(&err_msg,
-				    "\n    %s",
+			strbuf_addf(&err_msg, "\n    %s",
 				    files_list->items[i].string);
 		if (advice_rm_hints)
 			strbuf_addstr(&err_msg, hints_msg);
@@ -77,14 +74,13 @@ static void submodules_absorb_gitdir_if_needed(void)
 		}
 		ce = active_cache[pos];
 
-		if (!S_ISGITLINK(ce->ce_mode) ||
-		    !file_exists(ce->name) ||
+		if (!S_ISGITLINK(ce->ce_mode) || !file_exists(ce->name) ||
 		    is_empty_dir(name))
 			continue;
 
 		if (!submodule_uses_gitfile(name))
-			absorb_git_dir_into_superproject(name,
-				ABSORB_GITDIR_RECURSE_SUBMODULES);
+			absorb_git_dir_into_superproject(
+				name, ABSORB_GITDIR_RECURSE_SUBMODULES);
 	}
 }
 
@@ -132,11 +128,11 @@ static int check_local_mod(struct object_id *head, int index_only)
 
 		if (lstat(ce->name, &st) < 0) {
 			if (!is_missing_file_error(errno))
-				warning_errno(_("failed to stat '%s'"), ce->name);
+				warning_errno(_("failed to stat '%s'"),
+					      ce->name);
 			/* It already vanished from the working tree */
 			continue;
-		}
-		else if (S_ISDIR(st.st_mode)) {
+		} else if (S_ISDIR(st.st_mode)) {
 			/* if a file was removed and it is now a
 			 * directory, that is the same as ENOENT as
 			 * far as git is concerned; we do not track
@@ -167,9 +163,10 @@ static int check_local_mod(struct object_id *head, int index_only)
 		 */
 		if (ce_match_stat(ce, &st, 0) ||
 		    (S_ISGITLINK(ce->ce_mode) &&
-		     bad_to_remove_submodule(ce->name,
-				SUBMODULE_REMOVAL_DIE_ON_ERROR |
-				SUBMODULE_REMOVAL_IGNORE_IGNORED_UNTRACKED)))
+		     bad_to_remove_submodule(
+			     ce->name,
+			     SUBMODULE_REMOVAL_DIE_ON_ERROR |
+				     SUBMODULE_REMOVAL_IGNORE_IGNORED_UNTRACKED)))
 			local_changes = 1;
 
 		/*
@@ -178,10 +175,10 @@ static int check_local_mod(struct object_id *head, int index_only)
 		 * anything staged in the index is treated by the same
 		 * way as changed from the HEAD.
 		 */
-		if (no_head
-		     || get_tree_entry(the_repository, head, name, &oid, &mode)
-		     || ce->ce_mode != create_ce_mode(mode)
-		     || !oideq(&ce->oid, &oid))
+		if (no_head ||
+		    get_tree_entry(the_repository, head, name, &oid, &mode) ||
+		    ce->ce_mode != create_ce_mode(mode) ||
+		    !oideq(&ce->oid, &oid))
 			staged_changes = 1;
 
 		/*
@@ -195,8 +192,7 @@ static int check_local_mod(struct object_id *head, int index_only)
 		if (local_changes && staged_changes) {
 			if (!index_only || !ce_intent_to_add(ce))
 				string_list_append(&files_staged, name);
-		}
-		else if (!index_only) {
+		} else if (!index_only) {
 			if (staged_changes)
 				string_list_append(&files_cached, name);
 			if (local_changes)
@@ -209,14 +205,14 @@ static int check_local_mod(struct object_id *head, int index_only)
 			     "the following files have staged content different"
 			     " from both the\nfile and the HEAD:",
 			     files_staged.nr),
-			  _("\n(use -f to force removal)"),
-			  &errs);
+			  _("\n(use -f to force removal)"), &errs);
 	string_list_clear(&files_staged, 0);
 	print_error_files(&files_cached,
 			  Q_("the following file has changes "
 			     "staged in the index:",
 			     "the following files have changes "
-			     "staged in the index:", files_cached.nr),
+			     "staged in the index:",
+			     files_cached.nr),
 			  _("\n(use --cached to keep the file,"
 			    " or -f to force removal)"),
 			  &errs);
@@ -241,11 +237,12 @@ static char *pathspec_from_file;
 static struct option builtin_rm_options[] = {
 	OPT__DRY_RUN(&show_only, N_("dry run")),
 	OPT__QUIET(&quiet, N_("do not list removed files")),
-	OPT_BOOL( 0 , "cached",         &index_only, N_("only remove from the index")),
-	OPT__FORCE(&force, N_("override the up-to-date check"), PARSE_OPT_NOCOMPLETE),
-	OPT_BOOL('r', NULL,             &recursive,  N_("allow recursive removal")),
-	OPT_BOOL( 0 , "ignore-unmatch", &ignore_unmatch,
-				N_("exit with a zero status even if nothing matched")),
+	OPT_BOOL(0, "cached", &index_only, N_("only remove from the index")),
+	OPT__FORCE(&force, N_("override the up-to-date check"),
+		   PARSE_OPT_NOCOMPLETE),
+	OPT_BOOL('r', NULL, &recursive, N_("allow recursive removal")),
+	OPT_BOOL(0, "ignore-unmatch", &ignore_unmatch,
+		 N_("exit with a zero status even if nothing matched")),
 	OPT_PATHSPEC_FROM_FILE(&pathspec_from_file),
 	OPT_PATHSPEC_FILE_NUL(&pathspec_file_nul),
 	OPT_END(),
@@ -263,17 +260,14 @@ int cmd_rm(int argc, const char **argv, const char *prefix)
 	argc = parse_options(argc, argv, prefix, builtin_rm_options,
 			     builtin_rm_usage, 0);
 
-	parse_pathspec(&pathspec, 0,
-		       PATHSPEC_PREFER_CWD,
-		       prefix, argv);
+	parse_pathspec(&pathspec, 0, PATHSPEC_PREFER_CWD, prefix, argv);
 
 	if (pathspec_from_file) {
 		if (pathspec.nr)
 			die(_("--pathspec-from-file is incompatible with pathspec arguments"));
 
-		parse_pathspec_file(&pathspec, 0,
-				    PATHSPEC_PREFER_CWD,
-				    prefix, pathspec_from_file, pathspec_file_nul);
+		parse_pathspec_file(&pathspec, 0, PATHSPEC_PREFER_CWD, prefix,
+				    pathspec_from_file, pathspec_file_nul);
 	} else if (pathspec_file_nul) {
 		die(_("--pathspec-file-nul requires --pathspec-from-file"));
 	}
@@ -289,7 +283,8 @@ int cmd_rm(int argc, const char **argv, const char *prefix)
 	if (read_cache() < 0)
 		die(_("index file corrupt"));
 
-	refresh_index(&the_index, REFRESH_QUIET|REFRESH_UNMERGED, &pathspec, NULL, NULL);
+	refresh_index(&the_index, REFRESH_QUIET | REFRESH_UNMERGED, &pathspec,
+		      NULL, NULL);
 
 	seen = xcalloc(pathspec.nr, 1);
 
@@ -315,8 +310,7 @@ int cmd_rm(int argc, const char **argv, const char *prefix)
 					die(_("pathspec '%s' did not match any files"),
 					    original);
 				}
-			}
-			else {
+			} else {
 				seen_any = 1;
 			}
 			if (!recursive && seen[i] == MATCHED_RECURSIVELY)

@@ -184,7 +184,7 @@ static const char *fmt_with_err(char *buf, int n, const char *fmt)
 	int i, j;
 
 	err = strerror(errno);
-	for (i = j = 0; err[i] && j < sizeof(str_error) - 1; ) {
+	for (i = j = 0; err[i] && j < sizeof(str_error) - 1;) {
 		if ((str_error[j++] = err[i++]) != '%')
 			continue;
 		if (j < sizeof(str_error) - 1) {
@@ -209,7 +209,7 @@ void NORETURN die_errno(const char *fmt, ...)
 
 	if (die_is_recursing()) {
 		fputs("fatal: recursion detected in die_errno handler\n",
-			stderr);
+		      stderr);
 		exit(128);
 	}
 
@@ -263,7 +263,8 @@ void warning(const char *warn, ...)
 /* Only set this, ever, from t/helper/, when verifying that bugs are caught. */
 int BUG_exit_code;
 
-static NORETURN void BUG_vfl(const char *file, int line, const char *fmt, va_list params)
+static NORETURN void BUG_vfl(const char *file, int line, const char *fmt,
+			     va_list params)
 {
 	char prefix[256];
 	va_list params_copy;
@@ -314,7 +315,7 @@ void unleak_memory(const void *ptr, size_t len)
 	static struct suppressed_leak_root {
 		struct suppressed_leak_root *next;
 		char data[FLEX_ARRAY];
-	} *suppressed_leaks;
+	} * suppressed_leaks;
 	struct suppressed_leak_root *root;
 
 	FLEX_ALLOC_MEM(root, data, ptr, len);

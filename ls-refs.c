@@ -68,8 +68,8 @@ struct ls_refs_data {
 	unsigned unborn : 1;
 };
 
-static int send_ref(const char *refname, const struct object_id *oid,
-		    int flag, void *cb_data)
+static int send_ref(const char *refname, const struct object_id *oid, int flag,
+		    void *cb_data)
 {
 	struct ls_refs_data *data = cb_data;
 	const char *refname_nons = strip_namespace(refname);
@@ -87,9 +87,8 @@ static int send_ref(const char *refname, const struct object_id *oid,
 		strbuf_addf(&refline, "unborn %s", refname_nons);
 	if (data->symrefs && flag & REF_ISSYMREF) {
 		struct object_id unused;
-		const char *symref_target = resolve_ref_unsafe(refname, 0,
-							       &unused,
-							       &flag);
+		const char *symref_target =
+			resolve_ref_unsafe(refname, 0, &unused, &flag);
 
 		if (!symref_target)
 			die("'%s' is a symref but it is not?", refname);
@@ -101,7 +100,8 @@ static int send_ref(const char *refname, const struct object_id *oid,
 	if (data->peel && oid) {
 		struct object_id peeled;
 		if (!peel_iterated_oid(oid, &peeled))
-			strbuf_addf(&refline, " peeled:%s", oid_to_hex(&peeled));
+			strbuf_addf(&refline, " peeled:%s",
+				    oid_to_hex(&peeled));
 	}
 
 	strbuf_addch(&refline, '\n');

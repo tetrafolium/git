@@ -28,7 +28,7 @@ static const char *zerr_to_string(int status)
  * with zlib in a single call to inflate/deflate.
  */
 /* #define ZLIB_BUF_MAX ((uInt)-1) */
-#define ZLIB_BUF_MAX ((uInt) 1024 * 1024 * 1024) /* 1GB */
+#define ZLIB_BUF_MAX ((uInt)1024 * 1024 * 1024) /* 1GB */
 static inline uInt zlib_buf_cap(unsigned long len)
 {
 	return (ZLIB_BUF_MAX < len) ? ZLIB_BUF_MAX : len;
@@ -116,8 +116,8 @@ int git_inflate(git_zstream *strm, int flush)
 		zlib_pre_call(strm);
 		/* Never say Z_FINISH unless we are feeding everything */
 		status = inflate(&strm->z,
-				 (strm->z.avail_in != strm->avail_in)
-				 ? 0 : flush);
+				 (strm->z.avail_in != strm->avail_in) ? 0 :
+									flush);
 		if (status == Z_MEM_ERROR)
 			die("inflate: out of memory");
 		zlib_post_call(strm);
@@ -147,7 +147,7 @@ int git_inflate(git_zstream *strm, int flush)
 }
 
 #if defined(NO_DEFLATE_BOUND) || ZLIB_VERNUM < 0x1200
-#define deflateBound(c,s)  ((s) + (((s) + 7) >> 3) + (((s) + 63) >> 6) + 11)
+#define deflateBound(c, s) ((s) + (((s) + 7) >> 3) + (((s) + 63) >> 6) + 11)
 #endif
 
 unsigned long git_deflate_bound(git_zstream *strm, unsigned long size)
@@ -175,9 +175,8 @@ static void do_git_deflate_init(git_zstream *strm, int level, int windowBits)
 
 	memset(strm, 0, sizeof(*strm));
 	zlib_pre_call(strm);
-	status = deflateInit2(&strm->z, level,
-				  Z_DEFLATED, windowBits,
-				  8, Z_DEFAULT_STRATEGY);
+	status = deflateInit2(&strm->z, level, Z_DEFLATED, windowBits, 8,
+			      Z_DEFAULT_STRATEGY);
 	zlib_post_call(strm);
 	if (status == Z_OK)
 		return;
@@ -242,8 +241,8 @@ int git_deflate(git_zstream *strm, int flush)
 
 		/* Never say Z_FINISH unless we are feeding everything */
 		status = deflate(&strm->z,
-				 (strm->z.avail_in != strm->avail_in)
-				 ? 0 : flush);
+				 (strm->z.avail_in != strm->avail_in) ? 0 :
+									flush);
 		if (status == Z_MEM_ERROR)
 			die("deflate: out of memory");
 		zlib_post_call(strm);

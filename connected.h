@@ -48,7 +48,10 @@ struct check_connected_options {
 	unsigned is_deepening_fetch : 1;
 };
 
-#define CHECK_CONNECTED_INIT { 0 }
+#define CHECK_CONNECTED_INIT \
+	{                    \
+		0            \
+	}
 
 /*
  * Make sure that all given objects and all objects reachable from them

@@ -14,17 +14,12 @@ static void comment_lines(struct strbuf *buf)
 	free(msg);
 }
 
-static const char * const stripspace_usage[] = {
+static const char *const stripspace_usage[] = {
 	N_("git stripspace [-s | --strip-comments]"),
-	N_("git stripspace [-c | --comment-lines]"),
-	NULL
+	N_("git stripspace [-c | --comment-lines]"), NULL
 };
 
-enum stripspace_mode {
-	STRIP_DEFAULT = 0,
-	STRIP_COMMENTS,
-	COMMENT_LINES
-};
+enum stripspace_mode { STRIP_DEFAULT = 0, STRIP_COMMENTS, COMMENT_LINES };
 
 int cmd_stripspace(int argc, const char **argv, const char *prefix)
 {
@@ -33,12 +28,14 @@ int cmd_stripspace(int argc, const char **argv, const char *prefix)
 	int nongit;
 
 	const struct option options[] = {
-		OPT_CMDMODE('s', "strip-comments", &mode,
-			    N_("skip and remove all lines starting with comment character"),
-			    STRIP_COMMENTS),
-		OPT_CMDMODE('c', "comment-lines", &mode,
-			    N_("prepend comment character and space to each line"),
-			    COMMENT_LINES),
+		OPT_CMDMODE(
+			's', "strip-comments", &mode,
+			N_("skip and remove all lines starting with comment character"),
+			STRIP_COMMENTS),
+		OPT_CMDMODE(
+			'c', "comment-lines", &mode,
+			N_("prepend comment character and space to each line"),
+			COMMENT_LINES),
 		OPT_END()
 	};
 

@@ -30,12 +30,11 @@ const struct object_id *do_lookup_replace_object(struct repository *r,
  * problem in the value being updated by one thread right after another one read
  * it here (and it should be written to only once, anyway).
  */
-static inline const struct object_id *lookup_replace_object(struct repository *r,
-							    const struct object_id *oid)
+static inline const struct object_id *
+lookup_replace_object(struct repository *r, const struct object_id *oid)
 {
-	if (!read_replace_refs ||
-	    (r->objects->replace_map_initialized &&
-	     r->objects->replace_map->map.tablesize == 0))
+	if (!read_replace_refs || (r->objects->replace_map_initialized &&
+				   r->objects->replace_map->map.tablesize == 0))
 		return oid;
 	return do_lookup_replace_object(r, oid);
 }

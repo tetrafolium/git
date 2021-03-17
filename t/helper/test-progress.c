@@ -28,8 +28,7 @@ int cmd__progress(int argc, const char **argv)
 	struct progress *progress;
 
 	const char *usage[] = {
-		"test-tool progress [--total=<n>] <progress-title>",
-		NULL
+		"test-tool progress [--total=<n>] <progress-title>", NULL
 	};
 	struct option options[] = {
 		OPT_INTEGER(0, "total", &total, "total number of items"),
@@ -46,13 +45,13 @@ int cmd__progress(int argc, const char **argv)
 	while (strbuf_getline(&line, stdin) != EOF) {
 		char *end;
 
-		if (skip_prefix(line.buf, "progress ", (const char **) &end)) {
+		if (skip_prefix(line.buf, "progress ", (const char **)&end)) {
 			uint64_t item_count = strtoull(end, &end, 10);
 			if (*end != '\0')
 				die("invalid input: '%s'\n", line.buf);
 			display_progress(progress, item_count);
 		} else if (skip_prefix(line.buf, "throughput ",
-				       (const char **) &end)) {
+				       (const char **)&end)) {
 			uint64_t byte_count, test_ms;
 
 			byte_count = strtoull(end, &end, 10);

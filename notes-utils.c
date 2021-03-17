@@ -5,11 +5,9 @@
 #include "notes-utils.h"
 #include "repository.h"
 
-void create_notes_commit(struct repository *r,
-			 struct notes_tree *t,
-			 struct commit_list *parents,
-			 const char *msg, size_t msg_len,
-			 struct object_id *result_oid)
+void create_notes_commit(struct repository *r, struct notes_tree *t,
+			 struct commit_list *parents, const char *msg,
+			 size_t msg_len, struct object_id *result_oid)
 {
 	struct object_id tree_oid;
 
@@ -94,7 +92,7 @@ static combine_notes_fn parse_combine_notes_fn(const char *v)
 static int notes_rewrite_config(const char *k, const char *v, void *cb)
 {
 	struct notes_rewrite_cfg *c = cb;
-	if (starts_with(k, "notes.rewrite.") && !strcmp(k+14, c->cmd)) {
+	if (starts_with(k, "notes.rewrite.") && !strcmp(k + 14, c->cmd)) {
 		c->enabled = git_config_bool(k, v);
 		return 0;
 	} else if (!c->mode_from_env && !strcmp(k, "notes.rewritemode")) {
@@ -113,19 +111,21 @@ static int notes_rewrite_config(const char *k, const char *v, void *cb)
 			string_list_add_refs_by_glob(c->refs, v);
 		else
 			warning(_("Refusing to rewrite notes in %s"
-				" (outside of refs/notes/)"), v);
+				  " (outside of refs/notes/)"),
+				v);
 		return 0;
 	}
 
 	return 0;
 }
 
-
 struct notes_rewrite_cfg *init_copy_notes_for_rewrite(const char *cmd)
 {
 	struct notes_rewrite_cfg *c = xmalloc(sizeof(struct notes_rewrite_cfg));
-	const char *rewrite_mode_env = getenv(GIT_NOTES_REWRITE_MODE_ENVIRONMENT);
-	const char *rewrite_refs_env = getenv(GIT_NOTES_REWRITE_REF_ENVIRONMENT);
+	const char *rewrite_mode_env =
+		getenv(GIT_NOTES_REWRITE_MODE_ENVIRONMENT);
+	const char *rewrite_refs_env =
+		getenv(GIT_NOTES_REWRITE_REF_ENVIRONMENT);
 	c->cmd = cmd;
 	c->enabled = 1;
 	c->combine = combine_notes_concatenate;
@@ -142,8 +142,9 @@ struct notes_rewrite_cfg *init_copy_notes_for_rewrite(const char *cmd)
 			 * the environment variable, the second %s is
 			 * its value.
 			 */
-			error(_("Bad %s value: '%s'"), GIT_NOTES_REWRITE_MODE_ENVIRONMENT,
-					rewrite_mode_env);
+			error(_("Bad %s value: '%s'"),
+			      GIT_NOTES_REWRITE_MODE_ENVIRONMENT,
+			      rewrite_mode_env);
 	}
 	if (rewrite_refs_env) {
 		c->refs_from_env = 1;
@@ -163,18 +164,19 @@ struct notes_rewrite_cfg *init_copy_notes_for_rewrite(const char *cmd)
 }
 
 int copy_note_for_rewrite(struct notes_rewrite_cfg *c,
-			  const struct object_id *from_obj, const struct object_id *to_obj)
+			  const struct object_id *from_obj,
+			  const struct object_id *to_obj)
 {
 	int ret = 0;
 	int i;
 	for (i = 0; c->trees[i]; i++)
-		ret = copy_note(c->trees[i], from_obj, to_obj, 1, c->combine) || ret;
+		ret = copy_note(c->trees[i], from_obj, to_obj, 1, c->combine) ||
+		      ret;
 	return ret;
 }
 
 void finish_copy_notes_for_rewrite(struct repository *r,
-				   struct notes_rewrite_cfg *c,
-				   const char *msg)
+				   struct notes_rewrite_cfg *c, const char *msg)
 {
 	int i;
 	for (i = 0; c->trees[i]; i++) {

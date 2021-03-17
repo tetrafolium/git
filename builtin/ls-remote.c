@@ -5,7 +5,7 @@
 #include "remote.h"
 #include "refs.h"
 
-static const char * const ls_remote_usage[] = {
+static const char *const ls_remote_usage[] = {
 	N_("git ls-remote [--heads] [--tags] [--refs] [--upload-pack=<exec>]\n"
 	   "                     [-q | --quiet] [--exit-code] [--get-url]\n"
 	   "                     [--symref] [<repository> [<refs>...]]"),
@@ -61,20 +61,25 @@ int cmd_ls_remote(int argc, const char **argv, const char *prefix)
 		OPT_STRING(0, "upload-pack", &uploadpack, N_("exec"),
 			   N_("path of git-upload-pack on the remote host")),
 		{ OPTION_STRING, 0, "exec", &uploadpack, N_("exec"),
-			   N_("path of git-upload-pack on the remote host"),
-			   PARSE_OPT_HIDDEN },
+		  N_("path of git-upload-pack on the remote host"),
+		  PARSE_OPT_HIDDEN },
 		OPT_BIT('t', "tags", &flags, N_("limit to tags"), REF_TAGS),
 		OPT_BIT('h', "heads", &flags, N_("limit to heads"), REF_HEADS),
-		OPT_BIT(0, "refs", &flags, N_("do not show peeled tags"), REF_NORMAL),
+		OPT_BIT(0, "refs", &flags, N_("do not show peeled tags"),
+			REF_NORMAL),
 		OPT_BOOL(0, "get-url", &get_url,
 			 N_("take url.<base>.insteadOf into account")),
 		OPT_REF_SORT(sorting_tail),
-		OPT_SET_INT_F(0, "exit-code", &status,
-			      N_("exit with exit code 2 if no matching refs are found"),
-			      2, PARSE_OPT_NOCOMPLETE),
-		OPT_BOOL(0, "symref", &show_symref_target,
-			 N_("show underlying ref in addition to the object pointed by it")),
-		OPT_STRING_LIST('o', "server-option", &server_options, N_("server-specific"), N_("option to transmit")),
+		OPT_SET_INT_F(
+			0, "exit-code", &status,
+			N_("exit with exit code 2 if no matching refs are found"),
+			2, PARSE_OPT_NOCOMPLETE),
+		OPT_BOOL(
+			0, "symref", &show_symref_target,
+			N_("show underlying ref in addition to the object pointed by it")),
+		OPT_STRING_LIST('o', "server-option", &server_options,
+				N_("server-specific"),
+				N_("option to transmit")),
 		OPT_END()
 	};
 
@@ -115,13 +120,15 @@ int cmd_ls_remote(int argc, const char **argv, const char *prefix)
 
 	transport = transport_get(remote, NULL);
 	if (uploadpack != NULL)
-		transport_set_option(transport, TRANS_OPT_UPLOADPACK, uploadpack);
+		transport_set_option(transport, TRANS_OPT_UPLOADPACK,
+				     uploadpack);
 	if (server_options.nr)
 		transport->server_options = &server_options;
 
 	ref = transport_get_remote_refs(transport, &transport_options);
 	if (ref) {
-		int hash_algo = hash_algo_by_ptr(transport_get_hash_algo(transport));
+		int hash_algo =
+			hash_algo_by_ptr(transport_get_hash_algo(transport));
 		repo_set_hash_algo(the_repository, hash_algo);
 	}
 	if (transport_disconnect(transport))
@@ -129,7 +136,7 @@ int cmd_ls_remote(int argc, const char **argv, const char *prefix)
 
 	if (!dest && !quiet)
 		fprintf(stderr, "From %s\n", *remote->url);
-	for ( ; ref; ref = ref->next) {
+	for (; ref; ref = ref->next) {
 		struct ref_array_item *item;
 		if (!check_ref_type(ref, flags))
 			continue;

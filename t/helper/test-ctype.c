@@ -17,13 +17,14 @@ static int is_in(const char *s, int ch)
 	return !!strchr(s, ch);
 }
 
-#define TEST_CLASS(t,s) {			\
-	int i;					\
-	for (i = 0; i < 256; i++) {		\
-		if (is_in(s, i) != t(i))	\
-			report_error(#t, i);	\
-	}					\
-}
+#define TEST_CLASS(t, s)                             \
+	{                                            \
+		int i;                               \
+		for (i = 0; i < 256; i++) {          \
+			if (is_in(s, i) != t(i))     \
+				report_error(#t, i); \
+		}                                    \
+	}
 
 #define DIGIT "0123456789"
 #define LOWER "abcdefghijklmnopqrstuvwxyz"

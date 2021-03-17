@@ -55,8 +55,7 @@ static void rehash_objects(struct packing_data *pdata)
 
 	for (i = 0; i < pdata->nr_objects; i++) {
 		int found;
-		uint32_t ix = locate_object_entry_hash(pdata,
-						       &entry->idx.oid,
+		uint32_t ix = locate_object_entry_hash(pdata, &entry->idx.oid,
 						       &found);
 
 		if (found)
@@ -144,8 +143,8 @@ void prepare_packing_data(struct repository *r, struct packing_data *pdata)
 		prepare_in_pack_by_idx(pdata);
 	}
 
-	pdata->oe_size_limit = git_env_ulong("GIT_TEST_OE_SIZE",
-					     1U << OE_SIZE_BITS);
+	pdata->oe_size_limit =
+		git_env_ulong("GIT_TEST_OE_SIZE", 1U << OE_SIZE_BITS);
 	pdata->oe_delta_size_limit = git_env_ulong("GIT_TEST_OE_DELTA_SIZE",
 						   1UL << OE_DELTA_SIZE_BITS);
 	init_recursive_mutex(&pdata->odb_lock);
@@ -157,7 +156,7 @@ struct object_entry *packlist_alloc(struct packing_data *pdata,
 	struct object_entry *new_entry;
 
 	if (pdata->nr_objects >= pdata->nr_alloc) {
-		pdata->nr_alloc = (pdata->nr_alloc  + 1024) * 3 / 2;
+		pdata->nr_alloc = (pdata->nr_alloc + 1024) * 3 / 2;
 		REALLOC_ARRAY(pdata->objects, pdata->nr_alloc);
 
 		if (!pdata->in_pack_by_idx)
@@ -181,9 +180,8 @@ struct object_entry *packlist_alloc(struct packing_data *pdata,
 		rehash_objects(pdata);
 	else {
 		int found;
-		uint32_t pos = locate_object_entry_hash(pdata,
-							&new_entry->idx.oid,
-							&found);
+		uint32_t pos = locate_object_entry_hash(
+			pdata, &new_entry->idx.oid, &found);
 		if (found)
 			BUG("duplicate object inserted into hash");
 		pdata->index[pos] = pdata->nr_objects;
@@ -201,8 +199,7 @@ struct object_entry *packlist_alloc(struct packing_data *pdata,
 	return new_entry;
 }
 
-void oe_set_delta_ext(struct packing_data *pdata,
-		      struct object_entry *delta,
+void oe_set_delta_ext(struct packing_data *pdata, struct object_entry *delta,
 		      const struct object_id *oid)
 {
 	struct object_entry *base;

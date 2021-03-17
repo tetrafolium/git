@@ -15,12 +15,8 @@ static int read_midx_file(const char *object_dir)
 	if (!m)
 		return 1;
 
-	printf("header: %08x %d %d %d %d\n",
-	       m->signature,
-	       m->version,
-	       m->hash_len,
-	       m->num_chunks,
-	       m->num_packs);
+	printf("header: %08x %d %d %d %d\n", m->signature, m->version,
+	       m->hash_len, m->num_chunks, m->num_packs);
 
 	printf("chunks:");
 

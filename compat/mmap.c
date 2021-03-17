@@ -1,6 +1,7 @@
 #include "../git-compat-util.h"
 
-void *git_mmap(void *start, size_t length, int prot, int flags, int fd, off_t offset)
+void *git_mmap(void *start, size_t length, int prot, int flags, int fd,
+	       off_t offset)
 {
 	size_t n = 0;
 
@@ -14,10 +15,11 @@ void *git_mmap(void *start, size_t length, int prot, int flags, int fd, off_t of
 	}
 
 	while (n < length) {
-		ssize_t count = xpread(fd, (char *)start + n, length - n, offset + n);
+		ssize_t count =
+			xpread(fd, (char *)start + n, length - n, offset + n);
 
 		if (count == 0) {
-			memset((char *)start+n, 0, length-n);
+			memset((char *)start + n, 0, length - n);
 			break;
 		}
 

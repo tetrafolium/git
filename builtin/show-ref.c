@@ -8,14 +8,13 @@
 #include "string-list.h"
 #include "parse-options.h"
 
-static const char * const show_ref_usage[] = {
+static const char *const show_ref_usage[] = {
 	N_("git show-ref [-q | --quiet] [--verify] [--head] [-d | --dereference] [-s | --hash[=<n>]] [--abbrev[=<n>]] [--tags] [--heads] [--] [<pattern>...]"),
-	N_("git show-ref --exclude-existing[=<pattern>]"),
-	NULL
+	N_("git show-ref --exclude-existing[=<pattern>]"), NULL
 };
 
 static int deref_tags, show_head, tags_only, heads_only, found_match, verify,
-	   quiet, hash_only, abbrev, exclude_arg;
+	quiet, hash_only, abbrev, exclude_arg;
 static const char **pattern;
 static const char *exclude_existing_arg;
 
@@ -25,8 +24,7 @@ static void show_one(const char *refname, const struct object_id *oid)
 	struct object_id peeled;
 
 	if (!has_object_file(oid))
-		die("git show-ref: bad ref %s (%s)", refname,
-		    oid_to_hex(oid));
+		die("git show-ref: bad ref %s (%s)", refname, oid_to_hex(oid));
 
 	if (quiet)
 		return;
@@ -46,8 +44,8 @@ static void show_one(const char *refname, const struct object_id *oid)
 	}
 }
 
-static int show_ref(const char *refname, const struct object_id *oid,
-		    int flag, void *cbdata)
+static int show_ref(const char *refname, const struct object_id *oid, int flag,
+		    void *cbdata)
 {
 	if (show_head && !strcmp(refname, "HEAD"))
 		goto match;
@@ -159,25 +157,31 @@ static int exclude_existing_callback(const struct option *opt, const char *arg,
 }
 
 static const struct option show_ref_options[] = {
-	OPT_BOOL(0, "tags", &tags_only, N_("only show tags (can be combined with heads)")),
-	OPT_BOOL(0, "heads", &heads_only, N_("only show heads (can be combined with tags)")),
-	OPT_BOOL(0, "verify", &verify, N_("stricter reference checking, "
+	OPT_BOOL(0, "tags", &tags_only,
+		 N_("only show tags (can be combined with heads)")),
+	OPT_BOOL(0, "heads", &heads_only,
+		 N_("only show heads (can be combined with tags)")),
+	OPT_BOOL(0, "verify", &verify,
+		 N_("stricter reference checking, "
 		    "requires exact ref path")),
-	OPT_HIDDEN_BOOL('h', NULL, &show_head,
-			N_("show the HEAD reference, even if it would be filtered out")),
-	OPT_BOOL(0, "head", &show_head,
-	  N_("show the HEAD reference, even if it would be filtered out")),
+	OPT_HIDDEN_BOOL(
+		'h', NULL, &show_head,
+		N_("show the HEAD reference, even if it would be filtered out")),
+	OPT_BOOL(
+		0, "head", &show_head,
+		N_("show the HEAD reference, even if it would be filtered out")),
 	OPT_BOOL('d', "dereference", &deref_tags,
-		    N_("dereference tags into object IDs")),
+		 N_("dereference tags into object IDs")),
 	OPT_CALLBACK_F('s', "hash", &abbrev, N_("n"),
 		       N_("only show SHA1 hash using <n> digits"),
 		       PARSE_OPT_OPTARG, &hash_callback),
 	OPT__ABBREV(&abbrev),
 	OPT__QUIET(&quiet,
 		   N_("do not print results to stdout (useful with --verify)")),
-	OPT_CALLBACK_F(0, "exclude-existing", &exclude_existing_arg,
-		       N_("pattern"), N_("show refs from stdin that aren't in local repository"),
-		       PARSE_OPT_OPTARG | PARSE_OPT_NONEG, exclude_existing_callback),
+	OPT_CALLBACK_F(
+		0, "exclude-existing", &exclude_existing_arg, N_("pattern"),
+		N_("show refs from stdin that aren't in local repository"),
+		PARSE_OPT_OPTARG | PARSE_OPT_NONEG, exclude_existing_callback),
 	OPT_END()
 };
 
@@ -201,11 +205,11 @@ int cmd_show_ref(int argc, const char **argv, const char *prefix)
 		while (*pattern) {
 			struct object_id oid;
 
-			if ((starts_with(*pattern, "refs/") || !strcmp(*pattern, "HEAD")) &&
+			if ((starts_with(*pattern, "refs/") ||
+			     !strcmp(*pattern, "HEAD")) &&
 			    !read_ref(*pattern, &oid)) {
 				show_one(*pattern, &oid);
-			}
-			else if (!quiet)
+			} else if (!quiet)
 				die("'%s' - not a valid ref", *pattern);
 			else
 				return 1;

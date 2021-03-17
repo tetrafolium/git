@@ -9,18 +9,19 @@
 static int all_attrs;
 static int cached_attrs;
 static int stdin_paths;
-static const char * const check_attr_usage[] = {
-N_("git check-attr [-a | --all | <attr>...] [--] <pathname>..."),
-N_("git check-attr --stdin [-z] [-a | --all | <attr>...]"),
-NULL
+static const char *const check_attr_usage[] = {
+	N_("git check-attr [-a | --all | <attr>...] [--] <pathname>..."),
+	N_("git check-attr --stdin [-z] [-a | --all | <attr>...]"), NULL
 };
 
 static int nul_term_line;
 
 static const struct option check_attr_options[] = {
-	OPT_BOOL('a', "all", &all_attrs, N_("report all attributes set on file")),
-	OPT_BOOL(0,  "cached", &cached_attrs, N_("use .gitattributes only from the index")),
-	OPT_BOOL(0 , "stdin", &stdin_paths, N_("read file names from stdin")),
+	OPT_BOOL('a', "all", &all_attrs,
+		 N_("report all attributes set on file")),
+	OPT_BOOL(0, "cached", &cached_attrs,
+		 N_("use .gitattributes only from the index")),
+	OPT_BOOL(0, "stdin", &stdin_paths, N_("read file names from stdin")),
 	OPT_BOOL('z', NULL, &nul_term_line,
 		 N_("terminate input and output records by a NUL character")),
 	OPT_END()
@@ -45,8 +46,8 @@ static void output_attr(struct attr_check *check, const char *file)
 			printf("%s%c" /* path */
 			       "%s%c" /* attrname */
 			       "%s%c" /* attrvalue */,
-			       file, 0,
-			       git_attr_name(check->items[j].attr), 0, value, 0);
+			       file, 0, git_attr_name(check->items[j].attr), 0,
+			       value, 0);
 		} else {
 			quote_c_style(file, NULL, stdout, 0);
 			printf(": %s: %s\n",
@@ -55,10 +56,8 @@ static void output_attr(struct attr_check *check, const char *file)
 	}
 }
 
-static void check_attr(const char *prefix,
-		       struct attr_check *check,
-		       int collect_all,
-		       const char *file)
+static void check_attr(const char *prefix, struct attr_check *check,
+		       int collect_all, const char *file)
 {
 	char *full_path =
 		prefix_path(prefix, prefix ? strlen(prefix) : 0, file);
@@ -73,8 +72,7 @@ static void check_attr(const char *prefix,
 	free(full_path);
 }
 
-static void check_attr_stdin_paths(const char *prefix,
-				   struct attr_check *check,
+static void check_attr_stdin_paths(const char *prefix, struct attr_check *check,
 				   int collect_all)
 {
 	struct strbuf buf = STRBUF_INIT;

@@ -26,15 +26,14 @@
    The author may be reached (Email) at the address mike@ai.mit.edu,
    or (US mail) as Mike Haertel c/o Free Software Foundation. */
 
-struct kwsmatch
-{
-  int index;			/* Index number of matching keyword. */
-  size_t offset[1];		/* Offset of each submatch. */
-  size_t size[1];		/* Length of each submatch. */
+struct kwsmatch {
+	int index; /* Index number of matching keyword. */
+	size_t offset[1]; /* Offset of each submatch. */
+	size_t size[1]; /* Length of each submatch. */
 };
 
 struct kwset_t;
-typedef struct kwset_t* kwset_t;
+typedef struct kwset_t *kwset_t;
 
 /* Return an opaque pointer to a newly allocated keyword set, or NULL
    if enough memory cannot be obtained.  The argument if non-NULL

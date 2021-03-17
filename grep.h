@@ -29,10 +29,7 @@ enum grep_pat_token {
 	GREP_OR
 };
 
-enum grep_context {
-	GREP_CONTEXT_HEAD,
-	GREP_CONTEXT_BODY
-};
+enum grep_context { GREP_CONTEXT_HEAD, GREP_CONTEXT_BODY };
 
 enum grep_header_field {
 	GREP_HEADER_FIELD_MIN = 0,
@@ -71,10 +68,10 @@ struct grep_pat {
 	pcre2_compile_context *pcre2_compile_context;
 	const uint8_t *pcre2_tables;
 	uint32_t pcre2_jit_on;
-	unsigned fixed:1;
-	unsigned is_fixed:1;
-	unsigned ignore_case:1;
-	unsigned word_regexp:1;
+	unsigned fixed : 1;
+	unsigned is_fixed : 1;
+	unsigned ignore_case : 1;
+	unsigned word_regexp : 1;
 };
 
 enum grep_expr_node {
@@ -127,9 +124,9 @@ struct grep_opt {
 	int word_regexp;
 	int fixed;
 	int all_match;
-#define GREP_BINARY_DEFAULT	0
-#define GREP_BINARY_NOMATCH	1
-#define GREP_BINARY_TEXT	2
+#define GREP_BINARY_DEFAULT 0
+#define GREP_BINARY_NOMATCH 1
+#define GREP_BINARY_TEXT 2
 	int binary;
 	int allow_textconv;
 	int extended;
@@ -164,9 +161,12 @@ void grep_init(struct grep_opt *, struct repository *repo, const char *prefix);
 void grep_destroy(void);
 void grep_commit_pattern_type(enum grep_pattern_type, struct grep_opt *opt);
 
-void append_grep_pat(struct grep_opt *opt, const char *pat, size_t patlen, const char *origin, int no, enum grep_pat_token t);
-void append_grep_pattern(struct grep_opt *opt, const char *pat, const char *origin, int no, enum grep_pat_token t);
-void append_header_grep_pattern(struct grep_opt *, enum grep_header_field, const char *);
+void append_grep_pat(struct grep_opt *opt, const char *pat, size_t patlen,
+		     const char *origin, int no, enum grep_pat_token t);
+void append_grep_pattern(struct grep_opt *opt, const char *pat,
+			 const char *origin, int no, enum grep_pat_token t);
+void append_header_grep_pattern(struct grep_opt *, enum grep_header_field,
+				const char *);
 void compile_grep_patterns(struct grep_opt *opt);
 void free_grep_patterns(struct grep_opt *opt);
 int grep_buffer(struct grep_opt *opt, char *buf, unsigned long size);
@@ -195,7 +195,6 @@ void grep_source_clear_data(struct grep_source *gs);
 void grep_source_clear(struct grep_source *gs);
 void grep_source_load_driver(struct grep_source *gs,
 			     struct index_state *istate);
-
 
 int grep_source(struct grep_opt *opt, struct grep_source *gs);
 

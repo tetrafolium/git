@@ -9,10 +9,9 @@ void add_entry_to_dir(struct ref_dir *dir, struct ref_entry *entry)
 	ALLOC_GROW(dir->entries, dir->nr + 1, dir->alloc);
 	dir->entries[dir->nr++] = entry;
 	/* optimize for the case that entries are added in order */
-	if (dir->nr == 1 ||
-	    (dir->nr == dir->sorted + 1 &&
-	     strcmp(dir->entries[dir->nr - 2]->name,
-		    dir->entries[dir->nr - 1]->name) < 0))
+	if (dir->nr == 1 || (dir->nr == dir->sorted + 1 &&
+			     strcmp(dir->entries[dir->nr - 2]->name,
+				    dir->entries[dir->nr - 1]->name) < 0))
 		dir->sorted = dir->nr;
 }
 
@@ -25,7 +24,8 @@ struct ref_dir *get_ref_dir(struct ref_entry *entry)
 		if (!dir->cache->fill_ref_dir)
 			BUG("incomplete ref_store without fill_ref_dir function");
 
-		dir->cache->fill_ref_dir(dir->cache->ref_store, dir, entry->name);
+		dir->cache->fill_ref_dir(dir->cache->ref_store, dir,
+					 entry->name);
 		entry->flag &= ~REF_INCOMPLETE;
 	}
 	return dir;
@@ -85,9 +85,8 @@ static void clear_ref_dir(struct ref_dir *dir)
 	dir->sorted = dir->nr = dir->alloc = 0;
 }
 
-struct ref_entry *create_dir_entry(struct ref_cache *cache,
-				   const char *dirname, size_t len,
-				   int incomplete)
+struct ref_entry *create_dir_entry(struct ref_cache *cache, const char *dirname,
+				   size_t len, int incomplete)
 {
 	struct ref_entry *direntry;
 
@@ -114,7 +113,7 @@ struct string_slice {
 static int ref_entry_cmp_sslice(const void *key_, const void *ent_)
 {
 	const struct string_slice *key = key_;
-	const struct ref_entry *ent = *(const struct ref_entry * const *)ent_;
+	const struct ref_entry *ent = *(const struct ref_entry *const *)ent_;
 	int cmp = strncmp(key->str, ent->name, key->len);
 	if (cmp)
 		return cmp;
@@ -184,7 +183,8 @@ static struct ref_dir *find_containing_dir(struct ref_dir *dir,
 					   const char *refname, int mkdir)
 {
 	const char *slash;
-	for (slash = strchr(refname, '/'); slash; slash = strchr(slash + 1, '/')) {
+	for (slash = strchr(refname, '/'); slash;
+	     slash = strchr(slash + 1, '/')) {
 		size_t dirnamelen = slash - refname + 1;
 		struct ref_dir *subdir;
 		subdir = search_for_subdir(dir, refname, dirnamelen, mkdir);
@@ -238,8 +238,8 @@ int remove_entry_from_dir(struct ref_dir *dir, const char *refname)
 		return -1;
 	entry = dir->entries[entry_index];
 
-	MOVE_ARRAY(&dir->entries[entry_index],
-		   &dir->entries[entry_index + 1], dir->nr - entry_index - 1);
+	MOVE_ARRAY(&dir->entries[entry_index], &dir->entries[entry_index + 1],
+		   dir->nr - entry_index - 1);
 	dir->nr--;
 	if (dir->sorted > entry_index)
 		dir->sorted--;
@@ -261,7 +261,8 @@ int add_ref_entry(struct ref_dir *dir, struct ref_entry *ref)
  * and the same oid. Die if they have the same name but different
  * oids.
  */
-static int is_dup_ref(const struct ref_entry *ref1, const struct ref_entry *ref2)
+static int is_dup_ref(const struct ref_entry *ref1,
+		      const struct ref_entry *ref2)
 {
 	if (strcmp(ref1->name, ref2->name))
 		return 0;
@@ -463,7 +464,8 @@ static int cache_ref_iterator_advance(struct ref_iterator *ref_iterator)
 		entry = dir->entries[level->index];
 
 		if (level->prefix_state == PREFIX_WITHIN_DIR) {
-			entry_prefix_state = overlaps_prefix(entry->name, iter->prefix);
+			entry_prefix_state =
+				overlaps_prefix(entry->name, iter->prefix);
 			if (entry_prefix_state == PREFIX_EXCLUDES_DIR)
 				continue;
 		} else {
@@ -506,14 +508,12 @@ static int cache_ref_iterator_abort(struct ref_iterator *ref_iterator)
 }
 
 static struct ref_iterator_vtable cache_ref_iterator_vtable = {
-	cache_ref_iterator_advance,
-	cache_ref_iterator_peel,
+	cache_ref_iterator_advance, cache_ref_iterator_peel,
 	cache_ref_iterator_abort
 };
 
 struct ref_iterator *cache_ref_iterator_begin(struct ref_cache *cache,
-					      const char *prefix,
-					      int prime_dir)
+					      const char *prefix, int prime_dir)
 {
 	struct ref_dir *dir;
 	struct cache_ref_iterator *iter;

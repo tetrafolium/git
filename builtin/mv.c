@@ -14,17 +14,16 @@
 #include "parse-options.h"
 #include "submodule.h"
 
-static const char * const builtin_mv_usage[] = {
-	N_("git mv [<options>] <source>... <destination>"),
-	NULL
+static const char *const builtin_mv_usage[] = {
+	N_("git mv [<options>] <source>... <destination>"), NULL
 };
 
 #define DUP_BASENAME 1
 #define KEEP_TRAILING_SLASH 2
 
 static const char **internal_prefix_pathspec(const char *prefix,
-					     const char **pathspec,
-					     int count, unsigned flags)
+					     const char **pathspec, int count,
+					     unsigned flags)
 {
 	int i;
 	const char **result;
@@ -36,8 +35,8 @@ static const char **internal_prefix_pathspec(const char *prefix,
 		int length = strlen(pathspec[i]);
 		int to_copy = length;
 		char *it;
-		while (!(flags & KEEP_TRAILING_SLASH) &&
-		       to_copy > 0 && is_dir_sep(pathspec[i][to_copy - 1]))
+		while (!(flags & KEEP_TRAILING_SLASH) && to_copy > 0 &&
+		       is_dir_sep(pathspec[i][to_copy - 1]))
 			to_copy--;
 
 		it = xmemdupz(pathspec[i], to_copy);
@@ -53,7 +52,7 @@ static const char **internal_prefix_pathspec(const char *prefix,
 	/* Prefix the pathspec and free the old intermediate strings */
 	for (i = 0; i < count; i++) {
 		const char *match = prefix_path(prefix, prefixlen, result[i]);
-		free((char *) result[i]);
+		free((char *)result[i]);
 		result[i] = match;
 	}
 
@@ -92,8 +91,8 @@ static void prepare_move_submodule(const char *src, int first,
 	strbuf_release(&submodule_dotgit);
 }
 
-static int index_range_of_same_dir(const char *src, int length,
-				   int *first_p, int *last_p)
+static int index_range_of_same_dir(const char *src, int length, int *first_p,
+				   int *last_p)
 {
 	const char *src_w_slash = add_slash(src);
 	int first, last, len_w_slash = length + 1;
@@ -122,13 +121,15 @@ int cmd_mv(int argc, const char **argv, const char *prefix)
 	struct option builtin_mv_options[] = {
 		OPT__VERBOSE(&verbose, N_("be verbose")),
 		OPT__DRY_RUN(&show_only, N_("dry run")),
-		OPT__FORCE(&force, N_("force move/rename even if target exists"),
+		OPT__FORCE(&force,
+			   N_("force move/rename even if target exists"),
 			   PARSE_OPT_NOCOMPLETE),
-		OPT_BOOL('k', NULL, &ignore_errors, N_("skip move/rename errors")),
+		OPT_BOOL('k', NULL, &ignore_errors,
+			 N_("skip move/rename errors")),
 		OPT_END(),
 	};
 	const char **source, **destination, **dest_path, **submodule_gitfile;
-	enum update_mode { BOTH = 0, WORKING_DIRECTORY, INDEX } *modes;
+	enum update_mode { BOTH = 0, WORKING_DIRECTORY, INDEX } * modes;
 	struct stat st;
 	struct string_list src_for_dst = STRING_LIST_INIT_NODUP;
 	struct lock_file lock_file = LOCK_INIT;
@@ -160,14 +161,16 @@ int cmd_mv(int argc, const char **argv, const char *prefix)
 
 	if (dest_path[0][0] == '\0')
 		/* special case: "." was normalized to "" */
-		destination = internal_prefix_pathspec(dest_path[0], argv, argc, DUP_BASENAME);
-	else if (!lstat(dest_path[0], &st) &&
-			S_ISDIR(st.st_mode)) {
+		destination = internal_prefix_pathspec(dest_path[0], argv, argc,
+						       DUP_BASENAME);
+	else if (!lstat(dest_path[0], &st) && S_ISDIR(st.st_mode)) {
 		dest_path[0] = add_slash(dest_path[0]);
-		destination = internal_prefix_pathspec(dest_path[0], argv, argc, DUP_BASENAME);
+		destination = internal_prefix_pathspec(dest_path[0], argv, argc,
+						       DUP_BASENAME);
 	} else {
 		if (argc != 1)
-			die(_("destination '%s' is not a directory"), dest_path[0]);
+			die(_("destination '%s' is not a directory"),
+			    dest_path[0]);
 		destination = dest_path;
 	}
 
@@ -178,16 +181,17 @@ int cmd_mv(int argc, const char **argv, const char *prefix)
 		const char *bad = NULL;
 
 		if (show_only)
-			printf(_("Checking rename of '%s' to '%s'\n"), src, dst);
+			printf(_("Checking rename of '%s' to '%s'\n"), src,
+			       dst);
 
 		length = strlen(src);
 		if (lstat(src, &st) < 0)
 			bad = _("bad source");
 		else if (!strncmp(src, dst, length) &&
-				(dst[length] == 0 || dst[length] == '/')) {
+			 (dst[length] == 0 || dst[length] == '/')) {
 			bad = _("can not move directory into itself");
-		} else if ((src_is_dir = S_ISDIR(st.st_mode))
-				&& lstat(dst, &st) == 0)
+		} else if ((src_is_dir = S_ISDIR(st.st_mode)) &&
+			   lstat(dst, &st) == 0)
 			bad = _("cannot move directory over file");
 		else if (src_is_dir) {
 			int first = cache_name_pos(src, length), last;
@@ -195,8 +199,8 @@ int cmd_mv(int argc, const char **argv, const char *prefix)
 			if (first >= 0)
 				prepare_move_submodule(src, first,
 						       submodule_gitfile + i);
-			else if (index_range_of_same_dir(src, length,
-							 &first, &last) < 1)
+			else if (index_range_of_same_dir(src, length, &first,
+							 &last) < 1)
 				bad = _("source directory is empty");
 			else { /* last - first >= 1 */
 				int j, dst_len, n;
@@ -212,30 +216,35 @@ int cmd_mv(int argc, const char **argv, const char *prefix)
 				dst_len = strlen(dst);
 
 				for (j = 0; j < last - first; j++) {
-					const char *path = active_cache[first + j]->name;
+					const char *path =
+						active_cache[first + j]->name;
 					source[argc + j] = path;
 					destination[argc + j] =
-						prefix_path(dst, dst_len, path + length + 1);
+						prefix_path(dst, dst_len,
+							    path + length + 1);
 					modes[argc + j] = INDEX;
 					submodule_gitfile[argc + j] = NULL;
 				}
 				argc += last - first;
 			}
-		} else if (!(ce = cache_file_exists(src, length, ignore_case))) {
+		} else if (!(ce = cache_file_exists(src, length,
+						    ignore_case))) {
 			bad = _("not under version control");
 		} else if (ce_stage(ce)) {
 			bad = _("conflicted");
 		} else if (lstat(dst, &st) == 0 &&
-			 (!ignore_case || strcasecmp(src, dst))) {
+			   (!ignore_case || strcasecmp(src, dst))) {
 			bad = _("destination exists");
 			if (force) {
 				/*
 				 * only files can overwrite each other:
 				 * check both source and destination
 				 */
-				if (S_ISREG(st.st_mode) || S_ISLNK(st.st_mode)) {
+				if (S_ISREG(st.st_mode) ||
+				    S_ISLNK(st.st_mode)) {
 					if (verbose)
-						warning(_("overwriting '%s'"), dst);
+						warning(_("overwriting '%s'"),
+							dst);
 					bad = NULL;
 				} else
 					bad = _("Cannot overwrite");
@@ -250,18 +259,16 @@ int cmd_mv(int argc, const char **argv, const char *prefix)
 		if (!bad)
 			continue;
 		if (!ignore_errors)
-			die(_("%s, source=%s, destination=%s"),
-			     bad, src, dst);
+			die(_("%s, source=%s, destination=%s"), bad, src, dst);
 		if (--argc > 0) {
 			int n = argc - i;
-			memmove(source + i, source + i + 1,
-				n * sizeof(char *));
+			memmove(source + i, source + i + 1, n * sizeof(char *));
 			memmove(destination + i, destination + i + 1,
 				n * sizeof(char *));
 			memmove(modes + i, modes + i + 1,
 				n * sizeof(enum update_mode));
-			memmove(submodule_gitfile + i, submodule_gitfile + i + 1,
-				n * sizeof(char *));
+			memmove(submodule_gitfile + i,
+				submodule_gitfile + i + 1, n * sizeof(char *));
 			i--;
 		}
 	}
@@ -283,9 +290,8 @@ int cmd_mv(int argc, const char **argv, const char *prefix)
 			if (!update_path_in_gitmodules(src, dst))
 				gitmodules_modified = 1;
 			if (submodule_gitfile[i] != SUBMODULE_WITH_GITDIR)
-				connect_work_tree_and_git_dir(dst,
-							      submodule_gitfile[i],
-							      1);
+				connect_work_tree_and_git_dir(
+					dst, submodule_gitfile[i], 1);
 		}
 
 		if (mode == WORKING_DIRECTORY)

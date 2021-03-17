@@ -7,11 +7,10 @@
 #include "builtin.h"
 #include "quote.h"
 
-static const char builtin_get_tar_commit_id_usage[] =
-"git get-tar-commit-id";
+static const char builtin_get_tar_commit_id_usage[] = "git get-tar-commit-id";
 
 /* ustar header + extended global header content */
-#define RECORDSIZE	(512)
+#define RECORDSIZE (512)
 #define HEADERSIZE (2 * RECORDSIZE)
 
 int cmd_get_tar_commit_id(int argc, const char **argv, const char *prefix)
@@ -31,7 +30,8 @@ int cmd_get_tar_commit_id(int argc, const char **argv, const char *prefix)
 	if (n < 0)
 		die_errno("git get-tar-commit-id: read error");
 	if (n != HEADERSIZE)
-		die_errno("git get-tar-commit-id: EOF before reading tar header");
+		die_errno(
+			"git get-tar-commit-id: EOF before reading tar header");
 	if (header->typeflag[0] != 'g')
 		return 1;
 

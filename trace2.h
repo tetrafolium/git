@@ -193,7 +193,8 @@ void trace2_cmd_list_config_fl(const char *file, int line);
  */
 void trace2_cmd_list_env_vars_fl(const char *file, int line);
 
-#define trace2_cmd_list_env_vars() trace2_cmd_list_env_vars_fl(__FILE__, __LINE__)
+#define trace2_cmd_list_env_vars() \
+	trace2_cmd_list_env_vars_fl(__FILE__, __LINE__)
 
 /*
  * Emit a "def_param" event for the given config key/value pair IF
@@ -343,7 +344,8 @@ void trace2_def_repo_fl(const char *file, int line, struct repository *repo);
  * recursive oerations can be attributed to the correct repository.
  */
 void trace2_region_enter_fl(const char *file, int line, const char *category,
-			    const char *label, const struct repository *repo, ...);
+			    const char *label, const struct repository *repo,
+			    ...);
 
 #define trace2_region_enter(category, label, repo) \
 	trace2_region_enter_fl(__FILE__, __LINE__, (category), (label), (repo))
@@ -388,7 +390,8 @@ void trace2_region_enter_printf(const char *category, const char *label,
  * but it makes the data stream easier to understand.
  */
 void trace2_region_leave_fl(const char *file, int line, const char *category,
-			    const char *label, const struct repository *repo, ...);
+			    const char *label, const struct repository *repo,
+			    ...);
 
 #define trace2_region_leave(category, label, repo) \
 	trace2_region_leave_fl(__FILE__, __LINE__, (category), (label), (repo))

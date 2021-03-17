@@ -31,22 +31,19 @@ int cmd__windows_named_pipe(int argc, const char **argv)
 		pathname.buf,
 		PIPE_ACCESS_INBOUND | FILE_FLAG_FIRST_PIPE_INSTANCE,
 		PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE | PIPE_WAIT,
-		PIPE_UNLIMITED_INSTANCES,
-		TEST_BUFSIZE, TEST_BUFSIZE, 0, NULL);
+		PIPE_UNLIMITED_INSTANCES, TEST_BUFSIZE, TEST_BUFSIZE, 0, NULL);
 	if (h == INVALID_HANDLE_VALUE) {
 		err = err_win_to_posix(GetLastError());
-		fprintf(stderr, "CreateNamedPipe failed: %s\n",
-			strerror(err));
+		fprintf(stderr, "CreateNamedPipe failed: %s\n", strerror(err));
 		return err;
 	}
 
-	connected = ConnectNamedPipe(h, NULL)
-		? TRUE
-		: (GetLastError() == ERROR_PIPE_CONNECTED);
+	connected = ConnectNamedPipe(h, NULL) ?
+			    TRUE :
+			    (GetLastError() == ERROR_PIPE_CONNECTED);
 	if (!connected) {
 		err = err_win_to_posix(GetLastError());
-		fprintf(stderr, "ConnectNamedPipe failed: %s\n",
-			strerror(err));
+		fprintf(stderr, "ConnectNamedPipe failed: %s\n", strerror(err));
 		CloseHandle(h);
 		return err;
 	}

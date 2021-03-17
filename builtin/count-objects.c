@@ -31,7 +31,7 @@ static const char *bits_to_msg(unsigned seen_bits)
 		return "no corresponding .idx";
 	case PACKDIR_FILE_IDX:
 		return "no corresponding .pack";
-	case PACKDIR_FILE_PACK|PACKDIR_FILE_IDX:
+	case PACKDIR_FILE_PACK | PACKDIR_FILE_IDX:
 	default:
 		return NULL;
 	}
@@ -57,7 +57,8 @@ static void loose_garbage(const char *path)
 		report_garbage(PACKDIR_FILE_GARBAGE, path);
 }
 
-static int count_loose(const struct object_id *oid, const char *path, void *data)
+static int count_loose(const struct object_id *oid, const char *path,
+		       void *data)
 {
 	struct stat st;
 
@@ -86,9 +87,8 @@ static int print_alternate(struct object_directory *odb, void *data)
 	return 0;
 }
 
-static char const * const count_objects_usage[] = {
-	N_("git count-objects [-v] [-H | --human-readable]"),
-	NULL
+static char const *const count_objects_usage[] = {
+	N_("git count-objects [-v] [-H | --human-readable]"), NULL
 };
 
 int cmd_count_objects(int argc, const char **argv, const char *prefix)
@@ -112,8 +112,8 @@ int cmd_count_objects(int argc, const char **argv, const char *prefix)
 		report_linked_checkout_garbage();
 	}
 
-	for_each_loose_file_in_objdir(get_object_directory(),
-				      count_loose, count_cruft, NULL, NULL);
+	for_each_loose_file_in_objdir(get_object_directory(), count_loose,
+				      count_cruft, NULL, NULL);
 
 	if (verbose) {
 		struct packed_git *p;

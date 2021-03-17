@@ -6,17 +6,17 @@
 #include "alias.h"
 #include "shallow.h"
 
-#define RUN_SETUP		(1<<0)
-#define RUN_SETUP_GENTLY	(1<<1)
-#define USE_PAGER		(1<<2)
+#define RUN_SETUP (1 << 0)
+#define RUN_SETUP_GENTLY (1 << 1)
+#define USE_PAGER (1 << 2)
 /*
  * require working tree to be present -- anything uses this needs
  * RUN_SETUP for reading from the configuration file.
  */
-#define NEED_WORK_TREE		(1<<3)
-#define SUPPORT_SUPER_PREFIX	(1<<4)
-#define DELAY_PAGER_CONFIG	(1<<5)
-#define NO_PARSEOPT		(1<<6) /* parse-options is not used */
+#define NEED_WORK_TREE (1 << 3)
+#define SUPPORT_SUPER_PREFIX (1 << 4)
+#define DELAY_PAGER_CONFIG (1 << 5)
+#define NO_PARSEOPT (1 << 6) /* parse-options is not used */
 
 struct cmd_struct {
 	const char *cmd;
@@ -24,23 +24,24 @@ struct cmd_struct {
 	unsigned int option;
 };
 
-const char git_usage_string[] =
-	N_("git [--version] [--help] [-C <path>] [-c <name>=<value>]\n"
-	   "           [--exec-path[=<path>]] [--html-path] [--man-path] [--info-path]\n"
-	   "           [-p | --paginate | -P | --no-pager] [--no-replace-objects] [--bare]\n"
-	   "           [--git-dir=<path>] [--work-tree=<path>] [--namespace=<name>]\n"
-	   "           [--super-prefix=<path>] [--config-env=<name>=<envvar>]\n"
-	   "           <command> [<args>]");
+const char git_usage_string[] = N_(
+	"git [--version] [--help] [-C <path>] [-c <name>=<value>]\n"
+	"           [--exec-path[=<path>]] [--html-path] [--man-path] [--info-path]\n"
+	"           [-p | --paginate | -P | --no-pager] [--no-replace-objects] [--bare]\n"
+	"           [--git-dir=<path>] [--work-tree=<path>] [--namespace=<name>]\n"
+	"           [--super-prefix=<path>] [--config-env=<name>=<envvar>]\n"
+	"           <command> [<args>]");
 
-const char git_more_info_string[] =
-	N_("'git help -a' and 'git help -g' list available subcommands and some\n"
-	   "concept guides. See 'git help <command>' or 'git help <concept>'\n"
-	   "to read about a specific subcommand or concept.\n"
-	   "See 'git help git' for an overview of the system.");
+const char git_more_info_string[] = N_(
+	"'git help -a' and 'git help -g' list available subcommands and some\n"
+	"concept guides. See 'git help <command>' or 'git help <concept>'\n"
+	"to read about a specific subcommand or concept.\n"
+	"See 'git help git' for an overview of the system.");
 
 static int use_pager = -1;
 
-static void list_builtins(struct string_list *list, unsigned int exclude_option);
+static void list_builtins(struct string_list *list,
+			  unsigned int exclude_option);
 
 static void exclude_helpers_from_list(struct string_list *list)
 {
@@ -68,9 +69,9 @@ static int list_cmds(const char *spec)
 	int nongit;
 
 	/*
-	* Set up the repository so we can pick up any repo-level config (like
-	* completion.commands).
-	*/
+	 * Set up the repository so we can pick up any repo-level config (like
+	 * completion.commands).
+	 */
 	setup_git_directory_gently(&nongit);
 
 	while (*spec) {
@@ -95,8 +96,7 @@ static int list_cmds(const char *spec)
 			strbuf_add(&sb, spec + 5, len - 5);
 			list_cmds_by_category(&list, sb.buf);
 			strbuf_release(&sb);
-		}
-		else
+		} else
 			die(_("unsupported command listing type '%s'"), spec);
 		spec += len;
 		if (*spec == ',')
@@ -185,7 +185,8 @@ static int handle_options(const char ***argv, int *argc, int *envchanged)
 				*envchanged = 1;
 		} else if (!strcmp(cmd, "--git-dir")) {
 			if (*argc < 2) {
-				fprintf(stderr, _("no directory given for --git-dir\n" ));
+				fprintf(stderr,
+					_("no directory given for --git-dir\n"));
 				usage(git_usage_string);
 			}
 			setenv(GIT_DIR_ENVIRONMENT, (*argv)[1], 1);
@@ -199,7 +200,8 @@ static int handle_options(const char ***argv, int *argc, int *envchanged)
 				*envchanged = 1;
 		} else if (!strcmp(cmd, "--namespace")) {
 			if (*argc < 2) {
-				fprintf(stderr, _("no namespace given for --namespace\n" ));
+				fprintf(stderr,
+					_("no namespace given for --namespace\n"));
 				usage(git_usage_string);
 			}
 			setenv(GIT_NAMESPACE_ENVIRONMENT, (*argv)[1], 1);
@@ -213,7 +215,8 @@ static int handle_options(const char ***argv, int *argc, int *envchanged)
 				*envchanged = 1;
 		} else if (!strcmp(cmd, "--work-tree")) {
 			if (*argc < 2) {
-				fprintf(stderr, _("no directory given for --work-tree\n" ));
+				fprintf(stderr,
+					_("no directory given for --work-tree\n"));
 				usage(git_usage_string);
 			}
 			setenv(GIT_WORK_TREE_ENVIRONMENT, (*argv)[1], 1);
@@ -227,7 +230,8 @@ static int handle_options(const char ***argv, int *argc, int *envchanged)
 				*envchanged = 1;
 		} else if (!strcmp(cmd, "--super-prefix")) {
 			if (*argc < 2) {
-				fprintf(stderr, _("no prefix given for --super-prefix\n" ));
+				fprintf(stderr,
+					_("no prefix given for --super-prefix\n"));
 				usage(git_usage_string);
 			}
 			setenv(GIT_SUPER_PREFIX_ENVIRONMENT, (*argv)[1], 1);
@@ -249,7 +253,8 @@ static int handle_options(const char ***argv, int *argc, int *envchanged)
 				*envchanged = 1;
 		} else if (!strcmp(cmd, "-c")) {
 			if (*argc < 2) {
-				fprintf(stderr, _("-c expects a configuration string\n" ));
+				fprintf(stderr,
+					_("-c expects a configuration string\n"));
 				usage(git_usage_string);
 			}
 			git_config_push_parameter((*argv)[1]);
@@ -284,17 +289,20 @@ static int handle_options(const char ***argv, int *argc, int *envchanged)
 		} else if (!strcmp(cmd, "--shallow-file")) {
 			(*argv)++;
 			(*argc)--;
-			set_alternate_shallow_file(the_repository, (*argv)[0], 1);
+			set_alternate_shallow_file(the_repository, (*argv)[0],
+						   1);
 			if (envchanged)
 				*envchanged = 1;
 		} else if (!strcmp(cmd, "-C")) {
 			if (*argc < 2) {
-				fprintf(stderr, _("no directory given for -C\n" ));
+				fprintf(stderr,
+					_("no directory given for -C\n"));
 				usage(git_usage_string);
 			}
 			if ((*argv)[1][0]) {
 				if (chdir((*argv)[1]))
-					die_errno("cannot change to '%s'", (*argv)[1]);
+					die_errno("cannot change to '%s'",
+						  (*argv)[1]);
 				if (envchanged)
 					*envchanged = 1;
 			}
@@ -361,7 +369,7 @@ static int handle_alias(int *argcp, const char ***argv)
 			trace2_cmd_name("_run_shell_alias_");
 
 			ret = run_command(&child);
-			if (ret >= 0)   /* normal exit */
+			if (ret >= 0) /* normal exit */
 				exit(ret);
 
 			die_errno(_("while expanding alias '%s': '%s'"),
@@ -385,8 +393,7 @@ static int handle_alias(int *argcp, const char ***argv)
 		if (!strcmp(alias_command, new_argv[0]))
 			die(_("recursive alias: %s"), alias_command);
 
-		trace_argv_printf(new_argv,
-				  "trace: alias expansion: %s =>",
+		trace_argv_printf(new_argv, "trace: alias expansion: %s =>",
 				  alias_command);
 
 		REALLOC_ARRAY(new_argv, count + *argcp);
@@ -424,14 +431,16 @@ static int run_builtin(struct cmd_struct *p, int argc, const char **argv)
 			prefix = setup_git_directory_gently(&nongit_ok);
 		}
 		prefix = precompose_argv_prefix(argc, argv, prefix);
-		if (use_pager == -1 && p->option & (RUN_SETUP | RUN_SETUP_GENTLY) &&
+		if (use_pager == -1 &&
+		    p->option & (RUN_SETUP | RUN_SETUP_GENTLY) &&
 		    !(p->option & DELAY_PAGER_CONFIG))
 			use_pager = check_pager_config(p->cmd);
 		if (use_pager == -1 && p->option & USE_PAGER)
 			use_pager = 1;
 
 		if ((p->option & (RUN_SETUP | RUN_SETUP_GENTLY)) &&
-		    startup_info->have_repository) /* get_git_dir() may set up repo, avoid that */
+		    startup_info->have_repository) /* get_git_dir() may set up
+						      repo, avoid that */
 			trace_repo_setup(prefix);
 	}
 	commit_pager_choice();
@@ -488,10 +497,9 @@ static struct cmd_struct commands[] = {
 	{ "check-attr", cmd_check_attr, RUN_SETUP },
 	{ "check-ignore", cmd_check_ignore, RUN_SETUP | NEED_WORK_TREE },
 	{ "check-mailmap", cmd_check_mailmap, RUN_SETUP },
-	{ "check-ref-format", cmd_check_ref_format, NO_PARSEOPT  },
+	{ "check-ref-format", cmd_check_ref_format, NO_PARSEOPT },
 	{ "checkout", cmd_checkout, RUN_SETUP | NEED_WORK_TREE },
-	{ "checkout-index", cmd_checkout_index,
-		RUN_SETUP | NEED_WORK_TREE},
+	{ "checkout-index", cmd_checkout_index, RUN_SETUP | NEED_WORK_TREE },
 	{ "cherry", cmd_cherry, RUN_SETUP },
 	{ "cherry-pick", cmd_cherry_pick, RUN_SETUP | NEED_WORK_TREE },
 	{ "clean", cmd_clean, RUN_SETUP | NEED_WORK_TREE },
@@ -508,7 +516,8 @@ static struct cmd_struct commands[] = {
 	{ "credential-store", cmd_credential_store },
 	{ "describe", cmd_describe, RUN_SETUP },
 	{ "diff", cmd_diff, NO_PARSEOPT },
-	{ "diff-files", cmd_diff_files, RUN_SETUP | NEED_WORK_TREE | NO_PARSEOPT },
+	{ "diff-files", cmd_diff_files,
+	  RUN_SETUP | NEED_WORK_TREE | NO_PARSEOPT },
 	{ "diff-index", cmd_diff_index, RUN_SETUP | NO_PARSEOPT },
 	{ "diff-tree", cmd_diff_tree, RUN_SETUP | NO_PARSEOPT },
 	{ "difftool", cmd_difftool, RUN_SETUP_GENTLY },
@@ -544,10 +553,14 @@ static struct cmd_struct commands[] = {
 	{ "merge-file", cmd_merge_file, RUN_SETUP_GENTLY },
 	{ "merge-index", cmd_merge_index, RUN_SETUP | NO_PARSEOPT },
 	{ "merge-ours", cmd_merge_ours, RUN_SETUP | NO_PARSEOPT },
-	{ "merge-recursive", cmd_merge_recursive, RUN_SETUP | NEED_WORK_TREE | NO_PARSEOPT },
-	{ "merge-recursive-ours", cmd_merge_recursive, RUN_SETUP | NEED_WORK_TREE | NO_PARSEOPT },
-	{ "merge-recursive-theirs", cmd_merge_recursive, RUN_SETUP | NEED_WORK_TREE | NO_PARSEOPT },
-	{ "merge-subtree", cmd_merge_recursive, RUN_SETUP | NEED_WORK_TREE | NO_PARSEOPT },
+	{ "merge-recursive", cmd_merge_recursive,
+	  RUN_SETUP | NEED_WORK_TREE | NO_PARSEOPT },
+	{ "merge-recursive-ours", cmd_merge_recursive,
+	  RUN_SETUP | NEED_WORK_TREE | NO_PARSEOPT },
+	{ "merge-recursive-theirs", cmd_merge_recursive,
+	  RUN_SETUP | NEED_WORK_TREE | NO_PARSEOPT },
+	{ "merge-subtree", cmd_merge_recursive,
+	  RUN_SETUP | NEED_WORK_TREE | NO_PARSEOPT },
 	{ "merge-tree", cmd_merge_tree, RUN_SETUP | NO_PARSEOPT },
 	{ "mktag", cmd_mktag, RUN_SETUP | NO_PARSEOPT },
 	{ "mktree", cmd_mktree, RUN_SETUP },
@@ -565,9 +578,10 @@ static struct cmd_struct commands[] = {
 	{ "pull", cmd_pull, RUN_SETUP | NEED_WORK_TREE },
 	{ "push", cmd_push, RUN_SETUP },
 	{ "range-diff", cmd_range_diff, RUN_SETUP | USE_PAGER },
-	{ "read-tree", cmd_read_tree, RUN_SETUP | SUPPORT_SUPER_PREFIX},
+	{ "read-tree", cmd_read_tree, RUN_SETUP | SUPPORT_SUPER_PREFIX },
 	{ "rebase", cmd_rebase, RUN_SETUP | NEED_WORK_TREE },
-	{ "rebase--interactive", cmd_rebase__interactive, RUN_SETUP | NEED_WORK_TREE },
+	{ "rebase--interactive", cmd_rebase__interactive,
+	  RUN_SETUP | NEED_WORK_TREE },
 	{ "receive-pack", cmd_receive_pack },
 	{ "reflog", cmd_reflog, RUN_SETUP },
 	{ "remote", cmd_remote, RUN_SETUP },
@@ -593,7 +607,8 @@ static struct cmd_struct commands[] = {
 	{ "stash", cmd_stash, RUN_SETUP | NEED_WORK_TREE },
 	{ "status", cmd_status, RUN_SETUP | NEED_WORK_TREE },
 	{ "stripspace", cmd_stripspace },
-	{ "submodule--helper", cmd_submodule__helper, RUN_SETUP | SUPPORT_SUPER_PREFIX | NO_PARSEOPT },
+	{ "submodule--helper", cmd_submodule__helper,
+	  RUN_SETUP | SUPPORT_SUPER_PREFIX | NO_PARSEOPT },
 	{ "switch", cmd_switch, RUN_SETUP | NEED_WORK_TREE },
 	{ "symbolic-ref", cmd_symbolic_ref, RUN_SETUP },
 	{ "tag", cmd_tag, RUN_SETUP | DELAY_PAGER_CONFIG },
@@ -635,8 +650,7 @@ static void list_builtins(struct string_list *out, unsigned int exclude_option)
 {
 	int i;
 	for (i = 0; i < ARRAY_SIZE(commands); i++) {
-		if (exclude_option &&
-		    (commands[i].option & exclude_option))
+		if (exclude_option && (commands[i].option & exclude_option))
 			continue;
 		string_list_append(out, commands[i].cmd);
 	}
@@ -783,7 +797,8 @@ static int run_argv(int *argcp, const char ***argv)
 			trace2_cmd_name("_run_git_alias_");
 
 			if (get_super_prefix())
-				die("%s doesn't support --super-prefix", **argv);
+				die("%s doesn't support --super-prefix",
+				    **argv);
 
 			commit_pager_choice();
 
@@ -795,10 +810,14 @@ static int run_argv(int *argcp, const char ***argv)
 
 			/*
 			 * if we fail because the command is not found, it is
-			 * OK to return. Otherwise, we just pass along the status code.
+			 * OK to return. Otherwise, we just pass along the
+			 * status code.
 			 */
-			i = run_command_v_opt_tr2(args.v, RUN_SILENT_EXEC_FAILURE |
-						  RUN_CLEAN_ON_EXIT | RUN_WAIT_AFTER_CLEAN, "git_alias");
+			i = run_command_v_opt_tr2(args.v,
+						  RUN_SILENT_EXEC_FAILURE |
+							  RUN_CLEAN_ON_EXIT |
+							  RUN_WAIT_AFTER_CLEAN,
+						  "git_alias");
 			if (i >= 0 || errno != ENOENT)
 				exit(i);
 			die("could not execute builtin %s", **argv);
@@ -812,7 +831,8 @@ static int run_argv(int *argcp, const char ***argv)
 			int i;
 			struct strbuf sb = STRBUF_INIT;
 			for (i = 0; i < cmd_list.nr; i++) {
-				struct string_list_item *item = &cmd_list.items[i];
+				struct string_list_item *item =
+					&cmd_list.items[i];
 
 				strbuf_addf(&sb, "\n  %s", item->string);
 				if (item == seen)
@@ -821,7 +841,8 @@ static int run_argv(int *argcp, const char ***argv)
 					strbuf_addstr(&sb, " ==>");
 			}
 			die(_("alias loop detected: expansion of '%s' does"
-			      " not terminate:%s"), cmd_list.items[0].string, sb.buf);
+			      " not terminate:%s"),
+			    cmd_list.items[0].string, sb.buf);
 		}
 
 		string_list_append(&cmd_list, *argv[0]);
@@ -903,8 +924,9 @@ int cmd_main(int argc, const char **argv)
 		if (errno != ENOENT)
 			break;
 		if (was_alias) {
-			fprintf(stderr, _("expansion of alias '%s' failed; "
-					  "'%s' is not a git command\n"),
+			fprintf(stderr,
+				_("expansion of alias '%s' failed; "
+				  "'%s' is not a git command\n"),
 				cmd, argv[0]);
 			exit(1);
 		}
@@ -915,8 +937,8 @@ int cmd_main(int argc, const char **argv)
 			break;
 	}
 
-	fprintf(stderr, _("failed to run command '%s': %s\n"),
-		cmd, strerror(errno));
+	fprintf(stderr, _("failed to run command '%s': %s\n"), cmd,
+		strerror(errno));
 
 	return 1;
 }

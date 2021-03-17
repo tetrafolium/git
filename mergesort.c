@@ -23,8 +23,7 @@ static void *pop_item(struct mergesort_sublist *l,
 	return p;
 }
 
-void *llist_mergesort(void *list,
-		      void *(*get_next_fn)(const void *),
+void *llist_mergesort(void *list, void *(*get_next_fn)(const void *),
 		      void (*set_next_fn)(void *, void *),
 		      int (*compare_fn)(const void *, const void *))
 {
@@ -32,7 +31,7 @@ void *llist_mergesort(void *list,
 
 	if (!list)
 		return NULL;
-	for (l = 1; ; l *= 2) {
+	for (l = 1;; l *= 2) {
 		void *curr;
 		struct mergesort_sublist p, q;
 
@@ -65,7 +64,6 @@ void *llist_mergesort(void *list,
 			p.len = l;
 			q.ptr = get_nth_next(p.ptr, l, get_next_fn);
 			q.len = q.ptr ? l : 0;
-
 		}
 		set_next_fn(curr, NULL);
 	}

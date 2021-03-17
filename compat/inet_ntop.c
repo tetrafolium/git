@@ -18,13 +18,13 @@
 #include "../git-compat-util.h"
 
 #ifndef NS_INADDRSZ
-#define NS_INADDRSZ	4
+#define NS_INADDRSZ 4
 #endif
 #ifndef NS_IN6ADDRSZ
-#define NS_IN6ADDRSZ	16
+#define NS_IN6ADDRSZ 16
 #endif
 #ifndef NS_INT16SZ
-#define NS_INT16SZ	2
+#define NS_INT16SZ 2
 #endif
 
 /*
@@ -43,16 +43,16 @@
  * author:
  *	Paul Vixie, 1996.
  */
-static const char *
-inet_ntop4(const u_char *src, char *dst, size_t size)
+static const char *inet_ntop4(const u_char *src, char *dst, size_t size)
 {
 	static const char fmt[] = "%u.%u.%u.%u";
 	char tmp[sizeof "255.255.255.255"];
 	int nprinted;
 
-	nprinted = snprintf(tmp, sizeof(tmp), fmt, src[0], src[1], src[2], src[3]);
+	nprinted =
+		snprintf(tmp, sizeof(tmp), fmt, src[0], src[1], src[2], src[3]);
 	if (nprinted < 0)
-		return (NULL);	/* we assume "errno" was set by "snprintf()" */
+		return (NULL); /* we assume "errno" was set by "snprintf()" */
 	if ((size_t)nprinted >= size) {
 		errno = ENOSPC;
 		return (NULL);
@@ -68,8 +68,7 @@ inet_ntop4(const u_char *src, char *dst, size_t size)
  * author:
  *	Paul Vixie, 1996.
  */
-static const char *
-inet_ntop6(const u_char *src, char *dst, size_t size)
+static const char *inet_ntop6(const u_char *src, char *dst, size_t size)
 {
 	/*
 	 * Note that int32_t and int16_t need only be "at least" large enough
@@ -79,7 +78,9 @@ inet_ntop6(const u_char *src, char *dst, size_t size)
 	 * to use pointer overlays.  All the world's not a VAX.
 	 */
 	char tmp[sizeof "ffff:ffff:ffff:ffff:ffff:ffff:255.255.255.255"], *tp;
-	struct { int base, len; } best, cur;
+	struct {
+		int base, len;
+	} best, cur;
 	unsigned int words[NS_IN6ADDRSZ / NS_INT16SZ];
 	int i;
 
@@ -134,7 +135,7 @@ inet_ntop6(const u_char *src, char *dst, size_t size)
 		/* Is this address an encapsulated IPv4? */
 		if (i == 6 && best.base == 0 &&
 		    (best.len == 6 || (best.len == 5 && words[5] == 0xffff))) {
-			if (!inet_ntop4(src+12, tp, sizeof tmp - (tp - tmp)))
+			if (!inet_ntop4(src + 12, tp, sizeof tmp - (tp - tmp)))
 				return (NULL);
 			tp += strlen(tp);
 			break;
@@ -142,8 +143,8 @@ inet_ntop6(const u_char *src, char *dst, size_t size)
 		tp += snprintf(tp, sizeof tmp - (tp - tmp), "%x", words[i]);
 	}
 	/* Was it a trailing run of 0x00's? */
-	if (best.base != -1 && (best.base + best.len) ==
-	    (NS_IN6ADDRSZ / NS_INT16SZ))
+	if (best.base != -1 &&
+	    (best.base + best.len) == (NS_IN6ADDRSZ / NS_INT16SZ))
 		*tp++ = ':';
 	*tp++ = '\0';
 
@@ -167,8 +168,7 @@ inet_ntop6(const u_char *src, char *dst, size_t size)
  * author:
  *	Paul Vixie, 1996.
  */
-const char *
-inet_ntop(int af, const void *src, char *dst, size_t size)
+const char *inet_ntop(int af, const void *src, char *dst, size_t size)
 {
 	switch (af) {
 	case AF_INET:

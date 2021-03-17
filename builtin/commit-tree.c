@@ -14,9 +14,9 @@
 #include "gpg-interface.h"
 #include "parse-options.h"
 
-static const char * const commit_tree_usage[] = {
+static const char *const commit_tree_usage[] = {
 	N_("git commit-tree [(-p <parent>)...] [-S[<keyid>]] [(-m <message>)...] "
-		"[(-F <file>)...] <tree>"),
+	   "[(-F <file>)...] <tree>"),
 	NULL
 };
 
@@ -28,7 +28,8 @@ static void new_parent(struct commit *parent, struct commit_list **parents_p)
 	struct commit_list *parents;
 	for (parents = *parents_p; parents; parents = parents->next) {
 		if (parents->item == parent) {
-			error(_("duplicate parent %s ignored"), oid_to_hex(oid));
+			error(_("duplicate parent %s ignored"),
+			      oid_to_hex(oid));
 			return;
 		}
 		parents_p = &parents->next;
@@ -44,8 +45,8 @@ static int commit_tree_config(const char *var, const char *value, void *cb)
 	return git_default_config(var, value, cb);
 }
 
-static int parse_parent_arg_callback(const struct option *opt,
-		const char *arg, int unset)
+static int parse_parent_arg_callback(const struct option *opt, const char *arg,
+				     int unset)
 {
 	struct object_id oid;
 	struct commit_list **parents = opt->value;
@@ -60,8 +61,8 @@ static int parse_parent_arg_callback(const struct option *opt,
 	return 0;
 }
 
-static int parse_message_arg_callback(const struct option *opt,
-		const char *arg, int unset)
+static int parse_message_arg_callback(const struct option *opt, const char *arg,
+				      int unset)
 {
 	struct strbuf *buf = opt->value;
 
@@ -75,8 +76,8 @@ static int parse_message_arg_callback(const struct option *opt,
 	return 0;
 }
 
-static int parse_file_arg_callback(const struct option *opt,
-		const char *arg, int unset)
+static int parse_file_arg_callback(const struct option *opt, const char *arg,
+				   int unset)
 {
 	int fd;
 	struct strbuf *buf = opt->value;
@@ -90,7 +91,8 @@ static int parse_file_arg_callback(const struct option *opt,
 	else {
 		fd = open(arg, O_RDONLY);
 		if (fd < 0)
-			die_errno(_("git commit-tree: failed to open '%s'"), arg);
+			die_errno(_("git commit-tree: failed to open '%s'"),
+				  arg);
 	}
 	if (strbuf_read(buf, fd, 0) < 0)
 		die_errno(_("git commit-tree: failed to read '%s'"), arg);
@@ -109,16 +111,17 @@ int cmd_commit_tree(int argc, const char **argv, const char *prefix)
 
 	struct option options[] = {
 		OPT_CALLBACK_F('p', NULL, &parents, N_("parent"),
-			N_("id of a parent commit object"), PARSE_OPT_NONEG,
-			parse_parent_arg_callback),
+			       N_("id of a parent commit object"),
+			       PARSE_OPT_NONEG, parse_parent_arg_callback),
 		OPT_CALLBACK_F('m', NULL, &buffer, N_("message"),
-			N_("commit message"), PARSE_OPT_NONEG,
-			parse_message_arg_callback),
+			       N_("commit message"), PARSE_OPT_NONEG,
+			       parse_message_arg_callback),
 		OPT_CALLBACK_F('F', NULL, &buffer, N_("file"),
-			N_("read commit log message from file"), PARSE_OPT_NONEG,
-			parse_file_arg_callback),
+			       N_("read commit log message from file"),
+			       PARSE_OPT_NONEG, parse_file_arg_callback),
 		{ OPTION_STRING, 'S', "gpg-sign", &sign_commit, N_("key-id"),
-			N_("GPG sign commit"), PARSE_OPT_OPTARG, NULL, (intptr_t) "" },
+		  N_("GPG sign commit"), PARSE_OPT_OPTARG, NULL,
+		  (intptr_t) "" },
 		OPT_END()
 	};
 

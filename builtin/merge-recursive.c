@@ -47,19 +47,19 @@ int cmd_merge_recursive(int argc, const char **argv, const char *prefix)
 				die(_("unknown option %s"), arg);
 			continue;
 		}
-		if (bases_count < ARRAY_SIZE(bases)-1) {
-			struct object_id *oid = xmalloc(sizeof(struct object_id));
+		if (bases_count < ARRAY_SIZE(bases) - 1) {
+			struct object_id *oid =
+				xmalloc(sizeof(struct object_id));
 			if (get_oid(argv[i], oid))
 				die(_("could not parse object '%s'"), argv[i]);
 			bases[bases_count++] = oid;
-		}
-		else
+		} else
 			warning(Q_("cannot handle more than %d base. "
 				   "Ignoring %s.",
 				   "cannot handle more than %d bases. "
 				   "Ignoring %s.",
-				    (int)ARRAY_SIZE(bases)-1),
-				(int)ARRAY_SIZE(bases)-1, argv[i]);
+				   (int)ARRAY_SIZE(bases) - 1),
+				(int)ARRAY_SIZE(bases) - 1, argv[i]);
 	}
 	if (argc - i != 3) /* "--" "<head>" "<remote>" */
 		die(_("not handling anything other than two heads merge."));
@@ -81,7 +81,8 @@ int cmd_merge_recursive(int argc, const char **argv, const char *prefix)
 	if (o.verbosity >= 3)
 		printf(_("Merging %s with %s\n"), o.branch1, o.branch2);
 
-	failed = merge_recursive_generic(&o, &h1, &h2, bases_count, bases, &result);
+	failed = merge_recursive_generic(&o, &h1, &h2, bases_count, bases,
+					 &result);
 
 	free(better1);
 	free(better2);

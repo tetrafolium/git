@@ -23,10 +23,10 @@ struct proc_addr {
 };
 
 /* Declares a function to be loaded dynamically from a DLL. */
-#define DECLARE_PROC_ADDR(dll, rettype, function, ...) \
-	static struct proc_addr proc_addr_##function = \
-	{ #dll, #function, NULL, 0 }; \
-	static rettype (WINAPI *function)(__VA_ARGS__)
+#define DECLARE_PROC_ADDR(dll, rettype, function, ...)                    \
+	static struct proc_addr proc_addr_##function = { #dll, #function, \
+							 NULL, 0 };       \
+	static rettype(WINAPI *function)(__VA_ARGS__)
 
 /*
  * Loads a function from a DLL (once-only).

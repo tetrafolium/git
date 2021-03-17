@@ -3,9 +3,8 @@
 #include "builtin.h"
 #include "parse-options.h"
 
-static const char * const update_server_info_usage[] = {
-	N_("git update-server-info [--force]"),
-	NULL
+static const char *const update_server_info_usage[] = {
+	N_("git update-server-info [--force]"), NULL
 };
 
 int cmd_update_server_info(int argc, const char **argv, const char *prefix)

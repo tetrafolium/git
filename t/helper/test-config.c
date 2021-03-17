@@ -20,8 +20,8 @@
  *
  * get_string -> print string value for the entered key or die
  *
- * configset_get_value -> returns value with the highest priority for the entered key
- * 			from a config_set constructed from files entered as arguments.
+ * configset_get_value -> returns value with the highest priority for the
+ *entered key from a config_set constructed from files entered as arguments.
  *
  * configset_get_value_multi -> returns value_list for the entered key sorted in
  * 				ascending order of priority from a config_set
@@ -81,7 +81,8 @@ int cmd__config(int argc, const char **argv)
 	git_configset_init(&cs);
 
 	if (argc < 2) {
-		fprintf(stderr, "Please, provide a command name on the command-line\n");
+		fprintf(stderr,
+			"Please, provide a command name on the command-line\n");
 		goto exit1;
 	} else if (argc == 3 && !strcmp(argv[1], "get_value")) {
 		if (!git_config_get_value(argv[2], &v)) {
@@ -137,7 +138,9 @@ int cmd__config(int argc, const char **argv)
 		for (i = 3; i < argc; i++) {
 			int err;
 			if ((err = git_configset_add_file(&cs, argv[i]))) {
-				fprintf(stderr, "Error (%d) reading configuration file %s.\n", err, argv[i]);
+				fprintf(stderr,
+					"Error (%d) reading configuration file %s.\n",
+					err, argv[i]);
 				goto exit2;
 			}
 		}
@@ -155,7 +158,9 @@ int cmd__config(int argc, const char **argv)
 		for (i = 3; i < argc; i++) {
 			int err;
 			if ((err = git_configset_add_file(&cs, argv[i]))) {
-				fprintf(stderr, "Error (%d) reading configuration file %s.\n", err, argv[i]);
+				fprintf(stderr,
+					"Error (%d) reading configuration file %s.\n",
+					err, argv[i]);
 				goto exit2;
 			}
 		}

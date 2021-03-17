@@ -17,33 +17,22 @@ struct gpg_format {
 	const char **sigs;
 };
 
-static const char *openpgp_verify_args[] = {
-	"--keyid-format=long",
-	NULL
-};
-static const char *openpgp_sigs[] = {
-	"-----BEGIN PGP SIGNATURE-----",
-	"-----BEGIN PGP MESSAGE-----",
-	NULL
-};
+static const char *openpgp_verify_args[] = { "--keyid-format=long", NULL };
+static const char *openpgp_sigs[] = { "-----BEGIN PGP SIGNATURE-----",
+				      "-----BEGIN PGP MESSAGE-----", NULL };
 
-static const char *x509_verify_args[] = {
-	NULL
-};
-static const char *x509_sigs[] = {
-	"-----BEGIN SIGNED MESSAGE-----",
-	NULL
-};
+static const char *x509_verify_args[] = { NULL };
+static const char *x509_sigs[] = { "-----BEGIN SIGNED MESSAGE-----", NULL };
 
 static struct gpg_format gpg_format[] = {
-	{ .name = "openpgp", .program = "gpg",
+	{ .name = "openpgp",
+	  .program = "gpg",
 	  .verify_args = openpgp_verify_args,
-	  .sigs = openpgp_sigs
-	},
-	{ .name = "x509", .program = "gpgsm",
+	  .sigs = openpgp_sigs },
+	{ .name = "x509",
+	  .program = "gpgsm",
 	  .verify_args = x509_verify_args,
-	  .sigs = x509_sigs
-	},
+	  .sigs = x509_sigs },
 };
 
 static struct gpg_format *use_format = &gpg_format[0];
@@ -81,18 +70,19 @@ void signature_check_clear(struct signature_check *sigc)
 }
 
 /* An exclusive status -- only one of them can appear in output */
-#define GPG_STATUS_EXCLUSIVE	(1<<0)
+#define GPG_STATUS_EXCLUSIVE (1 << 0)
 /* The status includes key identifier */
-#define GPG_STATUS_KEYID	(1<<1)
+#define GPG_STATUS_KEYID (1 << 1)
 /* The status includes user identifier */
-#define GPG_STATUS_UID		(1<<2)
+#define GPG_STATUS_UID (1 << 2)
 /* The status includes key fingerprints */
-#define GPG_STATUS_FINGERPRINT	(1<<3)
+#define GPG_STATUS_FINGERPRINT (1 << 3)
 /* The status includes trust level */
-#define GPG_STATUS_TRUST_LEVEL	(1<<4)
+#define GPG_STATUS_TRUST_LEVEL (1 << 4)
 
 /* Short-hand for standard exclusive *SIG status with keyid & UID */
-#define GPG_STATUS_STDSIG	(GPG_STATUS_EXCLUSIVE|GPG_STATUS_KEYID|GPG_STATUS_UID)
+#define GPG_STATUS_STDSIG \
+	(GPG_STATUS_EXCLUSIVE | GPG_STATUS_KEYID | GPG_STATUS_UID)
 
 static struct {
 	char result;
@@ -101,7 +91,7 @@ static struct {
 } sigcheck_gpg_status[] = {
 	{ 'G', "GOODSIG ", GPG_STATUS_STDSIG },
 	{ 'B', "BADSIG ", GPG_STATUS_STDSIG },
-	{ 'E', "ERRSIG ", GPG_STATUS_EXCLUSIVE|GPG_STATUS_KEYID },
+	{ 'E', "ERRSIG ", GPG_STATUS_EXCLUSIVE | GPG_STATUS_KEYID },
 	{ 'X', "EXPSIG ", GPG_STATUS_STDSIG },
 	{ 'Y', "EXPKEYSIG ", GPG_STATUS_STDSIG },
 	{ 'R', "REVKEYSIG ", GPG_STATUS_STDSIG },
@@ -113,10 +103,8 @@ static struct {
 	const char *key;
 	enum signature_trust_level value;
 } sigcheck_gpg_trust_level[] = {
-	{ "UNDEFINED", TRUST_UNDEFINED },
-	{ "NEVER", TRUST_NEVER },
-	{ "MARGINAL", TRUST_MARGINAL },
-	{ "FULLY", TRUST_FULLY },
+	{ "UNDEFINED", TRUST_UNDEFINED }, { "NEVER", TRUST_NEVER },
+	{ "MARGINAL", TRUST_MARGINAL },	  { "FULLY", TRUST_FULLY },
 	{ "ULTIMATE", TRUST_ULTIMATE },
 };
 
@@ -152,7 +140,7 @@ static void parse_gpg_output(struct signature_check *sigc)
 	int seen_exclusive_status = 0;
 
 	/* Iterate over all lines */
-	for (line = buf; *line; line = strchrnul(line+1, '\n')) {
+	for (line = buf; *line; line = strchrnul(line + 1, '\n')) {
 		while (*line == '\n')
 			line++;
 		if (!*line)
@@ -164,7 +152,8 @@ static void parse_gpg_output(struct signature_check *sigc)
 
 		/* Iterate over all search strings */
 		for (i = 0; i < ARRAY_SIZE(sigcheck_gpg_status); i++) {
-			if (skip_prefix(line, sigcheck_gpg_status[i].check, &line)) {
+			if (skip_prefix(line, sigcheck_gpg_status[i].check,
+					&line)) {
 				/*
 				 * GOODSIG, BADSIG etc. can occur only once for
 				 * each signature.  Therefore, if we had more
@@ -174,37 +163,48 @@ static void parse_gpg_output(struct signature_check *sigc)
 				 * create, so something is likely fishy and we
 				 * should reject them altogether.
 				 */
-				if (sigcheck_gpg_status[i].flags & GPG_STATUS_EXCLUSIVE) {
+				if (sigcheck_gpg_status[i].flags &
+				    GPG_STATUS_EXCLUSIVE) {
 					if (seen_exclusive_status++)
 						goto error;
 				}
 
 				if (sigcheck_gpg_status[i].result)
-					sigc->result = sigcheck_gpg_status[i].result;
+					sigc->result =
+						sigcheck_gpg_status[i].result;
 				/* Do we have key information? */
-				if (sigcheck_gpg_status[i].flags & GPG_STATUS_KEYID) {
+				if (sigcheck_gpg_status[i].flags &
+				    GPG_STATUS_KEYID) {
 					next = strchrnul(line, ' ');
 					replace_cstring(&sigc->key, line, next);
 					/* Do we have signer information? */
-					if (*next && (sigcheck_gpg_status[i].flags & GPG_STATUS_UID)) {
+					if (*next &&
+					    (sigcheck_gpg_status[i].flags &
+					     GPG_STATUS_UID)) {
 						line = next + 1;
 						next = strchrnul(line, '\n');
-						replace_cstring(&sigc->signer, line, next);
+						replace_cstring(&sigc->signer,
+								line, next);
 					}
 				}
 
 				/* Do we have trust level? */
-				if (sigcheck_gpg_status[i].flags & GPG_STATUS_TRUST_LEVEL) {
+				if (sigcheck_gpg_status[i].flags &
+				    GPG_STATUS_TRUST_LEVEL) {
 					/*
 					 * GPG v1 and v2 differs in how the
 					 * TRUST_ lines are written.  Some
 					 * trust lines contain no additional
 					 * space-separated information for v1.
 					 */
-					size_t trust_size = strcspn(line, " \n");
-					char *trust = xmemdupz(line, trust_size);
+					size_t trust_size =
+						strcspn(line, " \n");
+					char *trust =
+						xmemdupz(line, trust_size);
 
-					if (parse_gpg_trust_level(trust, &sigc->trust_level)) {
+					if (parse_gpg_trust_level(
+						    trust,
+						    &sigc->trust_level)) {
 						free(trust);
 						goto error;
 					}
@@ -212,12 +212,14 @@ static void parse_gpg_output(struct signature_check *sigc)
 				}
 
 				/* Do we have fingerprint? */
-				if (sigcheck_gpg_status[i].flags & GPG_STATUS_FINGERPRINT) {
+				if (sigcheck_gpg_status[i].flags &
+				    GPG_STATUS_FINGERPRINT) {
 					const char *limit;
 					char **field;
 
 					next = strchrnul(line, ' ');
-					replace_cstring(&sigc->fingerprint, line, next);
+					replace_cstring(&sigc->fingerprint,
+							line, next);
 
 					/*
 					 * Skip interim fields.  The search is
@@ -236,9 +238,11 @@ static void parse_gpg_output(struct signature_check *sigc)
 					field = &sigc->primary_key_fingerprint;
 					if (!j) {
 						next = strchrnul(line, '\n');
-						replace_cstring(field, line, next);
+						replace_cstring(field, line,
+								next);
 					} else {
-						replace_cstring(field, NULL, NULL);
+						replace_cstring(field, NULL,
+								NULL);
 					}
 				}
 
@@ -285,17 +289,15 @@ static int verify_signed_buffer(const char *payload, size_t payload_size,
 
 	strvec_push(&gpg.args, fmt->program);
 	strvec_pushv(&gpg.args, fmt->verify_args);
-	strvec_pushl(&gpg.args,
-		     "--status-fd=1",
-		     "--verify", temp->filename.buf, "-",
-		     NULL);
+	strvec_pushl(&gpg.args, "--status-fd=1", "--verify", temp->filename.buf,
+		     "-", NULL);
 
 	if (!gpg_status)
 		gpg_status = &buf;
 
 	sigchain_push(SIGPIPE, SIG_IGN);
-	ret = pipe_command(&gpg, payload, payload_size,
-			   gpg_status, 0, gpg_output, 0);
+	ret = pipe_command(&gpg, payload, payload_size, gpg_status, 0,
+			   gpg_output, 0);
 	sigchain_pop(SIGPIPE);
 
 	delete_tempfile(&temp);
@@ -307,7 +309,7 @@ static int verify_signed_buffer(const char *payload, size_t payload_size,
 }
 
 int check_signature(const char *payload, size_t plen, const char *signature,
-	size_t slen, struct signature_check *sigc)
+		    size_t slen, struct signature_check *sigc)
 {
 	struct strbuf gpg_output = STRBUF_INIT;
 	struct strbuf gpg_status = STRBUF_INIT;
@@ -327,7 +329,7 @@ int check_signature(const char *payload, size_t plen, const char *signature,
 	status |= sigc->result != 'G';
 	status |= sigc->trust_level < configured_min_trust_level;
 
- out:
+out:
 	strbuf_release(&gpg_status);
 	strbuf_release(&gpg_output);
 
@@ -336,8 +338,8 @@ int check_signature(const char *payload, size_t plen, const char *signature,
 
 void print_signature_buffer(const struct signature_check *sigc, unsigned flags)
 {
-	const char *output = flags & GPG_VERIFY_RAW ?
-		sigc->gpg_status : sigc->gpg_output;
+	const char *output = flags & GPG_VERIFY_RAW ? sigc->gpg_status :
+						      sigc->gpg_output;
 
 	if (flags & GPG_VERIFY_VERBOSE && sigc->payload)
 		fputs(sigc->payload, stdout);
@@ -362,7 +364,8 @@ size_t parse_signed_buffer(const char *buf, size_t size)
 	return match;
 }
 
-int parse_signature(const char *buf, size_t size, struct strbuf *payload, struct strbuf *signature)
+int parse_signature(const char *buf, size_t size, struct strbuf *payload,
+		    struct strbuf *signature)
 {
 	size_t match = parse_signed_buffer(buf, size);
 	if (match != size) {
@@ -399,8 +402,8 @@ int git_gpg_config(const char *var, const char *value, void *cb)
 			return config_error_nonbool(var);
 		fmt = get_format_by_name(value);
 		if (!fmt)
-			return error("unsupported value for %s: %s",
-				     var, value);
+			return error("unsupported value for %s: %s", var,
+				     value);
 		use_format = fmt;
 		return 0;
 	}
@@ -437,21 +440,19 @@ const char *get_signing_key(void)
 {
 	if (configured_signing_key)
 		return configured_signing_key;
-	return git_committer_info(IDENT_STRICT|IDENT_NO_DATE);
+	return git_committer_info(IDENT_STRICT | IDENT_NO_DATE);
 }
 
-int sign_buffer(struct strbuf *buffer, struct strbuf *signature, const char *signing_key)
+int sign_buffer(struct strbuf *buffer, struct strbuf *signature,
+		const char *signing_key)
 {
 	struct child_process gpg = CHILD_PROCESS_INIT;
 	int ret;
 	size_t i, j, bottom;
 	struct strbuf gpg_status = STRBUF_INIT;
 
-	strvec_pushl(&gpg.args,
-		     use_format->program,
-		     "--status-fd=2",
-		     "-bsau", signing_key,
-		     NULL);
+	strvec_pushl(&gpg.args, use_format->program, "--status-fd=2", "-bsau",
+		     signing_key, NULL);
 
 	bottom = signature->len;
 
@@ -460,8 +461,8 @@ int sign_buffer(struct strbuf *buffer, struct strbuf *signature, const char *sig
 	 * because gpg exits without reading and then write gets SIGPIPE.
 	 */
 	sigchain_push(SIGPIPE, SIG_IGN);
-	ret = pipe_command(&gpg, buffer->buf, buffer->len,
-			   signature, 1024, &gpg_status, 0);
+	ret = pipe_command(&gpg, buffer->buf, buffer->len, signature, 1024,
+			   &gpg_status, 0);
 	sigchain_pop(SIGPIPE);
 
 	ret |= !strstr(gpg_status.buf, "\n[GNUPG:] SIG_CREATED ");

@@ -10,12 +10,11 @@
 #include "unpack-trees.h"
 #include "dir.h"
 
-static char const * const archive_usage[] = {
+static char const *const archive_usage[] = {
 	N_("git archive [<options>] <tree-ish> [<path>...]"),
 	N_("git archive --list"),
 	N_("git archive --remote <repo> [--exec <cmd>] [<options>] <tree-ish> [<path>...]"),
-	N_("git archive --remote <repo> [--exec <cmd>] --list"),
-	NULL
+	N_("git archive --remote <repo> [--exec <cmd>] --list"), NULL
 };
 
 static const struct archiver **archivers;
@@ -35,13 +34,12 @@ void init_archivers(void)
 	init_zip_archiver();
 }
 
-static void format_subst(const struct commit *commit,
-			 const char *src, size_t len,
-			 struct strbuf *buf)
+static void format_subst(const struct commit *commit, const char *src,
+			 size_t len, struct strbuf *buf)
 {
 	char *to_free = NULL;
 	struct strbuf fmt = STRBUF_INIT;
-	struct pretty_print_context ctx = {0};
+	struct pretty_print_context ctx = { 0 };
 	ctx.date_mode.type = DATE_NORMAL;
 	ctx.abbrev = DEFAULT_ABBREV;
 
@@ -63,7 +61,7 @@ static void format_subst(const struct commit *commit,
 		strbuf_add(buf, src, b - src);
 		format_commit_message(commit, fmt.buf, buf, &ctx);
 		len -= c + 1 - src;
-		src  = c + 1;
+		src = c + 1;
 	}
 	strbuf_add(buf, src, len);
 	strbuf_release(&fmt);
@@ -73,8 +71,7 @@ static void format_subst(const struct commit *commit,
 static void *object_file_to_archive(const struct archiver_args *args,
 				    const char *path,
 				    const struct object_id *oid,
-				    unsigned int mode,
-				    enum object_type *type,
+				    unsigned int mode, enum object_type *type,
 				    unsigned long *sizep)
 {
 	void *buffer;
@@ -82,8 +79,11 @@ static void *object_file_to_archive(const struct archiver_args *args,
 	struct checkout_metadata meta;
 
 	init_checkout_metadata(&meta, args->refname,
-			       args->commit_oid ? args->commit_oid :
-			       (args->tree ? &args->tree->object.oid : NULL), oid);
+			       args->commit_oid ?
+				       args->commit_oid :
+				       (args->tree ? &args->tree->object.oid :
+						     NULL),
+			       oid);
 
 	path += args->baselen;
 	buffer = read_object_file(oid, type, sizep);
@@ -92,7 +92,8 @@ static void *object_file_to_archive(const struct archiver_args *args,
 		size_t size = 0;
 
 		strbuf_attach(&buf, buffer, *sizep, *sizep + 1);
-		convert_to_working_tree(args->repo->index, path, buf.buf, buf.len, &buf, &meta);
+		convert_to_working_tree(args->repo->index, path, buf.buf,
+					buf.len, &buf, &meta);
 		if (commit)
 			format_subst(commit, buf.buf, buf.len, &buf);
 		buffer = strbuf_detach(&buf, &size);
@@ -138,8 +139,8 @@ static int check_attr_export_subst(const struct attr_check *check)
 }
 
 static int write_archive_entry(const struct object_id *oid, const char *base,
-		int baselen, const char *filename, unsigned mode, int stage,
-		void *context)
+			       int baselen, const char *filename, unsigned mode,
+			       int stage, void *context)
 {
 	static struct strbuf path = STRBUF_INIT;
 	struct archiver_context *c = context;
@@ -163,7 +164,8 @@ static int write_archive_entry(const struct object_id *oid, const char *base,
 
 	if (!S_ISDIR(mode)) {
 		const struct attr_check *check;
-		check = get_archive_attrs(args->repo->index, path_without_prefix);
+		check = get_archive_attrs(args->repo->index,
+					  path_without_prefix);
 		if (check_attr_export_ignore(check))
 			return 0;
 		args->convert = check_attr_export_subst(check);
@@ -185,9 +187,11 @@ static int write_archive_entry(const struct object_id *oid, const char *base,
 	if (S_ISREG(mode) && !args->convert &&
 	    oid_object_info(args->repo, oid, &size) == OBJ_BLOB &&
 	    size > big_file_threshold)
-		return write_entry(args, oid, path.buf, path.len, mode, NULL, size);
+		return write_entry(args, oid, path.buf, path.len, mode, NULL,
+				   size);
 
-	buffer = object_file_to_archive(args, path.buf, oid, mode, &type, &size);
+	buffer =
+		object_file_to_archive(args, path.buf, oid, mode, &type, &size);
 	if (!buffer)
 		return error(_("cannot read %s"), oid_to_hex(oid));
 	err = write_entry(args, oid, path.buf, path.len, mode, buffer, size);
@@ -195,19 +199,20 @@ static int write_archive_entry(const struct object_id *oid, const char *base,
 	return err;
 }
 
-static void queue_directory(const unsigned char *sha1,
-		struct strbuf *base, const char *filename,
-		unsigned mode, int stage, struct archiver_context *c)
+static void queue_directory(const unsigned char *sha1, struct strbuf *base,
+			    const char *filename, unsigned mode, int stage,
+			    struct archiver_context *c)
 {
 	struct directory *d;
 	size_t len = st_add4(base->len, 1, strlen(filename), 1);
 	d = xmalloc(st_add(sizeof(*d), len));
-	d->up	   = c->bottom;
+	d->up = c->bottom;
 	d->baselen = base->len;
-	d->mode	   = mode;
-	d->stage   = stage;
-	c->bottom  = d;
-	d->len = xsnprintf(d->path, len, "%.*s%s/", (int)base->len, base->buf, filename);
+	d->mode = mode;
+	d->stage = stage;
+	c->bottom = d;
+	d->len = xsnprintf(d->path, len, "%.*s%s/", (int)base->len, base->buf,
+			   filename);
 	hashcpy(d->oid.hash, sha1);
 }
 
@@ -220,18 +225,18 @@ static int write_directory(struct archiver_context *c)
 		return 0;
 	c->bottom = d->up;
 	d->path[d->len - 1] = '\0'; /* no trailing slash */
-	ret =
-		write_directory(c) ||
-		write_archive_entry(&d->oid, d->path, d->baselen,
-				    d->path + d->baselen, d->mode,
-				    d->stage, c) != READ_TREE_RECURSIVE;
+	ret = write_directory(c) ||
+	      write_archive_entry(&d->oid, d->path, d->baselen,
+				  d->path + d->baselen, d->mode, d->stage,
+				  c) != READ_TREE_RECURSIVE;
 	free(d);
 	return ret ? -1 : 0;
 }
 
 static int queue_or_write_archive_entry(const struct object_id *oid,
-		struct strbuf *base, const char *filename,
-		unsigned mode, int stage, void *context)
+					struct strbuf *base,
+					const char *filename, unsigned mode,
+					int stage, void *context)
 {
 	struct archiver_context *c = context;
 
@@ -255,8 +260,7 @@ static int queue_or_write_archive_entry(const struct object_id *oid,
 
 		if (check_attr_export_ignore(check))
 			return 0;
-		queue_directory(oid->hash, base, filename,
-				mode, stage, c);
+		queue_directory(oid->hash, base, filename, mode, stage, c);
 		return READ_TREE_RECURSIVE;
 	}
 
@@ -272,7 +276,7 @@ struct extra_file_info {
 };
 
 int write_archive_entries(struct archiver_args *args,
-		write_archive_entry_fn_t write_entry)
+			  write_archive_entry_fn_t write_entry)
 {
 	struct archiver_context context;
 	struct unpack_trees_options opts;
@@ -316,9 +320,8 @@ int write_archive_entries(struct archiver_args *args,
 		git_attr_set_direction(GIT_ATTR_INDEX);
 	}
 
-	err = read_tree_recursive(args->repo, args->tree, "",
-				  0, 0, &args->pathspec,
-				  queue_or_write_archive_entry,
+	err = read_tree_recursive(args->repo, args->tree, "", 0, 0,
+				  &args->pathspec, queue_or_write_archive_entry,
 				  &context);
 	if (err == READ_TREE_RECURSIVE)
 		err = 0;
@@ -346,8 +349,8 @@ int write_archive_entries(struct archiver_args *args,
 		else
 			err = write_entry(args, &fake_oid, path_in_archive.buf,
 					  path_in_archive.len,
-					  info->stat.st_mode,
-					  content.buf, content.len);
+					  info->stat.st_mode, content.buf,
+					  content.len);
 		if (err)
 			break;
 	}
@@ -377,8 +380,8 @@ struct path_exists_context {
 };
 
 static int reject_entry(const struct object_id *oid, struct strbuf *base,
-			const char *filename, unsigned mode,
-			int stage, void *context)
+			const char *filename, unsigned mode, int stage,
+			void *context)
 {
 	int ret = -1;
 	struct path_exists_context *ctx = context;
@@ -387,8 +390,7 @@ static int reject_entry(const struct object_id *oid, struct strbuf *base,
 		struct strbuf sb = STRBUF_INIT;
 		strbuf_addbuf(&sb, base);
 		strbuf_addstr(&sb, filename);
-		if (!match_pathspec(ctx->args->repo->index,
-				    &ctx->pathspec,
+		if (!match_pathspec(ctx->args->repo->index, &ctx->pathspec,
 				    sb.buf, sb.len, 0, NULL, 1))
 			ret = READ_TREE_RECURSIVE;
 		strbuf_release(&sb);
@@ -405,37 +407,35 @@ static int path_exists(struct archiver_args *args, const char *path)
 	ctx.args = args;
 	parse_pathspec(&ctx.pathspec, 0, 0, "", paths);
 	ctx.pathspec.recursive = 1;
-	ret = read_tree_recursive(args->repo, args->tree, "",
-				  0, 0, &ctx.pathspec,
-				  reject_entry, &ctx);
+	ret = read_tree_recursive(args->repo, args->tree, "", 0, 0,
+				  &ctx.pathspec, reject_entry, &ctx);
 	clear_pathspec(&ctx.pathspec);
 	return ret != 0;
 }
 
 static void parse_pathspec_arg(const char **pathspec,
-		struct archiver_args *ar_args)
+			       struct archiver_args *ar_args)
 {
 	/*
 	 * must be consistent with parse_pathspec in path_exists()
 	 * Also if pathspec patterns are dependent, we're in big
 	 * trouble as we test each one separately
 	 */
-	parse_pathspec(&ar_args->pathspec, 0,
-		       PATHSPEC_PREFER_FULL,
-		       "", pathspec);
+	parse_pathspec(&ar_args->pathspec, 0, PATHSPEC_PREFER_FULL, "",
+		       pathspec);
 	ar_args->pathspec.recursive = 1;
 	if (pathspec) {
 		while (*pathspec) {
 			if (**pathspec && !path_exists(ar_args, *pathspec))
-				die(_("pathspec '%s' did not match any files"), *pathspec);
+				die(_("pathspec '%s' did not match any files"),
+				    *pathspec);
 			pathspec++;
 		}
 	}
 }
 
-static void parse_treeish_arg(const char **argv,
-		struct archiver_args *ar_args, const char *prefix,
-		int remote)
+static void parse_treeish_arg(const char **argv, struct archiver_args *ar_args,
+			      const char *prefix, int remote)
 {
 	const char *name = argv[0];
 	const struct object_id *commit_oid;
@@ -477,10 +477,8 @@ static void parse_treeish_arg(const char **argv,
 		unsigned short mode;
 		int err;
 
-		err = get_tree_entry(ar_args->repo,
-				     &tree->object.oid,
-				     prefix, &tree_oid,
-				     &mode);
+		err = get_tree_entry(ar_args->repo, &tree->object.oid, prefix,
+				     &tree_oid, &mode);
 		if (err || !S_ISDIR(mode))
 			die(_("current working directory is untracked"));
 
@@ -537,8 +535,9 @@ static int number_callback(const struct option *opt, const char *arg, int unset)
 }
 
 static int parse_archive_args(int argc, const char **argv,
-		const struct archiver **ar, struct archiver_args *args,
-		const char *name_hint, int is_remote)
+			      const struct archiver **ar,
+			      struct archiver_args *args, const char *name_hint,
+			      int is_remote)
 {
 	const char *format = NULL;
 	const char *base = NULL;
@@ -552,27 +551,30 @@ static int parse_archive_args(int argc, const char **argv,
 	int worktree_attributes = 0;
 	struct option opts[] = {
 		OPT_GROUP(""),
-		OPT_STRING(0, "format", &format, N_("fmt"), N_("archive format")),
+		OPT_STRING(0, "format", &format, N_("fmt"),
+			   N_("archive format")),
 		OPT_STRING(0, "prefix", &base, N_("prefix"),
-			N_("prepend prefix to each pathname in the archive")),
+			   N_("prepend prefix to each pathname in the archive")),
 		{ OPTION_CALLBACK, 0, "add-file", args, N_("file"),
 		  N_("add untracked file to archive"), 0, add_file_cb,
 		  (intptr_t)&base },
 		OPT_STRING('o', "output", &output, N_("file"),
-			N_("write the archive to this file")),
+			   N_("write the archive to this file")),
 		OPT_BOOL(0, "worktree-attributes", &worktree_attributes,
-			N_("read .gitattributes in working directory")),
+			 N_("read .gitattributes in working directory")),
 		OPT__VERBOSE(&verbose, N_("report archived files on stderr")),
 		OPT_NUMBER_CALLBACK(&compression_level,
-			N_("set compression level"), number_callback),
+				    N_("set compression level"),
+				    number_callback),
 		OPT_GROUP(""),
 		OPT_BOOL('l', "list", &list,
-			N_("list supported archive formats")),
+			 N_("list supported archive formats")),
 		OPT_GROUP(""),
-		OPT_STRING(0, "remote", &remote, N_("repo"),
+		OPT_STRING(
+			0, "remote", &remote, N_("repo"),
 			N_("retrieve the archive from remote repository <repo>")),
 		OPT_STRING(0, "exec", &exec, N_("command"),
-			N_("path to the remote git-upload-archive command")),
+			   N_("path to the remote git-upload-archive command")),
 		OPT_END()
 	};
 
@@ -617,7 +619,7 @@ static int parse_archive_args(int argc, const char **argv,
 			args->compression_level = compression_level;
 		else {
 			die(_("Argument not supported for format '%s': -%d"),
-					format, compression_level);
+			    format, compression_level);
 		}
 	}
 	args->verbose = verbose;
@@ -629,14 +631,14 @@ static int parse_archive_args(int argc, const char **argv,
 }
 
 int write_archive(int argc, const char **argv, const char *prefix,
-		  struct repository *repo,
-		  const char *name_hint, int remote)
+		  struct repository *repo, const char *name_hint, int remote)
 {
 	const struct archiver *ar = NULL;
 	struct archiver_args args;
 	int rc;
 
-	git_config_get_bool("uploadarchive.allowunreachable", &remote_allow_unreachable);
+	git_config_get_bool("uploadarchive.allowunreachable",
+			    &remote_allow_unreachable);
 	git_config(git_default_config, NULL);
 
 	args.repo = repo;

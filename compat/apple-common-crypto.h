@@ -6,10 +6,10 @@
 #define EVP_md5(...) kCCHmacAlgMD5
 /* CCHmac doesn't take md_len and the return type is void */
 #define HMAC git_CC_HMAC
-static inline unsigned char *git_CC_HMAC(CCHmacAlgorithm alg,
-		const void *key, int key_len,
-		const unsigned char *data, size_t data_len,
-		unsigned char *md, unsigned int *md_len)
+static inline unsigned char *git_CC_HMAC(CCHmacAlgorithm alg, const void *key,
+					 int key_len, const unsigned char *data,
+					 size_t data_len, unsigned char *md,
+					 unsigned int *md_len)
 {
 	CCHmac(alg, key, key_len, data, data_len, md);
 	return md;
@@ -27,16 +27,16 @@ static inline unsigned char *git_CC_HMAC(CCHmacAlgorithm alg,
 #endif
 
 #ifdef APPLE_LION_OR_NEWER
-#define git_CC_error_check(pattern, err) \
-	do { \
-		if (err) { \
+#define git_CC_error_check(pattern, err)                         \
+	do {                                                     \
+		if (err) {                                       \
 			die(pattern, (long)CFErrorGetCode(err)); \
-		} \
-	} while(0)
+		}                                                \
+	} while (0)
 
 #define EVP_EncodeBlock git_CC_EVP_EncodeBlock
 static inline int git_CC_EVP_EncodeBlock(unsigned char *out,
-		const unsigned char *in, int inlen)
+					 const unsigned char *in, int inlen)
 {
 	CFErrorRef err;
 	SecTransformRef encoder;
@@ -48,7 +48,7 @@ static inline int git_CC_EVP_EncodeBlock(unsigned char *out,
 
 	input = CFDataCreate(kCFAllocatorDefault, in, inlen);
 	SecTransformSetAttribute(encoder, kSecTransformInputAttributeName,
-			input, &err);
+				 input, &err);
 	git_CC_error_check("SecTransformSetAttribute failed: %ld", err);
 
 	output = SecTransformExecute(encoder, &err);
@@ -66,7 +66,7 @@ static inline int git_CC_EVP_EncodeBlock(unsigned char *out,
 
 #define EVP_DecodeBlock git_CC_EVP_DecodeBlock
 static int inline git_CC_EVP_DecodeBlock(unsigned char *out,
-		const unsigned char *in, int inlen)
+					 const unsigned char *in, int inlen)
 {
 	CFErrorRef err;
 	SecTransformRef decoder;
@@ -78,7 +78,7 @@ static int inline git_CC_EVP_DecodeBlock(unsigned char *out,
 
 	input = CFDataCreate(kCFAllocatorDefault, in, inlen);
 	SecTransformSetAttribute(decoder, kSecTransformInputAttributeName,
-			input, &err);
+				 input, &err);
 	git_CC_error_check("SecTransformSetAttribute failed: %ld", err);
 
 	output = SecTransformExecute(decoder, &err);

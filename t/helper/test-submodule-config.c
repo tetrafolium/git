@@ -49,20 +49,20 @@ int cmd__submodule_config(int argc, const char **argv)
 			die_usage(argc, argv, "Commit not found.");
 
 		if (lookup_name) {
-			submodule = submodule_from_name(the_repository,
-							&commit_oid, path_or_name);
+			submodule = submodule_from_name(
+				the_repository, &commit_oid, path_or_name);
 		} else
-			submodule = submodule_from_path(the_repository,
-							&commit_oid, path_or_name);
+			submodule = submodule_from_path(
+				the_repository, &commit_oid, path_or_name);
 		if (!submodule)
 			die_usage(argc, argv, "Submodule not found.");
 
 		if (output_url)
 			printf("Submodule url: '%s' for path '%s'\n",
-					submodule->url, submodule->path);
+			       submodule->url, submodule->path);
 		else
 			printf("Submodule name: '%s' for path '%s'\n",
-					submodule->name, submodule->path);
+			       submodule->name, submodule->path);
 
 		arg += 2;
 	}

@@ -51,14 +51,14 @@ int parse_opt_color_flag_cb(const struct option *opt, const char *arg,
 		arg = unset ? "never" : (const char *)opt->defval;
 	value = git_config_colorbool(NULL, arg);
 	if (value < 0)
-		return error(_("option `%s' expects \"always\", \"auto\", or \"never\""),
-			     opt->long_name);
+		return error(
+			_("option `%s' expects \"always\", \"auto\", or \"never\""),
+			opt->long_name);
 	*(int *)opt->value = value;
 	return 0;
 }
 
-int parse_opt_verbosity_cb(const struct option *opt, const char *arg,
-			   int unset)
+int parse_opt_verbosity_cb(const struct option *opt, const char *arg, int unset)
 {
 	int *target = opt->value;
 
@@ -231,7 +231,7 @@ enum parse_opt_result parse_opt_unknown_cb(struct parse_opt_ctx_t *ctx,
  * Recreates the command-line option in the strbuf.
  */
 static int recreate_opt(struct strbuf *sb, const struct option *opt,
-		const char *arg, int unset)
+			const char *arg, int unset)
 {
 	strbuf_reset(sb);
 
@@ -281,7 +281,8 @@ int parse_opt_passthru(const struct option *opt, const char *arg, int unset)
  * the command-line option, which can be specified multiple times, to another
  * command.
  */
-int parse_opt_passthru_argv(const struct option *opt, const char *arg, int unset)
+int parse_opt_passthru_argv(const struct option *opt, const char *arg,
+			    int unset)
 {
 	static struct strbuf sb = STRBUF_INIT;
 	struct strvec *opt_value = opt->value;

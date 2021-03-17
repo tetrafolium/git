@@ -12,8 +12,8 @@ struct cache_entry;
 struct unpack_trees_options;
 struct pattern_list;
 
-typedef int (*merge_fn_t)(const struct cache_entry * const *src,
-		struct unpack_trees_options *options);
+typedef int (*merge_fn_t)(const struct cache_entry *const *src,
+			  struct unpack_trees_options *options);
 
 enum unpack_trees_error_types {
 	ERROR_WOULD_OVERWRITE = 0,
@@ -46,24 +46,11 @@ void setup_unpack_trees_porcelain(struct unpack_trees_options *opts,
 void clear_unpack_trees_porcelain(struct unpack_trees_options *opts);
 
 struct unpack_trees_options {
-	unsigned int reset,
-		     merge,
-		     update,
-		     clone,
-		     index_only,
-		     nontrivial_merge,
-		     trivial_merges_only,
-		     verbose_update,
-		     aggressive,
-		     skip_unmerged,
-		     initial_checkout,
-		     diff_index_cached,
-		     debug_unpack,
-		     skip_sparse_checkout,
-		     quiet,
-		     exiting_early,
-		     show_all_errors,
-		     dry_run;
+	unsigned int reset, merge, update, clone, index_only, nontrivial_merge,
+		trivial_merges_only, verbose_update, aggressive, skip_unmerged,
+		initial_checkout, diff_index_cached, debug_unpack,
+		skip_sparse_checkout, quiet, exiting_early, show_all_errors,
+		dry_run;
 	const char *prefix;
 	int cache_bottom;
 	struct dir_struct *dir;
@@ -101,18 +88,19 @@ enum update_sparsity_result {
 	UPDATE_SPARSITY_WORKTREE_UPDATE_FAILURES = -2
 };
 
-enum update_sparsity_result update_sparsity(struct unpack_trees_options *options);
+enum update_sparsity_result
+update_sparsity(struct unpack_trees_options *options);
 
 int verify_uptodate(const struct cache_entry *ce,
 		    struct unpack_trees_options *o);
 
-int threeway_merge(const struct cache_entry * const *stages,
+int threeway_merge(const struct cache_entry *const *stages,
 		   struct unpack_trees_options *o);
-int twoway_merge(const struct cache_entry * const *src,
+int twoway_merge(const struct cache_entry *const *src,
 		 struct unpack_trees_options *o);
-int bind_merge(const struct cache_entry * const *src,
+int bind_merge(const struct cache_entry *const *src,
 	       struct unpack_trees_options *o);
-int oneway_merge(const struct cache_entry * const *src,
+int oneway_merge(const struct cache_entry *const *src,
 		 struct unpack_trees_options *o);
 
 #endif

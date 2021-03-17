@@ -2,8 +2,8 @@
 
 struct DIR {
 	struct dirent dd_dir; /* includes d_type */
-	HANDLE dd_handle;     /* FindFirstFile handle */
-	int dd_stat;          /* 0-based index */
+	HANDLE dd_handle; /* FindFirstFile handle */
+	int dd_stat; /* 0-based index */
 };
 
 static inline void finddata2dirent(struct dirent *ent, WIN32_FIND_DATAW *fdata)
@@ -40,7 +40,8 @@ DIR *opendir(const char *name)
 	h = FindFirstFileW(pattern, &fdata);
 	if (h == INVALID_HANDLE_VALUE) {
 		DWORD err = GetLastError();
-		errno = (err == ERROR_DIRECTORY) ? ENOTDIR : err_win_to_posix(err);
+		errno = (err == ERROR_DIRECTORY) ? ENOTDIR :
+						   err_win_to_posix(err);
 		return NULL;
 	}
 
@@ -68,7 +69,8 @@ struct dirent *readdir(DIR *dir)
 		} else {
 			DWORD lasterr = GetLastError();
 			/* POSIX says you shouldn't set errno when readdir can't
-			   find any more files; so, if another error we leave it set. */
+			   find any more files; so, if another error we leave it
+			   set. */
 			if (lasterr != ERROR_NO_MORE_FILES)
 				errno = err_win_to_posix(lasterr);
 			return NULL;

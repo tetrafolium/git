@@ -26,9 +26,8 @@ static struct pathspec pathspec;
 static int chomp_prefix;
 static const char *ls_tree_prefix;
 
-static const  char * const ls_tree_usage[] = {
-	N_("git ls-tree [<options>] <tree-ish> [<path>...]"),
-	NULL
+static const char *const ls_tree_usage[] = {
+	N_("git ls-tree [<options>] <tree-ish> [<path>...]"), NULL
 };
 
 static int show_recursive(const char *base, int baselen, const char *pathname)
@@ -62,7 +61,8 @@ static int show_recursive(const char *base, int baselen, const char *pathname)
 }
 
 static int show_tree(const struct object_id *oid, struct strbuf *base,
-		const char *pathname, unsigned mode, int stage, void *context)
+		     const char *pathname, unsigned mode, int stage,
+		     void *context)
 {
 	int retval = 0;
 	int baselen;
@@ -86,8 +86,7 @@ static int show_tree(const struct object_id *oid, struct strbuf *base,
 				return retval;
 		}
 		type = tree_type;
-	}
-	else if (ls_options & LS_TREE_ONLY)
+	} else if (ls_options & LS_TREE_ONLY)
 		return 0;
 
 	if (!(ls_options & LS_NAME_ONLY)) {
@@ -95,17 +94,17 @@ static int show_tree(const struct object_id *oid, struct strbuf *base,
 			char size_text[24];
 			if (!strcmp(type, blob_type)) {
 				unsigned long size;
-				if (oid_object_info(the_repository, oid, &size) == OBJ_BAD)
+				if (oid_object_info(the_repository, oid,
+						    &size) == OBJ_BAD)
 					xsnprintf(size_text, sizeof(size_text),
 						  "BAD");
 				else
 					xsnprintf(size_text, sizeof(size_text),
-						  "%"PRIuMAX, (uintmax_t)size);
+						  "%" PRIuMAX, (uintmax_t)size);
 			} else
 				xsnprintf(size_text, sizeof(size_text), "-");
 			printf("%06o %s %s %7s\t", mode, type,
-			       find_unique_abbrev(oid, abbrev),
-			       size_text);
+			       find_unique_abbrev(oid, abbrev), size_text);
 		} else
 			printf("%06o %s %s\t", mode, type,
 			       find_unique_abbrev(oid, abbrev));
@@ -113,8 +112,8 @@ static int show_tree(const struct object_id *oid, struct strbuf *base,
 	baselen = base->len;
 	strbuf_addstr(base, pathname);
 	write_name_quoted_relative(base->buf,
-				   chomp_prefix ? ls_tree_prefix : NULL,
-				   stdout, line_termination);
+				   chomp_prefix ? ls_tree_prefix : NULL, stdout,
+				   line_termination);
 	strbuf_setlen(base, baselen);
 	return retval;
 }
@@ -137,8 +136,8 @@ int cmd_ls_tree(int argc, const char **argv, const char *prefix)
 			LS_SHOW_SIZE),
 		OPT_BIT(0, "name-only", &ls_options, N_("list only filenames"),
 			LS_NAME_ONLY),
-		OPT_BIT(0, "name-status", &ls_options, N_("list only filenames"),
-			LS_NAME_ONLY),
+		OPT_BIT(0, "name-status", &ls_options,
+			N_("list only filenames"), LS_NAME_ONLY),
 		OPT_SET_INT(0, "full-name", &chomp_prefix,
 			    N_("use full path names"), 0),
 		OPT_BOOL(0, "full-tree", &full_tree,
@@ -153,15 +152,15 @@ int cmd_ls_tree(int argc, const char **argv, const char *prefix)
 	if (prefix && *prefix)
 		chomp_prefix = strlen(prefix);
 
-	argc = parse_options(argc, argv, prefix, ls_tree_options,
-			     ls_tree_usage, 0);
+	argc = parse_options(argc, argv, prefix, ls_tree_options, ls_tree_usage,
+			     0);
 	if (full_tree) {
 		ls_tree_prefix = prefix = NULL;
 		chomp_prefix = 0;
 	}
 	/* -d -r should imply -t, but -d by itself should not have to. */
-	if ( (LS_TREE_ONLY|LS_RECURSIVE) ==
-	    ((LS_TREE_ONLY|LS_RECURSIVE) & ls_options))
+	if ((LS_TREE_ONLY | LS_RECURSIVE) ==
+	    ((LS_TREE_ONLY | LS_RECURSIVE) & ls_options))
 		ls_options |= LS_SHOW_TREES;
 
 	if (argc < 1)
@@ -175,16 +174,16 @@ int cmd_ls_tree(int argc, const char **argv, const char *prefix)
 	 * cannot be lifted until it is converted to use
 	 * match_pathspec() or tree_entry_interesting()
 	 */
-	parse_pathspec(&pathspec, PATHSPEC_ALL_MAGIC &
-				  ~(PATHSPEC_FROMTOP | PATHSPEC_LITERAL),
-		       PATHSPEC_PREFER_CWD,
-		       prefix, argv + 1);
+	parse_pathspec(&pathspec,
+		       PATHSPEC_ALL_MAGIC &
+			       ~(PATHSPEC_FROMTOP | PATHSPEC_LITERAL),
+		       PATHSPEC_PREFER_CWD, prefix, argv + 1);
 	for (i = 0; i < pathspec.nr; i++)
 		pathspec.items[i].nowildcard_len = pathspec.items[i].len;
 	pathspec.has_wildcard = 0;
 	tree = parse_tree_indirect(&oid);
 	if (!tree)
 		die("not a tree object");
-	return !!read_tree_recursive(the_repository, tree, "", 0, 0,
-				     &pathspec, show_tree, NULL);
+	return !!read_tree_recursive(the_repository, tree, "", 0, 0, &pathspec,
+				     show_tree, NULL);
 }

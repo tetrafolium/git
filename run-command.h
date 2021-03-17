@@ -15,7 +15,6 @@
  * produces in the caller in order to process it.
  */
 
-
 /**
  * This describes the arguments, redirections, and environment of a
  * command to run in a sub-process.
@@ -42,19 +41,19 @@
  *		redirected.
  */
 struct child_process {
-
 	/**
 	 * The .argv member is set up as an array of string pointers (NULL
 	 * terminated), of which .argv[0] is the program name to run (usually
-	 * without a path). If the command to run is a git command, set argv[0] to
-	 * the command name without the 'git-' prefix and set .git_cmd = 1.
+	 * without a path). If the command to run is a git command, set argv[0]
+	 * to the command name without the 'git-' prefix and set .git_cmd = 1.
 	 *
-	 * Note that the ownership of the memory pointed to by .argv stays with the
-	 * caller, but it should survive until `finish_command` completes. If the
-	 * .argv member is NULL, `start_command` will point it at the .args
-	 * `strvec` (so you may use one or the other, but you must use exactly
-	 * one). The memory in .args will be cleaned up automatically during
-	 * `finish_command` (or during `start_command` when it is unsuccessful).
+	 * Note that the ownership of the memory pointed to by .argv stays with
+	 * the caller, but it should survive until `finish_command` completes.
+	 * If the .argv member is NULL, `start_command` will point it at the
+	 * .args `strvec` (so you may use one or the other, but you must use
+	 * exactly one). The memory in .args will be cleaned up automatically
+	 * during `finish_command` (or during `start_command` when it is
+	 * unsuccessful).
 	 *
 	 */
 	const char **argv;
@@ -113,10 +112,10 @@ struct child_process {
 	 */
 	const char *const *env;
 
-	unsigned no_stdin:1;
-	unsigned no_stdout:1;
-	unsigned no_stderr:1;
-	unsigned git_cmd:1; /* if this is to be git sub-command */
+	unsigned no_stdin : 1;
+	unsigned no_stdout : 1;
+	unsigned no_stderr : 1;
+	unsigned git_cmd : 1; /* if this is to be git sub-command */
 
 	/**
 	 * If the program cannot be found, the functions return -1 and set
@@ -124,7 +123,7 @@ struct child_process {
 	 * .silent_exec_failure is set to 1, no message is printed for this
 	 * special error condition.
 	 */
-	unsigned silent_exec_failure:1;
+	unsigned silent_exec_failure : 1;
 
 	/**
 	 * Run the command from argv[0] using a shell (but note that we may
@@ -132,16 +131,19 @@ struct child_process {
 	 * metacharacters). Note that further arguments to the command in
 	 * argv[1], etc, do not need to be shell-quoted.
 	 */
-	unsigned use_shell:1;
+	unsigned use_shell : 1;
 
-	unsigned stdout_to_stderr:1;
-	unsigned clean_on_exit:1;
-	unsigned wait_after_clean:1;
+	unsigned stdout_to_stderr : 1;
+	unsigned clean_on_exit : 1;
+	unsigned wait_after_clean : 1;
 	void (*clean_on_exit_handler)(struct child_process *process);
 	void *clean_on_exit_handler_cbdata;
 };
 
-#define CHILD_PROCESS_INIT { NULL, STRVEC_INIT, STRVEC_INIT }
+#define CHILD_PROCESS_INIT                     \
+	{                                      \
+		NULL, STRVEC_INIT, STRVEC_INIT \
+	}
 
 /**
  * The functions: child_process_init, start_command, finish_command,
@@ -231,7 +233,7 @@ int run_hook_ve(const char *const *env, const char *name, va_list args);
 int run_auto_maintenance(int quiet);
 
 #define RUN_COMMAND_NO_STDIN 1
-#define RUN_GIT_CMD	     2	/*If this is to be git sub-command */
+#define RUN_GIT_CMD 2 /*If this is to be git sub-command */
 #define RUN_COMMAND_STDOUT_TO_STDERR 4
 #define RUN_SILENT_EXEC_FAILURE 8
 #define RUN_USING_SHELL 16
@@ -255,7 +257,8 @@ int run_command_v_opt_tr2(const char **argv, int opt, const char *tr2_class);
  * env (the environment) is to be formatted like environ: "VAR=VALUE".
  * To unset an environment variable use just "VAR".
  */
-int run_command_v_opt_cd_env(const char **argv, int opt, const char *dir, const char *const *env);
+int run_command_v_opt_cd_env(const char **argv, int opt, const char *dir,
+			     const char *const *env);
 int run_command_v_opt_cd_env_tr2(const char **argv, int opt, const char *dir,
 				 const char *const *env, const char *tr2_class);
 
@@ -273,17 +276,15 @@ int run_command_v_opt_cd_env_tr2(const char **argv, int opt, const char *dir,
  * invocation. But note that there is no need to set the in, out, or err
  * fields; pipe_command handles that automatically.
  */
-int pipe_command(struct child_process *cmd,
-		 const char *in, size_t in_len,
-		 struct strbuf *out, size_t out_hint,
-		 struct strbuf *err, size_t err_hint);
+int pipe_command(struct child_process *cmd, const char *in, size_t in_len,
+		 struct strbuf *out, size_t out_hint, struct strbuf *err,
+		 size_t err_hint);
 
 /**
  * Convenience wrapper around pipe_command for the common case
  * of capturing only stdout.
  */
-static inline int capture_command(struct child_process *cmd,
-				  struct strbuf *out,
+static inline int capture_command(struct child_process *cmd, struct strbuf *out,
 				  size_t hint)
 {
 	return pipe_command(cmd, NULL, 0, out, hint, NULL, 0);
@@ -321,7 +322,6 @@ static inline int capture_command(struct child_process *cmd,
  *
  */
 struct async {
-
 	/**
 	 * The function pointer in .proc has the following signature:
 	 *
@@ -374,8 +374,8 @@ struct async {
 	 *   The specified FD is closed by start_async(), even if it fails to
 	 *   run the function.
 	 */
-	int in;		/* caller writes here and closes it */
-	int out;	/* caller reads from here and closes it */
+	int in; /* caller writes here and closes it */
+	int out; /* caller reads from here and closes it */
 #ifdef NO_PTHREADS
 	pid_t pid;
 #else
@@ -419,10 +419,8 @@ void check_pipe(int err);
  * To send a signal to other child processes for abortion,
  * return the negative signal number.
  */
-typedef int (*get_next_task_fn)(struct child_process *cp,
-				struct strbuf *out,
-				void *pp_cb,
-				void **pp_task_cb);
+typedef int (*get_next_task_fn)(struct child_process *cp, struct strbuf *out,
+				void *pp_cb, void **pp_task_cb);
 
 /**
  * This callback is called whenever there are problems starting
@@ -439,8 +437,7 @@ typedef int (*get_next_task_fn)(struct child_process *cp,
  * To send a signal to other child processes for abortion, return
  * the negative signal number.
  */
-typedef int (*start_failure_fn)(struct strbuf *out,
-				void *pp_cb,
+typedef int (*start_failure_fn)(struct strbuf *out, void *pp_cb,
 				void *pp_task_cb);
 
 /**
@@ -457,9 +454,7 @@ typedef int (*start_failure_fn)(struct strbuf *out,
  * To send a signal to other child processes for abortion, return
  * the negative signal number.
  */
-typedef int (*task_finished_fn)(int result,
-				struct strbuf *out,
-				void *pp_cb,
+typedef int (*task_finished_fn)(int result, struct strbuf *out, void *pp_cb,
 				void *pp_task_cb);
 
 /**
@@ -474,11 +469,8 @@ typedef int (*task_finished_fn)(int result,
  * start_failure_fn and task_finished_fn can be NULL to omit any
  * special handling.
  */
-int run_processes_parallel(int n,
-			   get_next_task_fn,
-			   start_failure_fn,
-			   task_finished_fn,
-			   void *pp_cb);
+int run_processes_parallel(int n, get_next_task_fn, start_failure_fn,
+			   task_finished_fn, void *pp_cb);
 int run_processes_parallel_tr2(int n, get_next_task_fn, start_failure_fn,
 			       task_finished_fn, void *pp_cb,
 			       const char *tr2_category, const char *tr2_label);

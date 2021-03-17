@@ -8,9 +8,8 @@
 #include "submodule.h"
 
 static const char diff_cache_usage[] =
-"git diff-index [-m] [--cached] "
-"[<common-diff-options>] <tree-ish> [<path>...]"
-COMMON_DIFF_OPTIONS_HELP;
+	"git diff-index [-m] [--cached] "
+	"[<common-diff-options>] <tree-ish> [<path>...]" COMMON_DIFF_OPTIONS_HELP;
 
 int cmd_diff_index(int argc, const char **argv, const char *prefix)
 {
@@ -47,8 +46,8 @@ int cmd_diff_index(int argc, const char **argv, const char *prefix)
 	 * Make sure there is one revision (i.e. pending object),
 	 * and there is no revision filtering parameters.
 	 */
-	if (rev.pending.nr != 1 ||
-	    rev.max_count != -1 || rev.min_age != -1 || rev.max_age != -1)
+	if (rev.pending.nr != 1 || rev.max_count != -1 || rev.min_age != -1 ||
+	    rev.max_age != -1)
 		usage(diff_cache_usage);
 	if (!(option & DIFF_INDEX_CACHED)) {
 		setup_work_tree();

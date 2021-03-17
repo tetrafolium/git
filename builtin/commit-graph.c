@@ -9,7 +9,7 @@
 #include "progress.h"
 #include "tag.h"
 
-static char const * const builtin_commit_graph_usage[] = {
+static char const *const builtin_commit_graph_usage[] = {
 	N_("git commit-graph verify [--object-dir <objdir>] [--shallow] [--[no-]progress]"),
 	N_("git commit-graph write [--object-dir <objdir>] [--append] "
 	   "[--split[=<strategy>]] [--reachable|--stdin-packs|--stdin-commits] "
@@ -18,12 +18,12 @@ static char const * const builtin_commit_graph_usage[] = {
 	NULL
 };
 
-static const char * const builtin_commit_graph_verify_usage[] = {
+static const char *const builtin_commit_graph_verify_usage[] = {
 	N_("git commit-graph verify [--object-dir <objdir>] [--shallow] [--[no-]progress]"),
 	NULL
 };
 
-static const char * const builtin_commit_graph_write_usage[] = {
+static const char *const builtin_commit_graph_write_usage[] = {
 	N_("git commit-graph write [--object-dir <objdir>] [--append] "
 	   "[--split[=<strategy>]] [--reachable|--stdin-packs|--stdin-commits] "
 	   "[--changed-paths] [--[no-]max-new-filters <n>] [--[no-]progress] "
@@ -76,12 +76,13 @@ static int graph_verify(int argc, const char **argv)
 	int flags = 0;
 
 	static struct option builtin_commit_graph_verify_options[] = {
-		OPT_STRING(0, "object-dir", &opts.obj_dir,
-			   N_("dir"),
+		OPT_STRING(0, "object-dir", &opts.obj_dir, N_("dir"),
 			   N_("the object directory to store the graph")),
-		OPT_BOOL(0, "shallow", &opts.shallow,
-			 N_("if the commit-graph is split, only verify the tip file")),
-		OPT_BOOL(0, "progress", &opts.progress, N_("force progress reporting")),
+		OPT_BOOL(
+			0, "shallow", &opts.shallow,
+			N_("if the commit-graph is split, only verify the tip file")),
+		OPT_BOOL(0, "progress", &opts.progress,
+			 N_("force progress reporting")),
 		OPT_END(),
 	};
 
@@ -108,7 +109,8 @@ static int graph_verify(int argc, const char **argv)
 	FREE_AND_NULL(graph_name);
 
 	if (open_ok)
-		graph = load_commit_graph_one_fd_st(the_repository, fd, &st, odb);
+		graph = load_commit_graph_one_fd_st(the_repository, fd, &st,
+						    odb);
 	else
 		graph = read_commit_graph_one(the_repository, odb);
 
@@ -167,8 +169,7 @@ static int read_one_commit(struct oidset *commits, struct progress *progress,
 }
 
 static int write_option_max_new_filters(const struct option *opt,
-					const char *arg,
-					int unset)
+					const char *arg, int unset)
 {
 	int *to = opt->value;
 	if (unset)
@@ -206,32 +207,38 @@ static int graph_write(int argc, const char **argv)
 	struct progress *progress = NULL;
 
 	static struct option builtin_commit_graph_write_options[] = {
-		OPT_STRING(0, "object-dir", &opts.obj_dir,
-			N_("dir"),
-			N_("the object directory to store the graph")),
+		OPT_STRING(0, "object-dir", &opts.obj_dir, N_("dir"),
+			   N_("the object directory to store the graph")),
 		OPT_BOOL(0, "reachable", &opts.reachable,
-			N_("start walk at all refs")),
+			 N_("start walk at all refs")),
 		OPT_BOOL(0, "stdin-packs", &opts.stdin_packs,
-			N_("scan pack-indexes listed by stdin for commits")),
+			 N_("scan pack-indexes listed by stdin for commits")),
 		OPT_BOOL(0, "stdin-commits", &opts.stdin_commits,
-			N_("start walk at commits listed by stdin")),
-		OPT_BOOL(0, "append", &opts.append,
+			 N_("start walk at commits listed by stdin")),
+		OPT_BOOL(
+			0, "append", &opts.append,
 			N_("include all commits already in the commit-graph file")),
 		OPT_BOOL(0, "changed-paths", &opts.enable_changed_paths,
-			N_("enable computation for changed paths")),
-		OPT_BOOL(0, "progress", &opts.progress, N_("force progress reporting")),
-		OPT_CALLBACK_F(0, "split", &write_opts.split_flags, NULL,
+			 N_("enable computation for changed paths")),
+		OPT_BOOL(0, "progress", &opts.progress,
+			 N_("force progress reporting")),
+		OPT_CALLBACK_F(
+			0, "split", &write_opts.split_flags, NULL,
 			N_("allow writing an incremental commit-graph file"),
 			PARSE_OPT_OPTARG | PARSE_OPT_NONEG,
 			write_option_parse_split),
-		OPT_INTEGER(0, "max-commits", &write_opts.max_commits,
+		OPT_INTEGER(
+			0, "max-commits", &write_opts.max_commits,
 			N_("maximum number of commits in a non-base split commit-graph")),
-		OPT_INTEGER(0, "size-multiple", &write_opts.size_multiple,
+		OPT_INTEGER(
+			0, "size-multiple", &write_opts.size_multiple,
 			N_("maximum ratio between two levels of a split commit-graph")),
-		OPT_EXPIRY_DATE(0, "expire-time", &write_opts.expire_time,
+		OPT_EXPIRY_DATE(
+			0, "expire-time", &write_opts.expire_time,
 			N_("only expire files older than a given date-time")),
-		OPT_CALLBACK_F(0, "max-new-filters", &write_opts.max_new_filters,
-			NULL, N_("maximum number of changed-path Bloom filters to compute"),
+		OPT_CALLBACK_F(
+			0, "max-new-filters", &write_opts.max_new_filters, NULL,
+			N_("maximum number of changed-path Bloom filters to compute"),
 			0, write_option_max_new_filters),
 		OPT_END(),
 	};
@@ -296,10 +303,8 @@ static int graph_write(int argc, const char **argv)
 		stop_progress(&progress);
 	}
 
-	if (write_commit_graph(odb,
-			       opts.stdin_packs ? &pack_indexes : NULL,
-			       opts.stdin_commits ? &commits : NULL,
-			       flags,
+	if (write_commit_graph(odb, opts.stdin_packs ? &pack_indexes : NULL,
+			       opts.stdin_commits ? &commits : NULL, flags,
 			       &write_opts))
 		result = 1;
 
@@ -312,9 +317,8 @@ cleanup:
 int cmd_commit_graph(int argc, const char **argv, const char *prefix)
 {
 	static struct option builtin_commit_graph_options[] = {
-		OPT_STRING(0, "object-dir", &opts.obj_dir,
-			N_("dir"),
-			N_("the object directory to store the graph")),
+		OPT_STRING(0, "object-dir", &opts.obj_dir, N_("dir"),
+			   N_("the object directory to store the graph")),
 		OPT_END(),
 	};
 
@@ -323,8 +327,7 @@ int cmd_commit_graph(int argc, const char **argv, const char *prefix)
 				   builtin_commit_graph_options);
 
 	git_config(git_default_config, NULL);
-	argc = parse_options(argc, argv, prefix,
-			     builtin_commit_graph_options,
+	argc = parse_options(argc, argv, prefix, builtin_commit_graph_options,
 			     builtin_commit_graph_usage,
 			     PARSE_OPT_STOP_AT_NON_OPTION);
 

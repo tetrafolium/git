@@ -33,37 +33,37 @@
  * own implementations like block-sha1 and ppc-sha1, so we list
  * the default for OpenSSL compatible SHA-1 implementations here.
  */
-#define platform_SHA_CTX	SHA_CTX
-#define platform_SHA1_Init	SHA1_Init
-#define platform_SHA1_Update	SHA1_Update
-#define platform_SHA1_Final    	SHA1_Final
+#define platform_SHA_CTX SHA_CTX
+#define platform_SHA1_Init SHA1_Init
+#define platform_SHA1_Update SHA1_Update
+#define platform_SHA1_Final SHA1_Final
 #endif
 
-#define git_SHA_CTX		platform_SHA_CTX
-#define git_SHA1_Init		platform_SHA1_Init
-#define git_SHA1_Update		platform_SHA1_Update
-#define git_SHA1_Final		platform_SHA1_Final
+#define git_SHA_CTX platform_SHA_CTX
+#define git_SHA1_Init platform_SHA1_Init
+#define git_SHA1_Update platform_SHA1_Update
+#define git_SHA1_Final platform_SHA1_Final
 
 #ifndef platform_SHA256_CTX
-#define platform_SHA256_CTX	SHA256_CTX
-#define platform_SHA256_Init	SHA256_Init
-#define platform_SHA256_Update	SHA256_Update
-#define platform_SHA256_Final	SHA256_Final
+#define platform_SHA256_CTX SHA256_CTX
+#define platform_SHA256_Init SHA256_Init
+#define platform_SHA256_Update SHA256_Update
+#define platform_SHA256_Final SHA256_Final
 #endif
 
-#define git_SHA256_CTX		platform_SHA256_CTX
-#define git_SHA256_Init		platform_SHA256_Init
-#define git_SHA256_Update	platform_SHA256_Update
-#define git_SHA256_Final	platform_SHA256_Final
+#define git_SHA256_CTX platform_SHA256_CTX
+#define git_SHA256_Init platform_SHA256_Init
+#define git_SHA256_Update platform_SHA256_Update
+#define git_SHA256_Final platform_SHA256_Final
 
 #ifdef platform_SHA256_Clone
-#define git_SHA256_Clone	platform_SHA256_Clone
+#define git_SHA256_Clone platform_SHA256_Clone
 #endif
 
 #ifdef SHA1_MAX_BLOCK_SIZE
 #include "compat/sha1-chunked.h"
 #undef git_SHA1_Update
-#define git_SHA1_Update		git_SHA1_Update_Chunked
+#define git_SHA1_Update git_SHA1_Update_Chunked
 #endif
 
 static inline void git_SHA1_Clone(git_SHA_CTX *dst, const git_SHA_CTX *src)
@@ -72,7 +72,8 @@ static inline void git_SHA1_Clone(git_SHA_CTX *dst, const git_SHA_CTX *src)
 }
 
 #ifndef SHA256_NEEDS_CLONE_HELPER
-static inline void git_SHA256_Clone(git_SHA256_CTX *dst, const git_SHA256_CTX *src)
+static inline void git_SHA256_Clone(git_SHA256_CTX *dst,
+				    const git_SHA256_CTX *src)
 {
 	memcpy(dst, src, sizeof(*dst));
 }
@@ -104,7 +105,8 @@ typedef union git_hash_ctx git_hash_ctx;
 
 typedef void (*git_hash_init_fn)(git_hash_ctx *ctx);
 typedef void (*git_hash_clone_fn)(git_hash_ctx *dst, const git_hash_ctx *src);
-typedef void (*git_hash_update_fn)(git_hash_ctx *ctx, const void *in, size_t len);
+typedef void (*git_hash_update_fn)(git_hash_ctx *ctx, const void *in,
+				   size_t len);
 typedef void (*git_hash_final_fn)(unsigned char *hash, git_hash_ctx *ctx);
 
 struct git_hash_algo {
@@ -198,7 +200,8 @@ static inline int hashcmp(const unsigned char *sha1, const unsigned char *sha2)
 	return memcmp(sha1, sha2, GIT_SHA1_RAWSZ);
 }
 
-static inline int oidcmp(const struct object_id *oid1, const struct object_id *oid2)
+static inline int oidcmp(const struct object_id *oid1,
+			 const struct object_id *oid2)
 {
 	return hashcmp(oid1->hash, oid2->hash);
 }
@@ -214,7 +217,8 @@ static inline int hasheq(const unsigned char *sha1, const unsigned char *sha2)
 	return !memcmp(sha1, sha2, GIT_SHA1_RAWSZ);
 }
 
-static inline int oideq(const struct object_id *oid1, const struct object_id *oid2)
+static inline int oideq(const struct object_id *oid1,
+			const struct object_id *oid2)
 {
 	return hasheq(oid1->hash, oid2->hash);
 }

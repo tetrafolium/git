@@ -10,11 +10,13 @@
 struct index_state;
 struct strbuf;
 
-#define CONV_EOL_RNDTRP_DIE   (1<<0) /* Die if CRLF to LF to CRLF is different */
-#define CONV_EOL_RNDTRP_WARN  (1<<1) /* Warn if CRLF to LF to CRLF is different */
-#define CONV_EOL_RENORMALIZE  (1<<2) /* Convert CRLF to LF */
-#define CONV_EOL_KEEP_CRLF    (1<<3) /* Keep CRLF line endings as is */
-#define CONV_WRITE_OBJECT     (1<<4) /* Content is written to the index */
+#define CONV_EOL_RNDTRP_DIE \
+	(1 << 0) /* Die if CRLF to LF to CRLF is different */
+#define CONV_EOL_RNDTRP_WARN \
+	(1 << 1) /* Warn if CRLF to LF to CRLF is different */
+#define CONV_EOL_RENORMALIZE (1 << 2) /* Convert CRLF to LF */
+#define CONV_EOL_KEEP_CRLF (1 << 3) /* Keep CRLF line endings as is */
+#define CONV_WRITE_OBJECT (1 << 4) /* Content is written to the index */
 
 extern int global_conv_flags_eol;
 
@@ -37,11 +39,7 @@ enum eol {
 #endif
 };
 
-enum ce_delay_state {
-	CE_NO_DELAY = 0,
-	CE_CAN_DELAY = 1,
-	CE_RETRY = 2
-};
+enum ce_delay_state { CE_NO_DELAY = 0, CE_CAN_DELAY = 1, CE_RETRY = 2 };
 
 struct delayed_checkout {
 	/*
@@ -72,23 +70,21 @@ const char *get_convert_attr_ascii(const struct index_state *istate,
 				   const char *path);
 
 /* returns 1 if *dst was used */
-int convert_to_git(const struct index_state *istate,
-		   const char *path, const char *src, size_t len,
-		   struct strbuf *dst, int conv_flags);
-int convert_to_working_tree(const struct index_state *istate,
-			    const char *path, const char *src,
-			    size_t len, struct strbuf *dst,
+int convert_to_git(const struct index_state *istate, const char *path,
+		   const char *src, size_t len, struct strbuf *dst,
+		   int conv_flags);
+int convert_to_working_tree(const struct index_state *istate, const char *path,
+			    const char *src, size_t len, struct strbuf *dst,
 			    const struct checkout_metadata *meta);
 int async_convert_to_working_tree(const struct index_state *istate,
-				  const char *path, const char *src,
-				  size_t len, struct strbuf *dst,
+				  const char *path, const char *src, size_t len,
+				  struct strbuf *dst,
 				  const struct checkout_metadata *meta,
 				  void *dco);
 int async_query_available_blobs(const char *cmd,
 				struct string_list *available_paths);
-int renormalize_buffer(const struct index_state *istate,
-		       const char *path, const char *src, size_t len,
-		       struct strbuf *dst);
+int renormalize_buffer(const struct index_state *istate, const char *path,
+		       const char *src, size_t len, struct strbuf *dst);
 static inline int would_convert_to_git(const struct index_state *istate,
 				       const char *path)
 {
@@ -96,8 +92,7 @@ static inline int would_convert_to_git(const struct index_state *istate,
 }
 /* Precondition: would_convert_to_git_filter_fd(path) == true */
 void convert_to_git_filter_fd(const struct index_state *istate,
-			      const char *path, int fd,
-			      struct strbuf *dst,
+			      const char *path, int fd, struct strbuf *dst,
 			      int conv_flags);
 int would_convert_to_git_filter_fd(const struct index_state *istate,
 				   const char *path);
@@ -151,8 +146,7 @@ int is_null_stream_filter(struct stream_filter *);
  * such filters know there is no more input coming and it is time for
  * them to produce the remaining output based on the buffered input.
  */
-int stream_filter(struct stream_filter *,
-		  const char *input, size_t *isize_p,
+int stream_filter(struct stream_filter *, const char *input, size_t *isize_p,
 		  char *output, size_t *osize_p);
 
 #endif /* CONVERT_H */

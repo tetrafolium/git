@@ -28,7 +28,7 @@ static int show_merge_base(struct commit **rev, int rev_nr, int show_all)
 	return 0;
 }
 
-static const char * const merge_base_usage[] = {
+static const char *const merge_base_usage[] = {
 	N_("git merge-base [-a | --all] <commit> <commit>..."),
 	N_("git merge-base [-a | --all] --octopus <commit>..."),
 	N_("git merge-base --independent <commit>..."),
@@ -140,15 +140,18 @@ int cmd_merge_base(int argc, const char **argv, const char *prefix)
 	int cmdmode = 0;
 
 	struct option options[] = {
-		OPT_BOOL('a', "all", &show_all, N_("output all common ancestors")),
+		OPT_BOOL('a', "all", &show_all,
+			 N_("output all common ancestors")),
 		OPT_CMDMODE(0, "octopus", &cmdmode,
 			    N_("find ancestors for a single n-way merge"), 'o'),
 		OPT_CMDMODE(0, "independent", &cmdmode,
 			    N_("list revs not reachable from others"), 'r'),
 		OPT_CMDMODE(0, "is-ancestor", &cmdmode,
 			    N_("is the first one ancestor of the other?"), 'a'),
-		OPT_CMDMODE(0, "fork-point", &cmdmode,
-			    N_("find where <commit> forked from reflog of <ref>"), 'f'),
+		OPT_CMDMODE(
+			0, "fork-point", &cmdmode,
+			N_("find where <commit> forked from reflog of <ref>"),
+			'f'),
 		OPT_END()
 	};
 

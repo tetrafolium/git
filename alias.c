@@ -19,8 +19,8 @@ static int config_alias_cb(const char *key, const char *value, void *d)
 
 	if (data->alias) {
 		if (!strcasecmp(p, data->alias))
-			return git_config_string((const char **)&data->v,
-						 key, value);
+			return git_config_string((const char **)&data->v, key,
+						 value);
 	} else if (data->list) {
 		string_list_append(data->list, p);
 	}
@@ -46,10 +46,8 @@ void list_aliases(struct string_list *list)
 
 #define SPLIT_CMDLINE_BAD_ENDING 1
 #define SPLIT_CMDLINE_UNCLOSED_QUOTE 2
-static const char *split_cmdline_errors[] = {
-	N_("cmdline ends with \\"),
-	N_("unclosed quote")
-};
+static const char *split_cmdline_errors[] = { N_("cmdline ends with \\"),
+					      N_("unclosed quote") };
 
 int split_cmdline(char *cmdline, const char ***argv)
 {
@@ -64,8 +62,7 @@ int split_cmdline(char *cmdline, const char ***argv)
 		char c = cmdline[src];
 		if (!quoted && isspace(c)) {
 			cmdline[dst++] = 0;
-			while (cmdline[++src]
-					&& isspace(cmdline[src]))
+			while (cmdline[++src] && isspace(cmdline[src]))
 				; /* skip */
 			ALLOC_GROW(*argv, count + 1, size);
 			(*argv)[count++] = cmdline + dst;

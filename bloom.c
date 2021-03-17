@@ -12,8 +12,8 @@ define_commit_slab(bloom_filter_slab, struct bloom_filter);
 static struct bloom_filter_slab bloom_filters;
 
 struct pathmap_hash_entry {
-    struct hashmap_entry entry;
-    const char path[FLEX_ARRAY];
+	struct hashmap_entry entry;
+	const char path[FLEX_ARRAY];
 };
 
 static uint32_t rotate_left(uint32_t value, int32_t count)
@@ -47,14 +47,15 @@ static int load_bloom_filter_from_graph(struct commit_graph *g,
 	end_index = get_be32(g->chunk_bloom_indexes + 4 * lex_pos);
 
 	if (lex_pos > 0)
-		start_index = get_be32(g->chunk_bloom_indexes + 4 * (lex_pos - 1));
+		start_index =
+			get_be32(g->chunk_bloom_indexes + 4 * (lex_pos - 1));
 	else
 		start_index = 0;
 
 	filter->len = end_index - start_index;
 	filter->data = (unsigned char *)(g->chunk_bloom_data +
-					sizeof(unsigned char) * start_index +
-					BLOOMDATA_CHUNK_HEADER_SIZE);
+					 sizeof(unsigned char) * start_index +
+					 BLOOMDATA_CHUNK_HEADER_SIZE);
 
 	return 1;
 }
@@ -64,7 +65,8 @@ static int load_bloom_filter_from_graph(struct commit_graph *g,
  * using the given seed.
  * Produces a uniformly distributed hash value.
  * Not considered to be cryptographically secure.
- * Implemented as described in https://en.wikipedia.org/wiki/MurmurHash#Algorithm
+ * Implemented as described in
+ * https://en.wikipedia.org/wiki/MurmurHash#Algorithm
  */
 uint32_t murmur3_seeded(uint32_t seed, const char *data, size_t len)
 {
@@ -82,10 +84,10 @@ uint32_t murmur3_seeded(uint32_t seed, const char *data, size_t len)
 
 	uint32_t k;
 	for (i = 0; i < len4; i++) {
-		uint32_t byte1 = (uint32_t)data[4*i];
-		uint32_t byte2 = ((uint32_t)data[4*i + 1]) << 8;
-		uint32_t byte3 = ((uint32_t)data[4*i + 2]) << 16;
-		uint32_t byte4 = ((uint32_t)data[4*i + 3]) << 24;
+		uint32_t byte1 = (uint32_t)data[4 * i];
+		uint32_t byte2 = ((uint32_t)data[4 * i + 1]) << 8;
+		uint32_t byte3 = ((uint32_t)data[4 * i + 2]) << 16;
+		uint32_t byte4 = ((uint32_t)data[4 * i + 3]) << 24;
 		k = byte1 | byte2 | byte3 | byte4;
 		k *= c1;
 		k = rotate_left(k, r1);
@@ -123,9 +125,7 @@ uint32_t murmur3_seeded(uint32_t seed, const char *data, size_t len)
 	return seed;
 }
 
-void fill_bloom_key(const char *data,
-		    size_t len,
-		    struct bloom_key *key,
+void fill_bloom_key(const char *data, size_t len, struct bloom_key *key,
 		    const struct bloom_filter_settings *settings)
 {
 	int i;
@@ -134,7 +134,8 @@ void fill_bloom_key(const char *data,
 	const uint32_t hash0 = murmur3_seeded(seed0, data, len);
 	const uint32_t hash1 = murmur3_seeded(seed1, data, len);
 
-	key->hashes = (uint32_t *)xcalloc(settings->num_hashes, sizeof(uint32_t));
+	key->hashes =
+		(uint32_t *)xcalloc(settings->num_hashes, sizeof(uint32_t));
 	for (i = 0; i < settings->num_hashes; i++)
 		key->hashes[i] = hash0 + i * hash1;
 }
@@ -144,8 +145,7 @@ void clear_bloom_key(struct bloom_key *key)
 	FREE_AND_NULL(key->hashes);
 }
 
-void add_key_to_filter(const struct bloom_key *key,
-		       struct bloom_filter *filter,
+void add_key_to_filter(const struct bloom_key *key, struct bloom_filter *filter,
 		       const struct bloom_filter_settings *settings)
 {
 	int i;
@@ -184,11 +184,11 @@ static void init_truncated_large_filter(struct bloom_filter *filter)
 	filter->len = 1;
 }
 
-struct bloom_filter *get_or_compute_bloom_filter(struct repository *r,
-						 struct commit *c,
-						 int compute_if_not_present,
-						 const struct bloom_filter_settings *settings,
-						 enum bloom_filter_computed *computed)
+struct bloom_filter *
+get_or_compute_bloom_filter(struct repository *r, struct commit *c,
+			    int compute_if_not_present,
+			    const struct bloom_filter_settings *settings,
+			    enum bloom_filter_computed *computed)
 {
 	struct bloom_filter *filter;
 	int i;
@@ -205,7 +205,8 @@ struct bloom_filter *get_or_compute_bloom_filter(struct repository *r,
 	if (!filter->data) {
 		load_commit_graph_info(r, c);
 		if (commit_graph_position(c) != COMMIT_NOT_FROM_GRAPH)
-			load_bloom_filter_from_graph(r->objects->commit_graph, filter, c);
+			load_bloom_filter_from_graph(r->objects->commit_graph,
+						     filter, c);
 	}
 
 	if (filter->data && filter->len)
@@ -223,7 +224,8 @@ struct bloom_filter *get_or_compute_bloom_filter(struct repository *r,
 	repo_parse_commit(r, c);
 
 	if (c->parents)
-		diff_tree_oid(&c->parents->item->object.oid, &c->object.oid, "", &diffopt);
+		diff_tree_oid(&c->parents->item->object.oid, &c->object.oid, "",
+			      &diffopt);
 	else
 		diff_tree_oid(NULL, &c->object.oid, "", &diffopt);
 	diffcore_std(&diffopt);
@@ -237,12 +239,13 @@ struct bloom_filter *get_or_compute_bloom_filter(struct repository *r,
 			const char *path = diff_queued_diff.queue[i]->two->path;
 
 			/*
-			 * Add each leading directory of the changed file, i.e. for
-			 * 'dir/subdir/file' add 'dir' and 'dir/subdir' as well, so
-			 * the Bloom filter could be used to speed up commands like
-			 * 'git log dir/subdir', too.
+			 * Add each leading directory of the changed file, i.e.
+			 * for 'dir/subdir/file' add 'dir' and 'dir/subdir' as
+			 * well, so the Bloom filter could be used to speed up
+			 * commands like 'git log dir/subdir', too.
 			 *
-			 * Note that directories are added without the trailing '/'.
+			 * Note that directories are added without the trailing
+			 * '/'.
 			 */
 			do {
 				char *last_slash = strrchr(path, '/');
@@ -256,7 +259,7 @@ struct bloom_filter *get_or_compute_bloom_filter(struct repository *r,
 					free(e);
 
 				if (!last_slash)
-					last_slash = (char*)path;
+					last_slash = (char *)path;
 				*last_slash = '\0';
 
 			} while (*path);
@@ -271,7 +274,10 @@ struct bloom_filter *get_or_compute_bloom_filter(struct repository *r,
 			goto cleanup;
 		}
 
-		filter->len = (hashmap_get_size(&pathmap) * settings->bits_per_entry + BITS_PER_WORD - 1) / BITS_PER_WORD;
+		filter->len =
+			(hashmap_get_size(&pathmap) * settings->bits_per_entry +
+			 BITS_PER_WORD - 1) /
+			BITS_PER_WORD;
 		if (!filter->len) {
 			if (computed)
 				*computed |= BLOOM_TRUNC_EMPTY;
@@ -279,14 +285,17 @@ struct bloom_filter *get_or_compute_bloom_filter(struct repository *r,
 		}
 		filter->data = xcalloc(filter->len, sizeof(unsigned char));
 
-		hashmap_for_each_entry(&pathmap, &iter, e, entry) {
+		hashmap_for_each_entry(&pathmap, &iter, e, entry)
+		{
 			struct bloom_key key;
-			fill_bloom_key(e->path, strlen(e->path), &key, settings);
+			fill_bloom_key(e->path, strlen(e->path), &key,
+				       settings);
 			add_key_to_filter(&key, filter, settings);
 		}
 
 	cleanup:
-		hashmap_clear_and_free(&pathmap, struct pathmap_hash_entry, entry);
+		hashmap_clear_and_free(&pathmap, struct pathmap_hash_entry,
+				       entry);
 	} else {
 		for (i = 0; i < diff_queued_diff.nr; i++)
 			diff_free_filepair(diff_queued_diff.queue[i]);

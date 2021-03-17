@@ -28,7 +28,8 @@ int cmd_mailinfo(int argc, const char **argv, const char *prefix)
 			mi.keep_subject = 1;
 		else if (!strcmp(argv[1], "-b"))
 			mi.keep_non_patch_brackets_in_subject = 1;
-		else if (!strcmp(argv[1], "-m") || !strcmp(argv[1], "--message-id"))
+		else if (!strcmp(argv[1], "-m") ||
+			 !strcmp(argv[1], "--message-id"))
 			mi.add_message_id = 1;
 		else if (!strcmp(argv[1], "-u"))
 			mi.metainfo_charset = def_charset;
@@ -44,7 +45,8 @@ int cmd_mailinfo(int argc, const char **argv, const char *prefix)
 			mi.use_inbody_headers = 0;
 		else
 			usage(mailinfo_usage);
-		argc--; argv++;
+		argc--;
+		argv++;
 	}
 
 	if (argc != 3)

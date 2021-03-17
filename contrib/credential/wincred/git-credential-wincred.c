@@ -9,7 +9,7 @@
 
 /* common helpers */
 
-#define ARRAY_SIZE(x) (sizeof(x)/sizeof(x[0]))
+#define ARRAY_SIZE(x) (sizeof(x) / sizeof(x[0]))
 
 static void die(const char *err, ...)
 {
@@ -28,7 +28,7 @@ static void *xmalloc(size_t size)
 	if (!ret && !size)
 		ret = malloc(1);
 	if (!ret)
-		 die("Out of memory");
+		die("Out of memory");
 	return ret;
 }
 
@@ -36,35 +36,34 @@ static void *xmalloc(size_t size)
 
 typedef struct _CREDENTIAL_ATTRIBUTEW {
 	LPWSTR Keyword;
-	DWORD  Flags;
-	DWORD  ValueSize;
+	DWORD Flags;
+	DWORD ValueSize;
 	LPBYTE Value;
 } CREDENTIAL_ATTRIBUTEW, *PCREDENTIAL_ATTRIBUTEW;
 
 typedef struct _CREDENTIALW {
-	DWORD                  Flags;
-	DWORD                  Type;
-	LPWSTR                 TargetName;
-	LPWSTR                 Comment;
-	FILETIME               LastWritten;
-	DWORD                  CredentialBlobSize;
-	LPBYTE                 CredentialBlob;
-	DWORD                  Persist;
-	DWORD                  AttributeCount;
+	DWORD Flags;
+	DWORD Type;
+	LPWSTR TargetName;
+	LPWSTR Comment;
+	FILETIME LastWritten;
+	DWORD CredentialBlobSize;
+	LPBYTE CredentialBlob;
+	DWORD Persist;
+	DWORD AttributeCount;
 	PCREDENTIAL_ATTRIBUTEW Attributes;
-	LPWSTR                 TargetAlias;
-	LPWSTR                 UserName;
+	LPWSTR TargetAlias;
+	LPWSTR UserName;
 } CREDENTIALW, *PCREDENTIALW;
 
 #define CRED_TYPE_GENERIC 1
 #define CRED_PERSIST_LOCAL_MACHINE 2
 #define CRED_MAX_ATTRIBUTES 64
 
-typedef BOOL (WINAPI *CredWriteWT)(PCREDENTIALW, DWORD);
-typedef BOOL (WINAPI *CredEnumerateWT)(LPCWSTR, DWORD, DWORD *,
-    PCREDENTIALW **);
-typedef VOID (WINAPI *CredFreeT)(PVOID);
-typedef BOOL (WINAPI *CredDeleteWT)(LPCWSTR, DWORD, DWORD);
+typedef BOOL(WINAPI *CredWriteWT)(PCREDENTIALW, DWORD);
+typedef BOOL(WINAPI *CredEnumerateWT)(LPCWSTR, DWORD, DWORD *, PCREDENTIALW **);
+typedef VOID(WINAPI *CredFreeT)(PVOID);
+typedef BOOL(WINAPI *CredDeleteWT)(LPCWSTR, DWORD, DWORD);
 
 static HMODULE advapi;
 static CredWriteWT CredWriteW;
@@ -82,8 +81,8 @@ static void load_cred_funcs(void)
 
 	/* get function pointers */
 	CredWriteW = (CredWriteWT)GetProcAddress(advapi, "CredWriteW");
-	CredEnumerateW = (CredEnumerateWT)GetProcAddress(advapi,
-	    "CredEnumerateW");
+	CredEnumerateW =
+		(CredEnumerateWT)GetProcAddress(advapi, "CredEnumerateW");
 	CredFree = (CredFreeT)GetProcAddress(advapi, "CredFree");
 	CredDeleteW = (CredDeleteWT)GetProcAddress(advapi, "CredDeleteW");
 	if (!CredWriteW || !CredEnumerateW || !CredFree || !CredDeleteW)
@@ -102,7 +101,7 @@ static void write_item(const char *what, LPCWSTR wbuf, int wlen)
 	}
 
 	int len = WideCharToMultiByte(CP_UTF8, 0, wbuf, wlen, NULL, 0, NULL,
-	    FALSE);
+				      FALSE);
 	buf = xmalloc(len);
 
 	if (!WideCharToMultiByte(CP_UTF8, 0, wbuf, wlen, buf, len, NULL, FALSE))
@@ -127,14 +126,16 @@ static LPCWSTR wcsstr_last(LPCWSTR str, LPCWSTR find)
 	return res;
 }
 
-static int match_part_with_last(LPCWSTR *ptarget, LPCWSTR want, LPCWSTR delim, int last)
+static int match_part_with_last(LPCWSTR *ptarget, LPCWSTR want, LPCWSTR delim,
+				int last)
 {
 	LPCWSTR delim_pos, start = *ptarget;
 	int len;
 
 	/* find start of delimiter (or end-of-string if delim is empty) */
 	if (*delim)
-		delim_pos = last ? wcsstr_last(start, delim) : wcsstr(start, delim);
+		delim_pos = last ? wcsstr_last(start, delim) :
+				   wcsstr(start, delim);
 	else
 		delim_pos = start + wcslen(start);
 
@@ -167,14 +168,15 @@ static int match_part_last(LPCWSTR *ptarget, LPCWSTR want, LPCWSTR delim)
 static int match_cred(const CREDENTIALW *cred)
 {
 	LPCWSTR target = cred->TargetName;
-	if (wusername && wcscmp(wusername, cred->UserName ? cred->UserName : L""))
+	if (wusername &&
+	    wcscmp(wusername, cred->UserName ? cred->UserName : L""))
 		return 0;
 
 	return match_part(&target, L"git", L":") &&
-		match_part(&target, protocol, L"://") &&
-		match_part_last(&target, wusername, L"@") &&
-		match_part(&target, host, L"/") &&
-		match_part(&target, path, L"");
+	       match_part(&target, protocol, L"://") &&
+	       match_part_last(&target, wusername, L"@") &&
+	       match_part(&target, host, L"/") &&
+	       match_part(&target, path, L"");
 }
 
 static void get_credential(void)
@@ -190,9 +192,11 @@ static void get_credential(void)
 	for (i = 0; i < num_creds; ++i)
 		if (match_cred(creds[i])) {
 			write_item("username", creds[i]->UserName,
-				creds[i]->UserName ? wcslen(creds[i]->UserName) : 0);
-			write_item("password",
-				(LPCWSTR)creds[i]->CredentialBlob,
+				   creds[i]->UserName ?
+					   wcslen(creds[i]->UserName) :
+					   0);
+			write_item(
+				"password", (LPCWSTR)creds[i]->CredentialBlob,
 				creds[i]->CredentialBlobSize / sizeof(WCHAR));
 			break;
 		}
@@ -284,8 +288,7 @@ static void read_credential(void)
 
 int main(int argc, char *argv[])
 {
-	const char *usage =
-	    "usage: git credential-wincred <get|store|erase>\n";
+	const char *usage = "usage: git credential-wincred <get|store|erase>\n";
 
 	if (!argv[1])
 		die(usage);

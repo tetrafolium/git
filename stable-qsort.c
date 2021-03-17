@@ -6,8 +6,7 @@
  */
 
 static void msort_with_tmp(void *b, size_t n, size_t s,
-			   int (*cmp)(const void *, const void *),
-			   char *t)
+			   int (*cmp)(const void *, const void *), char *t)
 {
 	char *tmp;
 	char *b1, *b2;

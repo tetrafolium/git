@@ -31,21 +31,22 @@ struct batch_options {
 static const char *force_path;
 
 static int filter_object(const char *path, unsigned mode,
-			 const struct object_id *oid,
-			 char **buf, unsigned long *size)
+			 const struct object_id *oid, char **buf,
+			 unsigned long *size)
 {
 	enum object_type type;
 
 	*buf = read_object_file(oid, &type, size);
 	if (!*buf)
-		return error(_("cannot read object %s '%s'"),
-			     oid_to_hex(oid), path);
+		return error(_("cannot read object %s '%s'"), oid_to_hex(oid),
+			     path);
 	if ((type == OBJ_BLOB) && S_ISREG(mode)) {
 		struct strbuf strbuf = STRBUF_INIT;
 		struct checkout_metadata meta;
 
 		init_checkout_metadata(&meta, NULL, NULL, oid);
-		if (convert_to_working_tree(&the_index, path, *buf, *size, &strbuf, &meta)) {
+		if (convert_to_working_tree(&the_index, path, *buf, *size,
+					    &strbuf, &meta)) {
 			free(*buf);
 			*size = strbuf.len;
 			*buf = strbuf_detach(&strbuf, NULL);
@@ -78,8 +79,7 @@ static int cat_one_file(int opt, const char *exp_type, const char *obj_name,
 	if (unknown_type)
 		flags |= OBJECT_INFO_ALLOW_UNKNOWN_TYPE;
 
-	if (get_oid_with_context(the_repository, obj_name,
-				 GET_OID_RECORD_PATH,
+	if (get_oid_with_context(the_repository, obj_name, GET_OID_RECORD_PATH,
 				 &oid, &obj_context))
 		die("Not a valid object name %s", obj_name);
 
@@ -92,7 +92,8 @@ static int cat_one_file(int opt, const char *exp_type, const char *obj_name,
 	switch (opt) {
 	case 't':
 		oi.type_name = &sb;
-		if (oid_object_info_extended(the_repository, &oid, &oi, flags) < 0)
+		if (oid_object_info_extended(the_repository, &oid, &oi, flags) <
+		    0)
 			die("git cat-file: could not get object info");
 		if (sb.len) {
 			printf("%s\n", sb.buf);
@@ -103,9 +104,10 @@ static int cat_one_file(int opt, const char *exp_type, const char *obj_name,
 
 	case 's':
 		oi.sizep = &size;
-		if (oid_object_info_extended(the_repository, &oid, &oi, flags) < 0)
+		if (oid_object_info_extended(the_repository, &oid, &oi, flags) <
+		    0)
 			die("git cat-file: could not get object info");
-		printf("%"PRIuMAX"\n", (uintmax_t)size);
+		printf("%" PRIuMAX "\n", (uintmax_t)size);
 		return 0;
 
 	case 'e':
@@ -114,10 +116,10 @@ static int cat_one_file(int opt, const char *exp_type, const char *obj_name,
 	case 'w':
 		if (!path)
 			die("git cat-file --filters %s: <object> must be "
-			    "<sha1:path>", obj_name);
+			    "<sha1:path>",
+			    obj_name);
 
-		if (filter_object(path, obj_context.mode,
-				  &oid, &buf, &size))
+		if (filter_object(path, obj_context.mode, &oid, &buf, &size))
 			return -1;
 		break;
 
@@ -139,8 +141,8 @@ static int cat_one_file(int opt, const char *exp_type, const char *obj_name,
 		/* custom pretty-print here */
 		if (type == OBJ_TREE) {
 			const char *ls_args[3] = { NULL };
-			ls_args[0] =  "ls-tree";
-			ls_args[1] =  obj_name;
+			ls_args[0] = "ls-tree";
+			ls_args[1] = obj_name;
 			return cmd_ls_tree(2, ls_args, NULL);
 		}
 
@@ -156,18 +158,21 @@ static int cat_one_file(int opt, const char *exp_type, const char *obj_name,
 	case 0:
 		if (type_from_string(exp_type) == OBJ_BLOB) {
 			struct object_id blob_oid;
-			if (oid_object_info(the_repository, &oid, NULL) == OBJ_TAG) {
-				char *buffer = read_object_file(&oid, &type,
-								&size);
+			if (oid_object_info(the_repository, &oid, NULL) ==
+			    OBJ_TAG) {
+				char *buffer =
+					read_object_file(&oid, &type, &size);
 				const char *target;
 				if (!skip_prefix(buffer, "object ", &target) ||
 				    get_oid_hex(target, &blob_oid))
-					die("%s not a valid tag", oid_to_hex(&oid));
+					die("%s not a valid tag",
+					    oid_to_hex(&oid));
 				free(buffer);
 			} else
 				oidcpy(&blob_oid, &oid);
 
-			if (oid_object_info(the_repository, &blob_oid, NULL) == OBJ_BLOB)
+			if (oid_object_info(the_repository, &blob_oid, NULL) ==
+			    OBJ_BLOB)
 				return stream_blob(&blob_oid);
 			/*
 			 * we attempted to dereference a tag to a blob
@@ -176,8 +181,8 @@ static int cat_one_file(int opt, const char *exp_type, const char *obj_name,
 			 * fall-back to the usual case.
 			 */
 		}
-		buf = read_object_with_reference(the_repository,
-						 &oid, exp_type, &size, NULL);
+		buf = read_object_with_reference(the_repository, &oid, exp_type,
+						 &size, NULL);
 		break;
 
 	default:
@@ -252,12 +257,13 @@ static void expand_atom(struct strbuf *sb, const char *atom, int len,
 		if (data->mark_query)
 			data->info.sizep = &data->size;
 		else
-			strbuf_addf(sb, "%"PRIuMAX , (uintmax_t)data->size);
+			strbuf_addf(sb, "%" PRIuMAX, (uintmax_t)data->size);
 	} else if (is_atom("objectsize:disk", atom, len)) {
 		if (data->mark_query)
 			data->info.disk_sizep = &data->disk_size;
 		else
-			strbuf_addf(sb, "%"PRIuMAX, (uintmax_t)data->disk_size);
+			strbuf_addf(sb, "%" PRIuMAX,
+				    (uintmax_t)data->disk_size);
 	} else if (is_atom("rest", atom, len)) {
 		if (data->mark_query)
 			data->split_on_whitespace = 1;
@@ -267,8 +273,7 @@ static void expand_atom(struct strbuf *sb, const char *atom, int len,
 		if (data->mark_query)
 			data->info.delta_base_oid = &data->delta_base_oid;
 		else
-			strbuf_addstr(sb,
-				      oid_to_hex(&data->delta_base_oid));
+			strbuf_addstr(sb, oid_to_hex(&data->delta_base_oid));
 	} else
 		die("unknown format element: %.*s", len, atom);
 }
@@ -297,7 +302,8 @@ static void batch_write(struct batch_options *opt, const void *data, int len)
 		write_or_die(1, data, len);
 }
 
-static void print_object_or_die(struct batch_options *opt, struct expand_data *data)
+static void print_object_or_die(struct batch_options *opt,
+				struct expand_data *data)
 {
 	const struct object_id *oid = &data->oid;
 
@@ -320,11 +326,10 @@ static void print_object_or_die(struct batch_options *opt, struct expand_data *d
 					    oid_to_hex(oid), data->rest);
 			} else if (opt->cmdmode == 'c') {
 				enum object_type type;
-				if (!textconv_object(the_repository,
-						     data->rest, 0100644, oid,
-						     1, &contents, &size))
-					contents = read_object_file(oid,
-								    &type,
+				if (!textconv_object(the_repository, data->rest,
+						     0100644, oid, 1, &contents,
+						     &size))
+					contents = read_object_file(oid, &type,
 								    &size);
 				if (!contents)
 					die("could not convert '%s' %s",
@@ -336,8 +341,7 @@ static void print_object_or_die(struct batch_options *opt, struct expand_data *d
 		} else {
 			stream_blob(oid);
 		}
-	}
-	else {
+	} else {
 		enum object_type type;
 		unsigned long size;
 		void *contents;
@@ -355,8 +359,7 @@ static void print_object_or_die(struct batch_options *opt, struct expand_data *d
 	}
 }
 
-static void batch_object_write(const char *obj_name,
-			       struct strbuf *scratch,
+static void batch_object_write(const char *obj_name, struct strbuf *scratch,
 			       struct batch_options *opt,
 			       struct expand_data *data)
 {
@@ -380,8 +383,7 @@ static void batch_object_write(const char *obj_name,
 	}
 }
 
-static void batch_one_object(const char *obj_name,
-			     struct strbuf *scratch,
+static void batch_one_object(const char *obj_name, struct strbuf *scratch,
 			     struct batch_options *opt,
 			     struct expand_data *data)
 {
@@ -389,8 +391,8 @@ static void batch_one_object(const char *obj_name,
 	int flags = opt->follow_symlinks ? GET_OID_FOLLOW_SYMLINKS : 0;
 	enum get_oid_result result;
 
-	result = get_oid_with_context(the_repository, obj_name,
-				      flags, &data->oid, &ctx);
+	result = get_oid_with_context(the_repository, obj_name, flags,
+				      &data->oid, &ctx);
 	if (result != FOUND) {
 		switch (result) {
 		case MISSING_OBJECT:
@@ -400,20 +402,20 @@ static void batch_one_object(const char *obj_name,
 			printf("%s ambiguous\n", obj_name);
 			break;
 		case DANGLING_SYMLINK:
-			printf("dangling %"PRIuMAX"\n%s\n",
+			printf("dangling %" PRIuMAX "\n%s\n",
 			       (uintmax_t)strlen(obj_name), obj_name);
 			break;
 		case SYMLINK_LOOP:
-			printf("loop %"PRIuMAX"\n%s\n",
+			printf("loop %" PRIuMAX "\n%s\n",
 			       (uintmax_t)strlen(obj_name), obj_name);
 			break;
 		case NOT_DIR:
-			printf("notdir %"PRIuMAX"\n%s\n",
+			printf("notdir %" PRIuMAX "\n%s\n",
 			       (uintmax_t)strlen(obj_name), obj_name);
 			break;
 		default:
 			BUG("unknown get_sha1_with_context result %d\n",
-			       result);
+			    result);
 			break;
 		}
 		fflush(stdout);
@@ -421,9 +423,8 @@ static void batch_one_object(const char *obj_name,
 	}
 
 	if (ctx.mode == 0) {
-		printf("symlink %"PRIuMAX"\n%s\n",
-		       (uintmax_t)ctx.symlink_path.len,
-		       ctx.symlink_path.buf);
+		printf("symlink %" PRIuMAX "\n%s\n",
+		       (uintmax_t)ctx.symlink_path.len, ctx.symlink_path.buf);
 		fflush(stdout);
 		return;
 	}
@@ -446,8 +447,7 @@ static int batch_object_cb(const struct object_id *oid, void *vdata)
 	return 0;
 }
 
-static int collect_loose_object(const struct object_id *oid,
-				const char *path,
+static int collect_loose_object(const struct object_id *oid, const char *path,
 				void *data)
 {
 	oid_array_append(data, oid);
@@ -455,8 +455,7 @@ static int collect_loose_object(const struct object_id *oid,
 }
 
 static int collect_packed_object(const struct object_id *oid,
-				 struct packed_git *pack,
-				 uint32_t pos,
+				 struct packed_git *pack, uint32_t pos,
 				 void *data)
 {
 	oid_array_append(data, oid);
@@ -473,16 +472,14 @@ static int batch_unordered_object(const struct object_id *oid, void *vdata)
 	return batch_object_cb(oid, data);
 }
 
-static int batch_unordered_loose(const struct object_id *oid,
-				 const char *path,
+static int batch_unordered_loose(const struct object_id *oid, const char *path,
 				 void *data)
 {
 	return batch_unordered_object(oid, data);
 }
 
 static int batch_unordered_packed(const struct object_id *oid,
-				  struct packed_git *pack,
-				  uint32_t pos,
+				  struct packed_git *pack, uint32_t pos,
 				  void *data)
 {
 	return batch_unordered_object(oid, data);
@@ -594,7 +591,7 @@ static int batch_objects(struct batch_options *opt)
 	return retval;
 }
 
-static const char * const cat_file_usage[] = {
+static const char *const cat_file_usage[] = {
 	N_("git cat-file (-t [--allow-unknown-type] | -s [--allow-unknown-type] | -e | -p | <type> | --textconv | --filters) [--path=<path>] <object>"),
 	N_("git cat-file (--batch[=<format>] | --batch-check[=<format>]) [--follow-symlinks] [--textconv | --filters]"),
 	NULL
@@ -608,8 +605,7 @@ static int git_cat_file_config(const char *var, const char *value, void *cb)
 	return git_default_config(var, value, cb);
 }
 
-static int batch_option_callback(const struct option *opt,
-				 const char *arg,
+static int batch_option_callback(const struct option *opt, const char *arg,
 				 int unset)
 {
 	struct batch_options *bo = opt->value;
@@ -631,7 +627,7 @@ int cmd_cat_file(int argc, const char **argv, const char *prefix)
 {
 	int opt = 0;
 	const char *exp_type = NULL, *obj_name = NULL;
-	struct batch_options batch = {0};
+	struct batch_options batch = { 0 };
 	int unknown_type = 0;
 
 	const struct option options[] = {
@@ -640,26 +636,36 @@ int cmd_cat_file(int argc, const char **argv, const char *prefix)
 		OPT_CMDMODE('s', NULL, &opt, N_("show object size"), 's'),
 		OPT_CMDMODE('e', NULL, &opt,
 			    N_("exit with zero when there's no error"), 'e'),
-		OPT_CMDMODE('p', NULL, &opt, N_("pretty-print object's content"), 'p'),
-		OPT_CMDMODE(0, "textconv", &opt,
-			    N_("for blob objects, run textconv on object's content"), 'c'),
-		OPT_CMDMODE(0, "filters", &opt,
-			    N_("for blob objects, run filters on object's content"), 'w'),
+		OPT_CMDMODE('p', NULL, &opt,
+			    N_("pretty-print object's content"), 'p'),
+		OPT_CMDMODE(
+			0, "textconv", &opt,
+			N_("for blob objects, run textconv on object's content"),
+			'c'),
+		OPT_CMDMODE(
+			0, "filters", &opt,
+			N_("for blob objects, run filters on object's content"),
+			'w'),
 		OPT_STRING(0, "path", &force_path, N_("blob"),
 			   N_("use a specific path for --textconv/--filters")),
-		OPT_BOOL(0, "allow-unknown-type", &unknown_type,
-			  N_("allow -s and -t to work with broken/corrupt objects")),
-		OPT_BOOL(0, "buffer", &batch.buffer_output, N_("buffer --batch output")),
-		OPT_CALLBACK_F(0, "batch", &batch, "format",
+		OPT_BOOL(
+			0, "allow-unknown-type", &unknown_type,
+			N_("allow -s and -t to work with broken/corrupt objects")),
+		OPT_BOOL(0, "buffer", &batch.buffer_output,
+			 N_("buffer --batch output")),
+		OPT_CALLBACK_F(
+			0, "batch", &batch, "format",
 			N_("show info and content of objects fed from the standard input"),
 			PARSE_OPT_OPTARG | PARSE_OPT_NONEG,
 			batch_option_callback),
-		OPT_CALLBACK_F(0, "batch-check", &batch, "format",
+		OPT_CALLBACK_F(
+			0, "batch-check", &batch, "format",
 			N_("show info about objects fed from the standard input"),
 			PARSE_OPT_OPTARG | PARSE_OPT_NONEG,
 			batch_option_callback),
-		OPT_BOOL(0, "follow-symlinks", &batch.follow_symlinks,
-			 N_("follow in-tree symlinks (used with --batch or --batch-check)")),
+		OPT_BOOL(
+			0, "follow-symlinks", &batch.follow_symlinks,
+			N_("follow in-tree symlinks (used with --batch or --batch-check)")),
 		OPT_BOOL(0, "batch-all-objects", &batch.all_objects,
 			 N_("show all objects with --batch or --batch-check")),
 		OPT_BOOL(0, "unordered", &batch.unordered,

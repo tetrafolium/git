@@ -5,7 +5,7 @@
 #include "midx.h"
 #include "trace2.h"
 
-static char const * const builtin_multi_pack_index_usage[] = {
+static char const *const builtin_multi_pack_index_usage[] = {
 	N_("git multi-pack-index [<options>] (write|verify|expire|repack --batch-size=<size>)"),
 	NULL
 };
@@ -16,17 +16,19 @@ static struct opts_multi_pack_index {
 	int progress;
 } opts;
 
-int cmd_multi_pack_index(int argc, const char **argv,
-			 const char *prefix)
+int cmd_multi_pack_index(int argc, const char **argv, const char *prefix)
 {
 	unsigned flags = 0;
 
 	static struct option builtin_multi_pack_index_options[] = {
-		OPT_FILENAME(0, "object-dir", &opts.object_dir,
-		  N_("object directory containing set of packfile and pack-index pairs")),
-		OPT_BOOL(0, "progress", &opts.progress, N_("force progress reporting")),
-		OPT_MAGNITUDE(0, "batch-size", &opts.batch_size,
-		  N_("during repack, collect pack-files of smaller size into a batch that is larger than this size")),
+		OPT_FILENAME(
+			0, "object-dir", &opts.object_dir,
+			N_("object directory containing set of packfile and pack-index pairs")),
+		OPT_BOOL(0, "progress", &opts.progress,
+			 N_("force progress reporting")),
+		OPT_MAGNITUDE(
+			0, "batch-size", &opts.batch_size,
+			N_("during repack, collect pack-files of smaller size into a batch that is larger than this size")),
 		OPT_END(),
 	};
 
@@ -55,7 +57,7 @@ int cmd_multi_pack_index(int argc, const char **argv,
 
 	if (!strcmp(argv[0], "repack"))
 		return midx_repack(the_repository, opts.object_dir,
-			(size_t)opts.batch_size, flags);
+				   (size_t)opts.batch_size, flags);
 	if (opts.batch_size)
 		die(_("--batch-size option is only for 'repack' subcommand"));
 
@@ -64,7 +66,8 @@ int cmd_multi_pack_index(int argc, const char **argv,
 	if (!strcmp(argv[0], "verify"))
 		return verify_midx_file(the_repository, opts.object_dir, flags);
 	if (!strcmp(argv[0], "expire"))
-		return expire_midx_packs(the_repository, opts.object_dir, flags);
+		return expire_midx_packs(the_repository, opts.object_dir,
+					 flags);
 
 	die(_("unrecognized subcommand: %s"), argv[0]);
 }

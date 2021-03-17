@@ -98,8 +98,8 @@ struct rlw_iterator {
 
 void rlwit_init(struct rlw_iterator *it, struct ewah_bitmap *bitmap);
 void rlwit_discard_first_words(struct rlw_iterator *it, size_t x);
-size_t rlwit_discharge(
-	struct rlw_iterator *it, struct ewah_bitmap *out, size_t max, int negate);
+size_t rlwit_discharge(struct rlw_iterator *it, struct ewah_bitmap *out,
+		       size_t max, int negate);
 
 static inline size_t rlwit_word_size(struct rlw_iterator *it)
 {

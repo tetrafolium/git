@@ -29,11 +29,8 @@ static void free_mmfile(mmfile_t *f)
 	free(f->ptr);
 }
 
-static void *three_way_filemerge(struct index_state *istate,
-				 const char *path,
-				 mmfile_t *base,
-				 mmfile_t *our,
-				 mmfile_t *their,
+static void *three_way_filemerge(struct index_state *istate, const char *path,
+				 mmfile_t *base, mmfile_t *our, mmfile_t *their,
 				 unsigned long *size)
 {
 	int merge_status;
@@ -45,9 +42,8 @@ static void *three_way_filemerge(struct index_state *istate,
 	 * There is no need to worry about a label for the
 	 * common ancestor.
 	 */
-	merge_status = ll_merge(&res, path, base, NULL,
-				our, ".our", their, ".their",
-				istate, NULL);
+	merge_status = ll_merge(&res, path, base, NULL, our, ".our", their,
+				".their", istate, NULL);
 	if (merge_status < 0)
 		return NULL;
 
@@ -56,8 +52,8 @@ static void *three_way_filemerge(struct index_state *istate,
 }
 
 void *merge_blobs(struct index_state *istate, const char *path,
-		  struct blob *base, struct blob *our,
-		  struct blob *their, unsigned long *size)
+		  struct blob *base, struct blob *our, struct blob *their,
+		  unsigned long *size)
 {
 	void *res = NULL;
 	mmfile_t f1, f2, common;

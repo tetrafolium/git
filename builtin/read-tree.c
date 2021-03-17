@@ -37,13 +37,12 @@ static int list_tree(struct object_id *oid)
 	return 0;
 }
 
-static const char * const read_tree_usage[] = {
+static const char *const read_tree_usage[] = {
 	N_("git read-tree [(-m [--trivial] [--aggressive] | --reset | --prefix=<prefix>) [-u [--exclude-per-directory=<gitignore>] | -i]] [--no-sparse-checkout] [--index-output=<file>] (--empty | <tree-ish1> [<tree-ish2> [<tree-ish3>]])"),
 	NULL
 };
 
-static int index_output_cb(const struct option *opt, const char *arg,
-				 int unset)
+static int index_output_cb(const struct option *opt, const char *arg, int unset)
 {
 	BUG_ON_OPT_NEG(unset);
 	set_alternate_index_output(arg);
@@ -83,12 +82,11 @@ static void debug_stage(const char *label, const struct cache_entry *ce,
 	else if (ce == o->df_conflict_entry)
 		printf("(conflict)\n");
 	else
-		printf("%06o #%d %s %.8s\n",
-		       ce->ce_mode, ce_stage(ce), ce->name,
-		       oid_to_hex(&ce->oid));
+		printf("%06o #%d %s %.8s\n", ce->ce_mode, ce_stage(ce),
+		       ce->name, oid_to_hex(&ce->oid));
 }
 
-static int debug_merge(const struct cache_entry * const *stages,
+static int debug_merge(const struct cache_entry *const *stages,
 		       struct unpack_trees_options *o)
 {
 	int i;
@@ -121,10 +119,9 @@ int cmd_read_tree(int argc, const char **argv, const char *cmd_prefix)
 	struct lock_file lock_file = LOCK_INIT;
 	const struct option read_tree_options[] = {
 		OPT_CALLBACK_F(0, "index-output", NULL, N_("file"),
-		  N_("write resulting index to <file>"),
-		  PARSE_OPT_NONEG, index_output_cb),
-		OPT_BOOL(0, "empty", &read_empty,
-			    N_("only empty the index")),
+			       N_("write resulting index to <file>"),
+			       PARSE_OPT_NONEG, index_output_cb),
+		OPT_BOOL(0, "empty", &read_empty, N_("only empty the index")),
 		OPT__VERBOSE(&opts.verbose_update, N_("be verbose")),
 		OPT_GROUP(N_("Merging")),
 		OPT_BOOL('m', NULL, &opts.merge,
@@ -135,25 +132,28 @@ int cmd_read_tree(int argc, const char **argv, const char *cmd_prefix)
 			 N_("3-way merge in presence of adds and removes")),
 		OPT_BOOL(0, "reset", &opts.reset,
 			 N_("same as -m, but discard unmerged entries")),
-		{ OPTION_STRING, 0, "prefix", &opts.prefix, N_("<subdirectory>/"),
+		{ OPTION_STRING, 0, "prefix", &opts.prefix,
+		  N_("<subdirectory>/"),
 		  N_("read the tree into the index under <subdirectory>/"),
 		  PARSE_OPT_NONEG },
 		OPT_BOOL('u', NULL, &opts.update,
 			 N_("update working tree with merge result")),
-		OPT_CALLBACK_F(0, "exclude-per-directory", &opts,
-		  N_("gitignore"),
-		  N_("allow explicitly ignored files to be overwritten"),
-		  PARSE_OPT_NONEG, exclude_per_directory_cb),
+		OPT_CALLBACK_F(
+			0, "exclude-per-directory", &opts, N_("gitignore"),
+			N_("allow explicitly ignored files to be overwritten"),
+			PARSE_OPT_NONEG, exclude_per_directory_cb),
 		OPT_BOOL('i', NULL, &opts.index_only,
 			 N_("don't check the working tree after merging")),
-		OPT__DRY_RUN(&opts.dry_run, N_("don't update the index or the work tree")),
+		OPT__DRY_RUN(&opts.dry_run,
+			     N_("don't update the index or the work tree")),
 		OPT_BOOL(0, "no-sparse-checkout", &opts.skip_sparse_checkout,
 			 N_("skip applying sparse checkout filter")),
 		OPT_BOOL(0, "debug-unpack", &opts.debug_unpack,
 			 N_("debug unpack-trees")),
-		OPT_CALLBACK_F(0, "recurse-submodules", NULL,
-			    "checkout", "control recursive updating of submodules",
-			    PARSE_OPT_OPTARG, option_parse_recurse_submodules_worktree_updater),
+		OPT_CALLBACK_F(0, "recurse-submodules", NULL, "checkout",
+			       "control recursive updating of submodules",
+			       PARSE_OPT_OPTARG,
+			       option_parse_recurse_submodules_worktree_updater),
 		OPT__QUIET(&opts.quiet, N_("suppress feedback messages")),
 		OPT_END()
 	};
@@ -245,7 +245,7 @@ int cmd_read_tree(int argc, const char **argv, const char *cmd_prefix)
 	for (i = 0; i < nr_trees; i++) {
 		struct tree *tree = trees[i];
 		parse_tree(tree);
-		init_tree_desc(t+i, tree->buffer, tree->size);
+		init_tree_desc(t + i, tree->buffer, tree->size);
 	}
 	if (unpack_trees(nr_trees, t, &opts))
 		return 128;
@@ -260,8 +260,7 @@ int cmd_read_tree(int argc, const char **argv, const char *cmd_prefix)
 	 * what came from the tree.
 	 */
 	if (nr_trees == 1 && !opts.prefix)
-		prime_cache_tree(the_repository,
-				 the_repository->index,
+		prime_cache_tree(the_repository, the_repository->index,
 				 trees[0]);
 
 	if (write_locked_index(&the_index, &lock_file, COMMIT_LOCK))

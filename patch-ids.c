@@ -50,11 +50,11 @@ static int patch_id_neq(const void *cmpfn_data,
 	if (is_null_oid(&a->patch_id) &&
 	    commit_patch_id(a->commit, opt, &a->patch_id, 0, 0))
 		return error("Could not get patch ID for %s",
-			oid_to_hex(&a->commit->object.oid));
+			     oid_to_hex(&a->commit->object.oid));
 	if (is_null_oid(&b->patch_id) &&
 	    commit_patch_id(b->commit, opt, &b->patch_id, 0, 0))
 		return error("Could not get patch ID for %s",
-			oid_to_hex(&b->commit->object.oid));
+			     oid_to_hex(&b->commit->object.oid));
 	return !oideq(&a->patch_id, &b->patch_id);
 }
 
@@ -75,14 +75,14 @@ int free_patch_ids(struct patch_ids *ids)
 	return 0;
 }
 
-static int init_patch_id_entry(struct patch_id *patch,
-			       struct commit *commit,
+static int init_patch_id_entry(struct patch_id *patch, struct commit *commit,
 			       struct patch_ids *ids)
 {
 	struct object_id header_only_patch_id;
 
 	patch->commit = commit;
-	if (commit_patch_id(commit, &ids->diffopts, &header_only_patch_id, 1, 0))
+	if (commit_patch_id(commit, &ids->diffopts, &header_only_patch_id, 1,
+			    0))
 		return -1;
 
 	hashmap_entry_init(&patch->ent, oidhash(&header_only_patch_id));
@@ -104,14 +104,12 @@ struct patch_id *patch_id_iter_first(struct commit *commit,
 	return hashmap_get_entry(&ids->patches, &patch, ent, NULL);
 }
 
-struct patch_id *patch_id_iter_next(struct patch_id *cur,
-				    struct patch_ids *ids)
+struct patch_id *patch_id_iter_next(struct patch_id *cur, struct patch_ids *ids)
 {
 	return hashmap_get_next_entry(&ids->patches, cur, ent);
 }
 
-int has_commit_patch_id(struct commit *commit,
-			struct patch_ids *ids)
+int has_commit_patch_id(struct commit *commit, struct patch_ids *ids)
 {
 	return !!patch_id_iter_first(commit, ids);
 }

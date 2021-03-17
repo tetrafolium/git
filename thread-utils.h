@@ -36,8 +36,7 @@
 
 #define pthread_create(thread, attr, fn, data) \
 	dummy_pthread_create(thread, attr, fn, data)
-#define pthread_join(thread, retval) \
-	dummy_pthread_join(thread, retval)
+#define pthread_join(thread, retval) dummy_pthread_join(thread, retval)
 
 #define pthread_setspecific(key, data)
 #define pthread_getspecific(key) NULL
@@ -51,7 +50,6 @@ int dummy_pthread_init(void *);
 #endif
 
 int online_cpus(void);
-int init_recursive_mutex(pthread_mutex_t*);
-
+int init_recursive_mutex(pthread_mutex_t *);
 
 #endif /* THREAD_COMPAT_H */

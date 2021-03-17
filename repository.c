@@ -27,8 +27,8 @@ void initialize_the_repository(void)
 	repo_set_hash_algo(&the_repo, GIT_HASH_SHA1);
 }
 
-static void expand_base_dir(char **out, const char *in,
-			    const char *base_dir, const char *def_in)
+static void expand_base_dir(char **out, const char *in, const char *base_dir,
+			    const char *def_in)
 {
 	free(*out);
 	if (in)
@@ -37,8 +37,7 @@ static void expand_base_dir(char **out, const char *in,
 		*out = xstrfmt("%s/%s", base_dir, def_in);
 }
 
-static void repo_set_commondir(struct repository *repo,
-			       const char *commondir)
+static void repo_set_commondir(struct repository *repo, const char *commondir)
 {
 	struct strbuf sb = STRBUF_INIT;
 
@@ -54,8 +53,7 @@ static void repo_set_commondir(struct repository *repo,
 	repo->commondir = strbuf_detach(&sb, NULL);
 }
 
-void repo_set_gitdir(struct repository *repo,
-		     const char *root,
+void repo_set_gitdir(struct repository *repo, const char *root,
 		     const struct set_gitdir_args *o)
 {
 	const char *gitfile = read_gitfile(root);
@@ -80,10 +78,10 @@ void repo_set_gitdir(struct repository *repo,
 
 	free(repo->objects->alternate_db);
 	repo->objects->alternate_db = xstrdup_or_null(o->alternate_db);
-	expand_base_dir(&repo->graft_file, o->graft_file,
-			repo->commondir, "info/grafts");
-	expand_base_dir(&repo->index_file, o->index_file,
-			repo->gitdir, "index");
+	expand_base_dir(&repo->graft_file, o->graft_file, repo->commondir,
+			"info/grafts");
+	expand_base_dir(&repo->index_file, o->index_file, repo->gitdir,
+			"index");
 }
 
 void repo_set_hash_algo(struct repository *repo, int hash_algo)
@@ -153,9 +151,7 @@ static int read_and_verify_repository_format(struct repository_format *format,
  * Initialize 'repo' based on the provided 'gitdir'.
  * Return 0 upon success and a non-zero value upon failure.
  */
-int repo_init(struct repository *repo,
-	      const char *gitdir,
-	      const char *worktree)
+int repo_init(struct repository *repo, const char *gitdir, const char *worktree)
 {
 	struct repository_format format = REPOSITORY_FORMAT_INIT;
 	memset(repo, 0, sizeof(*repo));
@@ -207,8 +203,8 @@ int repo_submodule_init(struct repository *subrepo,
 		 * submodule would not have a worktree.
 		 */
 		strbuf_reset(&gitdir);
-		strbuf_repo_git_path(&gitdir, superproject,
-				     "modules/%s", sub->name);
+		strbuf_repo_git_path(&gitdir, superproject, "modules/%s",
+				     sub->name);
 
 		if (repo_init(subrepo, gitdir.buf, NULL)) {
 			ret = -1;
@@ -216,10 +212,12 @@ int repo_submodule_init(struct repository *subrepo,
 		}
 	}
 
-	subrepo->submodule_prefix = xstrfmt("%s%s/",
-					    superproject->submodule_prefix ?
-					    superproject->submodule_prefix :
-					    "", sub->path);
+	subrepo->submodule_prefix =
+		xstrfmt("%s%s/",
+			superproject->submodule_prefix ?
+				superproject->submodule_prefix :
+				"",
+			sub->path);
 
 out:
 	strbuf_release(&gitdir);
@@ -273,8 +271,7 @@ int repo_read_index(struct repository *repo)
 	return read_index_from(repo->index, repo->index_file, repo->gitdir);
 }
 
-int repo_hold_locked_index(struct repository *repo,
-			   struct lock_file *lf,
+int repo_hold_locked_index(struct repository *repo, struct lock_file *lf,
 			   int flags)
 {
 	if (!repo->index_file)

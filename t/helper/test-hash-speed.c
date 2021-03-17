@@ -3,7 +3,9 @@
 
 #define NUM_SECONDS 3
 
-static inline void compute_hash(const struct git_hash_algo *algo, git_hash_ctx *ctx, uint8_t *final, const void *p, size_t len)
+static inline void compute_hash(const struct git_hash_algo *algo,
+				git_hash_ctx *ctx, uint8_t *final,
+				const void *p, size_t len)
 {
 	algo->init_fn(ctx);
 	algo->update_fn(ctx, p, len);
@@ -41,7 +43,8 @@ int cmd__hash_speed(int ac, const char **av)
 		double kb_per_sec;
 		p = xcalloc(1, bufsizes[i]);
 		start = end = clock() - initial;
-		for (j = 0; ((end - start) / CLOCKS_PER_SEC) < NUM_SECONDS; j++) {
+		for (j = 0; ((end - start) / CLOCKS_PER_SEC) < NUM_SECONDS;
+		     j++) {
 			compute_hash(algo, &ctx, hash, p, bufsizes[i]);
 
 			/*
@@ -52,8 +55,10 @@ int cmd__hash_speed(int ac, const char **av)
 				end = clock() - initial;
 		}
 		kb = j * bufsizes[i];
-		kb_per_sec = kb / (1024 * ((double)end - start) / CLOCKS_PER_SEC);
-		printf("size %u: %lu iters; %lu KiB; %0.2f KiB/s\n", bufsizes[i], j, kb, kb_per_sec);
+		kb_per_sec =
+			kb / (1024 * ((double)end - start) / CLOCKS_PER_SEC);
+		printf("size %u: %lu iters; %lu KiB; %0.2f KiB/s\n",
+		       bufsizes[i], j, kb, kb_per_sec);
 		free(p);
 	}
 

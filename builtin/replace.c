@@ -18,7 +18,7 @@
 #include "repository.h"
 #include "tag.h"
 
-static const char * const git_replace_usage[] = {
+static const char *const git_replace_usage[] = {
 	N_("git replace [-f] <object> <replacement>"),
 	N_("git replace [-f] --edit <object>"),
 	N_("git replace [-f] --graft <commit> [<parent>...]"),
@@ -40,8 +40,7 @@ struct show_data {
 };
 
 static int show_reference(struct repository *r, const char *refname,
-			  const struct object_id *oid,
-			  int flag, void *cb_data)
+			  const struct object_id *oid, int flag, void *cb_data)
 {
 	struct show_data *data = cb_data;
 
@@ -55,13 +54,16 @@ static int show_reference(struct repository *r, const char *refname,
 			enum object_type obj_type, repl_type;
 
 			if (get_oid(refname, &object))
-				return error(_("failed to resolve '%s' as a valid ref"), refname);
+				return error(
+					_("failed to resolve '%s' as a valid ref"),
+					refname);
 
 			obj_type = oid_object_info(r, &object, NULL);
 			repl_type = oid_object_info(r, oid, NULL);
 
-			printf("%s (%s) -> %s (%s)\n", refname, type_name(obj_type),
-			       oid_to_hex(oid), type_name(repl_type));
+			printf("%s (%s) -> %s (%s)\n", refname,
+			       type_name(obj_type), oid_to_hex(oid),
+			       type_name(repl_type));
 		}
 	}
 
@@ -87,9 +89,10 @@ static int list_replace_refs(const char *pattern, const char *format)
 	 * you add new format
 	 */
 	else
-		return error(_("invalid replace format '%s'\n"
-			       "valid formats are 'short', 'medium' and 'long'"),
-			     format);
+		return error(
+			_("invalid replace format '%s'\n"
+			  "valid formats are 'short', 'medium' and 'long'"),
+			format);
 
 	for_each_replace_ref(the_repository, show_reference, (void *)&data);
 
@@ -142,10 +145,8 @@ static int delete_replace_ref(const char *name, const char *ref,
 	return 0;
 }
 
-static int check_ref_valid(struct object_id *object,
-			    struct object_id *prev,
-			    struct strbuf *ref,
-			    int force)
+static int check_ref_valid(struct object_id *object, struct object_id *prev,
+			   struct strbuf *ref, int force)
 {
 	strbuf_reset(ref);
 	strbuf_addf(ref, "%s%s", git_replace_ref_base, oid_to_hex(object));
@@ -159,11 +160,9 @@ static int check_ref_valid(struct object_id *object,
 	return 0;
 }
 
-static int replace_object_oid(const char *object_ref,
-			       struct object_id *object,
-			       const char *replace_ref,
-			       struct object_id *repl,
-			       int force)
+static int replace_object_oid(const char *object_ref, struct object_id *object,
+			      const char *replace_ref, struct object_id *repl,
+			      int force)
 {
 	struct object_id prev;
 	enum object_type obj_type, repl_type;
@@ -179,8 +178,8 @@ static int replace_object_oid(const char *object_ref,
 			       "'%s' points to a replaced object of type '%s'\n"
 			       "while '%s' points to a replacement object of "
 			       "type '%s'."),
-			     object_ref, type_name(obj_type),
-			     replace_ref, type_name(repl_type));
+			     object_ref, type_name(obj_type), replace_ref,
+			     type_name(repl_type));
 
 	if (check_ref_valid(object, &prev, &ref, force)) {
 		strbuf_release(&ref);
@@ -189,8 +188,8 @@ static int replace_object_oid(const char *object_ref,
 
 	transaction = ref_transaction_begin(&err);
 	if (!transaction ||
-	    ref_transaction_update(transaction, ref.buf, repl, &prev,
-				   0, NULL, &err) ||
+	    ref_transaction_update(transaction, ref.buf, repl, &prev, 0, NULL,
+				   &err) ||
 	    ref_transaction_commit(transaction, &err))
 		res = error("%s", err.buf);
 
@@ -199,7 +198,8 @@ static int replace_object_oid(const char *object_ref,
 	return res;
 }
 
-static int replace_object(const char *object_ref, const char *replace_ref, int force)
+static int replace_object(const char *object_ref, const char *replace_ref,
+			  int force)
 {
 	struct object_id object, repl;
 
@@ -210,7 +210,8 @@ static int replace_object(const char *object_ref, const char *replace_ref, int f
 		return error(_("failed to resolve '%s' as a valid ref"),
 			     replace_ref);
 
-	return replace_object_oid(object_ref, &object, replace_ref, &repl, force);
+	return replace_object_oid(object_ref, &object, replace_ref, &repl,
+				  force);
 }
 
 /*
@@ -219,14 +220,15 @@ static int replace_object(const char *object_ref, const char *replace_ref, int f
  * "type". Otherwise, we pretty-print the contents for human editing.
  */
 static int export_object(const struct object_id *oid, enum object_type type,
-			  int raw, const char *filename)
+			 int raw, const char *filename)
 {
 	struct child_process cmd = CHILD_PROCESS_INIT;
 	int fd;
 
 	fd = open(filename, O_WRONLY | O_CREAT | O_TRUNC, 0666);
 	if (fd < 0)
-		return error_errno(_("unable to open %s for writing"), filename);
+		return error_errno(_("unable to open %s for writing"),
+				   filename);
 
 	strvec_push(&cmd.args, "--no-replace-objects");
 	strvec_push(&cmd.args, "cat-file");
@@ -248,14 +250,15 @@ static int export_object(const struct object_id *oid, enum object_type type,
  * interpreting it as "type", and writing the result to the object database.
  * The sha1 of the written object is returned via sha1.
  */
-static int import_object(struct object_id *oid, enum object_type type,
-			  int raw, const char *filename)
+static int import_object(struct object_id *oid, enum object_type type, int raw,
+			 const char *filename)
 {
 	int fd;
 
 	fd = open(filename, O_RDONLY);
 	if (fd < 0)
-		return error_errno(_("unable to open %s for reading"), filename);
+		return error_errno(_("unable to open %s for reading"),
+				   filename);
 
 	if (!raw && type == OBJ_TREE) {
 		const char *argv[] = { "mktree", NULL };
@@ -272,7 +275,8 @@ static int import_object(struct object_id *oid, enum object_type type,
 			return error(_("unable to spawn mktree"));
 		}
 
-		if (strbuf_read(&result, cmd.out, the_hash_algo->hexsz + 1) < 0) {
+		if (strbuf_read(&result, cmd.out, the_hash_algo->hexsz + 1) <
+		    0) {
 			error_errno(_("unable to read from mktree"));
 			close(fd);
 			close(cmd.out);
@@ -299,7 +303,8 @@ static int import_object(struct object_id *oid, enum object_type type,
 			close(fd);
 			return -1;
 		}
-		if (index_fd(the_repository->index, oid, fd, &st, type, NULL, flags) < 0)
+		if (index_fd(the_repository->index, oid, fd, &st, type, NULL,
+			     flags) < 0)
 			return error(_("unable to write object to database"));
 		/* index_fd close()s fd for us */
 	}
@@ -348,9 +353,11 @@ static int edit_and_replace(const char *object_ref, int force, int raw)
 	free(tmpfile);
 
 	if (oideq(&old_oid, &new_oid))
-		return error(_("new object is the same as the old one: '%s'"), oid_to_hex(&old_oid));
+		return error(_("new object is the same as the old one: '%s'"),
+			     oid_to_hex(&old_oid));
 
-	return replace_object_oid(object_ref, &old_oid, "replacement", &new_oid, force);
+	return replace_object_oid(object_ref, &old_oid, "replacement", &new_oid,
+				  force);
 }
 
 static int replace_parents(struct strbuf *buf, int argc, const char **argv)
@@ -381,9 +388,11 @@ static int replace_parents(struct strbuf *buf, int argc, const char **argv)
 		commit = lookup_commit_reference(the_repository, &oid);
 		if (!commit) {
 			strbuf_release(&new_parents);
-			return error(_("could not parse %s as a commit"), argv[i]);
+			return error(_("could not parse %s as a commit"),
+				     argv[i]);
 		}
-		strbuf_addf(&new_parents, "parent %s\n", oid_to_hex(&commit->object.oid));
+		strbuf_addf(&new_parents, "parent %s\n",
+			    oid_to_hex(&commit->object.oid));
 	}
 
 	/* replace existing parents with new ones */
@@ -400,10 +409,10 @@ struct check_mergetag_data {
 };
 
 static int check_one_mergetag(struct commit *commit,
-			       struct commit_extra_header *extra,
-			       void *data)
+			      struct commit_extra_header *extra, void *data)
 {
-	struct check_mergetag_data *mergetag_data = (struct check_mergetag_data *)data;
+	struct check_mergetag_data *mergetag_data =
+		(struct check_mergetag_data *)data;
 	const char *ref = mergetag_data->argv[0];
 	struct object_id tag_oid;
 	struct tag *tag;
@@ -428,8 +437,8 @@ static int check_one_mergetag(struct commit *commit,
 	}
 
 	return error(_("original commit '%s' contains mergetag '%s' that is "
-		       "discarded; use --edit instead of --graft"), ref,
-		     oid_to_hex(&tag_oid));
+		       "discarded; use --edit instead of --graft"),
+		     ref, oid_to_hex(&tag_oid));
 }
 
 static int check_mergetags(struct commit *commit, int argc, const char **argv)
@@ -466,8 +475,10 @@ static int create_graft(int argc, const char **argv, int force, int gentle)
 	}
 
 	if (remove_signature(&buf)) {
-		warning(_("the original commit '%s' has a gpg signature"), old_ref);
-		warning(_("the signature will be removed in the replacement commit!"));
+		warning(_("the original commit '%s' has a gpg signature"),
+			old_ref);
+		warning(_(
+			"the signature will be removed in the replacement commit!"));
 	}
 
 	if (check_mergetags(commit, argc, argv)) {
@@ -493,8 +504,8 @@ static int create_graft(int argc, const char **argv, int force, int gentle)
 			     oid_to_hex(&commit->object.oid));
 	}
 
-	return replace_object_oid(old_ref, &commit->object.oid,
-				  "replacement", &new_oid, force);
+	return replace_object_oid(old_ref, &commit->object.oid, "replacement",
+				  &new_oid, force);
 }
 
 static int convert_graft_file(int force)
@@ -535,25 +546,32 @@ int cmd_replace(int argc, const char **argv, const char *prefix)
 	int force = 0;
 	int raw = 0;
 	const char *format = NULL;
-	enum {
-		MODE_UNSPECIFIED = 0,
-		MODE_LIST,
-		MODE_DELETE,
-		MODE_EDIT,
-		MODE_GRAFT,
-		MODE_CONVERT_GRAFT_FILE,
-		MODE_REPLACE
-	} cmdmode = MODE_UNSPECIFIED;
+	enum { MODE_UNSPECIFIED = 0,
+	       MODE_LIST,
+	       MODE_DELETE,
+	       MODE_EDIT,
+	       MODE_GRAFT,
+	       MODE_CONVERT_GRAFT_FILE,
+	       MODE_REPLACE } cmdmode = MODE_UNSPECIFIED;
 	struct option options[] = {
-		OPT_CMDMODE('l', "list", &cmdmode, N_("list replace refs"), MODE_LIST),
-		OPT_CMDMODE('d', "delete", &cmdmode, N_("delete replace refs"), MODE_DELETE),
-		OPT_CMDMODE('e', "edit", &cmdmode, N_("edit existing object"), MODE_EDIT),
-		OPT_CMDMODE('g', "graft", &cmdmode, N_("change a commit's parents"), MODE_GRAFT),
-		OPT_CMDMODE(0, "convert-graft-file", &cmdmode, N_("convert existing graft file"), MODE_CONVERT_GRAFT_FILE),
-		OPT_BOOL_F('f', "force", &force, N_("replace the ref if it exists"),
+		OPT_CMDMODE('l', "list", &cmdmode, N_("list replace refs"),
+			    MODE_LIST),
+		OPT_CMDMODE('d', "delete", &cmdmode, N_("delete replace refs"),
+			    MODE_DELETE),
+		OPT_CMDMODE('e', "edit", &cmdmode, N_("edit existing object"),
+			    MODE_EDIT),
+		OPT_CMDMODE('g', "graft", &cmdmode,
+			    N_("change a commit's parents"), MODE_GRAFT),
+		OPT_CMDMODE(0, "convert-graft-file", &cmdmode,
+			    N_("convert existing graft file"),
+			    MODE_CONVERT_GRAFT_FILE),
+		OPT_BOOL_F('f', "force", &force,
+			   N_("replace the ref if it exists"),
 			   PARSE_OPT_NOCOMPLETE),
-		OPT_BOOL(0, "raw", &raw, N_("do not pretty-print contents for --edit")),
-		OPT_STRING(0, "format", &format, N_("format"), N_("use this format")),
+		OPT_BOOL(0, "raw", &raw,
+			 N_("do not pretty-print contents for --edit")),
+		OPT_STRING(0, "format", &format, N_("format"),
+			   N_("use this format")),
 		OPT_END()
 	};
 
@@ -569,13 +587,11 @@ int cmd_replace(int argc, const char **argv, const char *prefix)
 		usage_msg_opt(_("--format cannot be used when not listing"),
 			      git_replace_usage, options);
 
-	if (force &&
-	    cmdmode != MODE_REPLACE &&
-	    cmdmode != MODE_EDIT &&
-	    cmdmode != MODE_GRAFT &&
-	    cmdmode != MODE_CONVERT_GRAFT_FILE)
-		usage_msg_opt(_("-f only makes sense when writing a replacement"),
-			      git_replace_usage, options);
+	if (force && cmdmode != MODE_REPLACE && cmdmode != MODE_EDIT &&
+	    cmdmode != MODE_GRAFT && cmdmode != MODE_CONVERT_GRAFT_FILE)
+		usage_msg_opt(
+			_("-f only makes sense when writing a replacement"),
+			git_replace_usage, options);
 
 	if (raw && cmdmode != MODE_EDIT)
 		usage_msg_opt(_("--raw only makes sense with --edit"),
@@ -608,14 +624,16 @@ int cmd_replace(int argc, const char **argv, const char *prefix)
 
 	case MODE_CONVERT_GRAFT_FILE:
 		if (argc != 0)
-			usage_msg_opt(_("--convert-graft-file takes no argument"),
-				      git_replace_usage, options);
+			usage_msg_opt(
+				_("--convert-graft-file takes no argument"),
+				git_replace_usage, options);
 		return !!convert_graft_file(force);
 
 	case MODE_LIST:
 		if (argc > 1)
-			usage_msg_opt(_("only one pattern can be given with -l"),
-				      git_replace_usage, options);
+			usage_msg_opt(
+				_("only one pattern can be given with -l"),
+				git_replace_usage, options);
 		return list_replace_refs(argv[0], format);
 
 	default:

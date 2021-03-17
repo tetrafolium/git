@@ -52,10 +52,13 @@ struct object_array {
 		char *name;
 		char *path;
 		unsigned mode;
-	} *objects;
+	} * objects;
 };
 
-#define OBJECT_ARRAY_INIT { 0, 0, NULL }
+#define OBJECT_ARRAY_INIT  \
+	{                  \
+		0, 0, NULL \
+	}
 
 /*
  * object flag allocation:
@@ -80,7 +83,7 @@ struct object_array {
  * builtin/show-branch.c:    0-------------------------------------------26
  * builtin/unpack-objects.c:                                 2021
  */
-#define FLAG_BITS  28
+#define FLAG_BITS 28
 
 /*
  * The object type is stored in 3 bits.
@@ -120,7 +123,8 @@ struct object *get_indexed_object(unsigned int);
  */
 struct object *lookup_object(struct repository *r, const struct object_id *oid);
 
-void *create_object(struct repository *r, const struct object_id *oid, void *obj);
+void *create_object(struct repository *r, const struct object_id *oid,
+		    void *obj);
 
 void *object_as_type(struct object *obj, enum object_type type, int quiet);
 
@@ -136,13 +140,17 @@ struct object *parse_object(struct repository *r, const struct object_id *oid);
  * "name" parameter is not NULL, it is included in the error message
  * (otherwise, the hex object ID is given).
  */
-struct object *parse_object_or_die(const struct object_id *oid, const char *name);
+struct object *parse_object_or_die(const struct object_id *oid,
+				   const char *name);
 
 /* Given the result of read_sha1_file(), returns the object after
  * parsing it.  eaten_p indicates if the object has a borrowed copy
  * of buffer and the caller should not free() it.
  */
-struct object *parse_object_buffer(struct repository *r, const struct object_id *oid, enum object_type type, unsigned long size, void *buffer, int *eaten_p);
+struct object *parse_object_buffer(struct repository *r,
+				   const struct object_id *oid,
+				   enum object_type type, unsigned long size,
+				   void *buffer, int *eaten_p);
 
 /** Returns the object, with potentially excess memory allocated. **/
 struct object *lookup_unknown_object(const struct object_id *oid);
@@ -155,8 +163,11 @@ int object_list_contains(struct object_list *list, struct object *obj);
 void object_list_free(struct object_list **list);
 
 /* Object array handling .. */
-void add_object_array(struct object *obj, const char *name, struct object_array *array);
-void add_object_array_with_path(struct object *obj, const char *name, struct object_array *array, unsigned mode, const char *path);
+void add_object_array(struct object *obj, const char *name,
+		      struct object_array *array);
+void add_object_array_with_path(struct object *obj, const char *name,
+				struct object_array *array, unsigned mode,
+				const char *path);
 
 /*
  * Returns NULL if the array is empty. Otherwise, returns the last object

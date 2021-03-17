@@ -56,40 +56,40 @@ static void copy_templates_1(struct strbuf *path, struct strbuf *template_path,
 		if (lstat(path->buf, &st_git)) {
 			if (errno != ENOENT)
 				die_errno(_("cannot stat '%s'"), path->buf);
-		}
-		else
+		} else
 			exists = 1;
 
 		if (lstat(template_path->buf, &st_template))
-			die_errno(_("cannot stat template '%s'"), template_path->buf);
+			die_errno(_("cannot stat template '%s'"),
+				  template_path->buf);
 
 		if (S_ISDIR(st_template.st_mode)) {
 			DIR *subdir = opendir(template_path->buf);
 			if (!subdir)
-				die_errno(_("cannot opendir '%s'"), template_path->buf);
+				die_errno(_("cannot opendir '%s'"),
+					  template_path->buf);
 			strbuf_addch(path, '/');
 			strbuf_addch(template_path, '/');
 			copy_templates_1(path, template_path, subdir);
 			closedir(subdir);
-		}
-		else if (exists)
+		} else if (exists)
 			continue;
 		else if (S_ISLNK(st_template.st_mode)) {
 			struct strbuf lnk = STRBUF_INIT;
 			if (strbuf_readlink(&lnk, template_path->buf,
 					    st_template.st_size) < 0)
-				die_errno(_("cannot readlink '%s'"), template_path->buf);
+				die_errno(_("cannot readlink '%s'"),
+					  template_path->buf);
 			if (symlink(lnk.buf, path->buf))
 				die_errno(_("cannot symlink '%s' '%s'"),
 					  lnk.buf, path->buf);
 			strbuf_release(&lnk);
-		}
-		else if (S_ISREG(st_template.st_mode)) {
-			if (copy_file(path->buf, template_path->buf, st_template.st_mode))
+		} else if (S_ISREG(st_template.st_mode)) {
+			if (copy_file(path->buf, template_path->buf,
+				      st_template.st_mode))
 				die_errno(_("cannot copy '%s' to '%s'"),
 					  template_path->buf, path->buf);
-		}
-		else
+		} else
 			error(_("ignoring template %s"), template_path->buf);
 	}
 }
@@ -136,8 +136,8 @@ static void copy_templates(const char *template_dir)
 	 */
 	if (template_format.version >= 0 &&
 	    verify_repository_format(&template_format, &err) < 0) {
-		warning(_("not copying templates from '%s': %s"),
-			  template_dir, err.buf);
+		warning(_("not copying templates from '%s': %s"), template_dir,
+			err.buf);
 		strbuf_release(&err);
 		goto close_free_return;
 	}
@@ -188,8 +188,8 @@ void initialize_repository_version(int hash_algo, int reinit)
 		repo_version = GIT_REPO_VERSION_READ;
 
 	/* This forces creation of new config file */
-	xsnprintf(repo_version_string, sizeof(repo_version_string),
-		  "%d", repo_version);
+	xsnprintf(repo_version_string, sizeof(repo_version_string), "%d",
+		  repo_version);
 	git_config_set("core.repositoryformatversion", repo_version_string);
 
 	if (hash_algo != GIT_HASH_SHA1)
@@ -202,8 +202,7 @@ void initialize_repository_version(int hash_algo, int reinit)
 static int create_default_files(const char *template_path,
 				const char *original_git_dir,
 				const char *initial_branch,
-				const struct repository_format *fmt,
-				int quiet)
+				const struct repository_format *fmt, int quiet)
 {
 	struct stat st1;
 	struct strbuf buf = STRBUF_INIT;
@@ -262,8 +261,8 @@ static int create_default_files(const char *template_path,
 	 * not yet exist.
 	 */
 	path = git_path_buf(&buf, "HEAD");
-	reinit = (!access(path, R_OK)
-		  || readlink(path, junk, sizeof(junk)-1) != -1);
+	reinit = (!access(path, R_OK) ||
+		  readlink(path, junk, sizeof(junk) - 1) != -1);
 	if (!reinit) {
 		char *ref;
 
@@ -288,9 +287,8 @@ static int create_default_files(const char *template_path,
 	if (TEST_FILEMODE && !lstat(path, &st1)) {
 		struct stat st2;
 		filemode = (!chmod(path, st1.st_mode ^ S_IXUSR) &&
-				!lstat(path, &st2) &&
-				st1.st_mode != st2.st_mode &&
-				!chmod(path, st1.st_mode));
+			    !lstat(path, &st2) && st1.st_mode != st2.st_mode &&
+			    !chmod(path, st1.st_mode));
 		if (filemode && !reinit && (st1.st_mode & S_IXUSR))
 			filemode = 0;
 	}
@@ -311,10 +309,8 @@ static int create_default_files(const char *template_path,
 	if (!reinit) {
 		/* Check if symlink is supported in the work tree */
 		path = git_path_buf(&buf, "tXXXXXX");
-		if (!close(xmkstemp(path)) &&
-		    !unlink(path) &&
-		    !symlink("testing", path) &&
-		    !lstat(path, &st1) &&
+		if (!close(xmkstemp(path)) && !unlink(path) &&
+		    !symlink("testing", path) && !lstat(path, &st1) &&
 		    S_ISLNK(st1.st_mode))
 			unlink(path); /* good */
 		else
@@ -364,7 +360,8 @@ static void separate_git_dir(const char *git_dir, const char *git_link)
 		else if (S_ISDIR(st.st_mode))
 			src = git_link;
 		else
-			die(_("unable to handle file type %d"), (int)st.st_mode);
+			die(_("unable to handle file type %d"),
+			    (int)st.st_mode);
 
 		if (rename(src, git_dir))
 			die_errno(_("unable to move %s to %s"), src, git_dir);
@@ -374,7 +371,8 @@ static void separate_git_dir(const char *git_dir, const char *git_link)
 	write_file(git_link, "gitdir: %s", git_dir);
 }
 
-static void validate_hash_algorithm(struct repository_format *repo_fmt, int hash)
+static void validate_hash_algorithm(struct repository_format *repo_fmt,
+				    int hash)
 {
 	const char *env = getenv(GIT_DEFAULT_HASH_ENVIRONMENT);
 	/*
@@ -382,7 +380,8 @@ static void validate_hash_algorithm(struct repository_format *repo_fmt, int hash
 	 * specify a different algorithm, as that could cause corruption.
 	 * Otherwise, if the user has specified one on the command line, use it.
 	 */
-	if (repo_fmt->version >= 0 && hash != GIT_HASH_UNKNOWN && hash != repo_fmt->hash_algo)
+	if (repo_fmt->version >= 0 && hash != GIT_HASH_UNKNOWN &&
+	    hash != repo_fmt->hash_algo)
 		die(_("attempt to reinitialize repository with different hash"));
 	else if (hash != GIT_HASH_UNKNOWN)
 		repo_fmt->hash_algo = hash;
@@ -415,8 +414,7 @@ int init_db(const char *git_dir, const char *real_git_dir,
 		set_git_dir(real_git_dir, 1);
 		git_dir = get_git_dir();
 		separate_git_dir(git_dir, original_git_dir);
-	}
-	else {
+	} else {
 		set_git_dir(git_dir, 1);
 		git_dir = get_git_dir();
 	}
@@ -457,7 +455,8 @@ int init_db(const char *git_dir, const char *real_git_dir,
 		 */
 		if (get_shared_repository() < 0)
 			/* force to the mode value */
-			xsnprintf(buf, sizeof(buf), "0%o", -get_shared_repository());
+			xsnprintf(buf, sizeof(buf), "0%o",
+				  -get_shared_repository());
 		else if (get_shared_repository() == PERM_GROUP)
 			xsnprintf(buf, sizeof(buf), "%d", OLD_PERM_GROUP);
 		else if (get_shared_repository() == PERM_EVERYBODY)
@@ -472,15 +471,17 @@ int init_db(const char *git_dir, const char *real_git_dir,
 		int len = strlen(git_dir);
 
 		if (reinit)
-			printf(get_shared_repository()
-			       ? _("Reinitialized existing shared Git repository in %s%s\n")
-			       : _("Reinitialized existing Git repository in %s%s\n"),
-			       git_dir, len && git_dir[len-1] != '/' ? "/" : "");
+			printf(get_shared_repository() ?
+				       _("Reinitialized existing shared Git repository in %s%s\n") :
+				       _("Reinitialized existing Git repository in %s%s\n"),
+			       git_dir,
+			       len && git_dir[len - 1] != '/' ? "/" : "");
 		else
-			printf(get_shared_repository()
-			       ? _("Initialized empty shared Git repository in %s%s\n")
-			       : _("Initialized empty Git repository in %s%s\n"),
-			       git_dir, len && git_dir[len-1] != '/' ? "/" : "");
+			printf(get_shared_repository() ?
+				       _("Initialized empty shared Git repository in %s%s\n") :
+				       _("Initialized empty Git repository in %s%s\n"),
+			       git_dir,
+			       len && git_dir[len - 1] != '/' ? "/" : "");
 	}
 
 	free(original_git_dir);
@@ -523,7 +524,7 @@ static int guess_repository_type(const char *git_dir)
 static int shared_callback(const struct option *opt, const char *arg, int unset)
 {
 	BUG_ON_OPT_NEG(unset);
-	*((int *) opt->value) = (arg) ? git_config_perm("arg", arg) : PERM_GROUP;
+	*((int *)opt->value) = (arg) ? git_config_perm("arg", arg) : PERM_GROUP;
 	return 0;
 }
 
@@ -549,14 +550,15 @@ int cmd_init_db(int argc, const char **argv, const char *prefix)
 	const char *initial_branch = NULL;
 	int hash_algo = GIT_HASH_UNKNOWN;
 	const struct option init_db_options[] = {
-		OPT_STRING(0, "template", &template_dir, N_("template-directory"),
-				N_("directory from which templates will be used")),
+		OPT_STRING(0, "template", &template_dir,
+			   N_("template-directory"),
+			   N_("directory from which templates will be used")),
 		OPT_SET_INT(0, "bare", &is_bare_repository_cfg,
-				N_("create a bare repository"), 1),
+			    N_("create a bare repository"), 1),
 		{ OPTION_CALLBACK, 0, "shared", &init_shared_repository,
-			N_("permissions"),
-			N_("specify that the git repository is to be shared amongst several users"),
-			PARSE_OPT_OPTARG | PARSE_OPT_NONEG, shared_callback, 0},
+		  N_("permissions"),
+		  N_("specify that the git repository is to be shared amongst several users"),
+		  PARSE_OPT_OPTARG | PARSE_OPT_NONEG, shared_callback, 0 },
 		OPT_BIT('q', "quiet", &flags, N_("be quiet"), INIT_DB_QUIET),
 		OPT_STRING(0, "separate-git-dir", &real_git_dir, N_("gitdir"),
 			   N_("separate git dir from working tree")),
@@ -567,7 +569,8 @@ int cmd_init_db(int argc, const char **argv, const char *prefix)
 		OPT_END()
 	};
 
-	argc = parse_options(argc, argv, prefix, init_db_options, init_db_usage, 0);
+	argc = parse_options(argc, argv, prefix, init_db_options, init_db_usage,
+			     0);
 
 	if (real_git_dir && is_bare_repository_cfg == 1)
 		die(_("--separate-git-dir and --bare are mutually exclusive"));
@@ -585,13 +588,15 @@ int cmd_init_db(int argc, const char **argv, const char *prefix)
 			if (!mkdir_tried) {
 				int saved;
 				/*
-				 * At this point we haven't read any configuration,
-				 * and we know shared_repository should always be 0;
-				 * but just in case we play safe.
+				 * At this point we haven't read any
+				 * configuration, and we know shared_repository
+				 * should always be 0; but just in case we play
+				 * safe.
 				 */
 				saved = get_shared_repository();
 				set_shared_repository(0);
-				switch (safe_create_leading_directories_const(argv[0])) {
+				switch (safe_create_leading_directories_const(
+					argv[0])) {
 				case SCLD_OK:
 				case SCLD_PERMS:
 					break;
@@ -599,12 +604,14 @@ int cmd_init_db(int argc, const char **argv, const char *prefix)
 					errno = EEXIST;
 					/* fallthru */
 				default:
-					die_errno(_("cannot mkdir %s"), argv[0]);
+					die_errno(_("cannot mkdir %s"),
+						  argv[0]);
 					break;
 				}
 				set_shared_repository(saved);
 				if (mkdir(argv[0], 0777) < 0)
-					die_errno(_("cannot mkdir %s"), argv[0]);
+					die_errno(_("cannot mkdir %s"),
+						  argv[0]);
 				mkdir_tried = 1;
 				goto retry;
 			}
@@ -636,9 +643,8 @@ int cmd_init_db(int argc, const char **argv, const char *prefix)
 	work_tree = xstrdup_or_null(getenv(GIT_WORK_TREE_ENVIRONMENT));
 	if ((!git_dir || is_bare_repository_cfg == 1) && work_tree)
 		die(_("%s (or --work-tree=<directory>) not allowed without "
-			  "specifying %s (or --git-dir=<directory>)"),
-		    GIT_WORK_TREE_ENVIRONMENT,
-		    GIT_DIR_ENVIRONMENT);
+		      "specifying %s (or --git-dir=<directory>)"),
+		    GIT_WORK_TREE_ENVIRONMENT, GIT_DIR_ENVIRONMENT);
 
 	/*
 	 * Set up the default .git directory contents
@@ -687,10 +693,9 @@ int cmd_init_db(int argc, const char **argv, const char *prefix)
 		else
 			set_git_work_tree(git_work_tree_cfg);
 		if (access(get_git_work_tree(), X_OK))
-			die_errno (_("Cannot access work tree '%s'"),
-				   get_git_work_tree());
-	}
-	else {
+			die_errno(_("Cannot access work tree '%s'"),
+				  get_git_work_tree());
+	} else {
 		if (real_git_dir)
 			die(_("--separate-git-dir incompatible with bare repository"));
 		if (work_tree)

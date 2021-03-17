@@ -31,7 +31,7 @@ void record_resolve_undo(struct index_state *istate, struct cache_entry *ce)
 void resolve_undo_write(struct strbuf *sb, struct string_list *resolve_undo)
 {
 	struct string_list_item *item;
-	for_each_string_list_item(item, resolve_undo) {
+	for_each_string_list_item (item, resolve_undo) {
 		struct resolve_undo_info *ui = item->util;
 		int i;
 
@@ -78,7 +78,7 @@ struct string_list *resolve_undo_read(const char *data, unsigned long size)
 			ui->mode[i] = strtoul(data, &endptr, 8);
 			if (!endptr || endptr == data || *endptr)
 				goto error;
-			len = (endptr + 1) - (char*)data;
+			len = (endptr + 1) - (char *)data;
 			if (size <= len)
 				goto error;
 			size -= len;
@@ -129,7 +129,7 @@ int unmerge_index_entry_at(struct index_state *istate, int pos)
 	if (ce_stage(ce)) {
 		/* already unmerged */
 		while ((pos < istate->cache_nr) &&
-		       ! strcmp(istate->cache[pos]->name, ce->name))
+		       !strcmp(istate->cache[pos]->name, ce->name))
 			pos++;
 		return pos - 1; /* return the last entry processed */
 	}
@@ -146,10 +146,8 @@ int unmerge_index_entry_at(struct index_state *istate, int pos)
 		struct cache_entry *nce;
 		if (!ru->mode[i])
 			continue;
-		nce = make_cache_entry(istate,
-				       ru->mode[i],
-				       &ru->oid[i],
-				       name, i + 1, 0);
+		nce = make_cache_entry(istate, ru->mode[i], &ru->oid[i], name,
+				       i + 1, 0);
 		if (matched)
 			nce->ce_flags |= CE_MATCHED;
 		if (add_index_entry(istate, nce, ADD_CACHE_OK_TO_ADD)) {

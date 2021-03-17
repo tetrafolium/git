@@ -27,7 +27,7 @@
 /* We leave more room in smaller hash but do not let it
  * grow to have unused hole too much.
  */
-#define INITIAL_FREE(sz_log2) ((1<<(sz_log2))*(sz_log2-3)/(sz_log2))
+#define INITIAL_FREE(sz_log2) ((1 << (sz_log2)) * (sz_log2 - 3) / (sz_log2))
 
 /* A prime rather carefully chosen between 2^16..2^17, so that
  * HASHBASE < INITIAL_FREE(17).  We want to keep the maximum hashtable
@@ -53,8 +53,8 @@ static struct spanhash_top *spanhash_rehash(struct spanhash_top *orig)
 	int osz = 1 << orig->alloc_log2;
 	int sz = osz << 1;
 
-	new_spanhash = xmalloc(st_add(sizeof(*orig),
-			     st_mult(sizeof(struct spanhash), sz)));
+	new_spanhash = xmalloc(
+		st_add(sizeof(*orig), st_mult(sizeof(struct spanhash), sz)));
 	new_spanhash->alloc_log2 = orig->alloc_log2 + 1;
 	new_spanhash->free = INITIAL_FREE(new_spanhash->alloc_log2);
 	memset(new_spanhash->data, 0, sizeof(struct spanhash) * sz);
@@ -117,8 +117,7 @@ static int spanhash_cmp(const void *a_, const void *b_)
 		return !b->cnt ? 0 : 1;
 	if (!b->cnt)
 		return -1;
-	return a->hashval < b->hashval ? -1 :
-		a->hashval > b->hashval ? 1 : 0;
+	return a->hashval < b->hashval ? -1 : a->hashval > b->hashval ? 1 : 0;
 }
 
 static struct spanhash_top *hash_chars(struct repository *r,
@@ -133,10 +132,10 @@ static struct spanhash_top *hash_chars(struct repository *r,
 
 	i = INITIAL_HASH_SIZE;
 	hash = xmalloc(st_add(sizeof(*hash),
-			      st_mult(sizeof(struct spanhash), 1<<i)));
+			      st_mult(sizeof(struct spanhash), 1 << i)));
 	hash->alloc_log2 = i;
 	hash->free = INITIAL_FREE(i);
-	memset(hash->data, 0, sizeof(struct spanhash) * (1<<i));
+	memset(hash->data, 0, sizeof(struct spanhash) * (1 << i));
 
 	n = 0;
 	accum1 = accum2 = 0;
@@ -163,12 +162,9 @@ static struct spanhash_top *hash_chars(struct repository *r,
 	return hash;
 }
 
-int diffcore_count_changes(struct repository *r,
-			   struct diff_filespec *src,
-			   struct diff_filespec *dst,
-			   void **src_count_p,
-			   void **dst_count_p,
-			   unsigned long *src_copied,
+int diffcore_count_changes(struct repository *r, struct diff_filespec *src,
+			   struct diff_filespec *dst, void **src_count_p,
+			   void **dst_count_p, unsigned long *src_copied,
 			   unsigned long *literal_added)
 {
 	struct spanhash *s, *d;
@@ -213,8 +209,7 @@ int diffcore_count_changes(struct repository *r,
 		if (src_cnt < dst_cnt) {
 			la += dst_cnt - src_cnt;
 			sc += src_cnt;
-		}
-		else
+		} else
 			sc += dst_cnt;
 		s++;
 	}

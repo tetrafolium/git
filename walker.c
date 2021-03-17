@@ -25,7 +25,7 @@ void walker_say(struct walker *walker, const char *fmt, ...)
 static void report_missing(const struct object *obj)
 {
 	fprintf(stderr, "Cannot obtain needed %s %s\n",
-		obj->type ? type_name(obj->type): "object",
+		obj->type ? type_name(obj->type) : "object",
 		oid_to_hex(&obj->oid));
 	if (!is_null_oid(&current_commit_oid))
 		fprintf(stderr, "while processing commit %s.\n",
@@ -50,14 +50,13 @@ static int process_tree(struct walker *walker, struct tree *tree)
 		if (S_ISGITLINK(entry.mode))
 			continue;
 		if (S_ISDIR(entry.mode)) {
-			struct tree *tree = lookup_tree(the_repository,
-							&entry.oid);
+			struct tree *tree =
+				lookup_tree(the_repository, &entry.oid);
 			if (tree)
 				obj = &tree->object;
-		}
-		else {
-			struct blob *blob = lookup_blob(the_repository,
-							&entry.oid);
+		} else {
+			struct blob *blob =
+				lookup_blob(the_repository, &entry.oid);
 			if (blob)
 				obj = &blob->object;
 		}
@@ -69,9 +68,9 @@ static int process_tree(struct walker *walker, struct tree *tree)
 }
 
 /* Remember to update object flag allocation in object.h */
-#define COMPLETE	(1U << 0)
-#define SEEN		(1U << 1)
-#define TO_SCAN		(1U << 2)
+#define COMPLETE (1U << 0)
+#define SEEN (1U << 1)
+#define TO_SCAN (1U << 2)
 
 static struct commit_list *complete = NULL;
 
@@ -148,8 +147,7 @@ static int process(struct walker *walker, struct object *obj)
 	if (has_object_file(&obj->oid)) {
 		/* We already have it, so we should scan it now. */
 		obj->flags |= TO_SCAN;
-	}
-	else {
+	} else {
 		if (obj->flags & COMPLETE)
 			return 0;
 		walker->prefetch(walker, obj->oid.hash);
@@ -180,7 +178,7 @@ static int loop(struct walker *walker)
 		/* If we are not scanning this object, we placed it in
 		 * the queue because we needed to fetch it first.
 		 */
-		if (! (obj->flags & TO_SCAN)) {
+		if (!(obj->flags & TO_SCAN)) {
 			if (walker->fetch(walker, obj->oid.hash)) {
 				stop_progress(&progress);
 				report_missing(obj);
@@ -199,7 +197,8 @@ static int loop(struct walker *walker)
 	return 0;
 }
 
-static int interpret_target(struct walker *walker, char *target, struct object_id *oid)
+static int interpret_target(struct walker *walker, char *target,
+			    struct object_id *oid)
 {
 	if (!get_oid_hex(target, oid))
 		return 0;
@@ -218,8 +217,8 @@ static int interpret_target(struct walker *walker, char *target, struct object_i
 static int mark_complete(const char *path, const struct object_id *oid,
 			 int flag, void *cb_data)
 {
-	struct commit *commit = lookup_commit_reference_gently(the_repository,
-							       oid, 1);
+	struct commit *commit =
+		lookup_commit_reference_gently(the_repository, oid, 1);
 
 	if (commit) {
 		commit->object.flags |= COMPLETE;
@@ -232,7 +231,8 @@ int walker_targets_stdin(char ***target, const char ***write_ref)
 {
 	int targets = 0, targets_alloc = 0;
 	struct strbuf buf = STRBUF_INIT;
-	*target = NULL; *write_ref = NULL;
+	*target = NULL;
+	*write_ref = NULL;
 	while (1) {
 		char *rf_one = NULL;
 		char *tg_one;
@@ -262,7 +262,7 @@ void walker_targets_free(int targets, char **target, const char **write_ref)
 	while (targets--) {
 		free(target[targets]);
 		if (write_ref)
-			free((char *) write_ref[targets]);
+			free((char *)write_ref[targets]);
 	}
 }
 
@@ -295,7 +295,8 @@ int walker_fetch(struct walker *walker, int targets, char **target,
 
 	for (i = 0; i < targets; i++) {
 		if (interpret_target(walker, target[i], oids + i)) {
-			error("Could not interpret response from server '%s' as something to pull", target[i]);
+			error("Could not interpret response from server '%s' as something to pull",
+			      target[i]);
 			goto done;
 		}
 		if (process(walker, lookup_unknown_object(&oids[i])))
@@ -318,10 +319,9 @@ int walker_fetch(struct walker *walker, int targets, char **target,
 			continue;
 		strbuf_reset(&refname);
 		strbuf_addf(&refname, "refs/%s", write_ref[i]);
-		if (ref_transaction_update(transaction, refname.buf,
-					   oids + i, NULL, 0,
-					   msg ? msg : "fetch (unknown)",
-					   &err)) {
+		if (ref_transaction_update(
+			    transaction, refname.buf, oids + i, NULL, 0,
+			    msg ? msg : "fetch (unknown)", &err)) {
 			error("%s", err.buf);
 			goto done;
 		}

@@ -73,12 +73,12 @@ static struct pathspec_magic {
 	char mnemonic; /* this cannot be ':'! */
 	const char *name;
 } pathspec_magic[] = {
-	{ PATHSPEC_FROMTOP,  '/', "top" },
+	{ PATHSPEC_FROMTOP, '/', "top" },
 	{ PATHSPEC_LITERAL, '\0', "literal" },
-	{ PATHSPEC_GLOB,    '\0', "glob" },
-	{ PATHSPEC_ICASE,   '\0', "icase" },
-	{ PATHSPEC_EXCLUDE,  '!', "exclude" },
-	{ PATHSPEC_ATTR,    '\0', "attr" },
+	{ PATHSPEC_GLOB, '\0', "glob" },
+	{ PATHSPEC_ICASE, '\0', "icase" },
+	{ PATHSPEC_EXCLUDE, '!', "exclude" },
+	{ PATHSPEC_ATTR, '\0', "attr" },
 };
 
 static void prefix_magic(struct strbuf *sb, int prefixlen, unsigned magic)
@@ -139,7 +139,8 @@ static char *attr_value_unescape(const char *value)
 	return ret;
 }
 
-static void parse_pathspec_attr_match(struct pathspec_item *item, const char *value)
+static void parse_pathspec_attr_match(struct pathspec_item *item,
+				      const char *value)
 {
 	struct string_list_item *si;
 	struct string_list list = STRING_LIST_INIT_DUP;
@@ -156,7 +157,7 @@ static void parse_pathspec_attr_match(struct pathspec_item *item, const char *va
 	item->attr_check = attr_check_alloc();
 	item->attr_match = xcalloc(list.nr, sizeof(struct attr_match));
 
-	for_each_string_list_item(si, &list) {
+	for_each_string_list_item (si, &list) {
 		size_t attr_len;
 		char *attr_name;
 		const struct git_attr *a;
@@ -325,7 +326,7 @@ static const char *parse_long_magic(unsigned *magic, int *prefix_len,
 
 		if (ARRAY_SIZE(pathspec_magic) <= i)
 			die(_("Invalid pathspec magic '%.*s' in '%s'"),
-			    (int) len, pos, elem);
+			    (int)len, pos, elem);
 	}
 
 	if (*pos != ')')
@@ -367,8 +368,8 @@ static const char *parse_short_magic(unsigned *magic, const char *elem)
 		}
 
 		if (ARRAY_SIZE(pathspec_magic) <= i)
-			die(_("Unimplemented pathspec magic '%c' in '%s'"),
-			    ch, elem);
+			die(_("Unimplemented pathspec magic '%c' in '%s'"), ch,
+			    elem);
 	}
 
 	if (*pos == ':')
@@ -411,18 +412,15 @@ static void init_pathspec_item(struct pathspec_item *item, unsigned flags,
 	if (flags & PATHSPEC_LITERAL_PATH) {
 		magic = PATHSPEC_LITERAL;
 	} else {
-		copyfrom = parse_element_magic(&element_magic,
-					       &pathspec_prefix,
-					       item,
-					       elt);
+		copyfrom = parse_element_magic(&element_magic, &pathspec_prefix,
+					       item, elt);
 		magic |= element_magic;
 		magic |= get_global_magic(element_magic);
 	}
 
 	item->magic = magic;
 
-	if (pathspec_prefix >= 0 &&
-	    (prefixlen || (prefix && *prefix)))
+	if (pathspec_prefix >= 0 && (prefixlen || (prefix && *prefix)))
 		BUG("'prefix' magic is supposed to be used at worktree's root");
 
 	if ((magic & PATHSPEC_LITERAL) && (magic & PATHSPEC_GLOB))
@@ -436,8 +434,8 @@ static void init_pathspec_item(struct pathspec_item *item, unsigned flags,
 		match = xstrdup(copyfrom);
 		prefixlen = 0;
 	} else {
-		match = prefix_path_gently(prefix, prefixlen,
-					   &prefixlen, copyfrom);
+		match = prefix_path_gently(prefix, prefixlen, &prefixlen,
+					   copyfrom);
 		if (!match) {
 			const char *hint_path = get_git_work_tree();
 			if (!hint_path)
@@ -455,8 +453,7 @@ static void init_pathspec_item(struct pathspec_item *item, unsigned flags,
 	 * Prefix the pathspec (keep all magic) and assign to
 	 * original. Useful for passing to another command.
 	 */
-	if ((flags & PATHSPEC_PREFIX_ORIGIN) &&
-	    !get_literal_global()) {
+	if ((flags & PATHSPEC_PREFIX_ORIGIN) && !get_literal_global()) {
 		struct strbuf sb = STRBUF_INIT;
 
 		/* Preserve the actual prefix length of each pattern */
@@ -490,8 +487,7 @@ static void init_pathspec_item(struct pathspec_item *item, unsigned flags,
 	}
 
 	/* sanity checks, pathspec matchers assume these are sane */
-	if (item->nowildcard_len > item->len ||
-	    item->prefix         > item->len) {
+	if (item->nowildcard_len > item->len || item->prefix > item->len) {
 		BUG("error initializing pathspec_item");
 	}
 }
@@ -505,8 +501,7 @@ static int pathspec_item_cmp(const void *a_, const void *b_)
 	return strcmp(a->match, b->match);
 }
 
-static void NORETURN unsupported_magic(const char *pattern,
-				       unsigned magic)
+static void NORETURN unsupported_magic(const char *pattern, unsigned magic)
 {
 	struct strbuf sb = STRBUF_INIT;
 	int i;
@@ -518,8 +513,8 @@ static void NORETURN unsupported_magic(const char *pattern,
 			strbuf_addstr(&sb, ", ");
 
 		if (m->mnemonic)
-			strbuf_addf(&sb, _("'%s' (mnemonic: '%c')"),
-				    m->name, m->mnemonic);
+			strbuf_addf(&sb, _("'%s' (mnemonic: '%c')"), m->name,
+				    m->mnemonic);
 		else
 			strbuf_addf(&sb, "'%s'", m->name);
 	}
@@ -528,13 +523,12 @@ static void NORETURN unsupported_magic(const char *pattern,
 	 * name. E.g. when add--interactive dies when running
 	 * "checkout -p"
 	 */
-	die(_("%s: pathspec magic not supported by this command: %s"),
-	    pattern, sb.buf);
+	die(_("%s: pathspec magic not supported by this command: %s"), pattern,
+	    sb.buf);
 }
 
-void parse_pathspec(struct pathspec *pathspec,
-		    unsigned magic_mask, unsigned flags,
-		    const char *prefix, const char **argv)
+void parse_pathspec(struct pathspec *pathspec, unsigned magic_mask,
+		    unsigned flags, const char *prefix, const char **argv)
 {
 	struct pathspec_item *item;
 	const char *entry = argv ? *argv : NULL;
@@ -549,8 +543,7 @@ void parse_pathspec(struct pathspec *pathspec,
 	if (!entry && !prefix)
 		return;
 
-	if ((flags & PATHSPEC_PREFER_CWD) &&
-	    (flags & PATHSPEC_PREFER_FULL))
+	if ((flags & PATHSPEC_PREFER_CWD) && (flags & PATHSPEC_PREFER_FULL))
 		BUG("PATHSPEC_PREFER_CWD and PATHSPEC_PREFER_FULL are incompatible");
 
 	/* No arguments with prefix -> prefix pathspec */
@@ -574,7 +567,7 @@ void parse_pathspec(struct pathspec *pathspec,
 	while (argv[n]) {
 		if (*argv[n] == '\0')
 			die("empty string is not a valid pathspec. "
-				  "please use . instead if you meant to match all paths");
+			    "please use . instead if you meant to match all paths");
 		n++;
 	}
 
@@ -595,7 +588,8 @@ void parse_pathspec(struct pathspec *pathspec,
 
 		if ((flags & PATHSPEC_SYMLINK_LEADING_PATH) &&
 		    has_symlink_leading_path(item[i].match, item[i].len)) {
-			die(_("pathspec '%s' is beyond a symbolic link"), entry);
+			die(_("pathspec '%s' is beyond a symbolic link"),
+			    entry);
 		}
 
 		if (item[i].nowildcard_len < item[i].len)
@@ -621,8 +615,8 @@ void parse_pathspec(struct pathspec *pathspec,
 }
 
 void parse_pathspec_file(struct pathspec *pathspec, unsigned magic_mask,
-			 unsigned flags, const char *prefix,
-			 const char *file, int nul_term_line)
+			 unsigned flags, const char *prefix, const char *file,
+			 int nul_term_line)
 {
 	struct strvec parsed_file = STRVEC_INIT;
 	strbuf_getline_fn getline_fn = nul_term_line ? strbuf_getline_nul :
@@ -702,9 +696,8 @@ void clear_pathspec(struct pathspec *pathspec)
 	pathspec->nr = 0;
 }
 
-int match_pathspec_attrs(const struct index_state *istate,
-			 const char *name, int namelen,
-			 const struct pathspec_item *item)
+int match_pathspec_attrs(const struct index_state *istate, const char *name,
+			 int namelen, const struct pathspec_item *item)
 {
 	int i;
 	char *to_free = NULL;

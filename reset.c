@@ -26,14 +26,14 @@ int reset_head(struct repository *r, struct object_id *oid, const char *action,
 	const char *reflog_action;
 	struct strbuf msg = STRBUF_INIT;
 	size_t prefix_len;
-	struct object_id *orig = NULL, oid_orig,
-		*old_orig = NULL, oid_old_orig;
+	struct object_id *orig = NULL, oid_orig, *old_orig = NULL, oid_old_orig;
 	int ret = 0, nr = 0;
 
 	if (switch_to_branch && !starts_with(switch_to_branch, "refs/"))
 		BUG("Not a fully qualified branch: '%s'", switch_to_branch);
 
-	if (!refs_only && repo_hold_locked_index(r, &lock, LOCK_REPORT_ON_ERROR) < 0) {
+	if (!refs_only &&
+	    repo_hold_locked_index(r, &lock, LOCK_REPORT_ON_ERROR) < 0) {
 		ret = -1;
 		goto leave_reset_head;
 	}
@@ -57,7 +57,8 @@ int reset_head(struct repository *r, struct object_id *oid, const char *action,
 	unpack_tree_opts.fn = reset_hard ? oneway_merge : twoway_merge;
 	unpack_tree_opts.update = 1;
 	unpack_tree_opts.merge = 1;
-	init_checkout_metadata(&unpack_tree_opts.meta, switch_to_branch, oid, NULL);
+	init_checkout_metadata(&unpack_tree_opts.meta, switch_to_branch, oid,
+			       NULL);
 	if (!detach_head)
 		unpack_tree_opts.reset = 1;
 
@@ -92,7 +93,8 @@ int reset_head(struct repository *r, struct object_id *oid, const char *action,
 
 reset_head_refs:
 	reflog_action = getenv(GIT_REFLOG_ACTION_ENVIRONMENT);
-	strbuf_addf(&msg, "%s: ", reflog_action ? reflog_action : default_reflog_action);
+	strbuf_addf(&msg, "%s: ",
+		    reflog_action ? reflog_action : default_reflog_action);
 	prefix_len = msg.len;
 
 	if (update_orig_head) {
@@ -120,8 +122,8 @@ reset_head_refs:
 				 detach_head ? REF_NO_DEREF : 0,
 				 UPDATE_REFS_MSG_ON_ERR);
 	else {
-		ret = update_ref(reflog_head, switch_to_branch, oid,
-				 NULL, 0, UPDATE_REFS_MSG_ON_ERR);
+		ret = update_ref(reflog_head, switch_to_branch, oid, NULL, 0,
+				 UPDATE_REFS_MSG_ON_ERR);
 		if (!ret)
 			ret = create_symref("HEAD", switch_to_branch,
 					    reflog_head);
@@ -137,5 +139,4 @@ leave_reset_head:
 	while (nr)
 		free((void *)desc[--nr].buffer);
 	return ret;
-
 }

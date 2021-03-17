@@ -23,10 +23,10 @@
 #include "worktree.h"
 
 #define REACHABLE 0x0001
-#define SEEN      0x0002
-#define HAS_OBJ   0x0004
+#define SEEN 0x0002
+#define HAS_OBJ 0x0004
 /* This flag is set if something points to this object. */
-#define USED      0x0008
+#define USED 0x0008
 
 static int show_root;
 static int show_tags;
@@ -86,14 +86,14 @@ static int objerror(struct object *obj, const char *err)
 	return -1;
 }
 
-static int fsck_error_func(struct fsck_options *o,
-			   const struct object_id *oid,
-			   enum object_type object_type,
-			   int msg_type, const char *message)
+static int fsck_error_func(struct fsck_options *o, const struct object_id *oid,
+			   enum object_type object_type, int msg_type,
+			   const char *message)
 {
 	switch (msg_type) {
 	case FSCK_WARN:
-		/* TRANSLATORS: e.g. warning in tree 01bfda: <more explanation> */
+		/* TRANSLATORS: e.g. warning in tree 01bfda: <more explanation>
+		 */
 		fprintf_ln(stderr, _("warning in %s %s: %s"),
 			   printable_type(oid, object_type),
 			   describe_object(oid), message);
@@ -112,7 +112,8 @@ static int fsck_error_func(struct fsck_options *o,
 
 static struct object_array pending;
 
-static int mark_object(struct object *obj, int type, void *data, struct fsck_options *options)
+static int mark_object(struct object *obj, int type, void *data,
+		       struct fsck_options *options)
 {
 	struct object *parent = data;
 
@@ -188,7 +189,8 @@ static int traverse_reachable(void)
 	unsigned int nr = 0;
 	int result = 0;
 	if (show_progress)
-		progress = start_delayed_progress(_("Checking connectivity"), 0);
+		progress =
+			start_delayed_progress(_("Checking connectivity"), 0);
 	while (pending.nr) {
 		result |= traverse_one_object(object_array_pop(&pending));
 		display_progress(progress, ++nr);
@@ -197,7 +199,8 @@ static int traverse_reachable(void)
 	return !!result;
 }
 
-static int mark_used(struct object *obj, int type, void *data, struct fsck_options *options)
+static int mark_used(struct object *obj, int type, void *data,
+		     struct fsck_options *options)
 {
 	if (!obj)
 		return 1;
@@ -220,8 +223,8 @@ static void mark_unreachable_referents(const struct object_id *oid)
 	 * (and we want to avoid parsing blobs).
 	 */
 	if (obj->type == OBJ_NONE) {
-		enum object_type type = oid_object_info(the_repository,
-							&obj->oid, NULL);
+		enum object_type type =
+			oid_object_info(the_repository, &obj->oid, NULL);
 		if (type > 0)
 			object_as_type(obj, type, 0);
 	}
@@ -231,8 +234,7 @@ static void mark_unreachable_referents(const struct object_id *oid)
 }
 
 static int mark_loose_unreachable_referents(const struct object_id *oid,
-					    const char *path,
-					    void *data)
+					    const char *path, void *data)
 {
 	mark_unreachable_referents(oid);
 	return 0;
@@ -240,8 +242,7 @@ static int mark_loose_unreachable_referents(const struct object_id *oid,
 
 static int mark_packed_unreachable_referents(const struct object_id *oid,
 					     struct packed_git *pack,
-					     uint32_t pos,
-					     void *data)
+					     uint32_t pos, void *data)
 {
 	mark_unreachable_referents(oid);
 	return 0;
@@ -313,7 +314,8 @@ static void check_unreachable_object(struct object *obj)
 				  printable_type(&obj->oid, obj->type),
 				  describe_object(&obj->oid));
 		if (write_lost_and_found) {
-			char *filename = git_pathdup("lost-found/%s/%s",
+			char *filename = git_pathdup(
+				"lost-found/%s/%s",
 				obj->type == OBJ_COMMIT ? "commit" : "other",
 				describe_object(&obj->oid));
 			FILE *f;
@@ -325,13 +327,14 @@ static void check_unreachable_object(struct object *obj)
 			}
 			f = xfopen(filename, "w");
 			if (obj->type == OBJ_BLOB) {
-				if (stream_blob_to_fd(fileno(f), &obj->oid, NULL, 1))
-					die_errno(_("could not write '%s'"), filename);
+				if (stream_blob_to_fd(fileno(f), &obj->oid,
+						      NULL, 1))
+					die_errno(_("could not write '%s'"),
+						  filename);
 			} else
 				fprintf(f, "%s\n", describe_object(&obj->oid));
 			if (fclose(f))
-				die_errno(_("could not finish '%s'"),
-					  filename);
+				die_errno(_("could not finish '%s'"), filename);
 			free(filename);
 		}
 		return;
@@ -347,7 +350,8 @@ static void check_unreachable_object(struct object *obj)
 static void check_object(struct object *obj)
 {
 	if (verbose)
-		fprintf_ln(stderr, _("Checking %s"), describe_object(&obj->oid));
+		fprintf_ln(stderr, _("Checking %s"),
+			   describe_object(&obj->oid));
 
 	if (obj->flags & REACHABLE)
 		check_reachable_object(obj);
@@ -378,14 +382,17 @@ static void check_connectivity(void)
 		 * and ignore any that weren't present in our earlier
 		 * traversal.
 		 */
-		for_each_loose_object(mark_loose_unreachable_referents, NULL, 0);
-		for_each_packed_object(mark_packed_unreachable_referents, NULL, 0);
+		for_each_loose_object(mark_loose_unreachable_referents, NULL,
+				      0);
+		for_each_packed_object(mark_packed_unreachable_referents, NULL,
+				       0);
 	}
 
 	/* Look up all the requirements, warn about missing objects.. */
 	max = get_max_object_index();
 	if (verbose)
-		fprintf_ln(stderr, _("Checking connectivity (%d objects)"), max);
+		fprintf_ln(stderr, _("Checking connectivity (%d objects)"),
+			   max);
 
 	for (i = 0; i < max; i++) {
 		struct object *obj = get_indexed_object(i);
@@ -415,7 +422,7 @@ static int fsck_obj(struct object *obj, void *buffer, unsigned long size)
 		goto out;
 
 	if (obj->type == OBJ_COMMIT) {
-		struct commit *commit = (struct commit *) obj;
+		struct commit *commit = (struct commit *)obj;
 
 		if (!commit->parents && show_root)
 			printf_ln(_("root %s"),
@@ -423,13 +430,13 @@ static int fsck_obj(struct object *obj, void *buffer, unsigned long size)
 	}
 
 	if (obj->type == OBJ_TAG) {
-		struct tag *tag = (struct tag *) obj;
+		struct tag *tag = (struct tag *)obj;
 
 		if (show_tags && tag->tagged) {
 			printf_ln(_("tagged %s %s (%s) in %s"),
-				  printable_type(&tag->tagged->oid, tag->tagged->type),
-				  describe_object(&tag->tagged->oid),
-				  tag->tag,
+				  printable_type(&tag->tagged->oid,
+						 tag->tagged->type),
+				  describe_object(&tag->tagged->oid), tag->tag,
 				  describe_object(&tag->object.oid));
 		}
 	}
@@ -466,7 +473,7 @@ static int fsck_obj_buffer(const struct object_id *oid, enum object_type type,
 static int default_refs;
 
 static void fsck_handle_reflog_oid(const char *refname, struct object_id *oid,
-	timestamp_t timestamp)
+				   timestamp_t timestamp)
 {
 	struct object *obj;
 
@@ -475,21 +482,22 @@ static void fsck_handle_reflog_oid(const char *refname, struct object_id *oid,
 		if (obj && (obj->flags & HAS_OBJ)) {
 			if (timestamp)
 				fsck_put_object_name(&fsck_walk_options, oid,
-						     "%s@{%"PRItime"}",
+						     "%s@{%" PRItime "}",
 						     refname, timestamp);
 			obj->flags |= USED;
 			mark_object_reachable(obj);
 		} else if (!is_promisor_object(oid)) {
-			error(_("%s: invalid reflog entry %s"),
-			      refname, oid_to_hex(oid));
+			error(_("%s: invalid reflog entry %s"), refname,
+			      oid_to_hex(oid));
 			errors_found |= ERROR_REACHABLE;
 		}
 	}
 }
 
-static int fsck_handle_reflog_ent(struct object_id *ooid, struct object_id *noid,
-		const char *email, timestamp_t timestamp, int tz,
-		const char *message, void *cb_data)
+static int fsck_handle_reflog_ent(struct object_id *ooid,
+				  struct object_id *noid, const char *email,
+				  timestamp_t timestamp, int tz,
+				  const char *message, void *cb_data)
 {
 	const char *refname = cb_data;
 
@@ -525,11 +533,11 @@ static int fsck_handle_ref(const char *refname, const struct object_id *oid,
 			 * Increment default_refs anyway, because this is a
 			 * valid ref.
 			 */
-			 default_refs++;
-			 return 0;
+			default_refs++;
+			return 0;
 		}
-		error(_("%s: invalid sha1 pointer %s"),
-		      refname, oid_to_hex(oid));
+		error(_("%s: invalid sha1 pointer %s"), refname,
+		      oid_to_hex(oid));
 		errors_found |= ERROR_REACHABLE;
 		/* We'll continue with the rest despite the error.. */
 		return 0;
@@ -540,8 +548,7 @@ static int fsck_handle_ref(const char *refname, const struct object_id *oid,
 	}
 	default_refs++;
 	obj->flags |= USED;
-	fsck_put_object_name(&fsck_walk_options,
-			     oid, "%s", refname);
+	fsck_put_object_name(&fsck_walk_options, oid, "%s", refname);
 	mark_object_reachable(obj);
 
 	return 0;
@@ -604,21 +611,21 @@ static int fsck_loose(const struct object_id *oid, const char *path, void *data)
 
 	if (read_loose_object(path, oid, &type, &size, &contents) < 0) {
 		errors_found |= ERROR_OBJECT;
-		error(_("%s: object corrupt or missing: %s"),
-		      oid_to_hex(oid), path);
+		error(_("%s: object corrupt or missing: %s"), oid_to_hex(oid),
+		      path);
 		return 0; /* keep checking other objects */
 	}
 
 	if (!contents && type != OBJ_BLOB)
 		BUG("read_loose_object streamed a non-blob");
 
-	obj = parse_object_buffer(the_repository, oid, type, size,
-				  contents, &eaten);
+	obj = parse_object_buffer(the_repository, oid, type, size, contents,
+				  &eaten);
 
 	if (!obj) {
 		errors_found |= ERROR_OBJECT;
-		error(_("%s: object could not be parsed: %s"),
-		      oid_to_hex(oid), path);
+		error(_("%s: object could not be parsed: %s"), oid_to_hex(oid),
+		      path);
 		if (!eaten)
 			free(contents);
 		return 0; /* keep checking other objects */
@@ -655,7 +662,8 @@ static void fsck_object_dir(const char *path)
 		fprintf_ln(stderr, _("Checking object directory"));
 
 	if (show_progress)
-		progress = start_progress(_("Checking object directories"), 256);
+		progress =
+			start_progress(_("Checking object directories"), 256);
 
 	for_each_loose_file_in_objdir(path, fsck_loose, fsck_cruft, fsck_subdir,
 				      progress);
@@ -732,42 +740,45 @@ static void mark_object_for_connectivity(const struct object_id *oid)
 }
 
 static int mark_loose_for_connectivity(const struct object_id *oid,
-				       const char *path,
-				       void *data)
+				       const char *path, void *data)
 {
 	mark_object_for_connectivity(oid);
 	return 0;
 }
 
 static int mark_packed_for_connectivity(const struct object_id *oid,
-					struct packed_git *pack,
-					uint32_t pos,
+					struct packed_git *pack, uint32_t pos,
 					void *data)
 {
 	mark_object_for_connectivity(oid);
 	return 0;
 }
 
-static char const * const fsck_usage[] = {
-	N_("git fsck [<options>] [<object>...]"),
-	NULL
+static char const *const fsck_usage[] = {
+	N_("git fsck [<options>] [<object>...]"), NULL
 };
 
 static struct option fsck_opts[] = {
 	OPT__VERBOSE(&verbose, N_("be verbose")),
-	OPT_BOOL(0, "unreachable", &show_unreachable, N_("show unreachable objects")),
+	OPT_BOOL(0, "unreachable", &show_unreachable,
+		 N_("show unreachable objects")),
 	OPT_BOOL(0, "dangling", &show_dangling, N_("show dangling objects")),
 	OPT_BOOL(0, "tags", &show_tags, N_("report tags")),
 	OPT_BOOL(0, "root", &show_root, N_("report root nodes")),
-	OPT_BOOL(0, "cache", &keep_cache_objects, N_("make index objects head nodes")),
-	OPT_BOOL(0, "reflogs", &include_reflogs, N_("make reflogs head nodes (default)")),
-	OPT_BOOL(0, "full", &check_full, N_("also consider packs and alternate objects")),
-	OPT_BOOL(0, "connectivity-only", &connectivity_only, N_("check only connectivity")),
+	OPT_BOOL(0, "cache", &keep_cache_objects,
+		 N_("make index objects head nodes")),
+	OPT_BOOL(0, "reflogs", &include_reflogs,
+		 N_("make reflogs head nodes (default)")),
+	OPT_BOOL(0, "full", &check_full,
+		 N_("also consider packs and alternate objects")),
+	OPT_BOOL(0, "connectivity-only", &connectivity_only,
+		 N_("check only connectivity")),
 	OPT_BOOL(0, "strict", &check_strict, N_("enable more strict checking")),
 	OPT_BOOL(0, "lost-found", &write_lost_and_found,
-				N_("write dangling objects in .git/lost-found")),
+		 N_("write dangling objects in .git/lost-found")),
 	OPT_BOOL(0, "progress", &show_progress, N_("show progress")),
-	OPT_BOOL(0, "name-objects", &name_objects, N_("show verbose names for reachable objects")),
+	OPT_BOOL(0, "name-objects", &name_objects,
+		 N_("show verbose names for reachable objects")),
 	OPT_END(),
 };
 
@@ -826,14 +837,15 @@ int cmd_fsck(int argc, const char **argv, const char *prefix)
 					total += p->num_objects;
 				}
 
-				progress = start_progress(_("Checking objects"), total);
+				progress = start_progress(_("Checking objects"),
+							  total);
 			}
 			for (p = get_all_packs(the_repository); p;
 			     p = p->next) {
 				/* verify gives error messages itself */
-				if (verify_pack(the_repository,
-						p, fsck_obj_buffer,
-						progress, count))
+				if (verify_pack(the_repository, p,
+						fsck_obj_buffer, progress,
+						count))
 					errors_found |= ERROR_PACK;
 				count += p->num_objects;
 			}
@@ -848,20 +860,21 @@ int cmd_fsck(int argc, const char **argv, const char *prefix)
 		const char *arg = argv[i];
 		struct object_id oid;
 		if (!get_oid(arg, &oid)) {
-			struct object *obj = lookup_object(the_repository,
-							   &oid);
+			struct object *obj =
+				lookup_object(the_repository, &oid);
 
 			if (!obj || !(obj->flags & HAS_OBJ)) {
 				if (is_promisor_object(&oid))
 					continue;
-				error(_("%s: object missing"), oid_to_hex(&oid));
+				error(_("%s: object missing"),
+				      oid_to_hex(&oid));
 				errors_found |= ERROR_OBJECT;
 				continue;
 			}
 
 			obj->flags |= USED;
-			fsck_put_object_name(&fsck_walk_options, &oid,
-					     "%s", arg);
+			fsck_put_object_name(&fsck_walk_options, &oid, "%s",
+					     arg);
 			mark_object_reachable(obj);
 			continue;
 		}
@@ -909,7 +922,8 @@ int cmd_fsck(int argc, const char **argv, const char *prefix)
 
 	if (!git_config_get_bool("core.commitgraph", &i) && i) {
 		struct child_process commit_graph_verify = CHILD_PROCESS_INIT;
-		const char *verify_argv[] = { "commit-graph", "verify", NULL, NULL, NULL };
+		const char *verify_argv[] = { "commit-graph", "verify", NULL,
+					      NULL, NULL };
 
 		prepare_alt_odb(the_repository);
 		for (odb = the_repository->objects->odb; odb; odb = odb->next) {
@@ -925,7 +939,8 @@ int cmd_fsck(int argc, const char **argv, const char *prefix)
 
 	if (!git_config_get_bool("core.multipackindex", &i) && i) {
 		struct child_process midx_verify = CHILD_PROCESS_INIT;
-		const char *midx_argv[] = { "multi-pack-index", "verify", NULL, NULL, NULL };
+		const char *midx_argv[] = { "multi-pack-index", "verify", NULL,
+					    NULL, NULL };
 
 		prepare_alt_odb(the_repository);
 		for (odb = the_repository->objects->odb; odb; odb = odb->next) {

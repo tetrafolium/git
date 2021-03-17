@@ -9,9 +9,9 @@ struct strbuf;
 struct worktree {
 	char *path;
 	char *id;
-	char *head_ref;		/* NULL if HEAD is broken or detached */
-	char *lock_reason;	/* private - use worktree_lock_reason */
-	char *prune_reason;     /* private - use worktree_prune_reason */
+	char *head_ref; /* NULL if HEAD is broken or detached */
+	char *lock_reason; /* private - use worktree_lock_reason */
+	char *prune_reason; /* private - use worktree_prune_reason */
 	struct object_id head_oid;
 	int is_detached;
 	int is_bare;
@@ -54,8 +54,7 @@ const char *get_worktree_git_dir(const struct worktree *wt);
  *
  * Return the worktree identified by `arg`, or NULL if not found.
  */
-struct worktree *find_worktree(struct worktree **list,
-			       const char *prefix,
+struct worktree *find_worktree(struct worktree **list, const char *prefix,
 			       const char *arg);
 
 /*
@@ -91,9 +90,7 @@ const char *worktree_prune_reason(struct worktree *wt, timestamp_t expire);
  * `expire` defines a grace period to prune the worktree when its path
  * does not exist.
  */
-int should_prune_worktree(const char *id,
-			  struct strbuf *reason,
-			  char **wtpath,
+int should_prune_worktree(const char *id, struct strbuf *reason, char **wtpath,
 			  timestamp_t expire);
 
 #define WT_VALIDATE_WORKTREE_MISSING_OK (1 << 0)
@@ -102,18 +99,16 @@ int should_prune_worktree(const char *id,
  * Return zero if the worktree is in good condition. Error message is
  * returned if "errmsg" is not NULL.
  */
-int validate_worktree(const struct worktree *wt,
-		      struct strbuf *errmsg,
+int validate_worktree(const struct worktree *wt, struct strbuf *errmsg,
 		      unsigned flags);
 
 /*
  * Update worktrees/xxx/gitdir with the new path.
  */
-void update_worktree_location(struct worktree *wt,
-			      const char *path_);
+void update_worktree_location(struct worktree *wt, const char *path_);
 
-typedef void (* worktree_repair_fn)(int iserr, const char *path,
-				    const char *msg, void *cb_data);
+typedef void (*worktree_repair_fn)(int iserr, const char *path, const char *msg,
+				   void *cb_data);
 
 /*
  * Visit each registered linked worktree and repair corruptions. For each
@@ -161,9 +156,8 @@ int is_worktree_being_bisected(const struct worktree *wt, const char *target);
  * Similar to git_path() but can produce paths for a specified
  * worktree instead of current one
  */
-const char *worktree_git_path(const struct worktree *wt,
-			      const char *fmt, ...)
-	__attribute__((format (printf, 2, 3)));
+const char *worktree_git_path(const struct worktree *wt, const char *fmt, ...)
+	__attribute__((format(printf, 2, 3)));
 
 /*
  * Parse a worktree ref (i.e. with prefix main-worktree/ or
@@ -178,8 +172,7 @@ int parse_worktree_ref(const char *worktree_ref, const char **name,
 /*
  * Return a refname suitable for access from the current ref store.
  */
-void strbuf_worktree_ref(const struct worktree *wt,
-			 struct strbuf *sb,
+void strbuf_worktree_ref(const struct worktree *wt, struct strbuf *sb,
 			 const char *refname);
 
 #endif

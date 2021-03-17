@@ -6,11 +6,10 @@
 #include "quote.h"
 #include "strvec.h"
 
-static const char * const git_update_ref_usage[] = {
+static const char *const git_update_ref_usage[] = {
 	N_("git update-ref [<options>] -d <refname> [<old-val>]"),
 	N_("git update-ref [<options>]    <refname> <new-val> [<old-val>]"),
-	N_("git update-ref [<options>] --stdin [-z]"),
-	NULL
+	N_("git update-ref [<options>] --stdin [-z]"), NULL
 };
 
 static char line_termination = '\n';
@@ -33,7 +32,8 @@ static const char *parse_arg(const char *next, struct strbuf *arg)
 		if (unquote_c_style(arg, next, &next))
 			die("badly quoted argument: %s", orig);
 		if (*next && !isspace(*next))
-			die("unexpected character after quoted argument: %s", orig);
+			die("unexpected character after quoted argument: %s",
+			    orig);
 	} else {
 		while (*next && !isspace(*next))
 			strbuf_addch(arg, *next++);
@@ -96,9 +96,8 @@ static char *parse_refname(const char **next)
  * include PARSE_SHA1_OLD and/or PARSE_SHA1_ALLOW_EMPTY.
  */
 static int parse_next_oid(const char **next, const char *end,
-			  struct object_id *oid,
-			  const char *command, const char *refname,
-			  int flags)
+			  struct object_id *oid, const char *command,
+			  const char *refname, int flags)
 {
 	struct strbuf arg = STRBUF_INIT;
 	int ret = 0;
@@ -111,8 +110,8 @@ static int parse_next_oid(const char **next, const char *end,
 		if (!**next || **next == line_termination)
 			return 1;
 		if (**next != ' ')
-			die("%s %s: expected SP but got: %s",
-			    command, refname, *next);
+			die("%s %s: expected SP but got: %s", command, refname,
+			    *next);
 		(*next)++;
 		*next = parse_arg(*next, &arg);
 		if (arg.len) {
@@ -125,8 +124,8 @@ static int parse_next_oid(const char **next, const char *end,
 	} else {
 		/* With -z, read the next NUL-terminated line */
 		if (**next)
-			die("%s %s: expected NUL but got: %s",
-			    command, refname, *next);
+			die("%s %s: expected NUL but got: %s", command, refname,
+			    *next);
 		(*next)++;
 		if (*next == end)
 			goto eof;
@@ -154,19 +153,17 @@ static int parse_next_oid(const char **next, const char *end,
 
 	return ret;
 
- invalid:
-	die(flags & PARSE_SHA1_OLD ?
-	    "%s %s: invalid <oldvalue>: %s" :
-	    "%s %s: invalid <newvalue>: %s",
+invalid:
+	die(flags & PARSE_SHA1_OLD ? "%s %s: invalid <oldvalue>: %s" :
+				     "%s %s: invalid <newvalue>: %s",
 	    command, refname, arg.buf);
 
- eof:
+eof:
 	die(flags & PARSE_SHA1_OLD ?
-	    "%s %s: unexpected end of input when reading <oldvalue>" :
-	    "%s %s: unexpected end of input when reading <newvalue>",
+		    "%s %s: unexpected end of input when reading <oldvalue>" :
+		    "%s %s: unexpected end of input when reading <newvalue>",
 	    command, refname);
 }
-
 
 /*
  * The following five parse_cmd_*() functions parse the corresponding
@@ -200,10 +197,9 @@ static void parse_cmd_update(struct ref_transaction *transaction,
 	if (*next != line_termination)
 		die("update %s: extra input: %s", refname, next);
 
-	if (ref_transaction_update(transaction, refname,
-				   &new_oid, have_old ? &old_oid : NULL,
-				   update_flags | create_reflog_flag,
-				   msg, &err))
+	if (ref_transaction_update(
+		    transaction, refname, &new_oid, have_old ? &old_oid : NULL,
+		    update_flags | create_reflog_flag, msg, &err))
 		die("%s", err.buf);
 
 	update_flags = default_flags;
@@ -232,8 +228,8 @@ static void parse_cmd_create(struct ref_transaction *transaction,
 		die("create %s: extra input: %s", refname, next);
 
 	if (ref_transaction_create(transaction, refname, &new_oid,
-				   update_flags | create_reflog_flag,
-				   msg, &err))
+				   update_flags | create_reflog_flag, msg,
+				   &err))
 		die("%s", err.buf);
 
 	update_flags = default_flags;
@@ -266,8 +262,8 @@ static void parse_cmd_delete(struct ref_transaction *transaction,
 		die("delete %s: extra input: %s", refname, next);
 
 	if (ref_transaction_delete(transaction, refname,
-				   have_old ? &old_oid : NULL,
-				   update_flags, msg, &err))
+				   have_old ? &old_oid : NULL, update_flags,
+				   msg, &err))
 		die("%s", err.buf);
 
 	update_flags = default_flags;
@@ -293,8 +289,8 @@ static void parse_cmd_verify(struct ref_transaction *transaction,
 	if (*next != line_termination)
 		die("verify %s: extra input: %s", refname, next);
 
-	if (ref_transaction_verify(transaction, refname, &old_oid,
-				   update_flags, &err))
+	if (ref_transaction_verify(transaction, refname, &old_oid, update_flags,
+				   &err))
 		die("%s", err.buf);
 
 	update_flags = default_flags;
@@ -371,15 +367,15 @@ static const struct parse_cmd {
 	unsigned args;
 	enum update_refs_state state;
 } command[] = {
-	{ "update",  parse_cmd_update,  3, UPDATE_REFS_OPEN },
-	{ "create",  parse_cmd_create,  2, UPDATE_REFS_OPEN },
-	{ "delete",  parse_cmd_delete,  2, UPDATE_REFS_OPEN },
-	{ "verify",  parse_cmd_verify,  2, UPDATE_REFS_OPEN },
-	{ "option",  parse_cmd_option,  1, UPDATE_REFS_OPEN },
-	{ "start",   parse_cmd_start,   0, UPDATE_REFS_STARTED },
+	{ "update", parse_cmd_update, 3, UPDATE_REFS_OPEN },
+	{ "create", parse_cmd_create, 2, UPDATE_REFS_OPEN },
+	{ "delete", parse_cmd_delete, 2, UPDATE_REFS_OPEN },
+	{ "verify", parse_cmd_verify, 2, UPDATE_REFS_OPEN },
+	{ "option", parse_cmd_option, 1, UPDATE_REFS_OPEN },
+	{ "start", parse_cmd_start, 0, UPDATE_REFS_STARTED },
 	{ "prepare", parse_cmd_prepare, 0, UPDATE_REFS_PREPARED },
-	{ "abort",   parse_cmd_abort,   0, UPDATE_REFS_CLOSED },
-	{ "commit",  parse_cmd_commit,  0, UPDATE_REFS_CLOSED },
+	{ "abort", parse_cmd_abort, 0, UPDATE_REFS_CLOSED },
+	{ "commit", parse_cmd_commit, 0, UPDATE_REFS_CLOSED },
 };
 
 static void update_refs_stdin(void)
@@ -430,15 +426,18 @@ static void update_refs_stdin(void)
 		 * handle missing arguments with a proper error message.
 		 */
 		for (j = 1; line_termination == '\0' && j < cmd->args; j++)
-			if (strbuf_appendwholeline(&input, stdin, line_termination))
+			if (strbuf_appendwholeline(&input, stdin,
+						   line_termination))
 				break;
 
 		switch (state) {
 		case UPDATE_REFS_OPEN:
 		case UPDATE_REFS_STARTED:
-			if (state == UPDATE_REFS_STARTED && cmd->state == UPDATE_REFS_STARTED)
+			if (state == UPDATE_REFS_STARTED &&
+			    cmd->state == UPDATE_REFS_STARTED)
 				die("cannot restart ongoing transaction");
-			/* Do not downgrade a transaction to a non-transaction. */
+			/* Do not downgrade a transaction to a non-transaction.
+			 */
 			if (cmd->state >= state)
 				state = cmd->state;
 			break;
@@ -463,7 +462,8 @@ static void update_refs_stdin(void)
 			break;
 		}
 
-		cmd->fn(transaction, input.buf + strlen(cmd->prefix) + !!cmd->args,
+		cmd->fn(transaction,
+			input.buf + strlen(cmd->prefix) + !!cmd->args,
 			input.buf + input.len);
 	}
 
@@ -481,7 +481,8 @@ static void update_refs_stdin(void)
 			die("%s", err.buf);
 		break;
 	case UPDATE_REFS_CLOSED:
-		/* Otherwise no need to do anything, the transaction was closed already. */
+		/* Otherwise no need to do anything, the transaction was closed
+		 * already. */
 		break;
 	}
 
@@ -496,13 +497,17 @@ int cmd_update_ref(int argc, const char **argv, const char *prefix)
 	int delete = 0, no_deref = 0, read_stdin = 0, end_null = 0;
 	int create_reflog = 0;
 	struct option options[] = {
-		OPT_STRING( 'm', NULL, &msg, N_("reason"), N_("reason of the update")),
+		OPT_STRING('m', NULL, &msg, N_("reason"),
+			   N_("reason of the update")),
 		OPT_BOOL('d', NULL, &delete, N_("delete the reference")),
-		OPT_BOOL( 0 , "no-deref", &no_deref,
-					N_("update <refname> not the one it points to")),
-		OPT_BOOL('z', NULL, &end_null, N_("stdin has NUL-terminated arguments")),
-		OPT_BOOL( 0 , "stdin", &read_stdin, N_("read updates from stdin")),
-		OPT_BOOL( 0 , "create-reflog", &create_reflog, N_("create a reflog")),
+		OPT_BOOL(0, "no-deref", &no_deref,
+			 N_("update <refname> not the one it points to")),
+		OPT_BOOL('z', NULL, &end_null,
+			 N_("stdin has NUL-terminated arguments")),
+		OPT_BOOL(0, "stdin", &read_stdin,
+			 N_("read updates from stdin")),
+		OPT_BOOL(0, "create-reflog", &create_reflog,
+			 N_("create a reflog")),
 		OPT_END(),
 	};
 
@@ -564,7 +569,8 @@ int cmd_update_ref(int argc, const char **argv, const char *prefix)
 		 * NULL_SHA1 as "don't care" here:
 		 */
 		return delete_ref(msg, refname,
-				  (oldval && !is_null_oid(&oldoid)) ? &oldoid : NULL,
+				  (oldval && !is_null_oid(&oldoid)) ? &oldoid :
+								      NULL,
 				  default_flags);
 	else
 		return update_ref(msg, refname, &oid, oldval ? &oldoid : NULL,

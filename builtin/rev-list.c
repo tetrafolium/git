@@ -20,44 +20,43 @@
 #include "packfile.h"
 
 static const char rev_list_usage[] =
-"git rev-list [OPTION] <commit-id>... [ -- paths... ]\n"
-"  limiting output:\n"
-"    --max-count=<n>\n"
-"    --max-age=<epoch>\n"
-"    --min-age=<epoch>\n"
-"    --sparse\n"
-"    --no-merges\n"
-"    --min-parents=<n>\n"
-"    --no-min-parents\n"
-"    --max-parents=<n>\n"
-"    --no-max-parents\n"
-"    --remove-empty\n"
-"    --all\n"
-"    --branches\n"
-"    --tags\n"
-"    --remotes\n"
-"    --stdin\n"
-"    --quiet\n"
-"  ordering output:\n"
-"    --topo-order\n"
-"    --date-order\n"
-"    --reverse\n"
-"  formatting output:\n"
-"    --parents\n"
-"    --children\n"
-"    --objects | --objects-edge\n"
-"    --unpacked\n"
-"    --header | --pretty\n"
-"    --[no-]object-names\n"
-"    --abbrev=<n> | --no-abbrev\n"
-"    --abbrev-commit\n"
-"    --left-right\n"
-"    --count\n"
-"  special purpose:\n"
-"    --bisect\n"
-"    --bisect-vars\n"
-"    --bisect-all"
-;
+	"git rev-list [OPTION] <commit-id>... [ -- paths... ]\n"
+	"  limiting output:\n"
+	"    --max-count=<n>\n"
+	"    --max-age=<epoch>\n"
+	"    --min-age=<epoch>\n"
+	"    --sparse\n"
+	"    --no-merges\n"
+	"    --min-parents=<n>\n"
+	"    --no-min-parents\n"
+	"    --max-parents=<n>\n"
+	"    --no-max-parents\n"
+	"    --remove-empty\n"
+	"    --all\n"
+	"    --branches\n"
+	"    --tags\n"
+	"    --remotes\n"
+	"    --stdin\n"
+	"    --quiet\n"
+	"  ordering output:\n"
+	"    --topo-order\n"
+	"    --date-order\n"
+	"    --reverse\n"
+	"  formatting output:\n"
+	"    --parents\n"
+	"    --children\n"
+	"    --objects | --objects-edge\n"
+	"    --unpacked\n"
+	"    --header | --pretty\n"
+	"    --[no-]object-names\n"
+	"    --abbrev=<n> | --no-abbrev\n"
+	"    --abbrev-commit\n"
+	"    --left-right\n"
+	"    --count\n"
+	"  special purpose:\n"
+	"    --bisect\n"
+	"    --bisect-vars\n"
+	"    --bisect-all";
 
 static struct progress *progress;
 static unsigned progress_counter;
@@ -68,9 +67,9 @@ static int arg_print_omitted; /* print objects omitted by filter */
 
 static struct oidset missing_objects;
 enum missing_action {
-	MA_ERROR = 0,    /* fail if any missing objects are encountered */
-	MA_ALLOW_ANY,    /* silently allow ALL missing objects */
-	MA_PRINT,        /* print ALL missing objects in special section */
+	MA_ERROR = 0, /* fail if any missing objects are encountered */
+	MA_ALLOW_ANY, /* silently allow ALL missing objects */
+	MA_PRINT, /* print ALL missing objects in special section */
 	MA_ALLOW_PROMISOR, /* silently allow all missing PROMISOR objects */
 };
 static enum missing_action arg_missing_action;
@@ -78,7 +77,7 @@ static enum missing_action arg_missing_action;
 /* display only the oid of each object encountered */
 static int arg_show_object_names = 1;
 
-#define DEFAULT_OIDSET_SIZE     (16*1024)
+#define DEFAULT_OIDSET_SIZE (16 * 1024)
 
 static int show_disk_usage;
 static off_t total_disk_usage;
@@ -123,7 +122,7 @@ static void show_commit(struct commit *commit, void *data)
 	}
 
 	if (info->show_timestamp)
-		printf("%"PRItime" ", commit->date);
+		printf("%" PRItime " ", commit->date);
 	if (info->header_prefix)
 		fputs(info->header_prefix, stdout);
 
@@ -158,7 +157,7 @@ static void show_commit(struct commit *commit, void *data)
 
 	if (revs->verbose_header) {
 		struct strbuf buf = STRBUF_INIT;
-		struct pretty_print_context ctx = {0};
+		struct pretty_print_context ctx = { 0 };
 		ctx.abbrev = revs->abbrev;
 		ctx.date_mode = revs->date_mode;
 		ctx.date_mode_explicit = revs->date_mode_explicit;
@@ -216,8 +215,7 @@ static void finish_commit(struct commit *commit)
 		free_commit_list(commit->parents);
 		commit->parents = NULL;
 	}
-	free_commit_buffer(the_repository->parsed_objects,
-			   commit);
+	free_commit_buffer(the_repository->parsed_objects, commit);
 }
 
 static inline void finish_object__ma(struct object *obj)
@@ -230,8 +228,8 @@ static inline void finish_object__ma(struct object *obj)
 	 */
 	switch (arg_missing_action) {
 	case MA_ERROR:
-		die("missing %s object '%s'",
-		    type_name(obj->type), oid_to_hex(&obj->oid));
+		die("missing %s object '%s'", type_name(obj->type),
+		    oid_to_hex(&obj->oid));
 		return;
 
 	case MA_ALLOW_ANY:
@@ -244,8 +242,8 @@ static inline void finish_object__ma(struct object *obj)
 	case MA_ALLOW_PROMISOR:
 		if (is_promisor_object(&obj->oid))
 			return;
-		die("unexpected missing %s object '%s'",
-		    type_name(obj->type), oid_to_hex(&obj->oid));
+		die("unexpected missing %s object '%s'", type_name(obj->type),
+		    oid_to_hex(&obj->oid));
 		return;
 
 	default:
@@ -261,7 +259,8 @@ static int finish_object(struct object *obj, const char *name, void *cb_data)
 		finish_object__ma(obj);
 		return 1;
 	}
-	if (info->revs->verify_objects && !obj->parsed && obj->type != OBJ_COMMIT)
+	if (info->revs->verify_objects && !obj->parsed &&
+	    obj->type != OBJ_COMMIT)
 		parse_object(the_repository, &obj->oid);
 	return 0;
 }
@@ -323,8 +322,7 @@ static int show_bisect_vars(struct rev_list_info *info, int reaches, int all)
 		return 1;
 
 	revs->commits = filter_skipped(revs->commits, &tried,
-				       flags & BISECT_SHOW_ALL,
-				       NULL, NULL);
+				       flags & BISECT_SHOW_ALL, NULL, NULL);
 
 	/*
 	 * revs->commits can reach "reaches" commits among
@@ -357,13 +355,9 @@ static int show_bisect_vars(struct rev_list_info *info, int reaches, int all)
 	return 0;
 }
 
-static int show_object_fast(
-	const struct object_id *oid,
-	enum object_type type,
-	int exclude,
-	uint32_t name_hash,
-	struct packed_git *found_pack,
-	off_t found_offset)
+static int show_object_fast(const struct object_id *oid, enum object_type type,
+			    int exclude, uint32_t name_hash,
+			    struct packed_git *found_pack, off_t found_offset)
 {
 	fprintf(stdout, "%s\n", oid_to_hex(oid));
 	return 1;
@@ -400,9 +394,7 @@ static inline int parse_missing_action_value(const char *value)
 static int try_bitmap_count(struct rev_info *revs,
 			    struct list_objects_filter_options *filter)
 {
-	uint32_t commit_count = 0,
-		 tag_count = 0,
-		 tree_count = 0,
+	uint32_t commit_count = 0, tag_count = 0, tree_count = 0,
 		 blob_count = 0;
 	int max_count;
 	struct bitmap_index *bitmap_git;
@@ -482,7 +474,7 @@ static int try_bitmap_disk_usage(struct rev_info *revs,
 	if (!bitmap_git)
 		return -1;
 
-	printf("%"PRIuMAX"\n",
+	printf("%" PRIuMAX "\n",
 	       (uintmax_t)get_disk_usage_from_bitmap(bitmap_git, revs));
 	return 0;
 }
@@ -549,7 +541,7 @@ int cmd_rev_list(int argc, const char **argv, const char *prefix)
 
 	if (revs.diffopt.flags.quick)
 		info.flags |= REV_LIST_QUIET;
-	for (i = 1 ; i < argc; i++) {
+	for (i = 1; i < argc; i++) {
 		const char *arg = argv[i];
 
 		if (!strcmp(arg, "--header")) {
@@ -626,7 +618,6 @@ int cmd_rev_list(int argc, const char **argv, const char *prefix)
 		}
 
 		usage(rev_list_usage);
-
 	}
 	if (revs.commit_format != CMIT_FMT_UNSPECIFIED) {
 		/* The command line has a --pretty  */
@@ -635,8 +626,7 @@ int cmd_rev_list(int argc, const char **argv, const char *prefix)
 			info.header_prefix = "";
 		else
 			info.header_prefix = "commit ";
-	}
-	else if (revs.verbose_header)
+	} else if (revs.verbose_header)
 		/* Only --header was specified */
 		revs.commit_format = CMIT_FMT_RAW;
 
@@ -724,17 +714,19 @@ int cmd_rev_list(int argc, const char **argv, const char *prefix)
 
 	if (revs.count) {
 		if (revs.left_right && revs.cherry_mark)
-			printf("%d\t%d\t%d\n", revs.count_left, revs.count_right, revs.count_same);
+			printf("%d\t%d\t%d\n", revs.count_left,
+			       revs.count_right, revs.count_same);
 		else if (revs.left_right)
 			printf("%d\t%d\n", revs.count_left, revs.count_right);
 		else if (revs.cherry_mark)
-			printf("%d\t%d\n", revs.count_left + revs.count_right, revs.count_same);
+			printf("%d\t%d\n", revs.count_left + revs.count_right,
+			       revs.count_same);
 		else
 			printf("%d\n", revs.count_left + revs.count_right);
 	}
 
 	if (show_disk_usage)
-		printf("%"PRIuMAX"\n", (uintmax_t)total_disk_usage);
+		printf("%" PRIuMAX "\n", (uintmax_t)total_disk_usage);
 
 	return 0;
 }

@@ -17,7 +17,8 @@
  * needs to bypass the data conversion performed by, and the type
  * limitation imposed by, index_fd() and its callees.
  */
-static int hash_literally(struct object_id *oid, int fd, const char *type, unsigned flags)
+static int hash_literally(struct object_id *oid, int fd, const char *type,
+			  unsigned flags)
 {
 	struct strbuf buf = STRBUF_INIT;
 	int ret;
@@ -38,13 +39,13 @@ static void hash_fd(int fd, const char *type, const char *path, unsigned flags,
 	struct object_id oid;
 
 	if (fstat(fd, &st) < 0 ||
-	    (literally
-	     ? hash_literally(&oid, fd, type, flags)
-	     : index_fd(the_repository->index, &oid, fd, &st,
-			type_from_string(type), path, flags)))
-		die((flags & HASH_WRITE_OBJECT)
-		    ? "Unable to add %s to database"
-		    : "Unable to hash %s", path);
+	    (literally ? hash_literally(&oid, fd, type, flags) :
+			 index_fd(the_repository->index, &oid, fd, &st,
+				  type_from_string(type), path, flags)))
+		die((flags & HASH_WRITE_OBJECT) ?
+			    "Unable to add %s to database" :
+			    "Unable to hash %s",
+		    path);
 	printf("%s\n", oid_to_hex(&oid));
 	maybe_flush_or_die(stdout, "hash to stdout");
 }
@@ -81,10 +82,9 @@ static void hash_stdin_paths(const char *type, int no_filters, unsigned flags,
 
 int cmd_hash_object(int argc, const char **argv, const char *prefix)
 {
-	static const char * const hash_object_usage[] = {
+	static const char *const hash_object_usage[] = {
 		N_("git hash-object [-t <type>] [-w] [--path=<file> | --no-filters] [--stdin] [--] <file>..."),
-		N_("git hash-object  --stdin-paths"),
-		NULL
+		N_("git hash-object  --stdin-paths"), NULL
 	};
 	const char *type = blob_type;
 	int hashstdin = 0;
@@ -96,13 +96,20 @@ int cmd_hash_object(int argc, const char **argv, const char *prefix)
 	const char *vpath = NULL;
 	const struct option hash_object_options[] = {
 		OPT_STRING('t', NULL, &type, N_("type"), N_("object type")),
-		OPT_BIT('w', NULL, &flags, N_("write the object into the object database"),
+		OPT_BIT('w', NULL, &flags,
+			N_("write the object into the object database"),
 			HASH_WRITE_OBJECT),
-		OPT_COUNTUP( 0 , "stdin", &hashstdin, N_("read the object from stdin")),
-		OPT_BOOL( 0 , "stdin-paths", &stdin_paths, N_("read file names from stdin")),
-		OPT_BOOL( 0 , "no-filters", &no_filters, N_("store file as is without filters")),
-		OPT_BOOL( 0, "literally", &literally, N_("just hash any random garbage to create corrupt objects for debugging Git")),
-		OPT_STRING( 0 , "path", &vpath, N_("file"), N_("process file as it were from this path")),
+		OPT_COUNTUP(0, "stdin", &hashstdin,
+			    N_("read the object from stdin")),
+		OPT_BOOL(0, "stdin-paths", &stdin_paths,
+			 N_("read file names from stdin")),
+		OPT_BOOL(0, "no-filters", &no_filters,
+			 N_("store file as is without filters")),
+		OPT_BOOL(
+			0, "literally", &literally,
+			N_("just hash any random garbage to create corrupt objects for debugging Git")),
+		OPT_STRING(0, "path", &vpath, N_("file"),
+			   N_("process file as it were from this path")),
 		OPT_END()
 	};
 	int i;
@@ -128,8 +135,7 @@ int cmd_hash_object(int argc, const char **argv, const char *prefix)
 			errstr = "Can't specify files with --stdin-paths";
 		else if (vpath)
 			errstr = "Can't use --stdin-paths with --path";
-	}
-	else {
+	} else {
 		if (hashstdin > 1)
 			errstr = "Multiple --stdin arguments are not supported";
 		if (vpath && no_filters)
@@ -144,7 +150,7 @@ int cmd_hash_object(int argc, const char **argv, const char *prefix)
 	if (hashstdin)
 		hash_fd(0, type, vpath, flags, literally);
 
-	for (i = 0 ; i < argc; i++) {
+	for (i = 0; i < argc; i++) {
 		const char *arg = argv[i];
 		char *to_free = NULL;
 

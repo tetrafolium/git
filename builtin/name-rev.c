@@ -44,10 +44,8 @@ static struct rev_name *get_commit_rev_name(const struct commit *commit)
 	return is_valid_rev_name(name) ? name : NULL;
 }
 
-static int is_better_name(struct rev_name *name,
-			  timestamp_t taggerdate,
-			  int distance,
-			  int from_tag)
+static int is_better_name(struct rev_name *name, timestamp_t taggerdate,
+			  int distance, int from_tag)
 {
 	/*
 	 * When comparing names based on tags, prefer names
@@ -117,23 +115,20 @@ static char *get_parent_name(const struct rev_name *name, int parent_number)
 
 	strip_suffix(name->tip_name, "^0", &len);
 	if (name->generation > 0) {
-		strbuf_grow(&sb, len +
-			    1 + decimal_width(name->generation) +
-			    1 + decimal_width(parent_number));
+		strbuf_grow(&sb, len + 1 + decimal_width(name->generation) + 1 +
+					 decimal_width(parent_number));
 		strbuf_addf(&sb, "%.*s~%d^%d", (int)len, name->tip_name,
 			    name->generation, parent_number);
 	} else {
-		strbuf_grow(&sb, len +
-			    1 + decimal_width(parent_number));
+		strbuf_grow(&sb, len + 1 + decimal_width(parent_number));
 		strbuf_addf(&sb, "%.*s^%d", (int)len, name->tip_name,
 			    parent_number);
 	}
 	return strbuf_detach(&sb, NULL);
 }
 
-static void name_rev(struct commit *start_commit,
-		const char *tip_name, timestamp_t taggerdate,
-		int from_tag, int deref)
+static void name_rev(struct commit *start_commit, const char *tip_name,
+		     timestamp_t taggerdate, int from_tag, int deref)
 {
 	struct prio_queue queue;
 	struct commit *commit;
@@ -145,8 +140,8 @@ static void name_rev(struct commit *start_commit,
 	if (start_commit->date < cutoff)
 		return;
 
-	start_name = create_or_update_name(start_commit, taggerdate, 0, 0,
-					   from_tag);
+	start_name =
+		create_or_update_name(start_commit, taggerdate, 0, 0, from_tag);
 	if (!start_name)
 		return;
 	if (deref)
@@ -164,9 +159,8 @@ static void name_rev(struct commit *start_commit,
 
 		parents_to_queue_nr = 0;
 
-		for (parents = commit->parents;
-				parents;
-				parents = parents->next, parent_number++) {
+		for (parents = commit->parents; parents;
+		     parents = parents->next, parent_number++) {
 			struct commit *parent = parents->item;
 			struct rev_name *parent_name;
 			int generation, distance;
@@ -177,7 +171,8 @@ static void name_rev(struct commit *start_commit,
 
 			if (parent_number > 1) {
 				generation = 0;
-				distance = name->distance + MERGE_TRAVERSAL_WEIGHT;
+				distance =
+					name->distance + MERGE_TRAVERSAL_WEIGHT;
 			} else {
 				generation = name->generation + 1;
 				distance = name->distance + 1;
@@ -188,9 +183,8 @@ static void name_rev(struct commit *start_commit,
 							    distance, from_tag);
 			if (parent_name) {
 				if (parent_number > 1)
-					parent_name->tip_name =
-						get_parent_name(name,
-								parent_number);
+					parent_name->tip_name = get_parent_name(
+						name, parent_number);
 				else
 					parent_name->tip_name = name->tip_name;
 				ALLOC_GROW(parents_to_queue,
@@ -249,9 +243,9 @@ static struct tip_table {
 		const char *refname;
 		struct commit *commit;
 		timestamp_t taggerdate;
-		unsigned int from_tag:1;
-		unsigned int deref:1;
-	} *table;
+		unsigned int from_tag : 1;
+		unsigned int deref : 1;
+	} * table;
 	int nr;
 	int alloc;
 	int sorted;
@@ -296,7 +290,8 @@ static int cmp_by_tag_and_age(const void *a_, const void *b_)
 	return a->taggerdate != b->taggerdate;
 }
 
-static int name_ref(const char *path, const struct object_id *oid, int flags, void *cb_data)
+static int name_ref(const char *path, const struct object_id *oid, int flags,
+		    void *cb_data)
 {
 	struct object *o = parse_object(the_repository, oid);
 	struct name_ref_data *data = cb_data;
@@ -312,7 +307,7 @@ static int name_ref(const char *path, const struct object_id *oid, int flags, vo
 	if (data->exclude_filters.nr) {
 		struct string_list_item *item;
 
-		for_each_string_list_item(item, &data->exclude_filters) {
+		for_each_string_list_item (item, &data->exclude_filters) {
 			if (subpath_matches(path, item->string) >= 0)
 				return 0;
 		}
@@ -323,7 +318,7 @@ static int name_ref(const char *path, const struct object_id *oid, int flags, vo
 		int matched = 0;
 
 		/* See if any of the patterns match. */
-		for_each_string_list_item(item, &data->ref_filters) {
+		for_each_string_list_item (item, &data->ref_filters) {
 			/*
 			 * Check all patterns even after finding a match, so
 			 * that we can see if a match with a subpath exists.
@@ -353,7 +348,7 @@ static int name_ref(const char *path, const struct object_id *oid, int flags, vo
 	}
 
 	while (o && o->type == OBJ_TAG) {
-		struct tag *t = (struct tag *) o;
+		struct tag *t = (struct tag *)o;
 		if (!t->tagged)
 			break; /* broken repository */
 		o = parse_object(the_repository, &t->tagged->oid);
@@ -423,7 +418,7 @@ static const char *get_rev_name(const struct object *o, struct strbuf *buf)
 
 	if (o->type != OBJ_COMMIT)
 		return get_exact_ref_match(o);
-	c = (const struct commit *) o;
+	c = (const struct commit *)o;
 	n = get_commit_rev_name(c);
 	if (!n)
 		return NULL;
@@ -439,8 +434,7 @@ static const char *get_rev_name(const struct object *o, struct strbuf *buf)
 	}
 }
 
-static void show_name(const struct object *obj,
-		      const char *caller_name,
+static void show_name(const struct object *obj, const char *caller_name,
 		      int always, int allow_undefined, int name_only)
 {
 	const char *name;
@@ -461,11 +455,10 @@ static void show_name(const struct object *obj,
 	strbuf_release(&buf);
 }
 
-static char const * const name_rev_usage[] = {
+static char const *const name_rev_usage[] = {
 	N_("git name-rev [<options>] <commit>..."),
 	N_("git name-rev [<options>] --all"),
-	N_("git name-rev [<options>] --stdin"),
-	NULL
+	N_("git name-rev [<options>] --stdin"), NULL
 };
 
 static void name_rev_line(char *p, struct name_ref_data *data)
@@ -479,23 +472,22 @@ static void name_rev_line(char *p, struct name_ref_data *data)
 #define ishex(x) (isdigit((x)) || ((x) >= 'a' && (x) <= 'f'))
 		if (!ishex(*p))
 			counter = 0;
-		else if (++counter == hexsz &&
-			 !ishex(*(p+1))) {
+		else if (++counter == hexsz && !ishex(*(p + 1))) {
 			struct object_id oid;
 			const char *name = NULL;
-			char c = *(p+1);
+			char c = *(p + 1);
 			int p_len = p - p_start + 1;
 
 			counter = 0;
 
-			*(p+1) = 0;
+			*(p + 1) = 0;
 			if (!get_oid(p - (hexsz - 1), &oid)) {
 				struct object *o =
 					lookup_object(the_repository, &oid);
 				if (o)
 					name = get_rev_name(o, &buf);
 			}
-			*(p+1) = c;
+			*(p + 1) = c;
 
 			if (!name)
 				continue;
@@ -518,26 +510,39 @@ static void name_rev_line(char *p, struct name_ref_data *data)
 int cmd_name_rev(int argc, const char **argv, const char *prefix)
 {
 	struct object_array revs = OBJECT_ARRAY_INIT;
-	int all = 0, transform_stdin = 0, allow_undefined = 1, always = 0, peel_tag = 0;
-	struct name_ref_data data = { 0, 0, STRING_LIST_INIT_NODUP, STRING_LIST_INIT_NODUP };
+	int all = 0, transform_stdin = 0, allow_undefined = 1, always = 0,
+	    peel_tag = 0;
+	struct name_ref_data data = { 0, 0, STRING_LIST_INIT_NODUP,
+				      STRING_LIST_INIT_NODUP };
 	struct option opts[] = {
-		OPT_BOOL(0, "name-only", &data.name_only, N_("print only ref-based names (no object names)")),
-		OPT_BOOL(0, "tags", &data.tags_only, N_("only use tags to name the commits")),
+		OPT_BOOL(0, "name-only", &data.name_only,
+			 N_("print only ref-based names (no object names)")),
+		OPT_BOOL(0, "tags", &data.tags_only,
+			 N_("only use tags to name the commits")),
 		OPT_STRING_LIST(0, "refs", &data.ref_filters, N_("pattern"),
-				   N_("only use refs matching <pattern>")),
-		OPT_STRING_LIST(0, "exclude", &data.exclude_filters, N_("pattern"),
-				   N_("ignore refs matching <pattern>")),
+				N_("only use refs matching <pattern>")),
+		OPT_STRING_LIST(0, "exclude", &data.exclude_filters,
+				N_("pattern"),
+				N_("ignore refs matching <pattern>")),
 		OPT_GROUP(""),
-		OPT_BOOL(0, "all", &all, N_("list all commits reachable from all refs")),
+		OPT_BOOL(0, "all", &all,
+			 N_("list all commits reachable from all refs")),
 		OPT_BOOL(0, "stdin", &transform_stdin, N_("read from stdin")),
-		OPT_BOOL(0, "undefined", &allow_undefined, N_("allow to print `undefined` names (default)")),
-		OPT_BOOL(0, "always",     &always,
-			   N_("show abbreviated commit object as fallback")),
+		OPT_BOOL(0, "undefined", &allow_undefined,
+			 N_("allow to print `undefined` names (default)")),
+		OPT_BOOL(0, "always", &always,
+			 N_("show abbreviated commit object as fallback")),
 		{
 			/* A Hidden OPT_BOOL */
-			OPTION_SET_INT, 0, "peel-tag", &peel_tag, NULL,
+			OPTION_SET_INT,
+			0,
+			"peel-tag",
+			&peel_tag,
+			NULL,
 			N_("dereference tags in the input (internal use)"),
-			PARSE_OPT_NOARG | PARSE_OPT_HIDDEN, NULL, 1,
+			PARSE_OPT_NOARG | PARSE_OPT_HIDDEN,
+			NULL,
+			1,
 		},
 		OPT_END(),
 	};
@@ -558,23 +563,25 @@ int cmd_name_rev(int argc, const char **argv, const char *prefix)
 		struct commit *commit;
 
 		if (get_oid(*argv, &oid)) {
-			fprintf(stderr, "Could not get sha1 for %s. Skipping.\n",
-					*argv);
+			fprintf(stderr,
+				"Could not get sha1 for %s. Skipping.\n",
+				*argv);
 			continue;
 		}
 
 		commit = NULL;
 		object = parse_object(the_repository, &oid);
 		if (object) {
-			struct object *peeled = deref_tag(the_repository,
-							  object, *argv, 0);
+			struct object *peeled =
+				deref_tag(the_repository, object, *argv, 0);
 			if (peeled && peeled->type == OBJ_COMMIT)
 				commit = (struct commit *)peeled;
 		}
 
 		if (!object) {
-			fprintf(stderr, "Could not get object for %s. Skipping.\n",
-					*argv);
+			fprintf(stderr,
+				"Could not get object for %s. Skipping.\n",
+				*argv);
 			continue;
 		}
 
@@ -585,7 +592,8 @@ int cmd_name_rev(int argc, const char **argv, const char *prefix)
 
 		if (peel_tag) {
 			if (!commit) {
-				fprintf(stderr, "Could not get commit for %s. Skipping.\n",
+				fprintf(stderr,
+					"Could not get commit for %s. Skipping.\n",
 					*argv);
 				continue;
 			}
@@ -621,8 +629,8 @@ int cmd_name_rev(int argc, const char **argv, const char *prefix)
 			struct object *obj = get_indexed_object(i);
 			if (!obj || obj->type != OBJ_COMMIT)
 				continue;
-			show_name(obj, NULL,
-				  always, allow_undefined, data.name_only);
+			show_name(obj, NULL, always, allow_undefined,
+				  data.name_only);
 		}
 	} else {
 		int i;

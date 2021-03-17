@@ -5,13 +5,11 @@
 #include "run-command.h"
 #include "string-list.h"
 
-static const char * const for_each_repo_usage[] = {
-	N_("git for-each-repo --config=<config> <command-args>"),
-	NULL
+static const char *const for_each_repo_usage[] = {
+	N_("git for-each-repo --config=<config> <command-args>"), NULL
 };
 
-static int run_command_on_repo(const char *path,
-			       void *cbdata)
+static int run_command_on_repo(const char *path, void *cbdata)
 {
 	int i;
 	struct child_process child = CHILD_PROCESS_INIT;
@@ -48,8 +46,7 @@ int cmd_for_each_repo(int argc, const char **argv, const char *prefix)
 	for (i = 0; i < argc; i++)
 		strvec_push(&args, argv[i]);
 
-	values = repo_config_get_value_multi(the_repository,
-					     config_key);
+	values = repo_config_get_value_multi(the_repository, config_key);
 
 	/*
 	 * Do nothing on an empty list, which is equivalent to the case

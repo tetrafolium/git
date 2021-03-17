@@ -30,15 +30,11 @@ static void *xstrdup(const char *s1)
 }
 
 #define KEYCHAIN_ITEM(x) (x ? strlen(x) : 0), x
-#define KEYCHAIN_ARGS \
-	NULL, /* default keychain */ \
-	KEYCHAIN_ITEM(host), \
-	0, NULL, /* account domain */ \
-	KEYCHAIN_ITEM(username), \
-	KEYCHAIN_ITEM(path), \
-	port, \
-	protocol, \
-	kSecAuthenticationTypeDefault
+#define KEYCHAIN_ARGS                                                         \
+	NULL, /* default keychain */                                          \
+		KEYCHAIN_ITEM(host), 0, NULL, /* account domain */            \
+		KEYCHAIN_ITEM(username), KEYCHAIN_ITEM(path), port, protocol, \
+		kSecAuthenticationTypeDefault
 
 static void write_item(const char *what, const char *buf, int len)
 {
@@ -103,10 +99,8 @@ static void add_internet_password(void)
 	if (!protocol || !host || !username || !password)
 		return;
 
-	if (SecKeychainAddInternetPassword(
-	      KEYCHAIN_ARGS,
-	      KEYCHAIN_ITEM(password),
-	      NULL))
+	if (SecKeychainAddInternetPassword(KEYCHAIN_ARGS,
+					   KEYCHAIN_ITEM(password), NULL))
 		return;
 }
 
@@ -119,7 +113,7 @@ static void read_credential(void)
 
 		if (!strcmp(buf, "\n"))
 			break;
-		buf[strlen(buf)-1] = '\0';
+		buf[strlen(buf) - 1] = '\0';
 
 		v = strchr(buf, '=');
 		if (!v)
@@ -143,16 +137,14 @@ static void read_credential(void)
 				protocol = kSecProtocolTypeSMTP;
 			else /* we don't yet handle other protocols */
 				exit(0);
-		}
-		else if (!strcmp(buf, "host")) {
+		} else if (!strcmp(buf, "host")) {
 			char *colon = strchr(v, ':');
 			if (colon) {
 				*colon++ = '\0';
 				port = atoi(colon);
 			}
 			host = xstrdup(v);
-		}
-		else if (!strcmp(buf, "path"))
+		} else if (!strcmp(buf, "path"))
 			path = xstrdup(v);
 		else if (!strcmp(buf, "username"))
 			username = xstrdup(v);

@@ -89,8 +89,8 @@ static struct diff_filespec *noindex_filespec(const char *name, int mode)
 	return s;
 }
 
-static int queue_diff(struct diff_options *o,
-		      const char *name1, const char *name2)
+static int queue_diff(struct diff_options *o, const char *name1,
+		      const char *name2)
 {
 	int mode1 = 0, mode2 = 0;
 
@@ -146,7 +146,7 @@ static int queue_diff(struct diff_options *o,
 			len2 = buffer2.len;
 		}
 
-		for (i1 = i2 = 0; !ret && (i1 < p1.nr || i2 < p2.nr); ) {
+		for (i1 = i2 = 0; !ret && (i1 < p1.nr || i2 < p2.nr);) {
 			const char *n1, *n2;
 			int comp;
 
@@ -158,7 +158,8 @@ static int queue_diff(struct diff_options *o,
 			else if (i2 == p2.nr)
 				comp = -1;
 			else
-				comp = strcmp(p1.items[i1].string, p2.items[i2].string);
+				comp = strcmp(p1.items[i1].string,
+					      p2.items[i2].string);
 
 			if (comp > 0)
 				n1 = NULL;
@@ -198,7 +199,8 @@ static int queue_diff(struct diff_options *o,
 }
 
 /* append basename of F to D */
-static void append_basename(struct strbuf *path, const char *dir, const char *file)
+static void append_basename(struct strbuf *path, const char *dir,
+			    const char *file)
 {
 	const char *tail = strrchr(file, '/');
 
@@ -234,14 +236,12 @@ static void fixup_paths(const char **path, struct strbuf *replacement)
 	}
 }
 
-static const char * const diff_no_index_usage[] = {
-	N_("git diff --no-index [<options>] <path> <path>"),
-	NULL
+static const char *const diff_no_index_usage[] = {
+	N_("git diff --no-index [<options>] <path> <path>"), NULL
 };
 
-int diff_no_index(struct rev_info *revs,
-		  int implicit_no_index,
-		  int argc, const char **argv)
+int diff_no_index(struct rev_info *revs, int implicit_no_index, int argc,
+		  const char **argv)
 {
 	int i, no_index;
 	const char *paths[2];
@@ -254,8 +254,8 @@ int diff_no_index(struct rev_info *revs,
 	};
 	struct option *options;
 
-	options = parse_options_concat(no_index_options,
-				       revs->diffopt.parseopts);
+	options =
+		parse_options_concat(no_index_options, revs->diffopt.parseopts);
 	argc = parse_options(argc, argv, revs->prefix, options,
 			     diff_no_index_usage, 0);
 	if (argc != 2) {

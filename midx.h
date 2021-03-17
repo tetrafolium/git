@@ -35,23 +35,31 @@ struct multi_pack_index {
 	char object_dir[FLEX_ARRAY];
 };
 
-#define MIDX_PROGRESS     (1 << 0)
+#define MIDX_PROGRESS (1 << 0)
 
-struct multi_pack_index *load_multi_pack_index(const char *object_dir, int local);
-int prepare_midx_pack(struct repository *r, struct multi_pack_index *m, uint32_t pack_int_id);
-int bsearch_midx(const struct object_id *oid, struct multi_pack_index *m, uint32_t *result);
+struct multi_pack_index *load_multi_pack_index(const char *object_dir,
+					       int local);
+int prepare_midx_pack(struct repository *r, struct multi_pack_index *m,
+		      uint32_t pack_int_id);
+int bsearch_midx(const struct object_id *oid, struct multi_pack_index *m,
+		 uint32_t *result);
 struct object_id *nth_midxed_object_oid(struct object_id *oid,
-					struct multi_pack_index *m,
-					uint32_t n);
-int fill_midx_entry(struct repository *r, const struct object_id *oid, struct pack_entry *e, struct multi_pack_index *m);
-int midx_contains_pack(struct multi_pack_index *m, const char *idx_or_pack_name);
-int prepare_multi_pack_index_one(struct repository *r, const char *object_dir, int local);
+					struct multi_pack_index *m, uint32_t n);
+int fill_midx_entry(struct repository *r, const struct object_id *oid,
+		    struct pack_entry *e, struct multi_pack_index *m);
+int midx_contains_pack(struct multi_pack_index *m,
+		       const char *idx_or_pack_name);
+int prepare_multi_pack_index_one(struct repository *r, const char *object_dir,
+				 int local);
 
 int write_midx_file(const char *object_dir, unsigned flags);
 void clear_midx_file(struct repository *r);
-int verify_midx_file(struct repository *r, const char *object_dir, unsigned flags);
-int expire_midx_packs(struct repository *r, const char *object_dir, unsigned flags);
-int midx_repack(struct repository *r, const char *object_dir, size_t batch_size, unsigned flags);
+int verify_midx_file(struct repository *r, const char *object_dir,
+		     unsigned flags);
+int expire_midx_packs(struct repository *r, const char *object_dir,
+		      unsigned flags);
+int midx_repack(struct repository *r, const char *object_dir, size_t batch_size,
+		unsigned flags);
 
 void close_midx(struct multi_pack_index *m);
 

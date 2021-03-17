@@ -136,8 +136,8 @@ static int disable_bits(DWORD bits)
 	}
 
 	hconin = CreateFile("CONIN$", GENERIC_READ | GENERIC_WRITE,
-	    FILE_SHARE_READ, NULL, OPEN_EXISTING,
-	    FILE_ATTRIBUTE_NORMAL, NULL);
+			    FILE_SHARE_READ, NULL, OPEN_EXISTING,
+			    FILE_ATTRIBUTE_NORMAL, NULL);
 	if (hconin == INVALID_HANDLE_VALUE)
 		return -1;
 
@@ -159,7 +159,8 @@ static int disable_echo(void)
 
 static int enable_non_canonical(void)
 {
-	return disable_bits(ENABLE_ECHO_INPUT | ENABLE_LINE_INPUT | ENABLE_PROCESSED_INPUT);
+	return disable_bits(ENABLE_ECHO_INPUT | ENABLE_LINE_INPUT |
+			    ENABLE_PROCESSED_INPUT);
 }
 
 /*

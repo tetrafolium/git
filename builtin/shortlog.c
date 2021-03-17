@@ -12,10 +12,9 @@
 #include "trailer.h"
 #include "strmap.h"
 
-static char const * const shortlog_usage[] = {
+static char const *const shortlog_usage[] = {
 	N_("git shortlog [<options>] [<revision-range>] [[--] <path>...]"),
-	N_("git log --pretty=short | git shortlog [<options>]"),
-	NULL
+	N_("git log --pretty=short | git shortlog [<options>]"), NULL
 };
 
 /*
@@ -50,8 +49,7 @@ static int compare_by_list(const void *a1, const void *a2)
 		return -1;
 }
 
-static void insert_one_record(struct shortlog *log,
-			      const char *ident,
+static void insert_one_record(struct shortlog *log, const char *ident,
 			      const char *oneline)
 {
 	struct string_list_item *item;
@@ -87,8 +85,7 @@ static void insert_one_record(struct shortlog *log,
 	}
 }
 
-static int parse_ident(struct shortlog *log,
-		       struct strbuf *out, const char *in)
+static int parse_ident(struct shortlog *log, struct strbuf *out, const char *in)
 {
 	const char *mailbuf, *namebuf;
 	size_t namelen, maillen;
@@ -140,8 +137,7 @@ static void read_from_stdin(struct shortlog *log)
 		if (!skip_prefix(ident.buf, match[0], &v) &&
 		    !skip_prefix(ident.buf, match[1], &v))
 			continue;
-		while (strbuf_getline_lf(&oneline, stdin) != EOF &&
-		       oneline.len)
+		while (strbuf_getline_lf(&oneline, stdin) != EOF && oneline.len)
 			; /* discard headers */
 		while (strbuf_getline_lf(&oneline, stdin) != EOF &&
 		       !oneline.len)
@@ -203,7 +199,7 @@ void shortlog_add_commit(struct shortlog *log, struct commit *commit)
 	struct strbuf ident = STRBUF_INIT;
 	struct strbuf oneline = STRBUF_INIT;
 	struct strset dups = STRSET_INIT;
-	struct pretty_print_context ctx = {0};
+	struct pretty_print_context ctx = { 0 };
 	const char *oneline_str;
 
 	ctx.fmt = CMIT_FMT_USERFORMAT;
@@ -222,8 +218,7 @@ void shortlog_add_commit(struct shortlog *log, struct commit *commit)
 
 	if (log->groups & SHORTLOG_GROUP_AUTHOR) {
 		strbuf_reset(&ident);
-		format_commit_message(commit,
-				      log->email ? "%aN <%aE>" : "%aN",
+		format_commit_message(commit, log->email ? "%aN <%aE>" : "%aN",
 				      &ident, &ctx);
 		if (!HAS_MULTI_BITS(log->groups) ||
 		    strset_add(&dups, ident.buf))
@@ -231,15 +226,15 @@ void shortlog_add_commit(struct shortlog *log, struct commit *commit)
 	}
 	if (log->groups & SHORTLOG_GROUP_COMMITTER) {
 		strbuf_reset(&ident);
-		format_commit_message(commit,
-				      log->email ? "%cN <%cE>" : "%cN",
+		format_commit_message(commit, log->email ? "%cN <%cE>" : "%cN",
 				      &ident, &ctx);
 		if (!HAS_MULTI_BITS(log->groups) ||
 		    strset_add(&dups, ident.buf))
 			insert_one_record(log, ident.buf, oneline_str);
 	}
 	if (log->groups & SHORTLOG_GROUP_TRAILER) {
-		insert_records_from_trailers(log, &dups, commit, &ctx, oneline_str);
+		insert_records_from_trailers(log, &dups, commit, &ctx,
+					     oneline_str);
 	}
 
 	strset_clear(&dups);
@@ -297,14 +292,14 @@ static int parse_wrap_args(const struct option *opt, const char *arg, int unset)
 	log->in2 = parse_uint(&arg, '\0', DEFAULT_INDENT2);
 	if (log->wrap < 0 || log->in1 < 0 || log->in2 < 0)
 		return error(wrap_arg_usage);
-	if (log->wrap &&
-	    ((log->in1 && log->wrap <= log->in1) ||
-	     (log->in2 && log->wrap <= log->in2)))
+	if (log->wrap && ((log->in1 && log->wrap <= log->in1) ||
+			  (log->in2 && log->wrap <= log->in2)))
 		return error(wrap_arg_usage);
 	return 0;
 }
 
-static int parse_group_option(const struct option *opt, const char *arg, int unset)
+static int parse_group_option(const struct option *opt, const char *arg,
+			      int unset)
 {
 	struct shortlog *log = opt->value;
 	const char *field;
@@ -324,7 +319,6 @@ static int parse_group_option(const struct option *opt, const char *arg, int uns
 
 	return 0;
 }
-
 
 void shortlog_init(struct shortlog *log)
 {
@@ -350,17 +344,19 @@ int cmd_shortlog(int argc, const char **argv, const char *prefix)
 		OPT_BIT('c', "committer", &log.groups,
 			N_("group by committer rather than author"),
 			SHORTLOG_GROUP_COMMITTER),
-		OPT_BOOL('n', "numbered", &log.sort_by_number,
-			 N_("sort output according to the number of commits per author")),
-		OPT_BOOL('s', "summary", &log.summary,
-			 N_("suppress commit descriptions, only provides commit count")),
+		OPT_BOOL(
+			'n', "numbered", &log.sort_by_number,
+			N_("sort output according to the number of commits per author")),
+		OPT_BOOL(
+			's', "summary", &log.summary,
+			N_("suppress commit descriptions, only provides commit count")),
 		OPT_BOOL('e', "email", &log.email,
 			 N_("show the email address of each author")),
 		OPT_CALLBACK_F('w', NULL, &log, N_("<w>[,<i1>[,<i2>]]"),
-			N_("linewrap output"), PARSE_OPT_OPTARG,
-			&parse_wrap_args),
+			       N_("linewrap output"), PARSE_OPT_OPTARG,
+			       &parse_wrap_args),
 		OPT_CALLBACK(0, "group", &log, N_("field"),
-			N_("group by field"), parse_group_option),
+			     N_("group by field"), parse_group_option),
 		OPT_END(),
 	};
 
@@ -410,10 +406,10 @@ parse_done:
 		add_head_to_pending(&rev);
 	if (rev.pending.nr == 0) {
 		if (isatty(0))
-			fprintf(stderr, _("(reading log message from standard input)\n"));
+			fprintf(stderr,
+				_("(reading log message from standard input)\n"));
 		read_from_stdin(&log);
-	}
-	else
+	} else
 		get_from_rev(&rev, &log);
 
 	shortlog_output(&log);
@@ -440,12 +436,12 @@ void shortlog_output(struct shortlog *log)
 	for (i = 0; i < log->list.nr; i++) {
 		const struct string_list_item *item = &log->list.items[i];
 		if (log->summary) {
-			fprintf(log->file, "%6d\t%s\n",
-				(int)UTIL_TO_INT(item), item->string);
+			fprintf(log->file, "%6d\t%s\n", (int)UTIL_TO_INT(item),
+				item->string);
 		} else {
 			struct string_list *onelines = item->util;
-			fprintf(log->file, "%s (%d):\n",
-				item->string, onelines->nr);
+			fprintf(log->file, "%s (%d):\n", item->string,
+				onelines->nr);
 			for (j = onelines->nr - 1; j >= 0; j--) {
 				const char *msg = onelines->items[j].string;
 
@@ -453,8 +449,7 @@ void shortlog_output(struct shortlog *log)
 					strbuf_reset(&sb);
 					add_wrapped_shortlog_msg(&sb, msg, log);
 					fwrite(sb.buf, sb.len, 1, log->file);
-				}
-				else
+				} else
 					fprintf(log->file, "      %s\n", msg);
 			}
 			putc('\n', log->file);

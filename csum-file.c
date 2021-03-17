@@ -13,7 +13,7 @@
 
 static void flush(struct hashfile *f, const void *buf, unsigned int count)
 {
-	if (0 <= f->check_fd && count)  {
+	if (0 <= f->check_fd && count) {
 		unsigned char check_buffer[8192];
 		ssize_t ret = read_in_full(f->check_fd, check_buffer, count);
 
@@ -30,14 +30,15 @@ static void flush(struct hashfile *f, const void *buf, unsigned int count)
 		if (ret > 0) {
 			f->total += ret;
 			display_throughput(f->tp, f->total);
-			buf = (char *) buf + ret;
+			buf = (char *)buf + ret;
 			count -= ret;
 			if (count)
 				continue;
 			return;
 		}
 		if (!ret)
-			die("sha1 file '%s' write error. Out of diskspace", f->name);
+			die("sha1 file '%s' write error. Out of diskspace",
+			    f->name);
 		die_errno("sha1 file '%s' write error", f->name);
 	}
 }
@@ -53,7 +54,8 @@ void hashflush(struct hashfile *f)
 	}
 }
 
-int finalize_hashfile(struct hashfile *f, unsigned char *result, unsigned int flags)
+int finalize_hashfile(struct hashfile *f, unsigned char *result,
+		      unsigned int flags)
 {
 	int fd;
 
@@ -75,8 +77,9 @@ int finalize_hashfile(struct hashfile *f, unsigned char *result, unsigned int fl
 		char discard;
 		int cnt = read_in_full(f->check_fd, &discard, 1);
 		if (cnt < 0)
-			die_errno("%s: error when reading the tail of sha1 file",
-				  f->name);
+			die_errno(
+				"%s: error when reading the tail of sha1 file",
+				f->name);
 		if (cnt)
 			die("%s: sha1 file has trailing garbage", f->name);
 		if (close(f->check_fd))
@@ -107,7 +110,7 @@ void hashwrite(struct hashfile *f, const void *buf, unsigned int count)
 
 		count -= nr;
 		offset += nr;
-		buf = (char *) buf + nr;
+		buf = (char *)buf + nr;
 		left -= nr;
 		if (!left) {
 			the_hash_algo->update_fn(&f->ctx, data, offset);
@@ -139,7 +142,8 @@ struct hashfile *hashfd_check(const char *name)
 	return f;
 }
 
-struct hashfile *hashfd_throughput(int fd, const char *name, struct progress *tp)
+struct hashfile *hashfd_throughput(int fd, const char *name,
+				   struct progress *tp)
 {
 	struct hashfile *f = xmalloc(sizeof(*f));
 	f->fd = fd;
@@ -153,14 +157,16 @@ struct hashfile *hashfd_throughput(int fd, const char *name, struct progress *tp
 	return f;
 }
 
-void hashfile_checkpoint(struct hashfile *f, struct hashfile_checkpoint *checkpoint)
+void hashfile_checkpoint(struct hashfile *f,
+			 struct hashfile_checkpoint *checkpoint)
 {
 	hashflush(f);
 	checkpoint->offset = f->total;
 	the_hash_algo->clone_fn(&checkpoint->ctx, &f->ctx);
 }
 
-int hashfile_truncate(struct hashfile *f, struct hashfile_checkpoint *checkpoint)
+int hashfile_truncate(struct hashfile *f,
+		      struct hashfile_checkpoint *checkpoint)
 {
 	off_t offset = checkpoint->offset;
 

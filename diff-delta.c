@@ -130,7 +130,7 @@ struct delta_index {
 	struct index_entry *hash[FLEX_ARRAY];
 };
 
-struct delta_index * create_delta_index(const void *buf, unsigned long bufsize)
+struct delta_index *create_delta_index(const void *buf, unsigned long bufsize)
 {
 	unsigned int i, hsize, hmask, entries, prev_val, *hash_count;
 	const unsigned char *data, *buffer = buf;
@@ -155,13 +155,13 @@ struct delta_index * create_delta_index(const void *buf, unsigned long bufsize)
 		entries = 0xfffffffeU / RABIN_WINDOW;
 	}
 	hsize = entries / 4;
-	for (i = 4; (1u << i) < hsize; i++);
+	for (i = 4; (1u << i) < hsize; i++)
+		;
 	hsize = 1 << i;
 	hmask = hsize - 1;
 
 	/* allocate lookup index */
-	memsize = sizeof(*hash) * hsize +
-		  sizeof(*entry) * entries;
+	memsize = sizeof(*hash) * hsize + sizeof(*entry) * entries;
 	mem = malloc(memsize);
 	if (!mem)
 		return NULL;
@@ -181,8 +181,7 @@ struct delta_index * create_delta_index(const void *buf, unsigned long bufsize)
 	/* then populate the index */
 	prev_val = ~0;
 	for (data = buffer + entries * RABIN_WINDOW - RABIN_WINDOW;
-	     data >= buffer;
-	     data -= RABIN_WINDOW) {
+	     data >= buffer; data -= RABIN_WINDOW) {
 		unsigned int val = 0;
 		for (i = 1; i <= RABIN_WINDOW; i++)
 			val = ((val << 8) | data[i]) ^ T[val >> RABIN_SHIFT];
@@ -256,9 +255,8 @@ struct delta_index * create_delta_index(const void *buf, unsigned long bufsize)
 	 * Now create the packed index in array form
 	 * rather than linked lists.
 	 */
-	memsize = sizeof(*index)
-		+ sizeof(*packed_hash) * (hsize+1)
-		+ sizeof(*packed_entry) * entries;
+	memsize = sizeof(*index) + sizeof(*packed_hash) * (hsize + 1) +
+		  sizeof(*packed_entry) * entries;
 	mem = malloc(memsize);
 	if (!mem) {
 		free(hash);
@@ -273,7 +271,7 @@ struct delta_index * create_delta_index(const void *buf, unsigned long bufsize)
 
 	mem = index->hash;
 	packed_hash = mem;
-	mem = packed_hash + (hsize+1);
+	mem = packed_hash + (hsize + 1);
 	packed_entry = mem;
 
 	for (i = 0; i < hsize; i++) {
@@ -312,12 +310,11 @@ unsigned long sizeof_delta_index(struct delta_index *index)
  * The maximum size for any opcode sequence, including the initial header
  * plus Rabin window plus biggest copy.
  */
-#define MAX_OP_SIZE	(5 + 5 + 1 + RABIN_WINDOW + 7)
+#define MAX_OP_SIZE (5 + 5 + 1 + RABIN_WINDOW + 7)
 
-void *
-create_delta(const struct delta_index *index,
-	     const void *trg_buf, unsigned long trg_size,
-	     unsigned long *delta_size, unsigned long max_size)
+void *create_delta(const struct delta_index *index, const void *trg_buf,
+		   unsigned long trg_size, unsigned long *delta_size,
+		   unsigned long max_size)
 {
 	unsigned int i, val;
 	off_t outpos, moff;
@@ -358,7 +355,7 @@ create_delta(const struct delta_index *index,
 	ref_data = index->src_buf;
 	ref_top = ref_data + index->src_size;
 	data = trg_buf;
-	top = (const unsigned char *) trg_buf + trg_size;
+	top = (const unsigned char *)trg_buf + trg_size;
 
 	outpos++;
 	val = 0;
@@ -376,7 +373,8 @@ create_delta(const struct delta_index *index,
 			val ^= U[data[-RABIN_WINDOW]];
 			val = ((val << 8) | *data) ^ T[val >> RABIN_SHIFT];
 			i = val & index->hash_mask;
-			for (entry = index->hash[i]; entry < index->hash[i+1]; entry++) {
+			for (entry = index->hash[i]; entry < index->hash[i + 1];
+			     entry++) {
 				const unsigned char *ref = entry->ptr;
 				const unsigned char *src = data;
 				unsigned int ref_size = ref_top - ref;
@@ -413,7 +411,7 @@ create_delta(const struct delta_index *index,
 			unsigned char *op;
 
 			if (inscnt) {
-				while (moff && ref_data[moff-1] == data[-1]) {
+				while (moff && ref_data[moff - 1] == data[-1]) {
 					/* we can match one byte back */
 					msize++;
 					moff--;
@@ -421,8 +419,8 @@ create_delta(const struct delta_index *index,
 					outpos--;
 					if (--inscnt)
 						continue;
-					outpos--;  /* remove count slot */
-					inscnt--;  /* make it -1 */
+					outpos--; /* remove count slot */
+					inscnt--; /* make it -1 */
 					break;
 				}
 				out[outpos - inscnt - 1] = inscnt;
@@ -437,9 +435,9 @@ create_delta(const struct delta_index *index,
 			i = 0x80;
 
 			if (moff & 0x000000ff)
-				out[outpos++] = moff >> 0,  i |= 0x01;
+				out[outpos++] = moff >> 0, i |= 0x01;
 			if (moff & 0x0000ff00)
-				out[outpos++] = moff >> 8,  i |= 0x02;
+				out[outpos++] = moff >> 8, i |= 0x02;
 			if (moff & 0x00ff0000)
 				out[outpos++] = moff >> 16, i |= 0x04;
 			if (moff & 0xff000000)
@@ -463,8 +461,8 @@ create_delta(const struct delta_index *index,
 				int j;
 				val = 0;
 				for (j = -RABIN_WINDOW; j < 0; j++)
-					val = ((val << 8) | data[j])
-					      ^ T[val >> RABIN_SHIFT];
+					val = ((val << 8) | data[j]) ^
+					      T[val >> RABIN_SHIFT];
 			}
 		}
 

@@ -27,7 +27,7 @@ struct git_transport_options {
 	 * See the definition of connectivity_checked in struct
 	 * fetch_pack_args for more information.
 	 */
-	unsigned connectivity_checked:1;
+	unsigned connectivity_checked : 1;
 
 	int depth;
 	const char *deepen_since;
@@ -88,7 +88,8 @@ struct transport {
 
 	/*
 	 * These strings will be passed to the {pre, post}-receive hook,
-	 * on the remote side, if both sides support the push options capability.
+	 * on the remote side, if both sides support the push options
+	 * capability.
 	 */
 	const struct string_list *push_options;
 
@@ -120,23 +121,23 @@ struct transport {
 	const struct git_hash_algo *hash_algo;
 };
 
-#define TRANSPORT_PUSH_ALL			(1<<0)
-#define TRANSPORT_PUSH_FORCE			(1<<1)
-#define TRANSPORT_PUSH_DRY_RUN			(1<<2)
-#define TRANSPORT_PUSH_MIRROR			(1<<3)
-#define TRANSPORT_PUSH_PORCELAIN		(1<<4)
-#define TRANSPORT_PUSH_SET_UPSTREAM		(1<<5)
-#define TRANSPORT_RECURSE_SUBMODULES_CHECK	(1<<6)
-#define TRANSPORT_PUSH_PRUNE			(1<<7)
-#define TRANSPORT_RECURSE_SUBMODULES_ON_DEMAND	(1<<8)
-#define TRANSPORT_PUSH_NO_HOOK			(1<<9)
-#define TRANSPORT_PUSH_FOLLOW_TAGS		(1<<10)
-#define TRANSPORT_PUSH_CERT_ALWAYS		(1<<11)
-#define TRANSPORT_PUSH_CERT_IF_ASKED		(1<<12)
-#define TRANSPORT_PUSH_ATOMIC			(1<<13)
-#define TRANSPORT_PUSH_OPTIONS			(1<<14)
-#define TRANSPORT_RECURSE_SUBMODULES_ONLY	(1<<15)
-#define TRANSPORT_PUSH_FORCE_IF_INCLUDES	(1<<16)
+#define TRANSPORT_PUSH_ALL (1 << 0)
+#define TRANSPORT_PUSH_FORCE (1 << 1)
+#define TRANSPORT_PUSH_DRY_RUN (1 << 2)
+#define TRANSPORT_PUSH_MIRROR (1 << 3)
+#define TRANSPORT_PUSH_PORCELAIN (1 << 4)
+#define TRANSPORT_PUSH_SET_UPSTREAM (1 << 5)
+#define TRANSPORT_RECURSE_SUBMODULES_CHECK (1 << 6)
+#define TRANSPORT_PUSH_PRUNE (1 << 7)
+#define TRANSPORT_RECURSE_SUBMODULES_ON_DEMAND (1 << 8)
+#define TRANSPORT_PUSH_NO_HOOK (1 << 9)
+#define TRANSPORT_PUSH_FOLLOW_TAGS (1 << 10)
+#define TRANSPORT_PUSH_CERT_ALWAYS (1 << 11)
+#define TRANSPORT_PUSH_CERT_IF_ASKED (1 << 12)
+#define TRANSPORT_PUSH_ATOMIC (1 << 13)
+#define TRANSPORT_PUSH_OPTIONS (1 << 14)
+#define TRANSPORT_RECURSE_SUBMODULES_ONLY (1 << 15)
+#define TRANSPORT_PUSH_FORCE_IF_INCLUDES (1 << 16)
 
 int transport_summary_width(const struct ref *refs);
 
@@ -219,19 +220,17 @@ void transport_check_allowed(const char *type);
 int transport_set_option(struct transport *transport, const char *name,
 			 const char *value);
 void transport_set_verbosity(struct transport *transport, int verbosity,
-	int force_progress);
+			     int force_progress);
 
-#define REJECT_NON_FF_HEAD      0x01
-#define REJECT_NON_FF_OTHER     0x02
-#define REJECT_ALREADY_EXISTS   0x04
-#define REJECT_FETCH_FIRST      0x08
-#define REJECT_NEEDS_FORCE      0x10
+#define REJECT_NON_FF_HEAD 0x01
+#define REJECT_NON_FF_OTHER 0x02
+#define REJECT_ALREADY_EXISTS 0x04
+#define REJECT_FETCH_FIRST 0x08
+#define REJECT_NEEDS_FORCE 0x10
 #define REJECT_REF_NEEDS_UPDATE 0x20
 
-int transport_push(struct repository *repo,
-		   struct transport *connection,
-		   struct refspec *rs, int flags,
-		   unsigned int * reject_reasons);
+int transport_push(struct repository *repo, struct transport *connection,
+		   struct refspec *rs, int flags, unsigned int *reject_reasons);
 
 struct transport_ls_refs_options {
 	/*
@@ -252,20 +251,25 @@ struct transport_ls_refs_options {
 	 */
 	char *unborn_head_target;
 };
-#define TRANSPORT_LS_REFS_OPTIONS_INIT { STRVEC_INIT }
+#define TRANSPORT_LS_REFS_OPTIONS_INIT \
+	{                              \
+		STRVEC_INIT            \
+	}
 
 /*
  * Retrieve refs from a remote.
  */
-const struct ref *transport_get_remote_refs(struct transport *transport,
-					    struct transport_ls_refs_options *transport_options);
+const struct ref *
+transport_get_remote_refs(struct transport *transport,
+			  struct transport_ls_refs_options *transport_options);
 
 /*
  * Fetch the hash algorithm used by a remote.
  *
  * This can only be called after fetching the remote refs.
  */
-const struct git_hash_algo *transport_get_hash_algo(struct transport *transport);
+const struct git_hash_algo *
+transport_get_hash_algo(struct transport *transport);
 int transport_fetch_refs(struct transport *transport, struct ref *refs);
 void transport_unlock_pack(struct transport *transport);
 int transport_disconnect(struct transport *transport);
@@ -281,12 +285,14 @@ int transport_helper_init(struct transport *transport, const char *name);
 int bidirectional_transfer_loop(int input, int output);
 
 /* common methods used by transport.c and builtin/send-pack.c */
-void transport_update_tracking_ref(struct remote *remote, struct ref *ref, int verbose);
+void transport_update_tracking_ref(struct remote *remote, struct ref *ref,
+				   int verbose);
 
 int transport_refs_pushed(struct ref *ref);
 
 void transport_print_push_status(const char *dest, struct ref *refs,
-		  int verbose, int porcelain, unsigned int *reject_reasons);
+				 int verbose, int porcelain,
+				 unsigned int *reject_reasons);
 
 /* common method used by transport-helper.c and send-pack.c */
 void reject_atomic_push(struct ref *refs, int mirror_mode);

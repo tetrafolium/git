@@ -19,13 +19,13 @@
 static struct man_viewer_list {
 	struct man_viewer_list *next;
 	char name[FLEX_ARRAY];
-} *man_viewer_list;
+} * man_viewer_list;
 
 static struct man_viewer_info_list {
 	struct man_viewer_info_list *next;
 	const char *info;
 	char name[FLEX_ARRAY];
-} *man_viewer_info_list;
+} * man_viewer_info_list;
 
 enum help_format {
 	HELP_FORMAT_NONE,
@@ -45,20 +45,25 @@ static enum help_format help_format = HELP_FORMAT_NONE;
 static int exclude_guides;
 static struct option builtin_help_options[] = {
 	OPT_BOOL('a', "all", &show_all, N_("print all available commands")),
-	OPT_HIDDEN_BOOL(0, "exclude-guides", &exclude_guides, N_("exclude guides")),
-	OPT_BOOL('g', "guides", &show_guides, N_("print list of useful guides")),
-	OPT_BOOL('c', "config", &show_config, N_("print all configuration variable names")),
-	OPT_SET_INT_F(0, "config-for-completion", &show_config, "", 2, PARSE_OPT_HIDDEN),
-	OPT_SET_INT('m', "man", &help_format, N_("show man page"), HELP_FORMAT_MAN),
+	OPT_HIDDEN_BOOL(0, "exclude-guides", &exclude_guides,
+			N_("exclude guides")),
+	OPT_BOOL('g', "guides", &show_guides,
+		 N_("print list of useful guides")),
+	OPT_BOOL('c', "config", &show_config,
+		 N_("print all configuration variable names")),
+	OPT_SET_INT_F(0, "config-for-completion", &show_config, "", 2,
+		      PARSE_OPT_HIDDEN),
+	OPT_SET_INT('m', "man", &help_format, N_("show man page"),
+		    HELP_FORMAT_MAN),
 	OPT_SET_INT('w', "web", &help_format, N_("show manual in web browser"),
-			HELP_FORMAT_WEB),
+		    HELP_FORMAT_WEB),
 	OPT_SET_INT('i', "info", &help_format, N_("show info page"),
-			HELP_FORMAT_INFO),
+		    HELP_FORMAT_INFO),
 	OPT__VERBOSE(&verbose, N_("print command description")),
 	OPT_END(),
 };
 
-static const char * const builtin_help_usage[] = {
+static const char *const builtin_help_usage[] = {
 	N_("git help [--all] [--guides] [--man | --web | --info] [<command>]"),
 	NULL
 };
@@ -75,10 +80,12 @@ static void list_config_help(int for_human)
 	struct slot_expansion slot_expansions[] = {
 		{ "advice", "*", list_config_advices },
 		{ "color.branch", "<slot>", list_config_color_branch_slots },
-		{ "color.decorate", "<slot>", list_config_color_decorate_slots },
+		{ "color.decorate", "<slot>",
+		  list_config_color_decorate_slots },
 		{ "color.diff", "<slot>", list_config_color_diff_slots },
 		{ "color.grep", "<slot>", list_config_color_grep_slots },
-		{ "color.interactive", "<slot>", list_config_color_interactive_slots },
+		{ "color.interactive", "<slot>",
+		  list_config_color_interactive_slots },
 		{ "color.remote", "<slot>", list_config_color_sideband_slots },
 		{ "color.status", "<slot>", list_config_color_status_slots },
 		{ "fsck", "<msg-id>", list_config_fsck_msg_ids },
@@ -95,7 +102,6 @@ static void list_config_help(int for_human)
 		struct strbuf sb = STRBUF_INIT;
 
 		for (e = slot_expansions; e->prefix; e++) {
-
 			strbuf_reset(&sb);
 			strbuf_addf(&sb, "%s.%s", e->prefix, e->placeholder);
 			if (!strcasecmp(var, sb.buf)) {
@@ -111,8 +117,8 @@ static void list_config_help(int for_human)
 
 	for (e = slot_expansions; e->prefix; e++)
 		if (!e->found)
-			BUG("slot_expansion %s.%s is not used",
-			    e->prefix, e->placeholder);
+			BUG("slot_expansion %s.%s is not used", e->prefix,
+			    e->placeholder);
 
 	string_list_sort(&keys);
 	for (i = 0; i < keys.nr; i++) {
@@ -167,8 +173,7 @@ static const char *get_man_viewer_info(const char *name)
 {
 	struct man_viewer_info_list *viewer;
 
-	for (viewer = man_viewer_info_list; viewer; viewer = viewer->next)
-	{
+	for (viewer = man_viewer_info_list; viewer; viewer = viewer->next) {
 		if (!strcasecmp(name, viewer->name))
 			return viewer->info;
 	}
@@ -209,7 +214,7 @@ static int check_emacsclient_version(void)
 	if (version < 22) {
 		strbuf_release(&buffer);
 		return error(_("emacsclient version '%d' too old (< 22)."),
-			version);
+			     version);
 	}
 
 	strbuf_release(&buffer);
@@ -242,7 +247,8 @@ static void exec_man_konqueror(const char *path, const char *page)
 		if (path) {
 			size_t len;
 			if (strip_suffix(path, "/konqueror", &len))
-				path = xstrfmt("%.*s/kfmclient", (int)len, path);
+				path = xstrfmt("%.*s/kfmclient", (int)len,
+					       path);
 			filename = basename((char *)path);
 		} else
 			path = "kfmclient";
@@ -286,8 +292,7 @@ static int supported_man_viewer(const char *name, size_t len)
 		!strncasecmp("konqueror", name, len));
 }
 
-static void do_add_man_viewer_info(const char *name,
-				   size_t len,
+static void do_add_man_viewer_info(const char *name, size_t len,
 				   const char *value)
 {
 	struct man_viewer_info_list *new_man_viewer;
@@ -297,9 +302,7 @@ static void do_add_man_viewer_info(const char *name,
 	man_viewer_info_list = new_man_viewer;
 }
 
-static int add_man_viewer_path(const char *name,
-			       size_t len,
-			       const char *value)
+static int add_man_viewer_path(const char *name, size_t len, const char *value)
 {
 	if (supported_man_viewer(name, len))
 		do_add_man_viewer_info(name, len, value);
@@ -311,9 +314,7 @@ static int add_man_viewer_path(const char *name,
 	return 0;
 }
 
-static int add_man_viewer_cmd(const char *name,
-			      size_t len,
-			      const char *value)
+static int add_man_viewer_cmd(const char *name, size_t len, const char *value)
 {
 	if (supported_man_viewer(name, len))
 		warning(_("'%s': cmd for supported man viewer.\n"
@@ -383,8 +384,7 @@ static int is_git_command(const char *s)
 		return 1;
 
 	load_command_list("git-", &main_cmds, &other_cmds);
-	return is_in_cmdlist(&main_cmds, s) ||
-		is_in_cmdlist(&other_cmds, s);
+	return is_in_cmdlist(&main_cmds, s) || is_in_cmdlist(&other_cmds, s);
 }
 
 static const char *cmd_to_page(const char *git_cmd)
@@ -443,8 +443,7 @@ static void show_man_page(const char *git_cmd)
 	const char *fallback = getenv("GIT_MAN_VIEWER");
 
 	setup_man_path();
-	for (viewer = man_viewer_list; viewer; viewer = viewer->next)
-	{
+	for (viewer = man_viewer_list; viewer; viewer = viewer->next) {
 		exec_viewer(viewer->name, page); /* will return when unable */
 	}
 	if (fallback)
@@ -471,8 +470,8 @@ static void get_html_page_path(struct strbuf *page_path, const char *page)
 
 	/* Check that we have a git documentation directory. */
 	if (!strstr(html_path, "://")) {
-		if (stat(mkpath("%s/git.html", html_path), &st)
-		    || !S_ISREG(st.st_mode))
+		if (stat(mkpath("%s/git.html", html_path), &st) ||
+		    !S_ISREG(st.st_mode))
 			die("'%s': not a documentation directory.", html_path);
 	}
 
@@ -496,7 +495,7 @@ static void show_html_page(const char *git_cmd)
 	open_html(page_path.buf);
 }
 
-static const char *check_git_cmd(const char* cmd)
+static const char *check_git_cmd(const char *cmd)
 {
 	char *alias;
 
@@ -550,7 +549,7 @@ int cmd_help(int argc, const char **argv, const char *prefix)
 	enum help_format parsed_help_format;
 
 	argc = parse_options(argc, argv, prefix, builtin_help_options,
-			builtin_help_usage, 0);
+			     builtin_help_usage, 0);
 	parsed_help_format = help_format;
 
 	if (show_all) {
@@ -584,8 +583,8 @@ int cmd_help(int argc, const char **argv, const char *prefix)
 	if (show_all || show_guides) {
 		printf("%s\n", _(git_more_info_string));
 		/*
-		* We're done. Ignore any remaining args
-		*/
+		 * We're done. Ignore any remaining args
+		 */
 		return 0;
 	}
 

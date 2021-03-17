@@ -5,8 +5,7 @@
 #include "commit.h"
 #include "refs.h"
 
-static int notes_cache_match_validity(struct repository *r,
-				      const char *ref,
+static int notes_cache_match_validity(struct repository *r, const char *ref,
 				      const char *validity)
 {
 	struct object_id oid;

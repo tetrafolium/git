@@ -28,25 +28,24 @@
 
 #define REFRESH_INDEX_DELAY_WARNING_IN_MS (2 * 1000)
 
-static const char * const git_reset_usage[] = {
+static const char *const git_reset_usage[] = {
 	N_("git reset [--mixed | --soft | --hard | --merge | --keep] [-q] [<commit>]"),
 	N_("git reset [-q] [<tree-ish>] [--] <pathspec>..."),
 	N_("git reset [-q] [--pathspec-from-file [--pathspec-file-nul]] [<tree-ish>]"),
-	N_("git reset --patch [<tree-ish>] [--] [<pathspec>...]"),
-	NULL
+	N_("git reset --patch [<tree-ish>] [--] [<pathspec>...]"), NULL
 };
 
 enum reset_type { MIXED, SOFT, HARD, MERGE, KEEP, NONE };
-static const char *reset_type_names[] = {
-	N_("mixed"), N_("soft"), N_("hard"), N_("merge"), N_("keep"), NULL
-};
+static const char *reset_type_names[] = { N_("mixed"), N_("soft"), N_("hard"),
+					  N_("merge"), N_("keep"), NULL };
 
 static inline int is_merge(void)
 {
 	return !access(git_path_merge_head(the_repository), F_OK);
 }
 
-static int reset_index(const char *ref, const struct object_id *oid, int reset_type, int quiet)
+static int reset_index(const char *ref, const struct object_id *oid,
+		       int reset_type, int quiet)
 {
 	int i, nr = 0;
 	struct tree_desc desc[2];
@@ -114,7 +113,7 @@ static void print_new_head_line(struct commit *commit)
 	struct strbuf buf = STRBUF_INIT;
 
 	printf(_("HEAD is now at %s"),
-		find_unique_abbrev(&commit->object.oid, DEFAULT_ABBREV));
+	       find_unique_abbrev(&commit->object.oid, DEFAULT_ABBREV));
 
 	pp_commit_easy(CMIT_FMT_ONELINE, commit, &buf);
 	if (buf.len > 0)
@@ -124,7 +123,7 @@ static void print_new_head_line(struct commit *commit)
 }
 
 static void update_index_from_diff(struct diff_queue_struct *q,
-		struct diff_options *opt, void *data)
+				   struct diff_options *opt, void *data)
 {
 	int i;
 	int intent_to_add = *(int *)data;
@@ -139,8 +138,8 @@ static void update_index_from_diff(struct diff_queue_struct *q,
 			continue;
 		}
 
-		ce = make_cache_entry(&the_index, one->mode, &one->oid, one->path,
-				      0, 0);
+		ce = make_cache_entry(&the_index, one->mode, &one->oid,
+				      one->path, 0, 0);
 		if (!ce)
 			die(_("make_cache_entry failed for path '%s'"),
 			    one->path);
@@ -148,13 +147,13 @@ static void update_index_from_diff(struct diff_queue_struct *q,
 			ce->ce_flags |= CE_INTENT_TO_ADD;
 			set_object_name_for_intent_to_add_entry(ce);
 		}
-		add_cache_entry(ce, ADD_CACHE_OK_TO_ADD | ADD_CACHE_OK_TO_REPLACE);
+		add_cache_entry(ce,
+				ADD_CACHE_OK_TO_ADD | ADD_CACHE_OK_TO_REPLACE);
 	}
 }
 
 static int read_from_tree(const struct pathspec *pathspec,
-			  struct object_id *tree_oid,
-			  int intent_to_add)
+			  struct object_id *tree_oid, int intent_to_add)
 {
 	struct diff_options opt;
 
@@ -194,13 +193,10 @@ static void die_if_unmerged_cache(int reset_type)
 	if (is_merge() || unmerged_cache())
 		die(_("Cannot do a %s reset in the middle of a merge."),
 		    _(reset_type_names[reset_type]));
-
 }
 
-static void parse_args(struct pathspec *pathspec,
-		       const char **argv, const char *prefix,
-		       int patch_mode,
-		       const char **rev_ret)
+static void parse_args(struct pathspec *pathspec, const char **argv,
+		       const char *prefix, int patch_mode, const char **rev_ret)
 {
 	const char *rev = "HEAD";
 	struct object_id unused;
@@ -248,7 +244,7 @@ static void parse_args(struct pathspec *pathspec,
 
 	parse_pathspec(pathspec, 0,
 		       PATHSPEC_PREFER_FULL |
-		       (patch_mode ? PATHSPEC_PREFIX_ORIGIN : 0),
+			       (patch_mode ? PATHSPEC_PREFIX_ORIGIN : 0),
 		       prefix, argv);
 }
 
@@ -256,8 +252,7 @@ static int reset_refs(const char *rev, const struct object_id *oid)
 {
 	int update_ref_status;
 	struct strbuf msg = STRBUF_INIT;
-	struct object_id *orig = NULL, oid_orig,
-		*old_orig = NULL, oid_old_orig;
+	struct object_id *orig = NULL, oid_orig, *old_orig = NULL, oid_old_orig;
 
 	if (!get_oid("ORIG_HEAD", &oid_old_orig))
 		old_orig = &oid_old_orig;
@@ -293,21 +288,25 @@ int cmd_reset(int argc, const char **argv, const char *prefix)
 	int intent_to_add = 0;
 	const struct option options[] = {
 		OPT__QUIET(&quiet, N_("be quiet, only report errors")),
-		OPT_SET_INT(0, "mixed", &reset_type,
-						N_("reset HEAD and index"), MIXED),
-		OPT_SET_INT(0, "soft", &reset_type, N_("reset only HEAD"), SOFT),
+		OPT_SET_INT(0, "mixed", &reset_type, N_("reset HEAD and index"),
+			    MIXED),
+		OPT_SET_INT(0, "soft", &reset_type, N_("reset only HEAD"),
+			    SOFT),
 		OPT_SET_INT(0, "hard", &reset_type,
-				N_("reset HEAD, index and working tree"), HARD),
+			    N_("reset HEAD, index and working tree"), HARD),
 		OPT_SET_INT(0, "merge", &reset_type,
-				N_("reset HEAD, index and working tree"), MERGE),
+			    N_("reset HEAD, index and working tree"), MERGE),
 		OPT_SET_INT(0, "keep", &reset_type,
-				N_("reset HEAD but keep local changes"), KEEP),
-		OPT_CALLBACK_F(0, "recurse-submodules", NULL,
-			    "reset", "control recursive updating of submodules",
-			    PARSE_OPT_OPTARG, option_parse_recurse_submodules_worktree_updater),
-		OPT_BOOL('p', "patch", &patch_mode, N_("select hunks interactively")),
-		OPT_BOOL('N', "intent-to-add", &intent_to_add,
-				N_("record only the fact that removed paths will be added later")),
+			    N_("reset HEAD but keep local changes"), KEEP),
+		OPT_CALLBACK_F(0, "recurse-submodules", NULL, "reset",
+			       "control recursive updating of submodules",
+			       PARSE_OPT_OPTARG,
+			       option_parse_recurse_submodules_worktree_updater),
+		OPT_BOOL('p', "patch", &patch_mode,
+			 N_("select hunks interactively")),
+		OPT_BOOL(
+			'N', "intent-to-add", &intent_to_add,
+			N_("record only the fact that removed paths will be added later")),
 		OPT_PATHSPEC_FROM_FILE(&pathspec_from_file),
 		OPT_PATHSPEC_FILE_NUL(&pathspec_file_nul),
 		OPT_END()
@@ -317,7 +316,7 @@ int cmd_reset(int argc, const char **argv, const char *prefix)
 	git_config_get_bool("reset.quiet", &quiet);
 
 	argc = parse_options(argc, argv, prefix, options, git_reset_usage,
-						PARSE_OPT_KEEP_DASHDASH);
+			     PARSE_OPT_KEEP_DASHDASH);
 	parse_args(&pathspec, argv, prefix, patch_mode, &rev);
 
 	if (pathspec_from_file) {
@@ -327,9 +326,8 @@ int cmd_reset(int argc, const char **argv, const char *prefix)
 		if (pathspec.nr)
 			die(_("--pathspec-from-file is incompatible with pathspec arguments"));
 
-		parse_pathspec_file(&pathspec, 0,
-				    PATHSPEC_PREFER_FULL,
-				    prefix, pathspec_from_file, pathspec_file_nul);
+		parse_pathspec_file(&pathspec, 0, PATHSPEC_PREFER_FULL, prefix,
+				    pathspec_from_file, pathspec_file_nul);
 	} else if (pathspec_file_nul) {
 		die(_("--pathspec-file-nul requires --pathspec-from-file"));
 	}
@@ -341,7 +339,8 @@ int cmd_reset(int argc, const char **argv, const char *prefix)
 	} else if (!pathspec.nr && !patch_mode) {
 		struct commit *commit;
 		if (get_oid_committish(rev, &oid))
-			die(_("Failed to resolve '%s' as a valid revision."), rev);
+			die(_("Failed to resolve '%s' as a valid revision."),
+			    rev);
 		commit = lookup_commit_reference(the_repository, &oid);
 		if (!commit)
 			die(_("Could not parse object '%s'."), rev);
@@ -368,10 +367,11 @@ int cmd_reset(int argc, const char **argv, const char *prefix)
 	 * affecting the working tree nor HEAD. */
 	if (pathspec.nr) {
 		if (reset_type == MIXED)
-			warning(_("--mixed with paths is deprecated; use 'git reset -- <paths>' instead."));
+			warning(_(
+				"--mixed with paths is deprecated; use 'git reset -- <paths>' instead."));
 		else if (reset_type != NONE)
 			die(_("Cannot do %s reset with paths."),
-					_(reset_type_names[reset_type]));
+			    _(reset_type_names[reset_type]));
 	}
 	if (reset_type == NONE)
 		reset_type = MIXED; /* by default */
@@ -401,7 +401,8 @@ int cmd_reset(int argc, const char **argv, const char *prefix)
 		struct lock_file lock = LOCK_INIT;
 		hold_locked_index(&lock, LOCK_DIE_ON_ERROR);
 		if (reset_type == MIXED) {
-			int flags = quiet ? REFRESH_QUIET : REFRESH_IN_PORCELAIN;
+			int flags = quiet ? REFRESH_QUIET :
+					    REFRESH_IN_PORCELAIN;
 			if (read_from_tree(&pathspec, &oid, intent_to_add))
 				return 1;
 			the_index.updated_skipworktree = 1;
@@ -409,13 +410,18 @@ int cmd_reset(int argc, const char **argv, const char *prefix)
 				uint64_t t_begin, t_delta_in_ms;
 
 				t_begin = getnanotime();
-				refresh_index(&the_index, flags, NULL, NULL,
-					      _("Unstaged changes after reset:"));
-				t_delta_in_ms = (getnanotime() - t_begin) / 1000000;
-				if (advice_reset_quiet_warning && t_delta_in_ms > REFRESH_INDEX_DELAY_WARNING_IN_MS) {
+				refresh_index(
+					&the_index, flags, NULL, NULL,
+					_("Unstaged changes after reset:"));
+				t_delta_in_ms =
+					(getnanotime() - t_begin) / 1000000;
+				if (advice_reset_quiet_warning &&
+				    t_delta_in_ms >
+					    REFRESH_INDEX_DELAY_WARNING_IN_MS) {
 					printf(_("\nIt took %.2f seconds to enumerate unstaged changes after reset.  You can\n"
-						"use '--quiet' to avoid this.  Set the config setting reset.quiet to true\n"
-						"to make this the default.\n"), t_delta_in_ms / 1000.0);
+						 "use '--quiet' to avoid this.  Set the config setting reset.quiet to true\n"
+						 "to make this the default.\n"),
+					       t_delta_in_ms / 1000.0);
 				}
 			}
 		} else {
@@ -431,7 +437,8 @@ int cmd_reset(int argc, const char **argv, const char *prefix)
 			if (reset_type == KEEP && !err)
 				err = reset_index(ref, &oid, MIXED, quiet);
 			if (err)
-				die(_("Could not reset index file to revision '%s'."), rev);
+				die(_("Could not reset index file to revision '%s'."),
+				    rev);
 			free(ref);
 		}
 
@@ -445,7 +452,8 @@ int cmd_reset(int argc, const char **argv, const char *prefix)
 		update_ref_status = reset_refs(rev, &oid);
 
 		if (reset_type == HARD && !update_ref_status && !quiet)
-			print_new_head_line(lookup_commit_reference(the_repository, &oid));
+			print_new_head_line(
+				lookup_commit_reference(the_repository, &oid));
 	}
 	if (!pathspec.nr)
 		remove_branch_state(the_repository, 0);

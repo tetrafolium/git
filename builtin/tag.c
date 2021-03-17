@@ -21,14 +21,13 @@
 #include "column.h"
 #include "ref-filter.h"
 
-static const char * const git_tag_usage[] = {
+static const char *const git_tag_usage[] = {
 	N_("git tag [-a | -s | -u <key-id>] [-f] [-m <msg> | -F <file>]\n"
-		"\t\t<tagname> [<head>]"),
+	   "\t\t<tagname> [<head>]"),
 	N_("git tag -d <tagname>..."),
 	N_("git tag -l [-n[<num>]] [--contains <commit>] [--no-contains <commit>] [--points-at <object>]\n"
-		"\t\t[--format=<format>] [--merged <commit>] [--no-merged <commit>] [<pattern>...]"),
-	N_("git tag -v [--format=<format>] <tagname>..."),
-	NULL
+	   "\t\t[--format=<format>] [--merged <commit>] [--no-merged <commit>] [<pattern>...]"),
+	N_("git tag -v [--format=<format>] <tagname>..."), NULL
 };
 
 static unsigned int colopts;
@@ -49,9 +48,10 @@ static int list_tags(struct ref_filter *filter, struct ref_sorting *sorting,
 
 	if (!format->format) {
 		if (filter->lines) {
-			to_free = xstrfmt("%s %%(contents:lines=%d)",
-					  "%(align:15)%(refname:lstrip=2)%(end)",
-					  filter->lines);
+			to_free =
+				xstrfmt("%s %%(contents:lines=%d)",
+					"%(align:15)%(refname:lstrip=2)%(end)",
+					filter->lines);
 			format->format = to_free;
 		} else
 			format->format = "%(refname:lstrip=2)";
@@ -117,13 +117,13 @@ static int delete_tags(const char **argv)
 	if (delete_refs(NULL, &refs_to_delete, REF_NO_DEREF))
 		result = 1;
 
-	for_each_string_list_item(item, &refs_to_delete) {
+	for_each_string_list_item (item, &refs_to_delete) {
 		const char *name = item->string;
 		struct object_id *oid = item->util;
 		if (!ref_exists(name))
 			printf(_("Deleted tag '%s' (was %s)\n"),
-				item->string + 10,
-				find_unique_abbrev(oid, DEFAULT_ABBREV));
+			       item->string + 10,
+			       find_unique_abbrev(oid, DEFAULT_ABBREV));
 
 		free(oid);
 	}
@@ -157,12 +157,12 @@ static int do_sign(struct strbuf *buffer)
 
 static const char tag_template[] =
 	N_("\nWrite a message for tag:\n  %s\n"
-	"Lines starting with '%c' will be ignored.\n");
+	   "Lines starting with '%c' will be ignored.\n");
 
 static const char tag_template_nocleanup[] =
 	N_("\nWrite a message for tag:\n  %s\n"
-	"Lines starting with '%c' will be kept; you may remove them"
-	" yourself if you want to.\n");
+	   "Lines starting with '%c' will be kept; you may remove them"
+	   " yourself if you want to.\n");
 
 static int git_tag_config(const char *var, const char *value, void *cb)
 {
@@ -224,7 +224,8 @@ static void write_tag_body(int fd, const struct object_id *oid)
 	strbuf_release(&signature);
 }
 
-static int build_tag_object(struct strbuf *buf, int sign, struct object_id *result)
+static int build_tag_object(struct strbuf *buf, int sign,
+			    struct object_id *result)
 {
 	if (sign && do_sign(buf) < 0)
 		return error(_("unable to sign the tag"));
@@ -234,26 +235,22 @@ static int build_tag_object(struct strbuf *buf, int sign, struct object_id *resu
 }
 
 struct create_tag_options {
-	unsigned int message_given:1;
-	unsigned int use_editor:1;
+	unsigned int message_given : 1;
+	unsigned int use_editor : 1;
 	unsigned int sign;
-	enum {
-		CLEANUP_NONE,
-		CLEANUP_SPACE,
-		CLEANUP_ALL
-	} cleanup_mode;
+	enum { CLEANUP_NONE, CLEANUP_SPACE, CLEANUP_ALL } cleanup_mode;
 };
 
-static const char message_advice_nested_tag[] =
-	N_("You have created a nested tag. The object referred to by your new tag is\n"
-	   "already a tag. If you meant to tag the object that it points to, use:\n"
-	   "\n"
-	   "\tgit tag -f %s %s^{}");
+static const char message_advice_nested_tag[] = N_(
+	"You have created a nested tag. The object referred to by your new tag is\n"
+	"already a tag. If you meant to tag the object that it points to, use:\n"
+	"\n"
+	"\tgit tag -f %s %s^{}");
 
 static void create_tag(const struct object_id *object, const char *object_ref,
-		       const char *tag,
-		       struct strbuf *buf, struct create_tag_options *opt,
-		       struct object_id *prev, struct object_id *result)
+		       const char *tag, struct strbuf *buf,
+		       struct create_tag_options *opt, struct object_id *prev,
+		       struct object_id *result)
 {
 	enum object_type type;
 	struct strbuf header = STRBUF_INIT;
@@ -264,17 +261,16 @@ static void create_tag(const struct object_id *object, const char *object_ref,
 		die(_("bad object type."));
 
 	if (type == OBJ_TAG)
-		advise_if_enabled(ADVICE_NESTED_TAG, _(message_advice_nested_tag),
-				  tag, object_ref);
+		advise_if_enabled(ADVICE_NESTED_TAG,
+				  _(message_advice_nested_tag), tag,
+				  object_ref);
 
 	strbuf_addf(&header,
 		    "object %s\n"
 		    "type %s\n"
 		    "tag %s\n"
 		    "tagger %s\n\n",
-		    oid_to_hex(object),
-		    type_name(type),
-		    tag,
+		    oid_to_hex(object), type_name(type), tag,
 		    git_committer_info(IDENT_STRICT));
 
 	if (!opt->message_given || opt->use_editor) {
@@ -295,9 +291,12 @@ static void create_tag(const struct object_id *object, const char *object_ref,
 			struct strbuf buf = STRBUF_INIT;
 			strbuf_addch(&buf, '\n');
 			if (opt->cleanup_mode == CLEANUP_ALL)
-				strbuf_commented_addf(&buf, _(tag_template), tag, comment_line_char);
+				strbuf_commented_addf(&buf, _(tag_template),
+						      tag, comment_line_char);
 			else
-				strbuf_commented_addf(&buf, _(tag_template_nocleanup), tag, comment_line_char);
+				strbuf_commented_addf(&buf,
+						      _(tag_template_nocleanup),
+						      tag, comment_line_char);
 			write_or_die(fd, buf.buf, buf.len);
 			strbuf_release(&buf);
 		}
@@ -305,7 +304,7 @@ static void create_tag(const struct object_id *object, const char *object_ref,
 
 		if (launch_editor(path, buf, NULL)) {
 			fprintf(stderr,
-			_("Please supply the message using either -m or -F option.\n"));
+				_("Please supply the message using either -m or -F option.\n"));
 			exit(1);
 		}
 	}
@@ -321,7 +320,8 @@ static void create_tag(const struct object_id *object, const char *object_ref,
 
 	if (build_tag_object(buf, opt->sign, result) < 0) {
 		if (path)
-			fprintf(stderr, _("The tag message has been left in %s\n"),
+			fprintf(stderr,
+				_("The tag message has been left in %s\n"),
 				path);
 		exit(128);
 	}
@@ -364,7 +364,8 @@ static void create_reflog_msg(const struct object_id *oid, struct strbuf *sb)
 		free(buf);
 
 		if ((c = lookup_commit_reference(the_repository, oid)) != NULL)
-			strbuf_addf(sb, ", %s", show_date(c->date, 0, DATE_MODE(SHORT)));
+			strbuf_addf(sb, ", %s",
+				    show_date(c->date, 0, DATE_MODE(SHORT)));
 		break;
 	case OBJ_TREE:
 		strbuf_addstr(sb, "tree object");
@@ -434,43 +435,55 @@ int cmd_tag(int argc, const char **argv, const char *prefix)
 	struct option options[] = {
 		OPT_CMDMODE('l', "list", &cmdmode, N_("list tag names"), 'l'),
 		{ OPTION_INTEGER, 'n', NULL, &filter.lines, N_("n"),
-				N_("print <n> lines of each tag message"),
-				PARSE_OPT_OPTARG, NULL, 1 },
+		  N_("print <n> lines of each tag message"), PARSE_OPT_OPTARG,
+		  NULL, 1 },
 		OPT_CMDMODE('d', "delete", &cmdmode, N_("delete tags"), 'd'),
 		OPT_CMDMODE('v', "verify", &cmdmode, N_("verify tags"), 'v'),
 
 		OPT_GROUP(N_("Tag creation options")),
 		OPT_BOOL('a', "annotate", &annotate,
-					N_("annotated tag, needs a message")),
+			 N_("annotated tag, needs a message")),
 		OPT_CALLBACK_F('m', "message", &msg, N_("message"),
-			       N_("tag message"), PARSE_OPT_NONEG, parse_msg_arg),
-		OPT_FILENAME('F', "file", &msgfile, N_("read message from file")),
-		OPT_BOOL('e', "edit", &edit_flag, N_("force edit of tag message")),
-		OPT_BOOL('s', "sign", &opt.sign, N_("annotated and GPG-signed tag")),
+			       N_("tag message"), PARSE_OPT_NONEG,
+			       parse_msg_arg),
+		OPT_FILENAME('F', "file", &msgfile,
+			     N_("read message from file")),
+		OPT_BOOL('e', "edit", &edit_flag,
+			 N_("force edit of tag message")),
+		OPT_BOOL('s', "sign", &opt.sign,
+			 N_("annotated and GPG-signed tag")),
 		OPT_CLEANUP(&cleanup_arg),
 		OPT_STRING('u', "local-user", &keyid, N_("key-id"),
-					N_("use another key to sign the tag")),
+			   N_("use another key to sign the tag")),
 		OPT__FORCE(&force, N_("replace the tag if exists"), 0),
-		OPT_BOOL(0, "create-reflog", &create_reflog, N_("create a reflog")),
+		OPT_BOOL(0, "create-reflog", &create_reflog,
+			 N_("create a reflog")),
 
 		OPT_GROUP(N_("Tag listing options")),
-		OPT_COLUMN(0, "column", &colopts, N_("show tag list in columns")),
-		OPT_CONTAINS(&filter.with_commit, N_("print only tags that contain the commit")),
-		OPT_NO_CONTAINS(&filter.no_commit, N_("print only tags that don't contain the commit")),
-		OPT_WITH(&filter.with_commit, N_("print only tags that contain the commit")),
-		OPT_WITHOUT(&filter.no_commit, N_("print only tags that don't contain the commit")),
+		OPT_COLUMN(0, "column", &colopts,
+			   N_("show tag list in columns")),
+		OPT_CONTAINS(&filter.with_commit,
+			     N_("print only tags that contain the commit")),
+		OPT_NO_CONTAINS(
+			&filter.no_commit,
+			N_("print only tags that don't contain the commit")),
+		OPT_WITH(&filter.with_commit,
+			 N_("print only tags that contain the commit")),
+		OPT_WITHOUT(&filter.no_commit,
+			    N_("print only tags that don't contain the commit")),
 		OPT_MERGED(&filter, N_("print only tags that are merged")),
-		OPT_NO_MERGED(&filter, N_("print only tags that are not merged")),
+		OPT_NO_MERGED(&filter,
+			      N_("print only tags that are not merged")),
 		OPT_REF_SORT(sorting_tail),
-		{
-			OPTION_CALLBACK, 0, "points-at", &filter.points_at, N_("object"),
-			N_("print only tags of the object"), PARSE_OPT_LASTARG_DEFAULT,
-			parse_opt_object_name, (intptr_t) "HEAD"
-		},
-		OPT_STRING(  0 , "format", &format.format, N_("format"),
+		{ OPTION_CALLBACK, 0, "points-at", &filter.points_at,
+		  N_("object"), N_("print only tags of the object"),
+		  PARSE_OPT_LASTARG_DEFAULT, parse_opt_object_name,
+		  (intptr_t) "HEAD" },
+		OPT_STRING(0, "format", &format.format, N_("format"),
 			   N_("format to use for the output")),
 		OPT__COLOR(&format.use_color, N_("respect format colors")),
-		OPT_BOOL('i', "ignore-case", &icase, N_("sorting and filtering are case insensitive")),
+		OPT_BOOL('i', "ignore-case", &icase,
+			 N_("sorting and filtering are case insensitive")),
 		OPT_END()
 	};
 
@@ -559,10 +572,12 @@ int cmd_tag(int argc, const char **argv, const char *prefix)
 		else {
 			if (!strcmp(msgfile, "-")) {
 				if (strbuf_read(&buf, 0, 1024) < 0)
-					die_errno(_("cannot read '%s'"), msgfile);
+					die_errno(_("cannot read '%s'"),
+						  msgfile);
 			} else {
 				if (strbuf_read_file(&buf, msgfile, 1024) < 0)
-					die_errno(_("could not open or read '%s'"),
+					die_errno(
+						_("could not open or read '%s'"),
 						msgfile);
 			}
 		}
@@ -602,7 +617,8 @@ int cmd_tag(int argc, const char **argv, const char *prefix)
 	if (create_tag_object) {
 		if (force_sign_annotate && !annotate)
 			opt.sign = 1;
-		create_tag(&object, object_ref, tag, &buf, &opt, &prev, &object);
+		create_tag(&object, object_ref, tag, &buf, &opt, &prev,
+			   &object);
 	}
 
 	transaction = ref_transaction_begin(&err);

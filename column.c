@@ -6,9 +6,9 @@
 #include "run-command.h"
 #include "utf8.h"
 
-#define XY2LINEAR(d, x, y) (COL_LAYOUT((d)->colopts) == COL_COLUMN ? \
-			    (x) * (d)->rows + (y) : \
-			    (y) * (d)->cols + (x))
+#define XY2LINEAR(d, x, y)                                                \
+	(COL_LAYOUT((d)->colopts) == COL_COLUMN ? (x) * (d)->rows + (y) : \
+						  (y) * (d)->cols + (x))
 
 struct column_data {
 	const struct string_list *list;
@@ -16,8 +16,8 @@ struct column_data {
 	struct column_options opts;
 
 	int rows, cols;
-	int *len;		/* cell length */
-	int *width;	      /* index to the longest row in column */
+	int *len; /* cell length */
+	int *width; /* index to the longest row in column */
 };
 
 /* return length of 's' in letters, ANSI escapes stripped */
@@ -98,8 +98,8 @@ static void shrink_columns(struct column_data *data)
 }
 
 /* Display without layout when not enabled */
-static void display_plain(const struct string_list *list,
-			  const char *indent, const char *nl)
+static void display_plain(const struct string_list *list, const char *indent,
+			  const char *nl)
 {
 	int i;
 
@@ -133,16 +133,14 @@ static int display_cell(struct column_data *data, int initial_width,
 	else
 		newline = x == data->cols - 1 || i == data->list->nr - 1;
 
-	printf("%s%s%s",
-	       x == 0 ? data->opts.indent : "",
+	printf("%s%s%s", x == 0 ? data->opts.indent : "",
 	       data->list->items[i].string,
 	       newline ? data->opts.nl : empty_cell + len);
 	return 0;
 }
 
 /* Display COL_COLUMN or COL_ROW */
-static void display_table(const struct string_list *list,
-			  unsigned int colopts,
+static void display_table(const struct string_list *list, unsigned int colopts,
 			  const struct column_options *opts)
 {
 	struct column_data data;
@@ -167,7 +165,8 @@ static void display_table(const struct string_list *list,
 	memset(empty_cell, ' ', initial_width);
 	for (y = 0; y < data.rows; y++) {
 		for (x = 0; x < data.cols; x++)
-			if (display_cell(&data, initial_width, empty_cell, x, y))
+			if (display_cell(&data, initial_width, empty_cell, x,
+					 y))
 				break;
 	}
 
@@ -232,13 +231,13 @@ static int parse_option(const char *arg, int len, unsigned int *colopts,
 			int *group_set)
 {
 	struct colopt opts[] = {
-		{ "always", COL_ENABLED,  COL_ENABLE_MASK },
-		{ "never",  COL_DISABLED, COL_ENABLE_MASK },
-		{ "auto",   COL_AUTO,     COL_ENABLE_MASK },
-		{ "plain",  COL_PLAIN,    COL_LAYOUT_MASK },
-		{ "column", COL_COLUMN,   COL_LAYOUT_MASK },
-		{ "row",    COL_ROW,      COL_LAYOUT_MASK },
-		{ "dense",  COL_DENSE,    0 },
+		{ "always", COL_ENABLED, COL_ENABLE_MASK },
+		{ "never", COL_DISABLED, COL_ENABLE_MASK },
+		{ "auto", COL_AUTO, COL_ENABLE_MASK },
+		{ "plain", COL_PLAIN, COL_LAYOUT_MASK },
+		{ "column", COL_COLUMN, COL_LAYOUT_MASK },
+		{ "row", COL_ROW, COL_LAYOUT_MASK },
+		{ "dense", COL_DENSE, 0 },
 	};
 	int i;
 
@@ -310,8 +309,8 @@ static int parse_config(unsigned int *colopts, const char *value)
 	return 0;
 }
 
-static int column_config(const char *var, const char *value,
-			 const char *key, unsigned int *colopts)
+static int column_config(const char *var, const char *value, const char *key,
+			 unsigned int *colopts)
 {
 	if (!value)
 		return config_error_nonbool(var);
@@ -320,8 +319,8 @@ static int column_config(const char *var, const char *value,
 	return 0;
 }
 
-int git_column_config(const char *var, const char *value,
-		      const char *command, unsigned int *colopts)
+int git_column_config(const char *var, const char *value, const char *command,
+		      unsigned int *colopts)
 {
 	const char *it;
 
@@ -337,13 +336,13 @@ int git_column_config(const char *var, const char *value,
 	return 0;
 }
 
-int parseopt_column_callback(const struct option *opt,
-			     const char *arg, int unset)
+int parseopt_column_callback(const struct option *opt, const char *arg,
+			     int unset)
 {
 	unsigned int *colopts = opt->value;
 	*colopts |= COL_PARSEOPT;
 	*colopts &= ~COL_ENABLE_MASK;
-	if (unset)		/* --no-column == never */
+	if (unset) /* --no-column == never */
 		return 0;
 	/* --column == always unless "arg" states otherwise */
 	*colopts |= COL_ENABLED;

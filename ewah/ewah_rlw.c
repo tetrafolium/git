@@ -44,8 +44,8 @@ void rlwit_init(struct rlw_iterator *it, struct ewah_bitmap *from_ewah)
 
 	next_word(it);
 
-	it->literal_word_start = rlwit_literal_words(it) +
-		it->rlw.literal_word_offset;
+	it->literal_word_start =
+		rlwit_literal_words(it) + it->rlw.literal_word_offset;
 }
 
 void rlwit_discard_first_words(struct rlw_iterator *it, size_t x)
@@ -61,7 +61,8 @@ void rlwit_discard_first_words(struct rlw_iterator *it, size_t x)
 		x -= it->rlw.running_len;
 		it->rlw.running_len = 0;
 
-		discard = (x > it->rlw.literal_words) ? it->rlw.literal_words : x;
+		discard = (x > it->rlw.literal_words) ? it->rlw.literal_words :
+							x;
 
 		it->literal_word_start += discard;
 		it->rlw.literal_words -= discard;
@@ -71,14 +72,14 @@ void rlwit_discard_first_words(struct rlw_iterator *it, size_t x)
 			if (!next_word(it))
 				break;
 
-			it->literal_word_start =
-				rlwit_literal_words(it) + it->rlw.literal_word_offset;
+			it->literal_word_start = rlwit_literal_words(it) +
+						 it->rlw.literal_word_offset;
 		}
 	}
 }
 
-size_t rlwit_discharge(
-	struct rlw_iterator *it, struct ewah_bitmap *out, size_t max, int negate)
+size_t rlwit_discharge(struct rlw_iterator *it, struct ewah_bitmap *out,
+		       size_t max, int negate)
 {
 	size_t index = 0;
 
@@ -95,8 +96,8 @@ size_t rlwit_discharge(
 		if (pd + index > max)
 			pd = max - index;
 
-		ewah_add_dirty_words(out,
-			it->buffer + it->literal_word_start, pd, negate);
+		ewah_add_dirty_words(out, it->buffer + it->literal_word_start,
+				     pd, negate);
 
 		rlwit_discard_first_words(it, pd + pl);
 		index += pd;

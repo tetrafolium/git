@@ -5,7 +5,7 @@
 #include "cache.h"
 #include "mem-pool.h"
 
-#define BLOCK_GROWTH_SIZE 1024*1024 - sizeof(struct mp_block);
+#define BLOCK_GROWTH_SIZE 1024 * 1024 - sizeof(struct mp_block);
 
 /*
  * Allocate a new mp_block and insert it after the block specified in
@@ -49,13 +49,14 @@ void mem_pool_discard(struct mem_pool *pool, int invalidate_memory)
 	struct mp_block *block, *block_to_free;
 
 	block = pool->mp_block;
-	while (block)
-	{
+	while (block) {
 		block_to_free = block;
 		block = block->next_block;
 
 		if (invalidate_memory)
-			memset(block_to_free->space, 0xDD, ((char *)block_to_free->end) - ((char *)block_to_free->space));
+			memset(block_to_free->space, 0xDD,
+			       ((char *)block_to_free->end) -
+				       ((char *)block_to_free->space));
 
 		free(block_to_free);
 	}
@@ -109,7 +110,7 @@ char *mem_pool_strndup(struct mem_pool *pool, const char *str, size_t len)
 {
 	char *p = memchr(str, '\0', len);
 	size_t actual_len = (p ? p - str : len);
-	char *ret = mem_pool_alloc(pool, actual_len+1);
+	char *ret = mem_pool_alloc(pool, actual_len + 1);
 
 	ret[actual_len] = '\0';
 	return memcpy(ret, str, actual_len);
@@ -121,8 +122,7 @@ int mem_pool_contains(struct mem_pool *pool, void *mem)
 
 	/* Check if memory is allocated in a block */
 	for (p = pool->mp_block; p; p = p->next_block)
-		if ((mem >= ((void *)p->space)) &&
-		    (mem < ((void *)p->end)))
+		if ((mem >= ((void *)p->space)) && (mem < ((void *)p->end)))
 			return 1;
 
 	return 0;

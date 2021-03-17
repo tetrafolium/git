@@ -18,7 +18,8 @@ int cmd2process_cmp(const void *unused_cmp_data,
 	return strcmp(e1->cmd, e2->cmd);
 }
 
-struct subprocess_entry *subprocess_find_entry(struct hashmap *hashmap, const char *cmd)
+struct subprocess_entry *subprocess_find_entry(struct hashmap *hashmap,
+					       const char *cmd)
 {
 	struct subprocess_entry key;
 
@@ -74,8 +75,8 @@ static void subprocess_exit_handler(struct child_process *process)
 	finish_command(process);
 }
 
-int subprocess_start(struct hashmap *hashmap, struct subprocess_entry *entry, const char *cmd,
-	subprocess_start_fn startfn)
+int subprocess_start(struct hashmap *hashmap, struct subprocess_entry *entry,
+		     const char *cmd, subprocess_start_fn startfn)
 {
 	int err;
 	struct child_process *process;
@@ -123,8 +124,7 @@ static int handshake_version(struct child_process *process,
 	if (!chosen_version)
 		chosen_version = &version_scratch;
 
-	if (packet_write_fmt_gently(process->in, "%s-client\n",
-				    welcome_prefix))
+	if (packet_write_fmt_gently(process->in, "%s-client\n", welcome_prefix))
 		return error("Could not write client identification");
 	for (i = 0; versions[i]; i++) {
 		if (packet_write_fmt_gently(process->in, "version=%d\n",
@@ -135,8 +135,7 @@ static int handshake_version(struct child_process *process,
 		return error("Could not write flush packet");
 
 	if (!(line = packet_read_line(process->out, NULL)) ||
-	    !skip_prefix(line, welcome_prefix, &p) ||
-	    strcmp(p, "-server"))
+	    !skip_prefix(line, welcome_prefix, &p) || strcmp(p, "-server"))
 		return error("Unexpected line '%s', expected %s-server",
 			     line ? line : "<flush packet>", welcome_prefix);
 	if (!(line = packet_read_line(process->out, NULL)) ||
@@ -195,8 +194,7 @@ static int handshake_capabilities(struct child_process *process,
 }
 
 int subprocess_handshake(struct subprocess_entry *entry,
-			 const char *welcome_prefix,
-			 int *versions,
+			 const char *welcome_prefix, int *versions,
 			 int *chosen_version,
 			 struct subprocess_capability *capabilities,
 			 unsigned int *supported_capabilities)

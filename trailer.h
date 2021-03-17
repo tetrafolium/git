@@ -19,11 +19,7 @@ enum trailer_if_exists {
 	EXISTS_REPLACE,
 	EXISTS_DO_NOTHING
 };
-enum trailer_if_missing {
-	MISSING_DEFAULT,
-	MISSING_ADD,
-	MISSING_DO_NOTHING
-};
+enum trailer_if_missing { MISSING_DEFAULT, MISSING_ADD, MISSING_DO_NOTHING };
 
 int trailer_set_where(enum trailer_where *item, const char *value);
 int trailer_set_if_exists(enum trailer_if_exists *item, const char *value);
@@ -79,7 +75,10 @@ struct process_trailer_options {
 	void *filter_data;
 };
 
-#define PROCESS_TRAILER_OPTIONS_INIT {0}
+#define PROCESS_TRAILER_OPTIONS_INIT \
+	{                            \
+		0                    \
+	}
 
 void process_trailers(const char *file,
 		      const struct process_trailer_options *opts,

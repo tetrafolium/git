@@ -5,9 +5,8 @@
 #include "string-list.h"
 
 static int use_stdin;
-static const char * const check_mailmap_usage[] = {
-N_("git check-mailmap [<options>] <contact>..."),
-NULL
+static const char *const check_mailmap_usage[] = {
+	N_("git check-mailmap [<options>] <contact>..."), NULL
 };
 
 static const struct option check_mailmap_options[] = {

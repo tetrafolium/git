@@ -7,10 +7,10 @@
 #include "../tag.h"
 
 /* Remember to update object flag allocation in object.h */
-#define COMMON		(1U << 2)
-#define COMMON_REF	(1U << 3)
-#define SEEN		(1U << 4)
-#define POPPED		(1U << 5)
+#define COMMON (1U << 2)
+#define COMMON_REF (1U << 3)
+#define SEEN (1U << 4)
+#define POPPED (1U << 5)
 
 static int marked;
 
@@ -19,8 +19,8 @@ struct negotiation_state {
 	int non_common_revs;
 };
 
-static void rev_list_push(struct negotiation_state *ns,
-			  struct commit *commit, int mark)
+static void rev_list_push(struct negotiation_state *ns, struct commit *commit,
+			  int mark)
 {
 	if (!(commit->object.flags & mark)) {
 		commit->object.flags |= mark;
@@ -38,7 +38,8 @@ static void rev_list_push(struct negotiation_state *ns,
 static int clear_marks(const char *refname, const struct object_id *oid,
 		       int flag, void *cb_data)
 {
-	struct object *o = deref_tag(the_repository, parse_object(the_repository, oid), refname, 0);
+	struct object *o = deref_tag(
+		the_repository, parse_object(the_repository, oid), refname, 0);
 
 	if (o && o->type == OBJ_COMMIT)
 		clear_commit_marks((struct commit *)o,
@@ -52,7 +53,7 @@ static int clear_marks(const char *refname, const struct object_id *oid,
  * when only the server does not yet know that they are common).
  */
 static void mark_common(struct negotiation_state *ns, struct commit *commit,
-		int ancestors_only, int dont_parse)
+			int ancestors_only, int dont_parse)
 {
 	if (commit != NULL && !(commit->object.flags & COMMON)) {
 		struct object *o = (struct object *)commit;
@@ -71,11 +72,9 @@ static void mark_common(struct negotiation_state *ns, struct commit *commit,
 				if (parse_commit(commit))
 					return;
 
-			for (parents = commit->parents;
-					parents;
-					parents = parents->next)
-				mark_common(ns, parents->item, 0,
-					    dont_parse);
+			for (parents = commit->parents; parents;
+			     parents = parents->next)
+				mark_common(ns, parents->item, 0, dont_parse);
 		}
 	}
 }

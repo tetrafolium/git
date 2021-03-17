@@ -9,12 +9,11 @@
 #define URL_UNSAFE_CHARS " <>\"%{}|\\^`" /* plus 0x00-0x1F,0x7F-0xFF */
 #define URL_GEN_RESERVED ":/?#[]@"
 #define URL_SUB_RESERVED "!$&'()*+,;="
-#define URL_RESERVED URL_GEN_RESERVED URL_SUB_RESERVED /* only allowed delims */
+#define URL_RESERVED URL_GEN_RESERVED URL_SUB_RESERVED /* only allowed delims \
+							*/
 
-static int append_normalized_escapes(struct strbuf *buf,
-				     const char *from,
-				     size_t from_len,
-				     const char *esc_extra,
+static int append_normalized_escapes(struct strbuf *buf, const char *from,
+				     size_t from_len, const char *esc_extra,
 				     const char *esc_ok)
 {
 	/*
@@ -106,7 +105,8 @@ static int match_host(const struct url_info *url_info,
 	return (!url_len && !pat_len);
 }
 
-static char *url_normalize_1(const char *url, struct url_info *out_info, char allow_globs)
+static char *url_normalize_1(const char *url, struct url_info *out_info,
+			     char allow_globs)
 {
 	/*
 	 * Normalize NUL-terminated url using the following rules:
@@ -146,8 +146,10 @@ static char *url_normalize_1(const char *url, struct url_info *out_info, char al
 	size_t url_len = strlen(url);
 	struct strbuf norm;
 	size_t spanned;
-	size_t scheme_len, user_off=0, user_len=0, passwd_off=0, passwd_len=0;
-	size_t host_off=0, host_len=0, port_off=0, port_len=0, path_off, path_len, result_len;
+	size_t scheme_len, user_off = 0, user_len = 0, passwd_off = 0,
+			   passwd_len = 0;
+	size_t host_off = 0, host_len = 0, port_off = 0, port_len = 0, path_off,
+	       path_len, result_len;
 	const char *slash_ptr, *at_ptr, *colon_ptr, *path_start;
 	char *result;
 
@@ -157,10 +159,12 @@ static char *url_normalize_1(const char *url, struct url_info *out_info, char al
 	 */
 	spanned = strspn(url, URL_SCHEME_CHARS);
 	if (!spanned || !isalpha(url[0]) || spanned + 3 > url_len ||
-	    url[spanned] != ':' || url[spanned+1] != '/' || url[spanned+2] != '/') {
+	    url[spanned] != ':' || url[spanned + 1] != '/' ||
+	    url[spanned + 2] != '/') {
 		if (out_info) {
 			out_info->url = NULL;
-			out_info->err = _("invalid URL scheme name or missing '://' suffix");
+			out_info->err = _(
+				"invalid URL scheme name or missing '://' suffix");
 		}
 		return NULL; /* Bad scheme and/or missing "://" part */
 	}
@@ -170,7 +174,6 @@ static char *url_normalize_1(const char *url, struct url_info *out_info, char al
 	url_len -= spanned;
 	while (spanned--)
 		strbuf_addch(&norm, tolower(*url++));
-
 
 	/*
 	 * Copy any username:password if present normalizing %-escapes
@@ -184,7 +187,8 @@ static char *url_normalize_1(const char *url, struct url_info *out_info, char al
 						       "", URL_RESERVED)) {
 				if (out_info) {
 					out_info->url = NULL;
-					out_info->err = _("invalid %XX escape sequence");
+					out_info->err = _(
+						"invalid %XX escape sequence");
 				}
 				strbuf_release(&norm);
 				return NULL;
@@ -203,7 +207,6 @@ static char *url_normalize_1(const char *url, struct url_info *out_info, char al
 		url = at_ptr;
 	}
 
-
 	/*
 	 * Copy the host part excluding any port part, no %-escapes allowed
 	 */
@@ -212,7 +215,8 @@ static char *url_normalize_1(const char *url, struct url_info *out_info, char al
 		if (strncmp(norm.buf, "file:", 5)) {
 			if (out_info) {
 				out_info->url = NULL;
-				out_info->err = _("missing host and scheme is not 'file:'");
+				out_info->err = _(
+					"missing host and scheme is not 'file:'");
 			}
 			strbuf_release(&norm);
 			return NULL;
@@ -225,11 +229,13 @@ static char *url_normalize_1(const char *url, struct url_info *out_info, char al
 		colon_ptr--;
 	if (*colon_ptr != ':') {
 		colon_ptr = slash_ptr;
-	} else if (!host_off && colon_ptr < slash_ptr && colon_ptr + 1 != slash_ptr) {
+	} else if (!host_off && colon_ptr < slash_ptr &&
+		   colon_ptr + 1 != slash_ptr) {
 		/* file: URLs may not have a port number */
 		if (out_info) {
 			out_info->url = NULL;
-			out_info->err = _("a 'file:' URL may not have a port number");
+			out_info->err =
+				_("a 'file:' URL may not have a port number");
 		}
 		strbuf_release(&norm);
 		return NULL;
@@ -254,7 +260,6 @@ static char *url_normalize_1(const char *url, struct url_info *out_info, char al
 		url_len--;
 	}
 
-
 	/*
 	 * Check the port part and copy if not the default (after removing any
 	 * leading 0s); no %-escapes allowed
@@ -277,11 +282,12 @@ static char *url_normalize_1(const char *url, struct url_info *out_info, char al
 			/* Skip https :443 as it's the default */
 		} else {
 			/*
-			 * Port number must be all digits with leading 0s removed
-			 * and since all the protocols we deal with have a 16-bit
-			 * port number it must also be in the range 1..65535
-			 * 0 is not allowed because that means "next available"
-			 * on just about every system and therefore cannot be used
+			 * Port number must be all digits with leading 0s
+			 * removed and since all the protocols we deal with have
+			 * a 16-bit port number it must also be in the
+			 * range 1..65535 0 is not allowed because that means
+			 * "next available" on just about every system and
+			 * therefore cannot be used
 			 */
 			unsigned long pnum = 0;
 			spanned = strspn(url, URL_DIGIT);
@@ -289,7 +295,8 @@ static char *url_normalize_1(const char *url, struct url_info *out_info, char al
 				/* port number has invalid characters */
 				if (out_info) {
 					out_info->url = NULL;
-					out_info->err = _("invalid port number");
+					out_info->err =
+						_("invalid port number");
 				}
 				strbuf_release(&norm);
 				return NULL;
@@ -300,7 +307,8 @@ static char *url_normalize_1(const char *url, struct url_info *out_info, char al
 				/* port number not in range 1..65535 */
 				if (out_info) {
 					out_info->url = NULL;
-					out_info->err = _("invalid port number");
+					out_info->err =
+						_("invalid port number");
 				}
 				strbuf_release(&norm);
 				return NULL;
@@ -315,7 +323,6 @@ static char *url_normalize_1(const char *url, struct url_info *out_info, char al
 	}
 	if (host_off)
 		host_len = norm.len - host_off - (port_len ? port_len + 1 : 0);
-
 
 	/*
 	 * Now copy the path resolving any . and .. segments being careful not
@@ -343,7 +350,8 @@ static char *url_normalize_1(const char *url, struct url_info *out_info, char al
 					       URL_RESERVED)) {
 			if (out_info) {
 				out_info->url = NULL;
-				out_info->err = _("invalid %XX escape sequence");
+				out_info->err =
+					_("invalid %XX escape sequence");
 			}
 			strbuf_release(&norm);
 			return NULL;
@@ -351,7 +359,8 @@ static char *url_normalize_1(const char *url, struct url_info *out_info, char al
 
 		seg_start = norm.buf + seg_start_off;
 		if (!strcmp(seg_start, ".")) {
-			/* ignore a . segment; be careful not to remove initial '/' */
+			/* ignore a . segment; be careful not to remove initial
+			 * '/' */
 			if (seg_start == path_start + 1) {
 				strbuf_setlen(&norm, norm.len - 1);
 				skip_add_slash = 1;
@@ -365,15 +374,18 @@ static char *url_normalize_1(const char *url, struct url_info *out_info, char al
 			 */
 			const char *prev_slash = norm.buf + norm.len - 3;
 			if (prev_slash == path_start) {
-				/* invalid .. because no previous segment to remove */
+				/* invalid .. because no previous segment to
+				 * remove */
 				if (out_info) {
 					out_info->url = NULL;
-					out_info->err = _("invalid '..' path segment");
+					out_info->err =
+						_("invalid '..' path segment");
 				}
 				strbuf_release(&norm);
 				return NULL;
 			}
-			while (*--prev_slash != '/') {}
+			while (*--prev_slash != '/') {
+			}
 			if (prev_slash == path_start) {
 				strbuf_setlen(&norm, prev_slash - norm.buf + 1);
 				skip_add_slash = 1;
@@ -393,22 +405,22 @@ static char *url_normalize_1(const char *url, struct url_info *out_info, char al
 	}
 	path_len = norm.len - path_off;
 
-
 	/*
 	 * Now simply copy the rest, if any, only normalizing %-escapes and
 	 * being careful not to corrupt the URL by unescaping any delimiters.
 	 */
 	if (*url) {
-		if (!append_normalized_escapes(&norm, url, url_len, "", URL_RESERVED)) {
+		if (!append_normalized_escapes(&norm, url, url_len, "",
+					       URL_RESERVED)) {
 			if (out_info) {
 				out_info->url = NULL;
-				out_info->err = _("invalid %XX escape sequence");
+				out_info->err =
+					_("invalid %XX escape sequence");
 			}
 			strbuf_release(&norm);
 			return NULL;
 		}
 	}
-
 
 	result = strbuf_detach(&norm, &result_len);
 	if (out_info) {
@@ -435,8 +447,7 @@ char *url_normalize(const char *url, struct url_info *out_info)
 	return url_normalize_1(url, out_info, 0);
 }
 
-static size_t url_match_prefix(const char *url,
-			       const char *url_prefix,
+static size_t url_match_prefix(const char *url, const char *url_prefix,
 			       size_t url_prefix_len)
 {
 	/*
@@ -505,7 +516,8 @@ static int match_urls(const struct url_info *url,
 		    strncmp(url->url + url->user_off,
 			    url_prefix->url + url_prefix->user_off,
 			    url->user_len))
-			return 0; /* url_prefix has a user but it's not a match */
+			return 0; /* url_prefix has a user but it's not a match
+				   */
 		usermatched = 1;
 	}
 
@@ -520,10 +532,10 @@ static int match_urls(const struct url_info *url,
 		return 0; /* ports do not match */
 
 	/* check the path */
-	pathmatchlen = url_match_prefix(
-		url->url + url->path_off,
-		url_prefix->url + url_prefix->path_off,
-		url_prefix->url_len - url_prefix->path_off);
+	pathmatchlen =
+		url_match_prefix(url->url + url->path_off,
+				 url_prefix->url + url_prefix->path_off,
+				 url_prefix->url_len - url_prefix->path_off);
 	if (!pathmatchlen)
 		return 0; /* paths do not match */
 
@@ -552,12 +564,13 @@ int urlmatch_config_entry(const char *var, const char *value, void *cb)
 {
 	struct string_list_item *item;
 	struct urlmatch_config *collect = cb;
-	struct urlmatch_item matched = {0};
+	struct urlmatch_item matched = { 0 };
 	struct url_info *url = &collect->url;
 	const char *key, *dot;
 	struct strbuf synthkey = STRBUF_INIT;
 	int retval;
-	int (*select_fn)(const struct urlmatch_item *a, const struct urlmatch_item *b) =
+	int (*select_fn)(const struct urlmatch_item *a,
+			 const struct urlmatch_item *b) =
 		collect->select_fn ? collect->select_fn : cmp_matches;
 
 	if (!skip_prefix(var, collect->section, &key) || *(key++) != '.') {
@@ -594,10 +607,10 @@ int urlmatch_config_entry(const char *var, const char *value, void *cb)
 		item->util = xcalloc(1, sizeof(matched));
 	} else {
 		if (select_fn(&matched, item->util) < 0)
-			 /*
-			  * Our match is worse than the old one,
-			  * we cannot use it.
-			  */
+			/*
+			 * Our match is worse than the old one,
+			 * we cannot use it.
+			 */
 			return 0;
 		/* Otherwise, replace it with this one. */
 	}

@@ -46,8 +46,16 @@ struct submodule {
 	int recommend_shallow;
 };
 
-#define SUBMODULE_INIT { NULL, NULL, NULL, RECURSE_SUBMODULES_NONE, \
-	NULL, NULL, SUBMODULE_UPDATE_STRATEGY_INIT, { { 0 } }, -1 };
+#define SUBMODULE_INIT                    \
+	{ NULL,                           \
+	  NULL,                           \
+	  NULL,                           \
+	  RECURSE_SUBMODULES_NONE,        \
+	  NULL,                           \
+	  NULL,                           \
+	  SUBMODULE_UPDATE_STRATEGY_INIT, \
+	  { { 0 } },                      \
+	  -1 };
 
 struct submodule_cache;
 struct repository;
@@ -67,17 +75,17 @@ void gitmodules_config_oid(const struct object_id *commit_oid);
 /**
  * Same as submodule_from_path but lookup by name.
  */
-const struct submodule *submodule_from_name(struct repository *r,
-					    const struct object_id *commit_or_tree,
-					    const char *name);
+const struct submodule *
+submodule_from_name(struct repository *r,
+		    const struct object_id *commit_or_tree, const char *name);
 
 /**
  * Given a tree-ish in the superproject and a path, return the submodule that
  * is bound at the path in the named tree.
  */
-const struct submodule *submodule_from_path(struct repository *r,
-					    const struct object_id *commit_or_tree,
-					    const char *path);
+const struct submodule *
+submodule_from_path(struct repository *r,
+		    const struct object_id *commit_or_tree, const char *path);
 
 /**
  * Use these to free the internally cached values.

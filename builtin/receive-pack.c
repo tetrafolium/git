@@ -30,9 +30,8 @@
 #include "worktree.h"
 #include "shallow.h"
 
-static const char * const receive_pack_usage[] = {
-	N_("git receive-pack <git-dir>"),
-	NULL
+static const char *const receive_pack_usage[] = {
+	N_("git receive-pack <git-dir>"), NULL
 };
 
 enum deny_action {
@@ -100,13 +99,11 @@ static int keepalive_in_sec = 5;
 static struct tmp_objdir *tmp_objdir;
 
 static struct proc_receive_ref {
-	unsigned int want_add:1,
-		     want_delete:1,
-		     want_modify:1,
-		     negative_ref:1;
+	unsigned int want_add : 1, want_delete : 1, want_modify : 1,
+		negative_ref : 1;
 	char *ref_prefix;
 	struct proc_receive_ref *next;
-} *proc_receive_ref;
+} * proc_receive_ref;
 
 static void proc_receive_ref_append(const char *prefix);
 
@@ -160,7 +157,7 @@ static int receive_pack_config(const char *var, const char *value, void *cb)
 		if (git_config_pathname(&path, var, value))
 			return 1;
 		strbuf_addf(&fsck_msg_types, "%cskiplist=%s",
-			fsck_msg_types.len ? ',' : '=', path);
+			    fsck_msg_types.len ? ',' : '=', path);
 		free((char *)path);
 		return 0;
 	}
@@ -168,7 +165,7 @@ static int receive_pack_config(const char *var, const char *value, void *cb)
 	if (skip_prefix(var, "receive.fsck.", &var)) {
 		if (is_valid_msg_type(var, value))
 			strbuf_addf(&fsck_msg_types, "%c%s=%s",
-				fsck_msg_types.len ? ',' : '=', var, value);
+				    fsck_msg_types.len ? ',' : '=', var, value);
 		else
 			warning("Skipping unknown msg id '%s'", var);
 		return 0;
@@ -264,8 +261,9 @@ static void show_ref(const char *path, const struct object_id *oid)
 	} else {
 		struct strbuf cap = STRBUF_INIT;
 
-		strbuf_addstr(&cap,
-			      "report-status report-status-v2 delete-refs side-band-64k quiet");
+		strbuf_addstr(
+			&cap,
+			"report-status report-status-v2 delete-refs side-band-64k quiet");
 		if (advertise_atomic_push)
 			strbuf_addstr(&cap, " atomic");
 		if (prefer_ofs_delta)
@@ -275,11 +273,12 @@ static void show_ref(const char *path, const struct object_id *oid)
 		if (advertise_push_options)
 			strbuf_addstr(&cap, " push-options");
 		if (advertise_sid)
-			strbuf_addf(&cap, " session-id=%s", trace2_session_id());
+			strbuf_addf(&cap, " session-id=%s",
+				    trace2_session_id());
 		strbuf_addf(&cap, " object-format=%s", the_hash_algo->name);
 		strbuf_addf(&cap, " agent=%s", git_user_agent_sanitized());
-		packet_write_fmt(1, "%s %s%c%s\n",
-			     oid_to_hex(oid), path, 0, cap.buf);
+		packet_write_fmt(1, "%s %s%c%s\n", oid_to_hex(oid), path, 0,
+				 cap.buf);
 		strbuf_release(&cap);
 		sent_capabilities = 1;
 	}
@@ -310,8 +309,7 @@ static int show_ref_cb(const char *path_full, const struct object_id *oid,
 	return 0;
 }
 
-static void show_one_alternate_ref(const struct object_id *oid,
-				   void *data)
+static void show_one_alternate_ref(const struct object_id *oid, void *data)
 {
 	struct oidset *seen = data;
 
@@ -337,15 +335,13 @@ static void write_head_info(void)
 	packet_flush(1);
 }
 
-#define RUN_PROC_RECEIVE_SCHEDULED	1
-#define RUN_PROC_RECEIVE_RETURNED	2
+#define RUN_PROC_RECEIVE_SCHEDULED 1
+#define RUN_PROC_RECEIVE_RETURNED 2
 struct command {
 	struct command *next;
 	const char *error_string;
 	struct ref_push_report *report;
-	unsigned int skip_update:1,
-		     did_not_exist:1,
-		     run_proc_receive:2;
+	unsigned int skip_update : 1, did_not_exist : 1, run_proc_receive : 2;
 	int index;
 	struct object_id old_oid;
 	struct object_id new_oid;
@@ -409,8 +405,7 @@ static int proc_receive_ref_matches(struct command *cmd)
 			continue;
 		else if (!p->want_delete && is_null_oid(&cmd->new_oid))
 			continue;
-		else if (!p->want_modify &&
-			 !is_null_oid(&cmd->old_oid) &&
+		else if (!p->want_modify && !is_null_oid(&cmd->old_oid) &&
 			 !is_null_oid(&cmd->new_oid))
 			continue;
 
@@ -425,8 +420,10 @@ static int proc_receive_ref_matches(struct command *cmd)
 	return 0;
 }
 
-static void rp_error(const char *err, ...) __attribute__((format (printf, 1, 2)));
-static void rp_warning(const char *err, ...) __attribute__((format (printf, 1, 2)));
+static void rp_error(const char *err, ...)
+	__attribute__((format(printf, 1, 2)));
+static void rp_warning(const char *err, ...)
+	__attribute__((format(printf, 1, 2)));
 
 static void report_message(const char *prefix, const char *err, va_list params)
 {
@@ -503,13 +500,15 @@ static int copy_to_sideband(int in, int out, void *arg)
 			const char *p = memchr(data, '\0', sz);
 			if (p) {
 				/*
-				 * The NUL tells us to start sending keepalives. Make
-				 * sure we send any other data we read along
-				 * with it.
+				 * The NUL tells us to start sending keepalives.
+				 * Make sure we send any other data we read
+				 * along with it.
 				 */
 				keepalive_active = 1;
-				send_sideband(1, 2, data, p - data, use_sideband);
-				send_sideband(1, 2, p + 1, sz - (p - data + 1), use_sideband);
+				send_sideband(1, 2, data, p - data,
+					      use_sideband);
+				send_sideband(1, 2, p + 1, sz - (p - data + 1),
+					      use_sideband);
 				continue;
 			}
 		}
@@ -524,8 +523,7 @@ static int copy_to_sideband(int in, int out, void *arg)
 	return 0;
 }
 
-static void hmac_hash(unsigned char *out,
-		      const char *key_in, size_t key_len,
+static void hmac_hash(unsigned char *out, const char *key_in, size_t key_len,
 		      const char *text, size_t text_len)
 {
 	unsigned char key[GIT_MAX_BLKSZ];
@@ -568,12 +566,14 @@ static char *prepare_push_cert_nonce(const char *path, timestamp_t stamp)
 	struct strbuf buf = STRBUF_INIT;
 	unsigned char hash[GIT_MAX_RAWSZ];
 
-	strbuf_addf(&buf, "%s:%"PRItime, path, stamp);
-	hmac_hash(hash, buf.buf, buf.len, cert_nonce_seed, strlen(cert_nonce_seed));
+	strbuf_addf(&buf, "%s:%" PRItime, path, stamp);
+	hmac_hash(hash, buf.buf, buf.len, cert_nonce_seed,
+		  strlen(cert_nonce_seed));
 	strbuf_release(&buf);
 
 	/* RFC 2104 5. HMAC-SHA1 or HMAC-SHA256 */
-	strbuf_addf(&buf, "%"PRItime"-%.*s", stamp, (int)the_hash_algo->hexsz, hash_to_hex(hash));
+	strbuf_addf(&buf, "%" PRItime "-%.*s", stamp, (int)the_hash_algo->hexsz,
+		    hash_to_hex(hash));
 	return strbuf_detach(&buf, NULL);
 }
 
@@ -593,8 +593,8 @@ static char *find_header(const char *msg, size_t len, const char *key,
 
 		if ((msg + len <= eol) || line == eol)
 			return NULL;
-		if (line + key_len < eol &&
-		    !memcmp(line, key, key_len) && line[key_len] == ' ') {
+		if (line + key_len < eol && !memcmp(line, key, key_len) &&
+		    line[key_len] == ' ') {
 			int offset = key_len + 1;
 			if (next_line)
 				*next_line = *eol ? eol + 1 : eol;
@@ -730,9 +730,9 @@ static int check_cert_push_options(const struct string_list *push_options)
 		len -= (next_line - buf);
 		buf = next_line;
 		options_seen++;
-		if (options_seen > push_options->nr
-		    || strcmp(option,
-			      push_options->items[options_seen - 1].string)) {
+		if (options_seen > push_options->nr ||
+		    strcmp(option,
+			   push_options->items[options_seen - 1].string)) {
 			retval = 0;
 			goto leave;
 		}
@@ -780,8 +780,7 @@ static void prepare_push_cert_sha1(struct child_process *proc)
 		strvec_pushf(&proc->env_array, "GIT_PUSH_CERT_STATUS=%c",
 			     sigcheck.result);
 		if (push_cert_nonce) {
-			strvec_pushf(&proc->env_array,
-				     "GIT_PUSH_CERT_NONCE=%s",
+			strvec_pushf(&proc->env_array, "GIT_PUSH_CERT_NONCE=%s",
 				     push_cert_nonce);
 			strvec_pushf(&proc->env_array,
 				     "GIT_PUSH_CERT_NONCE_STATUS=%s",
@@ -825,8 +824,8 @@ static int run_and_feed_hook(const char *hook_name, feed_fn feed,
 	if (feed_state->push_options) {
 		int i;
 		for (i = 0; i < feed_state->push_options->nr; i++)
-			strvec_pushf(&proc.env_array,
-				     "GIT_PUSH_OPTION_%d=%s", i,
+			strvec_pushf(&proc.env_array, "GIT_PUSH_OPTION_%d=%s",
+				     i,
 				     feed_state->push_options->items[i].string);
 		strvec_pushf(&proc.env_array, "GIT_PUSH_OPTION_COUNT=%d",
 			     feed_state->push_options->nr);
@@ -879,8 +878,8 @@ static int feed_receive_hook(void *state_, const char **bufp, size_t *sizep)
 	struct receive_hook_feed_state *state = state_;
 	struct command *cmd = state->cmd;
 
-	while (cmd &&
-	       state->skip_broken && (cmd->error_string || cmd->did_not_exist))
+	while (cmd && state->skip_broken &&
+	       (cmd->error_string || cmd->did_not_exist))
 		cmd = cmd->next;
 	if (!cmd)
 		return -1; /* EOF */
@@ -894,19 +893,21 @@ static int feed_receive_hook(void *state_, const char **bufp, size_t *sizep)
 		struct object_id *new_oid;
 		const char *ref_name;
 
-		old_oid = state->report->old_oid ? state->report->old_oid : &cmd->old_oid;
-		new_oid = state->report->new_oid ? state->report->new_oid : &cmd->new_oid;
-		ref_name = state->report->ref_name ? state->report->ref_name : cmd->ref_name;
-		strbuf_addf(&state->buf, "%s %s %s\n",
-			    oid_to_hex(old_oid), oid_to_hex(new_oid),
-			    ref_name);
+		old_oid = state->report->old_oid ? state->report->old_oid :
+						   &cmd->old_oid;
+		new_oid = state->report->new_oid ? state->report->new_oid :
+						   &cmd->new_oid;
+		ref_name = state->report->ref_name ? state->report->ref_name :
+						     cmd->ref_name;
+		strbuf_addf(&state->buf, "%s %s %s\n", oid_to_hex(old_oid),
+			    oid_to_hex(new_oid), ref_name);
 		state->report = state->report->next;
 		if (!state->report)
 			state->cmd = cmd->next;
 	} else {
 		strbuf_addf(&state->buf, "%s %s %s\n",
-			    oid_to_hex(&cmd->old_oid), oid_to_hex(&cmd->new_oid),
-			    cmd->ref_name);
+			    oid_to_hex(&cmd->old_oid),
+			    oid_to_hex(&cmd->new_oid), cmd->ref_name);
 		state->cmd = cmd->next;
 	}
 	if (bufp) {
@@ -916,8 +917,7 @@ static int feed_receive_hook(void *state_, const char **bufp, size_t *sizep)
 	return 0;
 }
 
-static int run_receive_hook(struct command *commands,
-			    const char *hook_name,
+static int run_receive_hook(struct command *commands, const char *hook_name,
 			    int skip_broken,
 			    const struct string_list *push_options)
 {
@@ -998,7 +998,8 @@ static int read_proc_receive_report(struct packet_reader *reader,
 		if (status != PACKET_READ_NORMAL) {
 			/* Check whether proc-receive exited abnormally */
 			if (status == PACKET_READ_EOF && !response) {
-				strbuf_addstr(errmsg, "proc-receive exited abnormally");
+				strbuf_addstr(errmsg,
+					      "proc-receive exited abnormally");
 				return -1;
 			}
 			break;
@@ -1008,7 +1009,10 @@ static int read_proc_receive_report(struct packet_reader *reader,
 		head = reader->line;
 		p = strchr(head, ' ');
 		if (!p) {
-			strbuf_addf(errmsg, "proc-receive reported incomplete status line: '%s'\n", head);
+			strbuf_addf(
+				errmsg,
+				"proc-receive reported incomplete status line: '%s'\n",
+				head);
 			code = -1;
 			continue;
 		}
@@ -1018,19 +1022,25 @@ static int read_proc_receive_report(struct packet_reader *reader,
 
 			if (!hint || !(report || new_report)) {
 				if (!once++)
-					strbuf_addstr(errmsg, "proc-receive reported 'option' without a matching 'ok/ng' directive\n");
+					strbuf_addstr(
+						errmsg,
+						"proc-receive reported 'option' without a matching 'ok/ng' directive\n");
 				code = -1;
 				continue;
 			}
 			if (new_report) {
 				if (!hint->report) {
-					hint->report = xcalloc(1, sizeof(struct ref_push_report));
+					hint->report = xcalloc(
+						1,
+						sizeof(struct ref_push_report));
 					report = hint->report;
 				} else {
 					report = hint->report;
 					while (report->next)
 						report = report->next;
-					report->next = xcalloc(1, sizeof(struct ref_push_report));
+					report->next = xcalloc(
+						1,
+						sizeof(struct ref_push_report));
 					report = report->next;
 				}
 				new_report = 0;
@@ -1051,7 +1061,8 @@ static int read_proc_receive_report(struct packet_reader *reader,
 			else if (!strcmp(key, "forced-update"))
 				report->forced_update = 1;
 			else if (!strcmp(key, "fall-through"))
-				/* Fall through, let 'receive-pack' to execute it. */
+				/* Fall through, let 'receive-pack' to execute
+				 * it. */
 				hint->run_proc_receive = 0;
 			continue;
 		}
@@ -1063,8 +1074,10 @@ static int read_proc_receive_report(struct packet_reader *reader,
 		if (p)
 			*p++ = '\0';
 		if (strcmp(head, "ok") && strcmp(head, "ng")) {
-			strbuf_addf(errmsg, "proc-receive reported bad status '%s' on ref '%s'\n",
-				    head, refname);
+			strbuf_addf(
+				errmsg,
+				"proc-receive reported bad status '%s' on ref '%s'\n",
+				head, refname);
 			code = -1;
 			continue;
 		}
@@ -1075,14 +1088,18 @@ static int read_proc_receive_report(struct packet_reader *reader,
 		if (!hint)
 			hint = find_command_by_refname(commands, refname);
 		if (!hint) {
-			strbuf_addf(errmsg, "proc-receive reported status on unknown ref: %s\n",
-				    refname);
+			strbuf_addf(
+				errmsg,
+				"proc-receive reported status on unknown ref: %s\n",
+				refname);
 			code = -1;
 			continue;
 		}
 		if (!hint->run_proc_receive) {
-			strbuf_addf(errmsg, "proc-receive reported status on unexpected ref: %s\n",
-				    refname);
+			strbuf_addf(
+				errmsg,
+				"proc-receive reported status on unexpected ref: %s\n",
+				refname);
 			code = -1;
 			continue;
 		}
@@ -1101,8 +1118,9 @@ static int read_proc_receive_report(struct packet_reader *reader,
 	for (cmd = commands; cmd; cmd = cmd->next)
 		if (cmd->run_proc_receive && !cmd->error_string &&
 		    !(cmd->run_proc_receive & RUN_PROC_RECEIVE_RETURNED)) {
-		    cmd->error_string = "proc-receive failed to report status";
-		    code = -1;
+			cmd->error_string =
+				"proc-receive failed to report status";
+			code = -1;
 		}
 	return code;
 }
@@ -1157,13 +1175,14 @@ static int run_proc_receive_hook(struct command *commands,
 	/* Version negotiaton */
 	packet_reader_init(&reader, proc.out, NULL, 0,
 			   PACKET_READ_CHOMP_NEWLINE |
-			   PACKET_READ_GENTLE_ON_EOF);
+				   PACKET_READ_GENTLE_ON_EOF);
 	if (use_atomic)
 		strbuf_addstr(&cap, " atomic");
 	if (use_push_options)
 		strbuf_addstr(&cap, " push-options");
 	if (cap.len) {
-		code = packet_write_fmt_gently(proc.in, "version=1%c%s\n", '\0', cap.buf + 1);
+		code = packet_write_fmt_gently(proc.in, "version=1%c%s\n", '\0',
+					       cap.buf + 1);
 		strbuf_release(&cap);
 	} else {
 		code = packet_write_fmt_gently(proc.in, "version=1\n");
@@ -1178,25 +1197,32 @@ static int run_proc_receive_hook(struct command *commands,
 
 			status = packet_reader_read(&reader);
 			if (status != PACKET_READ_NORMAL) {
-				/* Check whether proc-receive exited abnormally */
+				/* Check whether proc-receive exited abnormally
+				 */
 				if (status == PACKET_READ_EOF)
 					code = -1;
 				break;
 			}
 
-			if (reader.pktlen > 8 && starts_with(reader.line, "version=")) {
+			if (reader.pktlen > 8 &&
+			    starts_with(reader.line, "version=")) {
 				version = atoi(reader.line + 8);
 				linelen = strlen(reader.line);
 				if (linelen < reader.pktlen) {
-					const char *feature_list = reader.line + linelen + 1;
-					if (parse_feature_request(feature_list, "push-options"))
+					const char *feature_list =
+						reader.line + linelen + 1;
+					if (parse_feature_request(
+						    feature_list,
+						    "push-options"))
 						hook_use_push_options = 1;
 				}
 			}
 		}
 
 	if (code) {
-		strbuf_addstr(&errmsg, "fail to negotiate version with proc-receive hook");
+		strbuf_addstr(
+			&errmsg,
+			"fail to negotiate version with proc-receive hook");
 		goto cleanup;
 	}
 
@@ -1206,7 +1232,8 @@ static int run_proc_receive_hook(struct command *commands,
 	case 1:
 		break;
 	default:
-		strbuf_addf(&errmsg, "proc-receive version '%d' is not supported",
+		strbuf_addf(&errmsg,
+			    "proc-receive version '%d' is not supported",
 			    version);
 		code = -1;
 		goto cleanup;
@@ -1214,7 +1241,8 @@ static int run_proc_receive_hook(struct command *commands,
 
 	/* Send commands */
 	for (cmd = commands; cmd; cmd = cmd->next) {
-		if (!cmd->run_proc_receive || cmd->skip_update || cmd->error_string)
+		if (!cmd->run_proc_receive || cmd->skip_update ||
+		    cmd->error_string)
 			continue;
 		code = packet_write_fmt_gently(proc.in, "%s %s %s",
 					       oid_to_hex(&cmd->old_oid),
@@ -1226,7 +1254,8 @@ static int run_proc_receive_hook(struct command *commands,
 	if (!code)
 		code = packet_flush_gently(proc.in);
 	if (code) {
-		strbuf_addstr(&errmsg, "fail to write commands to proc-receive hook");
+		strbuf_addstr(&errmsg,
+			      "fail to write commands to proc-receive hook");
 		goto cleanup;
 	}
 
@@ -1234,16 +1263,18 @@ static int run_proc_receive_hook(struct command *commands,
 	if (hook_use_push_options) {
 		struct string_list_item *item;
 
-		for_each_string_list_item(item, push_options) {
-			code = packet_write_fmt_gently(proc.in, "%s", item->string);
+		for_each_string_list_item (item, push_options) {
+			code = packet_write_fmt_gently(proc.in, "%s",
+						       item->string);
 			if (code)
 				break;
 		}
 		if (!code)
 			code = packet_flush_gently(proc.in);
 		if (code) {
-			strbuf_addstr(&errmsg,
-				      "fail to write push-options to proc-receive hook");
+			strbuf_addstr(
+				&errmsg,
+				"fail to write push-options to proc-receive hook");
 			goto cleanup;
 		}
 	}
@@ -1258,7 +1289,7 @@ cleanup:
 		finish_async(&muxer);
 	if (finish_command(&proc))
 		code = -1;
-	if (errmsg.len >0) {
+	if (errmsg.len > 0) {
 		char *p = errmsg.buf;
 
 		p += errmsg.len - 1;
@@ -1272,35 +1303,35 @@ cleanup:
 	return code;
 }
 
-static char *refuse_unconfigured_deny_msg =
-	N_("By default, updating the current branch in a non-bare repository\n"
-	   "is denied, because it will make the index and work tree inconsistent\n"
-	   "with what you pushed, and will require 'git reset --hard' to match\n"
-	   "the work tree to HEAD.\n"
-	   "\n"
-	   "You can set the 'receive.denyCurrentBranch' configuration variable\n"
-	   "to 'ignore' or 'warn' in the remote repository to allow pushing into\n"
-	   "its current branch; however, this is not recommended unless you\n"
-	   "arranged to update its work tree to match what you pushed in some\n"
-	   "other way.\n"
-	   "\n"
-	   "To squelch this message and still keep the default behaviour, set\n"
-	   "'receive.denyCurrentBranch' configuration variable to 'refuse'.");
+static char *refuse_unconfigured_deny_msg = N_(
+	"By default, updating the current branch in a non-bare repository\n"
+	"is denied, because it will make the index and work tree inconsistent\n"
+	"with what you pushed, and will require 'git reset --hard' to match\n"
+	"the work tree to HEAD.\n"
+	"\n"
+	"You can set the 'receive.denyCurrentBranch' configuration variable\n"
+	"to 'ignore' or 'warn' in the remote repository to allow pushing into\n"
+	"its current branch; however, this is not recommended unless you\n"
+	"arranged to update its work tree to match what you pushed in some\n"
+	"other way.\n"
+	"\n"
+	"To squelch this message and still keep the default behaviour, set\n"
+	"'receive.denyCurrentBranch' configuration variable to 'refuse'.");
 
 static void refuse_unconfigured_deny(void)
 {
 	rp_error("%s", _(refuse_unconfigured_deny_msg));
 }
 
-static char *refuse_unconfigured_deny_delete_current_msg =
-	N_("By default, deleting the current branch is denied, because the next\n"
-	   "'git clone' won't result in any file checked out, causing confusion.\n"
-	   "\n"
-	   "You can set 'receive.denyDeleteCurrent' configuration variable to\n"
-	   "'warn' or 'ignore' in the remote repository to allow deleting the\n"
-	   "current branch, with or without a warning message.\n"
-	   "\n"
-	   "To squelch this message, you can set it to 'refuse'.");
+static char *refuse_unconfigured_deny_delete_current_msg = N_(
+	"By default, deleting the current branch is denied, because the next\n"
+	"'git clone' won't result in any file checked out, causing confusion.\n"
+	"\n"
+	"You can set 'receive.denyDeleteCurrent' configuration variable to\n"
+	"'warn' or 'ignore' in the remote repository to allow deleting the\n"
+	"current branch, with or without a warning message.\n"
+	"\n"
+	"To squelch this message, you can set it to 'refuse'.");
 
 static void refuse_unconfigured_deny_delete_current(void)
 {
@@ -1316,8 +1347,8 @@ static int update_shallow_ref(struct command *cmd, struct shallow_info *si)
 	uint32_t mask = 1 << (cmd->index % 32);
 	int i;
 
-	trace_printf_key(&trace_shallow,
-			 "shallow: update_shallow_ref %s\n", cmd->ref_name);
+	trace_printf_key(&trace_shallow, "shallow: update_shallow_ref %s\n",
+			 cmd->ref_name);
 	for (i = 0; i < si->shallow->nr; i++)
 		if (si->used_shallow[i] &&
 		    (si->used_shallow[i][cmd->index / 32] & mask) &&
@@ -1362,23 +1393,19 @@ static int head_has_history(void)
 	return !get_oid("HEAD", &oid);
 }
 
-static const char *push_to_deploy(unsigned char *sha1,
-				  struct strvec *env,
+static const char *push_to_deploy(unsigned char *sha1, struct strvec *env,
 				  const char *work_tree)
 {
-	const char *update_refresh[] = {
-		"update-index", "-q", "--ignore-submodules", "--refresh", NULL
-	};
-	const char *diff_files[] = {
-		"diff-files", "--quiet", "--ignore-submodules", "--", NULL
-	};
-	const char *diff_index[] = {
-		"diff-index", "--quiet", "--cached", "--ignore-submodules",
-		NULL, "--", NULL
-	};
-	const char *read_tree[] = {
-		"read-tree", "-u", "-m", NULL, NULL
-	};
+	const char *update_refresh[] = { "update-index", "-q",
+					 "--ignore-submodules", "--refresh",
+					 NULL };
+	const char *diff_files[] = { "diff-files", "--quiet",
+				     "--ignore-submodules", "--", NULL };
+	const char *diff_index[] = { "diff-index", "--quiet",
+				     "--cached",   "--ignore-submodules",
+				     NULL,	   "--",
+				     NULL };
+	const char *read_tree[] = { "read-tree", "-u", "-m", NULL, NULL };
 	struct child_process child = CHILD_PROCESS_INIT;
 
 	child.argv = update_refresh;
@@ -1431,19 +1458,18 @@ static const char *push_to_deploy(unsigned char *sha1,
 
 static const char *push_to_checkout_hook = "push-to-checkout";
 
-static const char *push_to_checkout(unsigned char *hash,
-				    struct strvec *env,
+static const char *push_to_checkout(unsigned char *hash, struct strvec *env,
 				    const char *work_tree)
 {
 	strvec_pushf(env, "GIT_WORK_TREE=%s", absolute_path(work_tree));
-	if (run_hook_le(env->v, push_to_checkout_hook,
-			hash_to_hex(hash), NULL))
+	if (run_hook_le(env->v, push_to_checkout_hook, hash_to_hex(hash), NULL))
 		return "push-to-checkout hook declined";
 	else
 		return NULL;
 }
 
-static const char *update_worktree(unsigned char *sha1, const struct worktree *worktree)
+static const char *update_worktree(unsigned char *sha1,
+				   const struct worktree *worktree)
 {
 	const char *retval, *work_tree, *git_dir = NULL;
 	struct strvec env = STRVEC_INIT;
@@ -1482,7 +1508,8 @@ static const char *update(struct command *cmd, struct shallow_info *si)
 	struct object_id *old_oid = &cmd->old_oid;
 	struct object_id *new_oid = &cmd->new_oid;
 	int do_update_worktree = 0;
-	const struct worktree *worktree = is_bare_repository() ? NULL : find_shared_symref("HEAD", name);
+	const struct worktree *worktree =
+		is_bare_repository() ? NULL : find_shared_symref("HEAD", name);
 
 	/* only refs/... are allowed */
 	if (!starts_with(name, "refs/") || check_refname_format(name + 5, 0)) {
@@ -1503,7 +1530,8 @@ static const char *update(struct command *cmd, struct shallow_info *si)
 			break;
 		case DENY_REFUSE:
 		case DENY_UNCONFIGURED:
-			rp_error("refusing to update checked out branch: %s", name);
+			rp_error("refusing to update checked out branch: %s",
+				 name);
 			if (deny_current_branch == DENY_UNCONFIGURED)
 				refuse_unconfigured_deny();
 			return "branch is currently checked out";
@@ -1516,7 +1544,8 @@ static const char *update(struct command *cmd, struct shallow_info *si)
 
 	if (!is_null_oid(new_oid) && !has_object_file(new_oid)) {
 		error("unpack should have generated %s, "
-		      "but I can't find it!", oid_to_hex(new_oid));
+		      "but I can't find it!",
+		      oid_to_hex(new_oid));
 		return "bad pack";
 	}
 
@@ -1526,7 +1555,8 @@ static const char *update(struct command *cmd, struct shallow_info *si)
 			return "deletion prohibited";
 		}
 
-		if (worktree || (head_name && !strcmp(namespaced_name, head_name))) {
+		if (worktree ||
+		    (head_name && !strcmp(namespaced_name, head_name))) {
 			switch (deny_delete_current) {
 			case DENY_IGNORE:
 				break;
@@ -1538,7 +1568,9 @@ static const char *update(struct command *cmd, struct shallow_info *si)
 			case DENY_UPDATE_INSTEAD:
 				if (deny_delete_current == DENY_UNCONFIGURED)
 					refuse_unconfigured_deny_delete_current();
-				rp_error("refusing to delete the current branch: %s", name);
+				rp_error(
+					"refusing to delete the current branch: %s",
+					name);
 				return "deletion of the current branch prohibited";
 			default:
 				return "Invalid denyDeleteCurrent setting";
@@ -1547,8 +1579,7 @@ static const char *update(struct command *cmd, struct shallow_info *si)
 	}
 
 	if (deny_non_fast_forwards && !is_null_oid(new_oid) &&
-	    !is_null_oid(old_oid) &&
-	    starts_with(name, "refs/heads/")) {
+	    !is_null_oid(old_oid) && starts_with(name, "refs/heads/")) {
 		struct object *old_object, *new_object;
 		struct commit *old_commit, *new_commit;
 
@@ -1565,7 +1596,8 @@ static const char *update(struct command *cmd, struct shallow_info *si)
 		new_commit = (struct commit *)new_object;
 		if (!in_merge_bases(old_commit, new_commit)) {
 			rp_error("denying non-fast-forward %s"
-				 " (you should pull first)", name);
+				 " (you should pull first)",
+				 name);
 			return "non-fast-forward";
 		}
 	}
@@ -1575,7 +1607,8 @@ static const char *update(struct command *cmd, struct shallow_info *si)
 	}
 
 	if (do_update_worktree) {
-		ret = update_worktree(new_oid->hash, find_shared_symref("HEAD", name));
+		ret = update_worktree(new_oid->hash,
+				      find_shared_symref("HEAD", name));
 		if (ret)
 			return ret;
 	}
@@ -1591,28 +1624,22 @@ static const char *update(struct command *cmd, struct shallow_info *si)
 				cmd->did_not_exist = 1;
 			}
 		}
-		if (ref_transaction_delete(transaction,
-					   namespaced_name,
-					   old_oid,
-					   0, "push", &err)) {
+		if (ref_transaction_delete(transaction, namespaced_name,
+					   old_oid, 0, "push", &err)) {
 			rp_error("%s", err.buf);
 			strbuf_release(&err);
 			return "failed to delete";
 		}
 		strbuf_release(&err);
 		return NULL; /* good */
-	}
-	else {
+	} else {
 		struct strbuf err = STRBUF_INIT;
 		if (shallow_update && si->shallow_ref[cmd->index] &&
 		    update_shallow_ref(cmd, si))
 			return "shallow error";
 
-		if (ref_transaction_update(transaction,
-					   namespaced_name,
-					   new_oid, old_oid,
-					   0, "push",
-					   &err)) {
+		if (ref_transaction_update(transaction, namespaced_name,
+					   new_oid, old_oid, 0, "push", &err)) {
 			rp_error("%s", err.buf);
 			strbuf_release(&err);
 
@@ -1667,7 +1694,8 @@ static void check_aliased_update_internal(struct command *cmd,
 		return;
 
 	if (!dst_name) {
-		rp_error("refusing update to broken symref '%s'", cmd->ref_name);
+		rp_error("refusing update to broken symref '%s'",
+			 cmd->ref_name);
 		cmd->skip_update = 1;
 		cmd->error_string = "broken symref";
 		return;
@@ -1679,7 +1707,7 @@ static void check_aliased_update_internal(struct command *cmd,
 
 	cmd->skip_update = 1;
 
-	dst_cmd = (struct command *) item->util;
+	dst_cmd = (struct command *)item->util;
 
 	if (oideq(&cmd->old_oid, &dst_cmd->old_oid) &&
 	    oideq(&cmd->new_oid, &dst_cmd->new_oid))
@@ -1860,8 +1888,8 @@ static void execute_commands_non_atomic(struct command *commands,
 
 		cmd->error_string = update(cmd, si);
 
-		if (!cmd->error_string
-		    && ref_transaction_commit(transaction, &err)) {
+		if (!cmd->error_string &&
+		    ref_transaction_commit(transaction, &err)) {
 			rp_error("%s", err.buf);
 			strbuf_reset(&err);
 			cmd->error_string = "failed to update ref";
@@ -1872,7 +1900,7 @@ static void execute_commands_non_atomic(struct command *commands,
 }
 
 static void execute_commands_atomic(struct command *commands,
-					struct shallow_info *si)
+				    struct shallow_info *si)
 {
 	struct command *cmd;
 	struct strbuf err = STRBUF_INIT;
@@ -1954,8 +1982,8 @@ static void execute_commands(struct command *commands,
 	reject_updates_to_hidden(commands);
 
 	/*
-	 * Try to find commands that have special prefix in their reference names,
-	 * and mark them to run an external "proc-receive" hook later.
+	 * Try to find commands that have special prefix in their reference
+	 * names, and mark them to run an external "proc-receive" hook later.
 	 */
 	if (proc_receive_ref) {
 		for (cmd = commands; cmd; cmd = cmd->next) {
@@ -1963,7 +1991,8 @@ static void execute_commands(struct command *commands,
 				continue;
 
 			if (proc_receive_ref_matches(cmd)) {
-				cmd->run_proc_receive = RUN_PROC_RECEIVE_SCHEDULED;
+				cmd->run_proc_receive =
+					RUN_PROC_RECEIVE_SCHEDULED;
 				run_proc_receive = 1;
 			}
 		}
@@ -1984,7 +2013,8 @@ static void execute_commands(struct command *commands,
 	if (tmp_objdir_migrate(tmp_objdir) < 0) {
 		for (cmd = commands; cmd; cmd = cmd->next) {
 			if (!cmd->error_string)
-				cmd->error_string = "unable to migrate objects to permanent storage";
+				cmd->error_string =
+					"unable to migrate objects to permanent storage";
 		}
 		return;
 	}
@@ -1995,13 +2025,14 @@ static void execute_commands(struct command *commands,
 	free(head_name_to_free);
 	head_name = head_name_to_free = resolve_refdup("HEAD", 0, NULL, NULL);
 
-	if (run_proc_receive &&
-	    run_proc_receive_hook(commands, push_options))
+	if (run_proc_receive && run_proc_receive_hook(commands, push_options))
 		for (cmd = commands; cmd; cmd = cmd->next)
 			if (!cmd->error_string &&
-			    !(cmd->run_proc_receive & RUN_PROC_RECEIVE_RETURNED) &&
+			    !(cmd->run_proc_receive &
+			      RUN_PROC_RECEIVE_RETURNED) &&
 			    (cmd->run_proc_receive || use_atomic))
-				cmd->error_string = "fail to run proc-receive hook";
+				cmd->error_string =
+					"fail to run proc-receive hook";
 
 	if (use_atomic)
 		execute_commands_atomic(commands, si);
@@ -2012,8 +2043,7 @@ static void execute_commands(struct command *commands,
 		warn_if_skipped_connectivity_check(commands, si);
 }
 
-static struct command **queue_command(struct command **tail,
-				      const char *line,
+static struct command **queue_command(struct command **tail, const char *line,
 				      int linelen)
 {
 	struct object_id old_oid, new_oid;
@@ -2022,10 +2052,8 @@ static struct command **queue_command(struct command **tail,
 	int reflen;
 	const char *p;
 
-	if (parse_oid_hex(line, &old_oid, &p) ||
-	    *p++ != ' ' ||
-	    parse_oid_hex(p, &new_oid, &p) ||
-	    *p++ != ' ')
+	if (parse_oid_hex(line, &old_oid, &p) || *p++ != ' ' ||
+	    parse_oid_hex(p, &new_oid, &p) || *p++ != ' ')
 		die("protocol error: expected old/new/ref, got '%s'", line);
 
 	refname = p;
@@ -2050,7 +2078,8 @@ static void queue_commands_from_cert(struct command **tail,
 		die("malformed push certificate %.*s", 100, push_cert->buf);
 	else
 		boc += 2;
-	eoc = push_cert->buf + parse_signed_buffer(push_cert->buf, push_cert->len);
+	eoc = push_cert->buf +
+	      parse_signed_buffer(push_cert->buf, push_cert->len);
 
 	while (boc < eoc) {
 		const char *eol = memchr(boc, '\n', eoc - boc);
@@ -2070,7 +2099,8 @@ static struct command *read_head_info(struct packet_reader *reader,
 		if (packet_reader_read(reader) != PACKET_READ_NORMAL)
 			break;
 
-		if (reader->pktlen > 8 && starts_with(reader->line, "shallow ")) {
+		if (reader->pktlen > 8 &&
+		    starts_with(reader->line, "shallow ")) {
 			struct object_id oid;
 			if (get_oid_hex(reader->line + 8, &oid))
 				die("protocol error: expected shallow sha, got '%s'",
@@ -2085,31 +2115,38 @@ static struct command *read_head_info(struct packet_reader *reader,
 			const char *hash = NULL;
 			const char *client_sid;
 			int len = 0;
-			if (parse_feature_request(feature_list, "report-status"))
+			if (parse_feature_request(feature_list,
+						  "report-status"))
 				report_status = 1;
-			if (parse_feature_request(feature_list, "report-status-v2"))
+			if (parse_feature_request(feature_list,
+						  "report-status-v2"))
 				report_status_v2 = 1;
-			if (parse_feature_request(feature_list, "side-band-64k"))
+			if (parse_feature_request(feature_list,
+						  "side-band-64k"))
 				use_sideband = LARGE_PACKET_MAX;
 			if (parse_feature_request(feature_list, "quiet"))
 				quiet = 1;
-			if (advertise_atomic_push
-			    && parse_feature_request(feature_list, "atomic"))
+			if (advertise_atomic_push &&
+			    parse_feature_request(feature_list, "atomic"))
 				use_atomic = 1;
-			if (advertise_push_options
-			    && parse_feature_request(feature_list, "push-options"))
+			if (advertise_push_options &&
+			    parse_feature_request(feature_list, "push-options"))
 				use_push_options = 1;
-			hash = parse_feature_value(feature_list, "object-format", &len, NULL);
+			hash = parse_feature_value(feature_list,
+						   "object-format", &len, NULL);
 			if (!hash) {
 				hash = hash_algos[GIT_HASH_SHA1].name;
 				len = strlen(hash);
 			}
 			if (xstrncmpz(the_hash_algo->name, hash, len))
-				die("error: unsupported object format '%s'", hash);
-			client_sid = parse_feature_value(feature_list, "session-id", &len, NULL);
+				die("error: unsupported object format '%s'",
+				    hash);
+			client_sid = parse_feature_value(
+				feature_list, "session-id", &len, NULL);
 			if (client_sid) {
 				char *sid = xstrndup(client_sid, len);
-				trace2_data_string("transfer", NULL, "client-sid", client_sid);
+				trace2_data_string("transfer", NULL,
+						   "client-sid", client_sid);
 				free(sid);
 			}
 		}
@@ -2183,7 +2220,7 @@ static const char *pack_lockfile;
 
 static void push_header_arg(struct strvec *args, struct pack_header *hdr)
 {
-	strvec_pushf(args, "--pack_header=%"PRIu32",%"PRIu32,
+	strvec_pushf(args, "--pack_header=%" PRIu32 ",%" PRIu32,
 		     ntohl(hdr->hdr_version), ntohl(hdr->hdr_entries));
 }
 
@@ -2193,11 +2230,11 @@ static const char *unpack(int err_fd, struct shallow_info *si)
 	const char *hdr_err;
 	int status;
 	struct child_process child = CHILD_PROCESS_INIT;
-	int fsck_objects = (receive_fsck_objects >= 0
-			    ? receive_fsck_objects
-			    : transfer_fsck_objects >= 0
-			    ? transfer_fsck_objects
-			    : 0);
+	int fsck_objects = (receive_fsck_objects >= 0 ?
+				    receive_fsck_objects :
+				    transfer_fsck_objects >= 0 ?
+				    transfer_fsck_objects :
+				    0);
 
 	hdr_err = parse_pack_header(&hdr);
 	if (hdr_err) {
@@ -2236,7 +2273,7 @@ static const char *unpack(int err_fd, struct shallow_info *si)
 			strvec_pushf(&child.args, "--strict%s",
 				     fsck_msg_types.buf);
 		if (max_input_size)
-			strvec_pushf(&child.args, "--max-input-size=%"PRIuMAX,
+			strvec_pushf(&child.args, "--max-input-size=%" PRIuMAX,
 				     (uintmax_t)max_input_size);
 		child.no_stdout = 1;
 		child.err = err_fd;
@@ -2253,9 +2290,8 @@ static const char *unpack(int err_fd, struct shallow_info *si)
 		if (xgethostname(hostname, sizeof(hostname)))
 			xsnprintf(hostname, sizeof(hostname), "localhost");
 		strvec_pushf(&child.args,
-			     "--keep=receive-pack %"PRIuMAX" on %s",
-			     (uintmax_t)getpid(),
-			     hostname);
+			     "--keep=receive-pack %" PRIuMAX " on %s",
+			     (uintmax_t)getpid(), hostname);
 
 		if (!quiet && err_fd)
 			strvec_push(&child.args, "--show-resolving-progress");
@@ -2267,7 +2303,7 @@ static const char *unpack(int err_fd, struct shallow_info *si)
 		if (!reject_thin)
 			strvec_push(&child.args, "--fix-thin");
 		if (max_input_size)
-			strvec_pushf(&child.args, "--max-input-size=%"PRIuMAX,
+			strvec_pushf(&child.args, "--max-input-size=%" PRIuMAX,
 				     (uintmax_t)max_input_size);
 		child.out = -1;
 		child.err = err_fd;
@@ -2315,8 +2351,7 @@ static void prepare_shallow_update(struct shallow_info *si)
 
 	si->need_reachability_test =
 		xcalloc(si->shallow->nr, sizeof(*si->need_reachability_test));
-	si->reachable =
-		xcalloc(si->shallow->nr, sizeof(*si->reachable));
+	si->reachable = xcalloc(si->shallow->nr, sizeof(*si->reachable));
 	si->shallow_ref = xcalloc(si->ref->nr, sizeof(*si->shallow_ref));
 
 	for (i = 0; i < si->nr_ours; i++)
@@ -2338,8 +2373,8 @@ static void prepare_shallow_update(struct shallow_info *si)
 		 * true for those associated with some refs and belong
 		 * in "ours" list aka "step 7 not done yet"
 		 */
-		si->need_reachability_test[i] =
-			si->need_reachability_test[i] > 1;
+		si->need_reachability_test[i] = si->need_reachability_test[i] >
+						1;
 	}
 
 	/*
@@ -2352,8 +2387,7 @@ static void prepare_shallow_update(struct shallow_info *si)
 }
 
 static void update_shallow_info(struct command *commands,
-				struct shallow_info *si,
-				struct oid_array *ref)
+				struct shallow_info *si, struct oid_array *ref)
 {
 	struct command *cmd;
 	int *ref_status;
@@ -2398,11 +2432,10 @@ static void report(struct command *commands, const char *unpack_status)
 			 unpack_status ? unpack_status : "ok");
 	for (cmd = commands; cmd; cmd = cmd->next) {
 		if (!cmd->error_string)
-			packet_buf_write(&buf, "ok %s\n",
-					 cmd->ref_name);
+			packet_buf_write(&buf, "ok %s\n", cmd->ref_name);
 		else
-			packet_buf_write(&buf, "ng %s %s\n",
-					 cmd->ref_name, cmd->error_string);
+			packet_buf_write(&buf, "ng %s %s\n", cmd->ref_name,
+					 cmd->error_string);
 	}
 	packet_buf_flush(&buf);
 
@@ -2425,13 +2458,11 @@ static void report_v2(struct command *commands, const char *unpack_status)
 		int count = 0;
 
 		if (cmd->error_string) {
-			packet_buf_write(&buf, "ng %s %s\n",
-					 cmd->ref_name,
+			packet_buf_write(&buf, "ng %s %s\n", cmd->ref_name,
 					 cmd->error_string);
 			continue;
 		}
-		packet_buf_write(&buf, "ok %s\n",
-				 cmd->ref_name);
+		packet_buf_write(&buf, "ok %s\n", cmd->ref_name);
 		for (report = cmd->report; report; report = report->next) {
 			if (count++ > 0)
 				packet_buf_write(&buf, "ok %s\n",
@@ -2446,7 +2477,8 @@ static void report_v2(struct command *commands, const char *unpack_status)
 				packet_buf_write(&buf, "option new-oid %s\n",
 						 oid_to_hex(report->new_oid));
 			if (report->forced_update)
-				packet_buf_write(&buf, "option forced-update\n");
+				packet_buf_write(&buf,
+						 "option forced-update\n");
 		}
 	}
 	packet_buf_flush(&buf);
@@ -2481,18 +2513,22 @@ int cmd_receive_pack(int argc, const char **argv, const char *prefix)
 		OPT__QUIET(&quiet, N_("quiet")),
 		OPT_HIDDEN_BOOL(0, "stateless-rpc", &stateless_rpc, NULL),
 		OPT_HIDDEN_BOOL(0, "advertise-refs", &advertise_refs, NULL),
-		OPT_HIDDEN_BOOL(0, "reject-thin-pack-for-testing", &reject_thin, NULL),
+		OPT_HIDDEN_BOOL(0, "reject-thin-pack-for-testing", &reject_thin,
+				NULL),
 		OPT_END()
 	};
 
 	packet_trace_identity("receive-pack");
 
-	argc = parse_options(argc, argv, prefix, options, receive_pack_usage, 0);
+	argc = parse_options(argc, argv, prefix, options, receive_pack_usage,
+			     0);
 
 	if (argc > 1)
-		usage_msg_opt(_("Too many arguments."), receive_pack_usage, options);
+		usage_msg_opt(_("Too many arguments."), receive_pack_usage,
+			      options);
 	if (argc == 0)
-		usage_msg_opt(_("You must specify a directory."), receive_pack_usage, options);
+		usage_msg_opt(_("You must specify a directory."),
+			      receive_pack_usage, options);
 
 	service_dir = argv[0];
 
@@ -2503,7 +2539,8 @@ int cmd_receive_pack(int argc, const char **argv, const char *prefix)
 
 	git_config(receive_pack_config, NULL);
 	if (cert_nonce_seed)
-		push_cert_nonce = prepare_push_cert_nonce(service_dir, time(NULL));
+		push_cert_nonce =
+			prepare_push_cert_nonce(service_dir, time(NULL));
 
 	if (0 <= transfer_unpack_limit)
 		unpack_limit = transfer_unpack_limit;
@@ -2540,7 +2577,7 @@ int cmd_receive_pack(int argc, const char **argv, const char *prefix)
 
 	packet_reader_init(&reader, 0, NULL, 0,
 			   PACKET_READ_CHOMP_NEWLINE |
-			   PACKET_READ_DIE_ON_ERR_PACKET);
+				   PACKET_READ_DIE_ON_ERR_PACKET);
 
 	if ((commands = read_head_info(&reader, &shallow)) != NULL) {
 		const char *unpack_status = NULL;
@@ -2562,21 +2599,22 @@ int cmd_receive_pack(int argc, const char **argv, const char *prefix)
 			update_shallow_info(commands, &si, &ref);
 		}
 		use_keepalive = KEEPALIVE_ALWAYS;
-		execute_commands(commands, unpack_status, &si,
-				 &push_options);
+		execute_commands(commands, unpack_status, &si, &push_options);
 		if (pack_lockfile)
 			unlink_or_warn(pack_lockfile);
 		if (report_status_v2)
 			report_v2(commands, unpack_status);
 		else if (report_status)
 			report(commands, unpack_status);
-		run_receive_hook(commands, "post-receive", 1,
-				 &push_options);
+		run_receive_hook(commands, "post-receive", 1, &push_options);
 		run_update_post_hook(commands);
 		string_list_clear(&push_options, 0);
 		if (auto_gc) {
 			const char *argv_gc_auto[] = {
-				"gc", "--auto", "--quiet", NULL,
+				"gc",
+				"--auto",
+				"--quiet",
+				NULL,
 			};
 			struct child_process proc = CHILD_PROCESS_INIT;
 

@@ -35,8 +35,8 @@ static void normalize_argv_string(const char **var, const char *input)
 }
 
 struct test_data {
-	const char *from;  /* input:  transform from this ... */
-	const char *to;    /* output: ... to this.            */
+	const char *from; /* input:  transform from this ... */
+	const char *to; /* output: ... to this.            */
 	const char *alternative; /* output: ... or this.      */
 };
 
@@ -55,7 +55,7 @@ static char *posix_dirname(char *path)
 }
 
 static int test_function(struct test_data *data, char *(*func)(char *input),
-	const char *funcname)
+			 const char *funcname)
 {
 	int failed = 0, i;
 	char buffer[1024];
@@ -71,14 +71,14 @@ static int test_function(struct test_data *data, char *(*func)(char *input),
 		if (!strcmp(to, data[i].to))
 			continue;
 		if (!data[i].alternative)
-			error("FAIL: %s(%s) => '%s' != '%s'\n",
-				funcname, data[i].from, to, data[i].to);
+			error("FAIL: %s(%s) => '%s' != '%s'\n", funcname,
+			      data[i].from, to, data[i].to);
 		else if (!strcmp(to, data[i].alternative))
 			continue;
 		else
-			error("FAIL: %s(%s) => '%s' != '%s', '%s'\n",
-				funcname, data[i].from, to, data[i].to,
-				data[i].alternative);
+			error("FAIL: %s(%s) => '%s' != '%s', '%s'\n", funcname,
+			      data[i].from, to, data[i].to,
+			      data[i].alternative);
 		failed = 1;
 	}
 	return failed;
@@ -86,90 +86,90 @@ static int test_function(struct test_data *data, char *(*func)(char *input),
 
 static struct test_data basename_data[] = {
 	/* --- POSIX type paths --- */
-	{ NULL,              "."    },
-	{ "",                "."    },
-	{ ".",               "."    },
-	{ "..",              ".."   },
-	{ "/",               "/"    },
-	{ "//",              "/", "//" },
-	{ "///",             "/", "//" },
-	{ "////",            "/", "//" },
-	{ "usr",             "usr"  },
-	{ "/usr",            "usr"  },
-	{ "/usr/",           "usr"  },
-	{ "/usr//",          "usr"  },
-	{ "/usr/lib",        "lib"  },
-	{ "usr/lib",         "lib"  },
-	{ "usr/lib///",      "lib"  },
+	{ NULL, "." },
+	{ "", "." },
+	{ ".", "." },
+	{ "..", ".." },
+	{ "/", "/" },
+	{ "//", "/", "//" },
+	{ "///", "/", "//" },
+	{ "////", "/", "//" },
+	{ "usr", "usr" },
+	{ "/usr", "usr" },
+	{ "/usr/", "usr" },
+	{ "/usr//", "usr" },
+	{ "/usr/lib", "lib" },
+	{ "usr/lib", "lib" },
+	{ "usr/lib///", "lib" },
 
 #if defined(__MINGW32__) || defined(_MSC_VER)
 	/* --- win32 type paths --- */
-	{ "\\usr",           "usr"  },
-	{ "\\usr\\",         "usr"  },
-	{ "\\usr\\\\",       "usr"  },
-	{ "\\usr\\lib",      "lib"  },
-	{ "usr\\lib",        "lib"  },
-	{ "usr\\lib\\\\\\",  "lib"  },
-	{ "C:/usr",          "usr"  },
-	{ "C:/usr",          "usr"  },
-	{ "C:/usr/",         "usr"  },
-	{ "C:/usr//",        "usr"  },
-	{ "C:/usr/lib",      "lib"  },
-	{ "C:usr/lib",       "lib"  },
-	{ "C:usr/lib///",    "lib"  },
-	{ "C:",              "."    },
-	{ "C:a",             "a"    },
-	{ "C:/",             "/"    },
-	{ "C:///",           "/"    },
-	{ "\\",              "\\", "/" },
-	{ "\\\\",            "\\", "/" },
-	{ "\\\\\\",          "\\", "/" },
+	{ "\\usr", "usr" },
+	{ "\\usr\\", "usr" },
+	{ "\\usr\\\\", "usr" },
+	{ "\\usr\\lib", "lib" },
+	{ "usr\\lib", "lib" },
+	{ "usr\\lib\\\\\\", "lib" },
+	{ "C:/usr", "usr" },
+	{ "C:/usr", "usr" },
+	{ "C:/usr/", "usr" },
+	{ "C:/usr//", "usr" },
+	{ "C:/usr/lib", "lib" },
+	{ "C:usr/lib", "lib" },
+	{ "C:usr/lib///", "lib" },
+	{ "C:", "." },
+	{ "C:a", "a" },
+	{ "C:/", "/" },
+	{ "C:///", "/" },
+	{ "\\", "\\", "/" },
+	{ "\\\\", "\\", "/" },
+	{ "\\\\\\", "\\", "/" },
 #endif
-	{ NULL,              NULL   }
+	{ NULL, NULL }
 };
 
 static struct test_data dirname_data[] = {
 	/* --- POSIX type paths --- */
-	{ NULL,              "."      },
-	{ "",                "."      },
-	{ ".",               "."      },
-	{ "..",              "."      },
-	{ "/",               "/"      },
-	{ "//",              "/", "//" },
-	{ "///",             "/", "//" },
-	{ "////",            "/", "//" },
-	{ "usr",             "."      },
-	{ "/usr",            "/"      },
-	{ "/usr/",           "/"      },
-	{ "/usr//",          "/"      },
-	{ "/usr/lib",        "/usr"   },
-	{ "usr/lib",         "usr"    },
-	{ "usr/lib///",      "usr"    },
+	{ NULL, "." },
+	{ "", "." },
+	{ ".", "." },
+	{ "..", "." },
+	{ "/", "/" },
+	{ "//", "/", "//" },
+	{ "///", "/", "//" },
+	{ "////", "/", "//" },
+	{ "usr", "." },
+	{ "/usr", "/" },
+	{ "/usr/", "/" },
+	{ "/usr//", "/" },
+	{ "/usr/lib", "/usr" },
+	{ "usr/lib", "usr" },
+	{ "usr/lib///", "usr" },
 
 #if defined(__MINGW32__) || defined(_MSC_VER)
 	/* --- win32 type paths --- */
-	{ "\\",              "\\"     },
-	{ "\\\\",            "\\\\"   },
-	{ "\\usr",           "\\"     },
-	{ "\\usr\\",         "\\"     },
-	{ "\\usr\\\\",       "\\"     },
-	{ "\\usr\\lib",      "\\usr"  },
-	{ "usr\\lib",        "usr"    },
-	{ "usr\\lib\\\\\\",  "usr"    },
-	{ "C:a",             "C:."    },
-	{ "C:/",             "C:/"    },
-	{ "C:///",           "C:/"    },
-	{ "C:/usr",          "C:/"    },
-	{ "C:/usr/",         "C:/"    },
-	{ "C:/usr//",        "C:/"    },
-	{ "C:/usr/lib",      "C:/usr" },
-	{ "C:usr/lib",       "C:usr"  },
-	{ "C:usr/lib///",    "C:usr"  },
-	{ "\\\\\\",          "\\"     },
-	{ "\\\\\\\\",        "\\"     },
-	{ "C:",              "C:.", "." },
+	{ "\\", "\\" },
+	{ "\\\\", "\\\\" },
+	{ "\\usr", "\\" },
+	{ "\\usr\\", "\\" },
+	{ "\\usr\\\\", "\\" },
+	{ "\\usr\\lib", "\\usr" },
+	{ "usr\\lib", "usr" },
+	{ "usr\\lib\\\\\\", "usr" },
+	{ "C:a", "C:." },
+	{ "C:/", "C:/" },
+	{ "C:///", "C:/" },
+	{ "C:/usr", "C:/" },
+	{ "C:/usr/", "C:/" },
+	{ "C:/usr//", "C:/" },
+	{ "C:/usr/lib", "C:/usr" },
+	{ "C:usr/lib", "C:usr" },
+	{ "C:usr/lib///", "C:usr" },
+	{ "\\\\\\", "\\" },
+	{ "\\\\\\\\", "\\" },
+	{ "C:", "C:.", "." },
 #endif
-	{ NULL,              NULL     }
+	{ NULL, NULL }
 };
 
 static int is_dotgitmodules(const char *path)
@@ -250,7 +250,8 @@ static int protect_ntfs_hfs_benchmark(int argc, const char **argv)
 
 		names[i] = xmallocz(len);
 		while (len > 0)
-			names[i][--len] = (char)(' ' + (my_random() % ('\x7f' - ' ')));
+			names[i][--len] =
+				(char)(' ' + (my_random() % ('\x7f' - ' ')));
 	}
 
 	for (protect_ntfs = 0; protect_ntfs < 2; protect_ntfs++)
@@ -262,18 +263,29 @@ static int protect_ntfs_hfs_benchmark(int argc, const char **argv)
 				for (j = 0; j < nr; j++)
 					verify_path(names[j], file_mode);
 				end = getnanotime();
-				printf("protect_ntfs = %d, protect_hfs = %d: %lfms\n", protect_ntfs, protect_hfs, (end-begin) / (double)1e6);
+				printf("protect_ntfs = %d, protect_hfs = %d: %lfms\n",
+				       protect_ntfs, protect_hfs,
+				       (end - begin) / (double)1e6);
 				cumul += end - begin;
 				cumul2 += (end - begin) * (end - begin);
 			}
-			m[protect_ntfs][protect_hfs] = cumul / (double)repetitions;
-			v[protect_ntfs][protect_hfs] = my_sqrt(cumul2 / (double)repetitions - m[protect_ntfs][protect_hfs] * m[protect_ntfs][protect_hfs]);
-			printf("mean: %lfms, stddev: %lfms\n", m[protect_ntfs][protect_hfs] / (double)1e6, v[protect_ntfs][protect_hfs] / (double)1e6);
+			m[protect_ntfs][protect_hfs] =
+				cumul / (double)repetitions;
+			v[protect_ntfs][protect_hfs] =
+				my_sqrt(cumul2 / (double)repetitions -
+					m[protect_ntfs][protect_hfs] *
+						m[protect_ntfs][protect_hfs]);
+			printf("mean: %lfms, stddev: %lfms\n",
+			       m[protect_ntfs][protect_hfs] / (double)1e6,
+			       v[protect_ntfs][protect_hfs] / (double)1e6);
 		}
 
 	for (protect_ntfs = 0; protect_ntfs < 2; protect_ntfs++)
 		for (protect_hfs = 0; protect_hfs < 2; protect_hfs++)
-			printf("ntfs=%d/hfs=%d: %lf%% slower\n", protect_ntfs, protect_hfs, (m[protect_ntfs][protect_hfs] - m[0][0]) * 100 / m[0][0]);
+			printf("ntfs=%d/hfs=%d: %lf%% slower\n", protect_ntfs,
+			       protect_hfs,
+			       (m[protect_ntfs][protect_hfs] - m[0][0]) * 100 /
+				       m[0][0]);
 
 	return 0;
 }
@@ -328,8 +340,8 @@ int cmd__path_utils(int argc, const char **argv)
 		if (normalize_path_copy(path, path))
 			die("Path \"%s\" could not be normalized", argv[2]);
 		string_list_split(&ceiling_dirs, argv[3], PATH_SEP, -1);
-		filter_string_list(&ceiling_dirs, 0,
-				   normalize_ceiling_entry, NULL);
+		filter_string_list(&ceiling_dirs, 0, normalize_ceiling_entry,
+				   NULL);
 		len = longest_ancestor_length(path, &ceiling_dirs);
 		string_list_clear(&ceiling_dirs, 0);
 		free(path);
@@ -403,7 +415,7 @@ int cmd__path_utils(int argc, const char **argv)
 			if (stat(argv[i], &st))
 				res = error_errno("Cannot stat '%s'", argv[i]);
 			else
-				printf("%"PRIuMAX"\n", (uintmax_t)st.st_size);
+				printf("%" PRIuMAX "\n", (uintmax_t)st.st_size);
 		return !!res;
 	}
 
@@ -445,7 +457,7 @@ int cmd__path_utils(int argc, const char **argv)
 				string_list_append(&list, argv[i])->util =
 					(void *)(intptr_t)st.st_size;
 		QSORT(list.items, list.nr, cmp_by_st_size);
-		for (i = offset; i < list.nr; i+= stride)
+		for (i = offset; i < list.nr; i += stride)
 			printf("%s\n", list.items[i].string);
 
 		return !!res;
@@ -461,11 +473,10 @@ int cmd__path_utils(int argc, const char **argv)
 			if (!strcmp("--not", argv[i]))
 				expect = 0;
 			else if (expect != is_valid_path(argv[i]))
-				res = error("'%s' is%s a valid path",
-					    argv[i], expect ? " not" : "");
+				res = error("'%s' is%s a valid path", argv[i],
+					    expect ? " not" : "");
 			else
-				fprintf(stderr,
-					"'%s' is%s a valid path\n",
+				fprintf(stderr, "'%s' is%s a valid path\n",
 					argv[i], expect ? "" : " not");
 
 		return !!res;

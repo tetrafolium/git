@@ -7,9 +7,12 @@
 static const char *error_name(int error_number)
 {
 	switch (error_number) {
-	case ENOENT: return "ENOENT";
-	case ENOTDIR: return "ENOTDIR";
-	default: return "ESOMETHINGELSE";
+	case ENOENT:
+		return "ENOENT";
+	case ENOTDIR:
+		return "ENOTDIR";
+	default:
+		return "ESOMETHINGELSE";
 	}
 }
 
@@ -23,7 +26,8 @@ int cmd__dir_iterator(int argc, const char **argv)
 	unsigned int flags = 0;
 	int iter_status;
 
-	for (++argv, --argc; *argv && starts_with(*argv, "--"); ++argv, --argc) {
+	for (++argv, --argc; *argv && starts_with(*argv, "--");
+	     ++argv, --argc) {
 		if (strcmp(*argv, "--follow-symlinks") == 0)
 			flags |= DIR_ITERATOR_FOLLOW_SYMLINKS;
 		else if (strcmp(*argv, "--pedantic") == 0)

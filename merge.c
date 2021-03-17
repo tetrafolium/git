@@ -11,13 +11,14 @@
 
 static const char *merge_argument(struct commit *commit)
 {
-	return oid_to_hex(commit ? &commit->object.oid : the_hash_algo->empty_tree);
+	return oid_to_hex(commit ? &commit->object.oid :
+				   the_hash_algo->empty_tree);
 }
 
-int try_merge_command(struct repository *r,
-		      const char *strategy, size_t xopts_nr,
-		      const char **xopts, struct commit_list *common,
-		      const char *head_arg, struct commit_list *remotes)
+int try_merge_command(struct repository *r, const char *strategy,
+		      size_t xopts_nr, const char **xopts,
+		      struct commit_list *common, const char *head_arg,
+		      struct commit_list *remotes)
 {
 	struct strvec args = STRVEC_INIT;
 	int i, ret;
@@ -44,10 +45,8 @@ int try_merge_command(struct repository *r,
 	return ret;
 }
 
-int checkout_fast_forward(struct repository *r,
-			  const struct object_id *head,
-			  const struct object_id *remote,
-			  int overwrite_ignore)
+int checkout_fast_forward(struct repository *r, const struct object_id *head,
+			  const struct object_id *remote, int overwrite_ignore)
 {
 	struct tree *trees[MAX_UNPACK_TREES];
 	struct unpack_trees_options opts;
@@ -76,7 +75,7 @@ int checkout_fast_forward(struct repository *r,
 	}
 	for (i = 0; i < nr_trees; i++) {
 		parse_tree(trees[i]);
-		init_tree_desc(t+i, trees[i]->buffer, trees[i]->size);
+		init_tree_desc(t + i, trees[i]->buffer, trees[i]->size);
 	}
 
 	memset(&opts, 0, sizeof(opts));

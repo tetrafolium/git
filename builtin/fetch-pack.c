@@ -7,9 +7,9 @@
 #include "protocol.h"
 
 static const char fetch_pack_usage[] =
-"git fetch-pack [--all] [--stdin] [--quiet | -q] [--keep | -k] [--thin] "
-"[--include-tag] [--upload-pack=<git-upload-pack>] [--depth=<n>] "
-"[--no-progress] [--diag-url] [-v] [<host>:]<directory> [<refs>...]";
+	"git fetch-pack [--all] [--stdin] [--quiet | -q] [--keep | -k] [--thin] "
+	"[--include-tag] [--upload-pack=<git-upload-pack>] [--depth=<n>] "
+	"[--no-progress] [--diag-url] [-v] [<host>:]<directory> [<refs>...]";
 
 static void add_sought_entry(struct ref ***sought, int *nr, int *alloc,
 			     const char *name)
@@ -186,14 +186,15 @@ int cmd_fetch_pack(int argc, const char **argv, const char *prefix)
 				char *line = packet_read_line(0, NULL);
 				if (!line)
 					break;
-				add_sought_entry(&sought, &nr_sought,  &alloc_sought, line);
+				add_sought_entry(&sought, &nr_sought,
+						 &alloc_sought, line);
 			}
-		}
-		else {
+		} else {
 			/* read from stdin one ref per line, until EOF */
 			struct strbuf line = STRBUF_INIT;
 			while (strbuf_getline_lf(&line, stdin) != EOF)
-				add_sought_entry(&sought, &nr_sought, &alloc_sought, line.buf);
+				add_sought_entry(&sought, &nr_sought,
+						 &alloc_sought, line.buf);
 			strbuf_release(&line);
 		}
 	}
@@ -206,16 +207,15 @@ int cmd_fetch_pack(int argc, const char **argv, const char *prefix)
 		int flags = args.verbose ? CONNECT_VERBOSE : 0;
 		if (args.diag_url)
 			flags |= CONNECT_DIAG_URL;
-		conn = git_connect(fd, dest, args.uploadpack,
-				   flags);
+		conn = git_connect(fd, dest, args.uploadpack, flags);
 		if (!conn)
 			return args.diag_url ? 0 : 1;
 	}
 
 	packet_reader_init(&reader, fd[0], NULL, 0,
 			   PACKET_READ_CHOMP_NEWLINE |
-			   PACKET_READ_GENTLE_ON_EOF |
-			   PACKET_READ_DIE_ON_ERR_PACKET);
+				   PACKET_READ_GENTLE_ON_EOF |
+				   PACKET_READ_DIE_ON_ERR_PACKET);
 
 	version = discover_version(&reader);
 	switch (version) {
@@ -231,8 +231,8 @@ int cmd_fetch_pack(int argc, const char **argv, const char *prefix)
 		BUG("unknown protocol version");
 	}
 
-	ref = fetch_pack(&args, fd, ref, sought, nr_sought,
-			 &shallow, pack_lockfiles_ptr, version);
+	ref = fetch_pack(&args, fd, ref, sought, nr_sought, &shallow,
+			 pack_lockfiles_ptr, version);
 	if (pack_lockfiles.nr) {
 		int i;
 
@@ -263,8 +263,7 @@ int cmd_fetch_pack(int argc, const char **argv, const char *prefix)
 	ret |= report_unmatched_refs(sought, nr_sought);
 
 	while (ref) {
-		printf("%s %s\n",
-		       oid_to_hex(&ref->old_oid), ref->name);
+		printf("%s %s\n", oid_to_hex(&ref->old_oid), ref->name);
 		ref = ref->next;
 	}
 

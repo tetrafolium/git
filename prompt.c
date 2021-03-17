@@ -13,7 +13,7 @@ static char *do_askpass(const char *cmd, const char *prompt)
 	int err = 0;
 
 	args[0] = cmd;
-	args[1]	= prompt;
+	args[1] = prompt;
 	args[2] = NULL;
 
 	pass.argv = args;

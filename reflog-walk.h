@@ -7,8 +7,8 @@ struct commit;
 struct reflog_walk_info;
 
 void init_reflog_walk(struct reflog_walk_info **info);
-int add_reflog_for_walk(struct reflog_walk_info *info,
-			struct commit *commit, const char *name);
+int add_reflog_for_walk(struct reflog_walk_info *info, struct commit *commit,
+			const char *name);
 void show_reflog_message(struct reflog_walk_info *info, int,
 			 const struct date_mode *, int force_date);
 void get_reflog_message(struct strbuf *sb,

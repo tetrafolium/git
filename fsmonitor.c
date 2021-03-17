@@ -6,17 +6,18 @@
 #include "run-command.h"
 #include "strbuf.h"
 
-#define INDEX_EXTENSION_VERSION1	(1)
-#define INDEX_EXTENSION_VERSION2	(2)
-#define HOOK_INTERFACE_VERSION1		(1)
-#define HOOK_INTERFACE_VERSION2		(2)
+#define INDEX_EXTENSION_VERSION1 (1)
+#define INDEX_EXTENSION_VERSION2 (2)
+#define HOOK_INTERFACE_VERSION1 (1)
+#define HOOK_INTERFACE_VERSION2 (2)
 
 struct trace_key trace_fsmonitor = TRACE_KEY_INIT(FSMONITOR);
 
 static void assert_index_minimum(struct index_state *istate, size_t pos)
 {
 	if (pos > istate->cache_nr)
-		BUG("fsmonitor_dirty has more entries than the index (%"PRIuMAX" > %u)",
+		BUG("fsmonitor_dirty has more entries than the index (%" PRIuMAX
+		    " > %u)",
 		    (uintmax_t)pos, istate->cache_nr);
 }
 
@@ -43,12 +44,13 @@ static int fsmonitor_hook_version(void)
 		return hook_version;
 
 	warning("Invalid hook version '%i' in core.fsmonitorhookversion. "
-		"Must be 1 or 2.", hook_version);
+		"Must be 1 or 2.",
+		hook_version);
 	return -1;
 }
 
 int read_fsmonitor_extension(struct index_state *istate, const void *data,
-	unsigned long sz)
+			     unsigned long sz)
 {
 	const char *index = data;
 	uint32_t hdr_version;
@@ -65,7 +67,7 @@ int read_fsmonitor_extension(struct index_state *istate, const void *data,
 	index += sizeof(uint32_t);
 	if (hdr_version == INDEX_EXTENSION_VERSION1) {
 		timestamp = get_be64(index);
-		strbuf_addf(&last_update, "%"PRIu64"", timestamp);
+		strbuf_addf(&last_update, "%" PRIu64 "", timestamp);
 		index += sizeof(uint64_t);
 	} else if (hdr_version == INDEX_EXTENSION_VERSION2) {
 		strbuf_addstr(&last_update, index);
@@ -83,7 +85,8 @@ int read_fsmonitor_extension(struct index_state *istate, const void *data,
 	ret = ewah_read_mmap(fsmonitor_dirty, index, ewah_size);
 	if (ret != ewah_size) {
 		ewah_free(fsmonitor_dirty);
-		return error("failed to parse ewah bitmap reading fsmonitor index extension");
+		return error(
+			"failed to parse ewah bitmap reading fsmonitor index extension");
 	}
 	istate->fsmonitor_dirty = fsmonitor_dirty;
 
@@ -127,7 +130,8 @@ void write_fsmonitor_extension(struct strbuf *sb, struct index_state *istate)
 	strbuf_addch(sb, 0); /* Want to keep a NUL */
 
 	fixup = sb->len;
-	strbuf_add(sb, &ewah_size, sizeof(uint32_t)); /* we'll fix this up later */
+	strbuf_add(sb, &ewah_size, sizeof(uint32_t)); /* we'll fix this up later
+						       */
 
 	ewah_start = sb->len;
 	ewah_serialize_strbuf(istate->fsmonitor_dirty, sb);
@@ -146,9 +150,11 @@ void write_fsmonitor_extension(struct strbuf *sb, struct index_state *istate)
 }
 
 /*
- * Call the query-fsmonitor hook passing the last update token of the saved results.
+ * Call the query-fsmonitor hook passing the last update token of the saved
+ * results.
  */
-static int query_fsmonitor(int version, const char *last_update, struct strbuf *query_result)
+static int query_fsmonitor(int version, const char *last_update,
+			   struct strbuf *query_result)
 {
 	struct child_process cp = CHILD_PROCESS_INIT;
 	int result;
@@ -195,7 +201,6 @@ static void fsmonitor_refresh_callback(struct index_state *istate, char *name)
 {
 	int i, len = strlen(name);
 	if (name[len - 1] == '/') {
-
 		/*
 		 * TODO We should binary search to find the first path with
 		 * TODO this directory prefix.  Then linearly update entries
@@ -208,7 +213,8 @@ static void fsmonitor_refresh_callback(struct index_state *istate, char *name)
 		for (i = 0; i < istate->cache_nr; i++) {
 			if (istate->cache[i]->ce_flags & CE_FSMONITOR_VALID &&
 			    starts_with(istate->cache[i]->name, name))
-				istate->cache[i]->ce_flags &= ~CE_FSMONITOR_VALID;
+				istate->cache[i]->ce_flags &=
+					~CE_FSMONITOR_VALID;
 		}
 		/* Need to remove the / from the path for the untracked cache */
 		name[len - 1] = '\0';
@@ -225,7 +231,8 @@ static void fsmonitor_refresh_callback(struct index_state *istate, char *name)
 	 * Mark the untracked cache dirty even if it wasn't found in the index
 	 * as it could be a new untracked file.
 	 */
-	trace_printf_key(&trace_fsmonitor, "fsmonitor_refresh_callback '%s'", name);
+	trace_printf_key(&trace_fsmonitor, "fsmonitor_refresh_callback '%s'",
+			 name);
 	untracked_cache_invalidate_path(istate, name, 0);
 }
 
@@ -253,7 +260,7 @@ void refresh_fsmonitor(struct index_state *istate)
 	 */
 	last_update = getnanotime();
 	if (hook_version == HOOK_INTERFACE_VERSION1)
-		strbuf_addf(&last_update_token, "%"PRIu64"", last_update);
+		strbuf_addf(&last_update_token, "%" PRIu64 "", last_update);
 
 	/*
 	 * If we have a last update token, call query_fsmonitor for the set of
@@ -261,8 +268,10 @@ void refresh_fsmonitor(struct index_state *istate)
 	 * and check it all.
 	 */
 	if (istate->fsmonitor_last_update) {
-		if (hook_version == -1 || hook_version == HOOK_INTERFACE_VERSION2) {
-			query_success = !query_fsmonitor(HOOK_INTERFACE_VERSION2,
+		if (hook_version == -1 ||
+		    hook_version == HOOK_INTERFACE_VERSION2) {
+			query_success = !query_fsmonitor(
+				HOOK_INTERFACE_VERSION2,
 				istate->fsmonitor_last_update, &query_result);
 
 			if (query_success) {
@@ -287,21 +296,27 @@ void refresh_fsmonitor(struct index_state *istate)
 			} else if (hook_version < 0) {
 				hook_version = HOOK_INTERFACE_VERSION1;
 				if (!last_update_token.len)
-					strbuf_addf(&last_update_token, "%"PRIu64"", last_update);
+					strbuf_addf(&last_update_token,
+						    "%" PRIu64 "", last_update);
 			}
 		}
 
 		if (hook_version == HOOK_INTERFACE_VERSION1) {
-			query_success = !query_fsmonitor(HOOK_INTERFACE_VERSION1,
+			query_success = !query_fsmonitor(
+				HOOK_INTERFACE_VERSION1,
 				istate->fsmonitor_last_update, &query_result);
 		}
 
-		trace_performance_since(last_update, "fsmonitor process '%s'", core_fsmonitor);
-		trace_printf_key(&trace_fsmonitor, "fsmonitor process '%s' returned %s",
-			core_fsmonitor, query_success ? "success" : "failure");
+		trace_performance_since(last_update, "fsmonitor process '%s'",
+					core_fsmonitor);
+		trace_printf_key(&trace_fsmonitor,
+				 "fsmonitor process '%s' returned %s",
+				 core_fsmonitor,
+				 query_success ? "success" : "failure");
 	}
 
-	/* a fsmonitor process can return '/' to indicate all entries are invalid */
+	/* a fsmonitor process can return '/' to indicate all entries are
+	 * invalid */
 	if (query_success && query_result.buf[bol] != '/') {
 		/* Mark all entries returned by the monitor as dirty */
 		buf = query_result.buf;
@@ -318,19 +333,21 @@ void refresh_fsmonitor(struct index_state *istate)
 		if (istate->untracked)
 			istate->untracked->use_fsmonitor = 1;
 	} else {
-
-		/* We only want to run the post index changed hook if we've actually changed entries, so keep track
-		 * if we actually changed entries or not */
+		/* We only want to run the post index changed hook if we've
+		 * actually changed entries, so keep track if we actually
+		 * changed entries or not */
 		int is_cache_changed = 0;
 		/* Mark all entries invalid */
 		for (i = 0; i < istate->cache_nr; i++) {
 			if (istate->cache[i]->ce_flags & CE_FSMONITOR_VALID) {
 				is_cache_changed = 1;
-				istate->cache[i]->ce_flags &= ~CE_FSMONITOR_VALID;
+				istate->cache[i]->ce_flags &=
+					~CE_FSMONITOR_VALID;
 			}
 		}
 
-		/* If we're going to check every file, ensure we save the results */
+		/* If we're going to check every file, ensure we save the
+		 * results */
 		if (is_cache_changed)
 			istate->cache_changed |= FSMONITOR_CHANGED;
 
@@ -371,7 +388,7 @@ static void initialize_fsmonitor_last_update(struct index_state *istate)
 {
 	struct strbuf last_update = STRBUF_INIT;
 
-	strbuf_addf(&last_update, "%"PRIu64"", getnanotime());
+	strbuf_addf(&last_update, "%" PRIu64 "", getnanotime());
 	istate->fsmonitor_last_update = strbuf_detach(&last_update, NULL);
 }
 
@@ -417,12 +434,15 @@ void tweak_fsmonitor(struct index_state *istate)
 		if (fsmonitor_enabled) {
 			/* Mark all entries valid */
 			for (i = 0; i < istate->cache_nr; i++) {
-				istate->cache[i]->ce_flags |= CE_FSMONITOR_VALID;
+				istate->cache[i]->ce_flags |=
+					CE_FSMONITOR_VALID;
 			}
 
 			/* Mark all previously saved entries as dirty */
-			assert_index_minimum(istate, istate->fsmonitor_dirty->bit_size);
-			ewah_each_bit(istate->fsmonitor_dirty, fsmonitor_ewah_callback, istate);
+			assert_index_minimum(istate,
+					     istate->fsmonitor_dirty->bit_size);
+			ewah_each_bit(istate->fsmonitor_dirty,
+				      fsmonitor_ewah_callback, istate);
 
 			refresh_fsmonitor(istate);
 		}

@@ -51,8 +51,7 @@ static char *get_author(const char *message)
 	return NULL;
 }
 
-static struct commit *create_commit(struct tree *tree,
-				    struct commit *based_on,
+static struct commit *create_commit(struct tree *tree, struct commit *based_on,
 				    struct commit *parent)
 {
 	struct object_id ret;
@@ -166,13 +165,10 @@ int cmd__fast_rebase(int argc, const char **argv)
 		merge_opt.branch2 = short_commit_name(commit);
 		merge_opt.ancestor = xstrfmt("parent of %s", merge_opt.branch2);
 
-		merge_incore_nonrecursive(&merge_opt,
-					  base_tree,
-					  result.tree,
-					  next_tree,
-					  &result);
+		merge_incore_nonrecursive(&merge_opt, base_tree, result.tree,
+					  next_tree, &result);
 
-		free((char*)merge_opt.ancestor);
+		free((char *)merge_opt.ancestor);
 		merge_opt.ancestor = NULL;
 		if (!result.clean)
 			die("Aborting: Hit a conflict and restarting is not implemented.");
@@ -183,7 +179,8 @@ int cmd__fast_rebase(int argc, const char **argv)
 	/* TODO: There should be some kind of rev_info_free(&revs) call... */
 	memset(&revs, 0, sizeof(revs));
 
-	merge_switch_to_result(&merge_opt, head_tree, &result, 1, !result.clean);
+	merge_switch_to_result(&merge_opt, head_tree, &result, 1,
+			       !result.clean);
 
 	if (result.clean < 0)
 		exit(128);
@@ -193,8 +190,8 @@ int cmd__fast_rebase(int argc, const char **argv)
 		    oid_to_hex(&last_commit->object.oid));
 	if (update_ref(reflog_msg.buf, branch_name.buf,
 		       &last_commit->object.oid,
-		       &last_picked_commit->object.oid,
-		       REF_NO_DEREF, UPDATE_REFS_MSG_ON_ERR)) {
+		       &last_picked_commit->object.oid, REF_NO_DEREF,
+		       UPDATE_REFS_MSG_ON_ERR)) {
 		error(_("could not update %s"), argv[4]);
 		die("Failed to update %s", argv[4]);
 	}

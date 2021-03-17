@@ -6,10 +6,8 @@
 #include "diffcore.h"
 #include "promisor-remote.h"
 
-static int should_break(struct repository *r,
-			struct diff_filespec *src,
-			struct diff_filespec *dst,
-			int break_score,
+static int should_break(struct repository *r, struct diff_filespec *src,
+			struct diff_filespec *dst, int break_score,
 			int *merge_score_p)
 {
 	/* dst is recorded as a modification of src.  Are they so
@@ -61,8 +59,7 @@ static int should_break(struct repository *r,
 		return 1; /* even their types are different */
 	}
 
-	if (src->oid_valid && dst->oid_valid &&
-	    oideq(&src->oid, &dst->oid))
+	if (src->oid_valid && dst->oid_valid && oideq(&src->oid, &dst->oid))
 		return 0; /* they are the same */
 
 	if (r == the_repository && has_promisor_remote()) {
@@ -81,8 +78,7 @@ static int should_break(struct repository *r,
 	if (!src->size)
 		return 0; /* we do not let empty files get renamed */
 
-	if (diffcore_count_changes(r, src, dst,
-				   &src->cnt_data, &dst->cnt_data,
+	if (diffcore_count_changes(r, src, dst, &src->cnt_data, &dst->cnt_data,
 				   &src_copied, &literal_added))
 		return 0;
 
@@ -188,8 +184,8 @@ void diffcore_break(struct repository *r, int break_score)
 		    object_type(p->one->mode) == OBJ_BLOB &&
 		    object_type(p->two->mode) == OBJ_BLOB &&
 		    !strcmp(p->one->path, p->two->path)) {
-			if (should_break(r, p->one, p->two,
-					 break_score, &score)) {
+			if (should_break(r, p->one, p->two, break_score,
+					 &score)) {
 				/* Split this into delete and create */
 				struct diff_filespec *null_one, *null_two;
 				struct diff_filepair *dp;
@@ -233,15 +229,15 @@ void diffcore_break(struct repository *r, int break_score)
 	return;
 }
 
-static void merge_broken(struct diff_filepair *p,
-			 struct diff_filepair *pp,
+static void merge_broken(struct diff_filepair *p, struct diff_filepair *pp,
 			 struct diff_queue_struct *outq)
 {
 	/* p and pp are broken pairs we want to merge */
 	struct diff_filepair *c = p, *d = pp, *dp;
 	if (DIFF_FILE_VALID(p->one)) {
 		/* this must be a delete half */
-		d = p; c = pp;
+		d = p;
+		c = pp;
 	}
 	/* Sanity check */
 	if (!DIFF_FILE_VALID(d->one))
@@ -301,10 +297,9 @@ void diffcore_merge_broken(void)
 			 * it in the output.
 			 */
 			diff_q(&outq, p);
-		}
-		else
+		} else
 			diff_q(&outq, p);
-next:;
+	next:;
 	}
 	free(q->queue);
 	*q = outq;

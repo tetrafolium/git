@@ -6,8 +6,8 @@
 
 /**
  * The trace API can be used to print debug messages to stderr or a file. Trace
- * code is inactive unless explicitly enabled by setting `GIT_TRACE*` environment
- * variables.
+ * code is inactive unless explicitly enabled by setting `GIT_TRACE*`
+ * environment variables.
  *
  * The trace implementation automatically adds `timestamp file:line ... \n` to
  * all trace messages. E.g.:
@@ -66,7 +66,8 @@
  * Defines a trace key (or category). The default (for API functions that
  * don't take a key) is `GIT_TRACE`.
  *
- * E.g. to define a trace key controlled by environment variable `GIT_TRACE_FOO`:
+ * E.g. to define a trace key controlled by environment variable
+ * `GIT_TRACE_FOO`:
  *
  * ------------
  * static struct trace_key trace_foo = TRACE_KEY_INIT(FOO);
@@ -81,15 +82,18 @@
  * the `trace_key` structure.
  */
 struct trace_key {
-	const char * const key;
+	const char *const key;
 	int fd;
 	unsigned int initialized : 1;
-	unsigned int  need_close : 1;
+	unsigned int need_close : 1;
 };
 
 extern struct trace_key trace_default_key;
 
-#define TRACE_KEY_INIT(name) { "GIT_TRACE_" #name, 0, 0, 0 }
+#define TRACE_KEY_INIT(name)                \
+	{                                   \
+		"GIT_TRACE_" #name, 0, 0, 0 \
+	}
 extern struct trace_key trace_perf_key;
 extern struct trace_key trace_setup_key;
 
@@ -131,17 +135,17 @@ uint64_t trace_performance_enter(void);
 /**
  * Prints a formatted message, similar to printf.
  */
-__attribute__((format (printf, 1, 2)))
-void trace_printf(const char *format, ...);
+__attribute__((format(printf, 1, 2))) void trace_printf(const char *format,
+							...);
 
-__attribute__((format (printf, 2, 3)))
-void trace_printf_key(struct trace_key *key, const char *format, ...);
+__attribute__((format(printf, 2, 3))) void
+trace_printf_key(struct trace_key *key, const char *format, ...);
 
 /**
  * Prints a formatted message, followed by a quoted list of arguments.
  */
-__attribute__((format (printf, 2, 3)))
-void trace_argv_printf(const char **argv, const char *format, ...);
+__attribute__((format(printf, 2, 3))) void
+trace_argv_printf(const char **argv, const char *format, ...);
 
 /**
  * Prints the strbuf, without additional formatting (i.e. doesn't
@@ -165,8 +169,8 @@ void trace_strbuf(struct trace_key *key, const struct strbuf *data);
  * trace_performance(t, "frotz");
  * ------------
  */
-__attribute__((format (printf, 2, 3)))
-void trace_performance(uint64_t nanos, const char *format, ...);
+__attribute__((format(printf, 2, 3))) void
+trace_performance(uint64_t nanos, const char *format, ...);
 
 /**
  * Prints elapsed time since 'start' if GIT_TRACE_PERFORMANCE is enabled.
@@ -178,11 +182,11 @@ void trace_performance(uint64_t nanos, const char *format, ...);
  * trace_performance_since(start, "foobar");
  * ------------
  */
-__attribute__((format (printf, 2, 3)))
-void trace_performance_since(uint64_t start, const char *format, ...);
+__attribute__((format(printf, 2, 3))) void
+trace_performance_since(uint64_t start, const char *format, ...);
 
-__attribute__((format (printf, 1, 2)))
-void trace_performance_leave(const char *format, ...);
+__attribute__((format(printf, 1, 2))) void
+trace_performance_leave(const char *format, ...);
 
 #else
 
@@ -201,7 +205,7 @@ void trace_performance_leave(const char *format, ...);
  * the compiler as a string constant.
  */
 #ifndef TRACE_CONTEXT
-# define TRACE_CONTEXT __FILE__
+#define TRACE_CONTEXT __FILE__
 #endif
 
 /*
@@ -220,66 +224,66 @@ void trace_performance_leave(const char *format, ...);
  * comma, but this is non-standard.
  */
 
-#define trace_printf_key(key, ...)					    \
-	do {								    \
-		if (trace_pass_fl(key))					    \
-			trace_printf_key_fl(TRACE_CONTEXT, __LINE__, key,   \
-					    __VA_ARGS__);		    \
+#define trace_printf_key(key, ...)                                        \
+	do {                                                              \
+		if (trace_pass_fl(key))                                   \
+			trace_printf_key_fl(TRACE_CONTEXT, __LINE__, key, \
+					    __VA_ARGS__);                 \
 	} while (0)
 
 #define trace_printf(...) trace_printf_key(&trace_default_key, __VA_ARGS__)
 
-#define trace_argv_printf(argv, ...)					    \
-	do {								    \
-		if (trace_pass_fl(&trace_default_key))			    \
-			trace_argv_printf_fl(TRACE_CONTEXT, __LINE__,	    \
-					    argv, __VA_ARGS__);		    \
+#define trace_argv_printf(argv, ...)                                        \
+	do {                                                                \
+		if (trace_pass_fl(&trace_default_key))                      \
+			trace_argv_printf_fl(TRACE_CONTEXT, __LINE__, argv, \
+					     __VA_ARGS__);                  \
 	} while (0)
 
-#define trace_strbuf(key, data)						    \
-	do {								    \
-		if (trace_pass_fl(key))					    \
-			trace_strbuf_fl(TRACE_CONTEXT, __LINE__, key, data);\
+#define trace_strbuf(key, data)                                              \
+	do {                                                                 \
+		if (trace_pass_fl(key))                                      \
+			trace_strbuf_fl(TRACE_CONTEXT, __LINE__, key, data); \
 	} while (0)
 
-#define trace_performance(nanos, ...)					    \
-	do {								    \
-		if (trace_pass_fl(&trace_perf_key))			    \
-			trace_performance_fl(TRACE_CONTEXT, __LINE__, nanos,\
-					     __VA_ARGS__);		    \
+#define trace_performance(nanos, ...)                                        \
+	do {                                                                 \
+		if (trace_pass_fl(&trace_perf_key))                          \
+			trace_performance_fl(TRACE_CONTEXT, __LINE__, nanos, \
+					     __VA_ARGS__);                   \
 	} while (0)
 
-#define trace_performance_since(start, ...)				    \
-	do {								    \
-		if (trace_pass_fl(&trace_perf_key))			    \
-			trace_performance_fl(TRACE_CONTEXT, __LINE__,       \
-					     getnanotime() - (start),	    \
-					     __VA_ARGS__);		    \
+#define trace_performance_since(start, ...)                           \
+	do {                                                          \
+		if (trace_pass_fl(&trace_perf_key))                   \
+			trace_performance_fl(TRACE_CONTEXT, __LINE__, \
+					     getnanotime() - (start), \
+					     __VA_ARGS__);            \
 	} while (0)
 
-#define trace_performance_leave(...)					    \
-	do {								    \
-		if (trace_pass_fl(&trace_perf_key))			    \
+#define trace_performance_leave(...)                                        \
+	do {                                                                \
+		if (trace_pass_fl(&trace_perf_key))                         \
 			trace_performance_leave_fl(TRACE_CONTEXT, __LINE__, \
-						   getnanotime(),	    \
-						   __VA_ARGS__);	    \
+						   getnanotime(),           \
+						   __VA_ARGS__);            \
 	} while (0)
 
 /* backend functions, use non-*fl macros instead */
-__attribute__((format (printf, 4, 5)))
-void trace_printf_key_fl(const char *file, int line, struct trace_key *key,
-			 const char *format, ...);
-__attribute__((format (printf, 4, 5)))
-void trace_argv_printf_fl(const char *file, int line, const char **argv,
-			  const char *format, ...);
+__attribute__((format(printf, 4, 5))) void
+trace_printf_key_fl(const char *file, int line, struct trace_key *key,
+		    const char *format, ...);
+__attribute__((format(printf, 4, 5))) void
+trace_argv_printf_fl(const char *file, int line, const char **argv,
+		     const char *format, ...);
 void trace_strbuf_fl(const char *file, int line, struct trace_key *key,
 		     const struct strbuf *data);
-__attribute__((format (printf, 4, 5)))
-void trace_performance_fl(const char *file, int line,
-			  uint64_t nanos, const char *fmt, ...);
-__attribute__((format (printf, 4, 5)))
-void trace_performance_leave_fl(const char *file, int line,
-				uint64_t nanos, const char *fmt, ...);
+__attribute__((format(printf, 4, 5))) void
+trace_performance_fl(const char *file, int line, uint64_t nanos,
+		     const char *fmt, ...);
+__attribute__((format(printf, 4, 5))) void
+trace_performance_leave_fl(const char *file, int line, uint64_t nanos,
+			   const char *fmt, ...);
 static inline int trace_pass_fl(struct trace_key *key)
 {
 	return key->fd || !key->initialized;

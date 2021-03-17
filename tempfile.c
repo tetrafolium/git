@@ -61,7 +61,7 @@ static void remove_tempfiles(int in_signal_handler)
 	pid_t me = getpid();
 	volatile struct volatile_list_head *pos;
 
-	list_for_each(pos, &tempfile_list) {
+	list_for_each (pos, &tempfile_list) {
 		struct tempfile *p = list_entry(pos, struct tempfile, list);
 
 		if (!is_tempfile_active(p) || p->owner != me)
@@ -148,7 +148,8 @@ struct tempfile *create_tempfile_mode(const char *path, int mode)
 	activate_tempfile(tempfile);
 	if (adjust_shared_perm(tempfile->filename.buf)) {
 		int save_errno = errno;
-		error("cannot fix permission bits on %s", tempfile->filename.buf);
+		error("cannot fix permission bits on %s",
+		      tempfile->filename.buf);
 		delete_tempfile(&tempfile);
 		errno = save_errno;
 		return NULL;
@@ -165,12 +166,14 @@ struct tempfile *register_tempfile(const char *path)
 	return tempfile;
 }
 
-struct tempfile *mks_tempfile_sm(const char *filename_template, int suffixlen, int mode)
+struct tempfile *mks_tempfile_sm(const char *filename_template, int suffixlen,
+				 int mode)
 {
 	struct tempfile *tempfile = new_tempfile();
 
 	strbuf_add_absolute_path(&tempfile->filename, filename_template);
-	tempfile->fd = git_mkstemps_mode(tempfile->filename.buf, suffixlen, mode);
+	tempfile->fd =
+		git_mkstemps_mode(tempfile->filename.buf, suffixlen, mode);
 	if (tempfile->fd < 0) {
 		deactivate_tempfile(tempfile);
 		return NULL;
@@ -179,7 +182,8 @@ struct tempfile *mks_tempfile_sm(const char *filename_template, int suffixlen, i
 	return tempfile;
 }
 
-struct tempfile *mks_tempfile_tsm(const char *filename_template, int suffixlen, int mode)
+struct tempfile *mks_tempfile_tsm(const char *filename_template, int suffixlen,
+				  int mode)
 {
 	struct tempfile *tempfile = new_tempfile();
 	const char *tmpdir;
@@ -189,7 +193,8 @@ struct tempfile *mks_tempfile_tsm(const char *filename_template, int suffixlen, 
 		tmpdir = "/tmp";
 
 	strbuf_addf(&tempfile->filename, "%s/%s", tmpdir, filename_template);
-	tempfile->fd = git_mkstemps_mode(tempfile->filename.buf, suffixlen, mode);
+	tempfile->fd =
+		git_mkstemps_mode(tempfile->filename.buf, suffixlen, mode);
 	if (tempfile->fd < 0) {
 		deactivate_tempfile(tempfile);
 		return NULL;
@@ -279,7 +284,7 @@ int reopen_tempfile(struct tempfile *tempfile)
 		BUG("reopen_tempfile called for an inactive object");
 	if (0 <= tempfile->fd)
 		BUG("reopen_tempfile called for an open object");
-	tempfile->fd = open(tempfile->filename.buf, O_WRONLY|O_TRUNC);
+	tempfile->fd = open(tempfile->filename.buf, O_WRONLY | O_TRUNC);
 	return tempfile->fd;
 }
 

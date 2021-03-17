@@ -5,7 +5,6 @@
 #include "compat/compiler.h"
 #include "run-command.h"
 
-
 static void get_system_info(struct strbuf *sys_info)
 {
 	struct utsname uname_info;
@@ -18,14 +17,12 @@ static void get_system_info(struct strbuf *sys_info)
 	/* system call for other version info */
 	strbuf_addstr(sys_info, "uname: ");
 	if (uname(&uname_info))
-		strbuf_addf(sys_info, _("uname() failed with error '%s' (%d)\n"),
-			    strerror(errno),
-			    errno);
+		strbuf_addf(sys_info,
+			    _("uname() failed with error '%s' (%d)\n"),
+			    strerror(errno), errno);
 	else
-		strbuf_addf(sys_info, "%s %s %s %s\n",
-			    uname_info.sysname,
-			    uname_info.release,
-			    uname_info.version,
+		strbuf_addf(sys_info, "%s %s %s %s\n", uname_info.sysname,
+			    uname_info.release, uname_info.version,
 			    uname_info.machine);
 
 	strbuf_addstr(sys_info, _("compiler info: "));
@@ -49,34 +46,24 @@ static void get_populated_hooks(struct strbuf *hook_info, int nongit)
 	 * hooks)
 	 */
 	static const char *hook[] = {
-		"applypatch-msg",
-		"pre-applypatch",
-		"post-applypatch",
-		"pre-commit",
-		"pre-merge-commit",
-		"prepare-commit-msg",
-		"commit-msg",
-		"post-commit",
-		"pre-rebase",
-		"post-checkout",
-		"post-merge",
-		"pre-push",
-		"pre-receive",
-		"update",
-		"post-receive",
-		"post-update",
-		"push-to-checkout",
-		"pre-auto-gc",
-		"post-rewrite",
-		"sendemail-validate",
-		"fsmonitor-watchman",
-		"p4-pre-submit",
+		"applypatch-msg",     "pre-applypatch",
+		"post-applypatch",    "pre-commit",
+		"pre-merge-commit",   "prepare-commit-msg",
+		"commit-msg",	      "post-commit",
+		"pre-rebase",	      "post-checkout",
+		"post-merge",	      "pre-push",
+		"pre-receive",	      "update",
+		"post-receive",	      "post-update",
+		"push-to-checkout",   "pre-auto-gc",
+		"post-rewrite",	      "sendemail-validate",
+		"fsmonitor-watchman", "p4-pre-submit",
 		"post-index-change",
 	};
 	int i;
 
 	if (nongit) {
-		strbuf_addstr(hook_info,
+		strbuf_addstr(
+			hook_info,
 			_("not run from a git repository - no hooks to show\n"));
 		return;
 	}
@@ -86,7 +73,7 @@ static void get_populated_hooks(struct strbuf *hook_info, int nongit)
 			strbuf_addf(hook_info, "%s\n", hook[i]);
 }
 
-static const char * const bugreport_usage[] = {
+static const char *const bugreport_usage[] = {
 	N_("git bugreport [-o|--output-directory <file>] [-s|--suffix <format>]"),
 	NULL
 };
@@ -94,21 +81,21 @@ static const char * const bugreport_usage[] = {
 static int get_bug_template(struct strbuf *template)
 {
 	const char template_text[] = N_(
-"Thank you for filling out a Git bug report!\n"
-"Please answer the following questions to help us understand your issue.\n"
-"\n"
-"What did you do before the bug happened? (Steps to reproduce your issue)\n"
-"\n"
-"What did you expect to happen? (Expected behavior)\n"
-"\n"
-"What happened instead? (Actual behavior)\n"
-"\n"
-"What's different between what you expected and what actually happened?\n"
-"\n"
-"Anything else you want to add:\n"
-"\n"
-"Please review the rest of the bug report below.\n"
-"You can delete any lines you don't wish to share.\n");
+		"Thank you for filling out a Git bug report!\n"
+		"Please answer the following questions to help us understand your issue.\n"
+		"\n"
+		"What did you do before the bug happened? (Steps to reproduce your issue)\n"
+		"\n"
+		"What did you expect to happen? (Expected behavior)\n"
+		"\n"
+		"What happened instead? (Actual behavior)\n"
+		"\n"
+		"What's different between what you expected and what actually happened?\n"
+		"\n"
+		"Anything else you want to add:\n"
+		"\n"
+		"Please review the rest of the bug report below.\n"
+		"You can delete any lines you don't wish to share.\n");
 
 	strbuf_addstr(template, _(template_text));
 	return 0;
@@ -133,8 +120,9 @@ int cmd_bugreport(int argc, const char **argv, const char *prefix)
 	const struct option bugreport_options[] = {
 		OPT_STRING('o', "output-directory", &option_output, N_("path"),
 			   N_("specify a destination for the bugreport file")),
-		OPT_STRING('s', "suffix", &option_suffix, N_("format"),
-			   N_("specify a strftime format suffix for the filename")),
+		OPT_STRING(
+			's', "suffix", &option_suffix, N_("format"),
+			N_("specify a strftime format suffix for the filename")),
 		OPT_END()
 	};
 
@@ -148,7 +136,8 @@ int cmd_bugreport(int argc, const char **argv, const char *prefix)
 	strbuf_complete(&report_path, '/');
 
 	strbuf_addstr(&report_path, "git-bugreport-");
-	strbuf_addftime(&report_path, option_suffix, localtime_r(&now, &tm), 0, 0);
+	strbuf_addftime(&report_path, option_suffix, localtime_r(&now, &tm), 0,
+			0);
 	strbuf_addstr(&report_path, ".txt");
 
 	switch (safe_create_leading_directories(report_path.buf)) {
@@ -184,10 +173,10 @@ int cmd_bugreport(int argc, const char **argv, const char *prefix)
 	 * We want to print the path relative to the user, but we still need the
 	 * path relative to us to give to the editor.
 	 */
-	if (!(prefix && skip_prefix(report_path.buf, prefix, &user_relative_path)))
+	if (!(prefix &&
+	      skip_prefix(report_path.buf, prefix, &user_relative_path)))
 		user_relative_path = report_path.buf;
-	fprintf(stderr, _("Created new report at '%s'.\n"),
-		user_relative_path);
+	fprintf(stderr, _("Created new report at '%s'.\n"), user_relative_path);
 
 	UNLEAK(buffer);
 	UNLEAK(report_path);

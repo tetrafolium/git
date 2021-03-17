@@ -4,7 +4,8 @@
 
 static const char *expect_obj1 = "{\"a\":\"abc\",\"b\":42,\"c\":true}";
 static const char *expect_obj2 = "{\"a\":-1,\"b\":2147483647,\"c\":0}";
-static const char *expect_obj3 = "{\"a\":0,\"b\":4294967295,\"c\":9223372036854775807}";
+static const char *expect_obj3 =
+	"{\"a\":0,\"b\":4294967295,\"c\":9223372036854775807}";
 static const char *expect_obj4 = "{\"t\":true,\"f\":false,\"n\":null}";
 static const char *expect_obj5 = "{\"abc\\tdef\":\"abc\\\\def\"}";
 static const char *expect_obj6 = "{\"a\":3.14}";
@@ -85,7 +86,13 @@ static void make_obj5(int pretty)
 {
 	jw_object_begin(&obj5, pretty);
 	{
-		jw_object_string(&obj5, "abc" "\x09" "def", "abc" "\\" "def");
+		jw_object_string(&obj5,
+				 "abc"
+				 "\x09"
+				 "def",
+				 "abc"
+				 "\\"
+				 "def");
 	}
 	jw_end(&obj5);
 }
@@ -192,19 +199,18 @@ static void make_nest1(int pretty)
 static char *expect_inline1 =
 	"{\"obj1\":{\"a\":\"abc\",\"b\":42,\"c\":true},\"arr1\":[\"abc\",42,true]}";
 
-static char *pretty_inline1 =
-	("{\n"
-	 "  \"obj1\": {\n"
-	 "    \"a\": \"abc\",\n"
-	 "    \"b\": 42,\n"
-	 "    \"c\": true\n"
-	 "  },\n"
-	 "  \"arr1\": [\n"
-	 "    \"abc\",\n"
-	 "    42,\n"
-	 "    true\n"
-	 "  ]\n"
-	 "}");
+static char *pretty_inline1 = ("{\n"
+			       "  \"obj1\": {\n"
+			       "    \"a\": \"abc\",\n"
+			       "    \"b\": 42,\n"
+			       "    \"c\": true\n"
+			       "  },\n"
+			       "  \"arr1\": [\n"
+			       "    \"abc\",\n"
+			       "    42,\n"
+			       "    true\n"
+			       "  ]\n"
+			       "}");
 
 static struct json_writer inline1 = JSON_WRITER_INIT;
 
@@ -230,23 +236,21 @@ static void make_inline1(int pretty)
 	jw_end(&inline1);
 }
 
-static char *expect_inline2 =
-	"[[1,2],[3,4],{\"a\":\"abc\"}]";
+static char *expect_inline2 = "[[1,2],[3,4],{\"a\":\"abc\"}]";
 
-static char *pretty_inline2 =
-	("[\n"
-	 "  [\n"
-	 "    1,\n"
-	 "    2\n"
-	 "  ],\n"
-	 "  [\n"
-	 "    3,\n"
-	 "    4\n"
-	 "  ],\n"
-	 "  {\n"
-	 "    \"a\": \"abc\"\n"
-	 "  }\n"
-	 "]");
+static char *pretty_inline2 = ("[\n"
+			       "  [\n"
+			       "    1,\n"
+			       "    2\n"
+			       "  ],\n"
+			       "  [\n"
+			       "    3,\n"
+			       "    4\n"
+			       "  ],\n"
+			       "  {\n"
+			       "    \"a\": \"abc\"\n"
+			       "  }\n"
+			       "]");
 
 static struct json_writer inline2 = JSON_WRITER_INIT;
 
@@ -320,13 +324,21 @@ static void cmp(const char *test, const struct json_writer *jw, const char *exp)
 	if (!strcmp(jw->json.buf, exp))
 		return;
 
-	printf("error[%s]: observed '%s' expected '%s'\n",
-	       test, jw->json.buf, exp);
+	printf("error[%s]: observed '%s' expected '%s'\n", test, jw->json.buf,
+	       exp);
 	exit(1);
 }
 
-#define t(v) do { make_##v(0); cmp(#v, &v, expect_##v); } while (0)
-#define p(v) do { make_##v(1); cmp(#v, &v, pretty_##v); } while (0)
+#define t(v)                             \
+	do {                             \
+		make_##v(0);             \
+		cmp(#v, &v, expect_##v); \
+	} while (0)
+#define p(v)                             \
+	do {                             \
+		make_##v(1);             \
+		cmp(#v, &v, pretty_##v); \
+	} while (0)
 
 /*
  * Run some basic regression tests with some known patterns.
@@ -475,57 +487,45 @@ static int scripted(void)
 
 		if (!strcmp(verb, "end")) {
 			jw_end(&jw);
-		}
-		else if (!strcmp(verb, "object-string")) {
+		} else if (!strcmp(verb, "object-string")) {
 			get_s(line_nr, &key);
 			get_s(line_nr, &s_value);
 			jw_object_string(&jw, key, s_value);
-		}
-		else if (!strcmp(verb, "object-int")) {
+		} else if (!strcmp(verb, "object-int")) {
 			get_s(line_nr, &key);
 			get_i(line_nr, &i_value);
 			jw_object_intmax(&jw, key, i_value);
-		}
-		else if (!strcmp(verb, "object-double")) {
+		} else if (!strcmp(verb, "object-double")) {
 			get_s(line_nr, &key);
 			get_i(line_nr, &i_value);
 			get_d(line_nr, &d_value);
 			jw_object_double(&jw, key, i_value, d_value);
-		}
-		else if (!strcmp(verb, "object-true")) {
+		} else if (!strcmp(verb, "object-true")) {
 			get_s(line_nr, &key);
 			jw_object_true(&jw, key);
-		}
-		else if (!strcmp(verb, "object-false")) {
+		} else if (!strcmp(verb, "object-false")) {
 			get_s(line_nr, &key);
 			jw_object_false(&jw, key);
-		}
-		else if (!strcmp(verb, "object-null")) {
+		} else if (!strcmp(verb, "object-null")) {
 			get_s(line_nr, &key);
 			jw_object_null(&jw, key);
-		}
-		else if (!strcmp(verb, "object-object")) {
+		} else if (!strcmp(verb, "object-object")) {
 			get_s(line_nr, &key);
 			jw_object_inline_begin_object(&jw, key);
-		}
-		else if (!strcmp(verb, "object-array")) {
+		} else if (!strcmp(verb, "object-array")) {
 			get_s(line_nr, &key);
 			jw_object_inline_begin_array(&jw, key);
-		}
-		else if (!strcmp(verb, "array-string")) {
+		} else if (!strcmp(verb, "array-string")) {
 			get_s(line_nr, &s_value);
 			jw_array_string(&jw, s_value);
-		}
-		else if (!strcmp(verb, "array-int")) {
+		} else if (!strcmp(verb, "array-int")) {
 			get_i(line_nr, &i_value);
 			jw_array_intmax(&jw, i_value);
-		}
-		else if (!strcmp(verb, "array-double")) {
+		} else if (!strcmp(verb, "array-double")) {
 			get_i(line_nr, &i_value);
 			get_d(line_nr, &d_value);
 			jw_array_double(&jw, i_value, d_value);
-		}
-		else if (!strcmp(verb, "array-true"))
+		} else if (!strcmp(verb, "array-true"))
 			jw_array_true(&jw);
 		else if (!strcmp(verb, "array-false"))
 			jw_array_false(&jw);

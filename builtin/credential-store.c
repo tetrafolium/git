@@ -7,10 +7,9 @@
 
 static struct lock_file credential_lock;
 
-static int parse_credential_file(const char *fn,
-				  struct credential *c,
-				  void (*match_cb)(struct credential *),
-				  void (*other_cb)(struct strbuf *))
+static int parse_credential_file(const char *fn, struct credential *c,
+				 void (*match_cb)(struct credential *),
+				 void (*other_cb)(struct strbuf *))
 {
 	FILE *fh;
 	struct strbuf line = STRBUF_INIT;
@@ -33,8 +32,7 @@ static int parse_credential_file(const char *fn,
 				match_cb(&entry);
 				break;
 			}
-		}
-		else if (other_cb)
+		} else if (other_cb)
 			other_cb(&line);
 	}
 
@@ -62,8 +60,10 @@ static void rewrite_credential_file(const char *fn, struct credential *c,
 	int timeout_ms = 1000;
 
 	git_config_get_int("credentialstore.locktimeoutms", &timeout_ms);
-	if (hold_lock_file_for_update_timeout(&credential_lock, fn, 0, timeout_ms) < 0)
-		die_errno(_("unable to get credential storage lock in %d ms"), timeout_ms);
+	if (hold_lock_file_for_update_timeout(&credential_lock, fn, 0,
+					      timeout_ms) < 0)
+		die_errno(_("unable to get credential storage lock in %d ms"),
+			  timeout_ms);
 	if (extra)
 		print_line(extra);
 	parse_credential_file(fn, c, NULL, print_line);
@@ -92,7 +92,8 @@ static void store_credential_file(const char *fn, struct credential *c)
 	strbuf_release(&buf);
 }
 
-static void store_credential(const struct string_list *fns, struct credential *c)
+static void store_credential(const struct string_list *fns,
+			     struct credential *c)
 {
 	struct string_list_item *fn;
 
@@ -103,10 +104,11 @@ static void store_credential(const struct string_list *fns, struct credential *c
 	 * we have no primary key. And without a username and password,
 	 * we are not actually storing a credential.
 	 */
-	if (!c->protocol || !(c->host || c->path) || !c->username || !c->password)
+	if (!c->protocol || !(c->host || c->path) || !c->username ||
+	    !c->password)
 		return;
 
-	for_each_string_list_item(fn, fns)
+	for_each_string_list_item (fn, fns)
 		if (!access(fn->string, F_OK)) {
 			store_credential_file(fn->string, c);
 			return;
@@ -119,7 +121,8 @@ static void store_credential(const struct string_list *fns, struct credential *c
 		store_credential_file(fns->items[0].string, c);
 }
 
-static void remove_credential(const struct string_list *fns, struct credential *c)
+static void remove_credential(const struct string_list *fns,
+			      struct credential *c)
 {
 	struct string_list_item *fn;
 
@@ -133,25 +136,25 @@ static void remove_credential(const struct string_list *fns, struct credential *
 	 */
 	if (!c->protocol && !c->host && !c->path && !c->username)
 		return;
-	for_each_string_list_item(fn, fns)
+	for_each_string_list_item (fn, fns)
 		if (!access(fn->string, F_OK))
 			rewrite_credential_file(fn->string, c, NULL);
 }
 
-static void lookup_credential(const struct string_list *fns, struct credential *c)
+static void lookup_credential(const struct string_list *fns,
+			      struct credential *c)
 {
 	struct string_list_item *fn;
 
-	for_each_string_list_item(fn, fns)
+	for_each_string_list_item (fn, fns)
 		if (parse_credential_file(fn->string, c, print_entry, NULL))
 			return; /* Found credential */
 }
 
 int cmd_credential_store(int argc, const char **argv, const char *prefix)
 {
-	const char * const usage[] = {
-		"git credential-store [<options>] <action>",
-		NULL
+	const char *const usage[] = {
+		"git credential-store [<options>] <action>", NULL
 	};
 	const char *op;
 	struct credential c = CREDENTIAL_INIT;
@@ -165,7 +168,8 @@ int cmd_credential_store(int argc, const char **argv, const char *prefix)
 
 	umask(077);
 
-	argc = parse_options(argc, (const char **)argv, prefix, options, usage, 0);
+	argc = parse_options(argc, (const char **)argv, prefix, options, usage,
+			     0);
 	if (argc != 1)
 		usage_with_options(usage, options);
 	op = argv[0];

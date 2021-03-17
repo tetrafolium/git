@@ -45,9 +45,7 @@ static void spawn_daemon(const char *socket)
 	char buf[128];
 	int r;
 
-	strvec_pushl(&daemon.args,
-		     "credential-cache--daemon", socket,
-		     NULL);
+	strvec_pushl(&daemon.args, "credential-cache--daemon", socket, NULL);
 	daemon.git_cmd = 1;
 	daemon.no_stdin = 1;
 	daemon.out = -1;
@@ -104,9 +102,8 @@ int cmd_credential_cache(int argc, const char **argv, const char *prefix)
 	char *socket_path = NULL;
 	int timeout = 900;
 	const char *op;
-	const char * const usage[] = {
-		"git credential-cache [<options>] <action>",
-		NULL
+	const char *const usage[] = {
+		"git credential-cache [<options>] <action>", NULL
 	};
 	struct option options[] = {
 		OPT_INTEGER(0, "timeout", &timeout,
@@ -131,7 +128,7 @@ int cmd_credential_cache(int argc, const char **argv, const char *prefix)
 	else if (!strcmp(op, "get") || !strcmp(op, "erase"))
 		do_cache(socket_path, op, timeout, FLAG_RELAY);
 	else if (!strcmp(op, "store"))
-		do_cache(socket_path, op, timeout, FLAG_RELAY|FLAG_SPAWN);
+		do_cache(socket_path, op, timeout, FLAG_RELAY | FLAG_SPAWN);
 	else
 		; /* ignore unknown operation */
 
@@ -142,11 +139,9 @@ int cmd_credential_cache(int argc, const char **argv, const char *prefix)
 
 int cmd_credential_cache(int argc, const char **argv, const char *prefix)
 {
-	const char * const usage[] = {
-		"git credential-cache [options] <action>",
-		"",
-		"credential-cache is disabled in this build of Git",
-		NULL
+	const char *const usage[] = {
+		"git credential-cache [options] <action>", "",
+		"credential-cache is disabled in this build of Git", NULL
 	};
 	struct option options[] = { OPT_END() };
 

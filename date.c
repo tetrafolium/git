@@ -11,9 +11,8 @@
  */
 static time_t tm_to_time_t(const struct tm *tm)
 {
-	static const int mdays[] = {
-	    0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334
-	};
+	static const int mdays[] = { 0,	  31,  59,  90,	 120, 151,
+				     181, 212, 243, 273, 304, 334 };
 	int year = tm->tm_year - 70;
 	int month = tm->tm_mon;
 	int day = tm->tm_mday;
@@ -26,36 +25,37 @@ static time_t tm_to_time_t(const struct tm *tm)
 		day--;
 	if (tm->tm_hour < 0 || tm->tm_min < 0 || tm->tm_sec < 0)
 		return -1;
-	return (year * 365 + (year + 1) / 4 + mdays[month] + day) * 24*60*60UL +
-		tm->tm_hour * 60*60 + tm->tm_min * 60 + tm->tm_sec;
+	return (year * 365 + (year + 1) / 4 + mdays[month] + day) * 24 * 60 *
+		       60UL +
+	       tm->tm_hour * 60 * 60 + tm->tm_min * 60 + tm->tm_sec;
 }
 
-static const char *month_names[] = {
-	"January", "February", "March", "April", "May", "June",
-	"July", "August", "September", "October", "November", "December"
-};
+static const char *month_names[] = { "January", "February", "March",
+				     "April",	"May",	    "June",
+				     "July",	"August",   "September",
+				     "October", "November", "December" };
 
-static const char *weekday_names[] = {
-	"Sundays", "Mondays", "Tuesdays", "Wednesdays", "Thursdays", "Fridays", "Saturdays"
-};
+static const char *weekday_names[] = { "Sundays",    "Mondays",	  "Tuesdays",
+				       "Wednesdays", "Thursdays", "Fridays",
+				       "Saturdays" };
 
 static time_t gm_time_t(timestamp_t time, int tz)
 {
 	int minutes;
 
 	minutes = tz < 0 ? -tz : tz;
-	minutes = (minutes / 100)*60 + (minutes % 100);
+	minutes = (minutes / 100) * 60 + (minutes % 100);
 	minutes = tz < 0 ? -minutes : minutes;
 
 	if (minutes > 0) {
 		if (unsigned_add_overflows(time, minutes * 60))
-			die("Timestamp+tz too large: %"PRItime" +%04d",
-			    time, tz);
+			die("Timestamp+tz too large: %" PRItime " +%04d", time,
+			    tz);
 	} else if (time < -minutes * 60)
-		die("Timestamp before Unix epoch: %"PRItime" %04d", time, tz);
+		die("Timestamp before Unix epoch: %" PRItime " %04d", time, tz);
 	time += minutes * 60;
 	if (date_overflows(time))
-		die("Timestamp too large for this system: %"PRItime, time);
+		die("Timestamp too large for this system: %" PRItime, time);
 	return (time_t)time;
 }
 
@@ -110,7 +110,7 @@ static int local_tzoffset(timestamp_t time)
 	struct tm tm;
 
 	if (date_overflows(time))
-		die("Timestamp too large for this system: %"PRItime, time);
+		die("Timestamp too large for this system: %" PRItime, time);
 
 	return local_time_tzoffset((time_t)time, &tm);
 }
@@ -123,8 +123,7 @@ static void get_time(struct timeval *now)
 	if (x) {
 		now->tv_sec = atoi(x);
 		now->tv_usec = 0;
-	}
-	else
+	} else
 		gettimeofday(now, NULL);
 }
 
@@ -141,42 +140,52 @@ void show_date_relative(timestamp_t time, struct strbuf *timebuf)
 	diff = now.tv_sec - time;
 	if (diff < 90) {
 		strbuf_addf(timebuf,
-			 Q_("%"PRItime" second ago", "%"PRItime" seconds ago", diff), diff);
+			    Q_("%" PRItime " second ago",
+			       "%" PRItime " seconds ago", diff),
+			    diff);
 		return;
 	}
 	/* Turn it into minutes */
 	diff = (diff + 30) / 60;
 	if (diff < 90) {
 		strbuf_addf(timebuf,
-			 Q_("%"PRItime" minute ago", "%"PRItime" minutes ago", diff), diff);
+			    Q_("%" PRItime " minute ago",
+			       "%" PRItime " minutes ago", diff),
+			    diff);
 		return;
 	}
 	/* Turn it into hours */
 	diff = (diff + 30) / 60;
 	if (diff < 36) {
 		strbuf_addf(timebuf,
-			 Q_("%"PRItime" hour ago", "%"PRItime" hours ago", diff), diff);
+			    Q_("%" PRItime " hour ago",
+			       "%" PRItime " hours ago", diff),
+			    diff);
 		return;
 	}
 	/* We deal with number of days from here on */
 	diff = (diff + 12) / 24;
 	if (diff < 14) {
 		strbuf_addf(timebuf,
-			 Q_("%"PRItime" day ago", "%"PRItime" days ago", diff), diff);
+			    Q_("%" PRItime " day ago", "%" PRItime " days ago",
+			       diff),
+			    diff);
 		return;
 	}
 	/* Say weeks for the past 10 weeks or so */
 	if (diff < 70) {
 		strbuf_addf(timebuf,
-			 Q_("%"PRItime" week ago", "%"PRItime" weeks ago", (diff + 3) / 7),
-			 (diff + 3) / 7);
+			    Q_("%" PRItime " week ago",
+			       "%" PRItime " weeks ago", (diff + 3) / 7),
+			    (diff + 3) / 7);
 		return;
 	}
 	/* Say months for the past 12 months or so */
 	if (diff < 365) {
 		strbuf_addf(timebuf,
-			 Q_("%"PRItime" month ago", "%"PRItime" months ago", (diff + 15) / 30),
-			 (diff + 15) / 30);
+			    Q_("%" PRItime " month ago",
+			       "%" PRItime " months ago", (diff + 15) / 30),
+			    (diff + 15) / 30);
 		return;
 	}
 	/* Give years and months for 5 years or so */
@@ -186,21 +195,28 @@ void show_date_relative(timestamp_t time, struct strbuf *timebuf)
 		timestamp_t months = totalmonths % 12;
 		if (months) {
 			struct strbuf sb = STRBUF_INIT;
-			strbuf_addf(&sb, Q_("%"PRItime" year", "%"PRItime" years", years), years);
+			strbuf_addf(&sb,
+				    Q_("%" PRItime " year",
+				       "%" PRItime " years", years),
+				    years);
 			strbuf_addf(timebuf,
-				 /* TRANSLATORS: "%s" is "<n> years" */
-				 Q_("%s, %"PRItime" month ago", "%s, %"PRItime" months ago", months),
-				 sb.buf, months);
+				    /* TRANSLATORS: "%s" is "<n> years" */
+				    Q_("%s, %" PRItime " month ago",
+				       "%s, %" PRItime " months ago", months),
+				    sb.buf, months);
 			strbuf_release(&sb);
 		} else
 			strbuf_addf(timebuf,
-				 Q_("%"PRItime" year ago", "%"PRItime" years ago", years), years);
+				    Q_("%" PRItime " year ago",
+				       "%" PRItime " years ago", years),
+				    years);
 		return;
 	}
 	/* Otherwise, just years. Centuries is probably overkill. */
 	strbuf_addf(timebuf,
-		 Q_("%"PRItime" year ago", "%"PRItime" years ago", (diff + 183) / 365),
-		 (diff + 183) / 365);
+		    Q_("%" PRItime " year ago", "%" PRItime " years ago",
+		       (diff + 183) / 365),
+		    (diff + 183) / 365);
 }
 
 struct date_mode *date_mode_from_type(enum date_mode_type type)
@@ -213,15 +229,13 @@ struct date_mode *date_mode_from_type(enum date_mode_type type)
 	return &mode;
 }
 
-static void show_date_normal(struct strbuf *buf, timestamp_t time, struct tm *tm, int tz, struct tm *human_tm, int human_tz, int local)
+static void show_date_normal(struct strbuf *buf, timestamp_t time,
+			     struct tm *tm, int tz, struct tm *human_tm,
+			     int human_tz, int local)
 {
 	struct {
-		unsigned int	year:1,
-				date:1,
-				wday:1,
-				time:1,
-				seconds:1,
-				tz:1;
+		unsigned int year : 1, date : 1, wday : 1, time : 1,
+			seconds : 1, tz : 1;
 	} hide = { 0 };
 
 	hide.tz = local || tz == human_tz;
@@ -233,7 +247,8 @@ static void show_date_normal(struct strbuf *buf, timestamp_t time, struct tm *tm
 			} else if (tm->tm_mday == human_tm->tm_mday) {
 				hide.date = hide.wday = 1;
 			} else if (tm->tm_mday + 5 > human_tm->tm_mday) {
-				/* Leave just weekday if it was a few days ago */
+				/* Leave just weekday if it was a few days ago
+				 */
 				hide.date = 1;
 			}
 		}
@@ -263,7 +278,8 @@ static void show_date_normal(struct strbuf *buf, timestamp_t time, struct tm *tm
 	if (!hide.wday)
 		strbuf_addf(buf, "%.3s ", weekday_names[tm->tm_wday]);
 	if (!hide.date)
-		strbuf_addf(buf, "%.3s %d ", month_names[tm->tm_mon], tm->tm_mday);
+		strbuf_addf(buf, "%.3s %d ", month_names[tm->tm_mon],
+			    tm->tm_mday);
 
 	/* Do we want AM/PM depending on locale? */
 	if (!hide.time) {
@@ -290,7 +306,7 @@ const char *show_date(timestamp_t time, int tz, const struct date_mode *mode)
 
 	if (mode->type == DATE_UNIX) {
 		strbuf_reset(&timebuf);
-		strbuf_addf(&timebuf, "%"PRItime, time);
+		strbuf_addf(&timebuf, "%" PRItime, time);
 		return timebuf.buf;
 	}
 
@@ -299,7 +315,8 @@ const char *show_date(timestamp_t time, int tz, const struct date_mode *mode)
 
 		get_time(&now);
 
-		/* Fill in the data for "current time" in human_tz and human_tm */
+		/* Fill in the data for "current time" in human_tz and human_tm
+		 */
 		human_tz = local_time_tzoffset(now.tv_sec, &human_tm);
 	}
 
@@ -308,7 +325,7 @@ const char *show_date(timestamp_t time, int tz, const struct date_mode *mode)
 
 	if (mode->type == DATE_RAW) {
 		strbuf_reset(&timebuf);
-		strbuf_addf(&timebuf, "%"PRItime" %+05d", time, tz);
+		strbuf_addf(&timebuf, "%" PRItime " %+05d", time, tz);
 		return timebuf.buf;
 	}
 
@@ -330,33 +347,30 @@ const char *show_date(timestamp_t time, int tz, const struct date_mode *mode)
 	strbuf_reset(&timebuf);
 	if (mode->type == DATE_SHORT)
 		strbuf_addf(&timebuf, "%04d-%02d-%02d", tm->tm_year + 1900,
-				tm->tm_mon + 1, tm->tm_mday);
+			    tm->tm_mon + 1, tm->tm_mday);
 	else if (mode->type == DATE_ISO8601)
 		strbuf_addf(&timebuf, "%04d-%02d-%02d %02d:%02d:%02d %+05d",
-				tm->tm_year + 1900,
-				tm->tm_mon + 1,
-				tm->tm_mday,
-				tm->tm_hour, tm->tm_min, tm->tm_sec,
-				tz);
+			    tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday,
+			    tm->tm_hour, tm->tm_min, tm->tm_sec, tz);
 	else if (mode->type == DATE_ISO8601_STRICT) {
 		char sign = (tz >= 0) ? '+' : '-';
 		tz = abs(tz);
-		strbuf_addf(&timebuf, "%04d-%02d-%02dT%02d:%02d:%02d%c%02d:%02d",
-				tm->tm_year + 1900,
-				tm->tm_mon + 1,
-				tm->tm_mday,
-				tm->tm_hour, tm->tm_min, tm->tm_sec,
-				sign, tz / 100, tz % 100);
+		strbuf_addf(&timebuf,
+			    "%04d-%02d-%02dT%02d:%02d:%02d%c%02d:%02d",
+			    tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday,
+			    tm->tm_hour, tm->tm_min, tm->tm_sec, sign, tz / 100,
+			    tz % 100);
 	} else if (mode->type == DATE_RFC2822)
 		strbuf_addf(&timebuf, "%.3s, %d %.3s %d %02d:%02d:%02d %+05d",
-			weekday_names[tm->tm_wday], tm->tm_mday,
-			month_names[tm->tm_mon], tm->tm_year + 1900,
-			tm->tm_hour, tm->tm_min, tm->tm_sec, tz);
+			    weekday_names[tm->tm_wday], tm->tm_mday,
+			    month_names[tm->tm_mon], tm->tm_year + 1900,
+			    tm->tm_hour, tm->tm_min, tm->tm_sec, tz);
 	else if (mode->type == DATE_STRFTIME)
 		strbuf_addftime(&timebuf, mode->strftime_fmt, tm, tz,
 				!mode->local);
 	else
-		show_date_normal(&timebuf, time, tm, tz, &human_tm, human_tz, mode->local);
+		show_date_normal(&timebuf, time, tm, tz, &human_tm, human_tz,
+				 mode->local);
 	return timebuf.buf;
 }
 
@@ -371,52 +385,228 @@ static const struct {
 	int offset;
 	int dst;
 } timezone_names[] = {
-	{ "IDLW", -12, 0, },	/* International Date Line West */
-	{ "NT",   -11, 0, },	/* Nome */
-	{ "CAT",  -10, 0, },	/* Central Alaska */
-	{ "HST",  -10, 0, },	/* Hawaii Standard */
-	{ "HDT",  -10, 1, },	/* Hawaii Daylight */
-	{ "YST",   -9, 0, },	/* Yukon Standard */
-	{ "YDT",   -9, 1, },	/* Yukon Daylight */
-	{ "PST",   -8, 0, },	/* Pacific Standard */
-	{ "PDT",   -8, 1, },	/* Pacific Daylight */
-	{ "MST",   -7, 0, },	/* Mountain Standard */
-	{ "MDT",   -7, 1, },	/* Mountain Daylight */
-	{ "CST",   -6, 0, },	/* Central Standard */
-	{ "CDT",   -6, 1, },	/* Central Daylight */
-	{ "EST",   -5, 0, },	/* Eastern Standard */
-	{ "EDT",   -5, 1, },	/* Eastern Daylight */
-	{ "AST",   -3, 0, },	/* Atlantic Standard */
-	{ "ADT",   -3, 1, },	/* Atlantic Daylight */
-	{ "WAT",   -1, 0, },	/* West Africa */
+	{
+		"IDLW",
+		-12,
+		0,
+	}, /* International Date Line West */
+	{
+		"NT",
+		-11,
+		0,
+	}, /* Nome */
+	{
+		"CAT",
+		-10,
+		0,
+	}, /* Central Alaska */
+	{
+		"HST",
+		-10,
+		0,
+	}, /* Hawaii Standard */
+	{
+		"HDT",
+		-10,
+		1,
+	}, /* Hawaii Daylight */
+	{
+		"YST",
+		-9,
+		0,
+	}, /* Yukon Standard */
+	{
+		"YDT",
+		-9,
+		1,
+	}, /* Yukon Daylight */
+	{
+		"PST",
+		-8,
+		0,
+	}, /* Pacific Standard */
+	{
+		"PDT",
+		-8,
+		1,
+	}, /* Pacific Daylight */
+	{
+		"MST",
+		-7,
+		0,
+	}, /* Mountain Standard */
+	{
+		"MDT",
+		-7,
+		1,
+	}, /* Mountain Daylight */
+	{
+		"CST",
+		-6,
+		0,
+	}, /* Central Standard */
+	{
+		"CDT",
+		-6,
+		1,
+	}, /* Central Daylight */
+	{
+		"EST",
+		-5,
+		0,
+	}, /* Eastern Standard */
+	{
+		"EDT",
+		-5,
+		1,
+	}, /* Eastern Daylight */
+	{
+		"AST",
+		-3,
+		0,
+	}, /* Atlantic Standard */
+	{
+		"ADT",
+		-3,
+		1,
+	}, /* Atlantic Daylight */
+	{
+		"WAT",
+		-1,
+		0,
+	}, /* West Africa */
 
-	{ "GMT",    0, 0, },	/* Greenwich Mean */
-	{ "UTC",    0, 0, },	/* Universal (Coordinated) */
-	{ "Z",      0, 0, },    /* Zulu, alias for UTC */
+	{
+		"GMT",
+		0,
+		0,
+	}, /* Greenwich Mean */
+	{
+		"UTC",
+		0,
+		0,
+	}, /* Universal (Coordinated) */
+	{
+		"Z",
+		0,
+		0,
+	}, /* Zulu, alias for UTC */
 
-	{ "WET",    0, 0, },	/* Western European */
-	{ "BST",    0, 1, },	/* British Summer */
-	{ "CET",   +1, 0, },	/* Central European */
-	{ "MET",   +1, 0, },	/* Middle European */
-	{ "MEWT",  +1, 0, },	/* Middle European Winter */
-	{ "MEST",  +1, 1, },	/* Middle European Summer */
-	{ "CEST",  +1, 1, },	/* Central European Summer */
-	{ "MESZ",  +1, 1, },	/* Middle European Summer */
-	{ "FWT",   +1, 0, },	/* French Winter */
-	{ "FST",   +1, 1, },	/* French Summer */
-	{ "EET",   +2, 0, },	/* Eastern Europe, USSR Zone 1 */
-	{ "EEST",  +2, 1, },	/* Eastern European Daylight */
-	{ "WAST",  +7, 0, },	/* West Australian Standard */
-	{ "WADT",  +7, 1, },	/* West Australian Daylight */
-	{ "CCT",   +8, 0, },	/* China Coast, USSR Zone 7 */
-	{ "JST",   +9, 0, },	/* Japan Standard, USSR Zone 8 */
-	{ "EAST", +10, 0, },	/* Eastern Australian Standard */
-	{ "EADT", +10, 1, },	/* Eastern Australian Daylight */
-	{ "GST",  +10, 0, },	/* Guam Standard, USSR Zone 9 */
-	{ "NZT",  +12, 0, },	/* New Zealand */
-	{ "NZST", +12, 0, },	/* New Zealand Standard */
-	{ "NZDT", +12, 1, },	/* New Zealand Daylight */
-	{ "IDLE", +12, 0, },	/* International Date Line East */
+	{
+		"WET",
+		0,
+		0,
+	}, /* Western European */
+	{
+		"BST",
+		0,
+		1,
+	}, /* British Summer */
+	{
+		"CET",
+		+1,
+		0,
+	}, /* Central European */
+	{
+		"MET",
+		+1,
+		0,
+	}, /* Middle European */
+	{
+		"MEWT",
+		+1,
+		0,
+	}, /* Middle European Winter */
+	{
+		"MEST",
+		+1,
+		1,
+	}, /* Middle European Summer */
+	{
+		"CEST",
+		+1,
+		1,
+	}, /* Central European Summer */
+	{
+		"MESZ",
+		+1,
+		1,
+	}, /* Middle European Summer */
+	{
+		"FWT",
+		+1,
+		0,
+	}, /* French Winter */
+	{
+		"FST",
+		+1,
+		1,
+	}, /* French Summer */
+	{
+		"EET",
+		+2,
+		0,
+	}, /* Eastern Europe, USSR Zone 1 */
+	{
+		"EEST",
+		+2,
+		1,
+	}, /* Eastern European Daylight */
+	{
+		"WAST",
+		+7,
+		0,
+	}, /* West Australian Standard */
+	{
+		"WADT",
+		+7,
+		1,
+	}, /* West Australian Daylight */
+	{
+		"CCT",
+		+8,
+		0,
+	}, /* China Coast, USSR Zone 7 */
+	{
+		"JST",
+		+9,
+		0,
+	}, /* Japan Standard, USSR Zone 8 */
+	{
+		"EAST",
+		+10,
+		0,
+	}, /* Eastern Australian Standard */
+	{
+		"EADT",
+		+10,
+		1,
+	}, /* Eastern Australian Daylight */
+	{
+		"GST",
+		+10,
+		0,
+	}, /* Guam Standard, USSR Zone 9 */
+	{
+		"NZT",
+		+12,
+		0,
+	}, /* New Zealand */
+	{
+		"NZST",
+		+12,
+		0,
+	}, /* New Zealand Standard */
+	{
+		"NZDT",
+		+12,
+		1,
+	}, /* New Zealand Daylight */
+	{
+		"IDLE",
+		+12,
+		0,
+	}, /* International Date Line East */
 };
 
 static int match_string(const char *date, const char *str)
@@ -445,8 +635,8 @@ static int skip_alpha(const char *date)
 }
 
 /*
-* Parse month, weekday, or timezone name
-*/
+ * Parse month, weekday, or timezone name
+ */
 static int match_alpha(const char *date, struct tm *tm, int *offset)
 {
 	int i;
@@ -475,9 +665,10 @@ static int match_alpha(const char *date, struct tm *tm, int *offset)
 			/* This is bogus, but we like summer */
 			off += timezone_names[i].dst;
 
-			/* Only use the tz name offset if we don't have anything better */
+			/* Only use the tz name offset if we don't have anything
+			 * better */
 			if (*offset == -1)
-				*offset = 60*off;
+				*offset = 60 * off;
 
 			return match;
 		}
@@ -497,7 +688,8 @@ static int match_alpha(const char *date, struct tm *tm, int *offset)
 	return skip_alpha(date);
 }
 
-static int set_date(int year, int month, int day, struct tm *now_tm, time_t now, struct tm *tm)
+static int set_date(int year, int month, int day, struct tm *now_tm, time_t now,
+		    struct tm *tm)
 {
 	if (month > 0 && month < 13 && day > 0 && day < 32) {
 		struct tm check = *tm;
@@ -510,8 +702,7 @@ static int set_date(int year, int month, int day, struct tm *now_tm, time_t now,
 			if (!now_tm)
 				return 1;
 			r->tm_year = now_tm->tm_year;
-		}
-		else if (year >= 1970 && year < 2100)
+		} else if (year >= 1970 && year < 2100)
 			r->tm_year = year - 1900;
 		else if (year > 70 && year < 100)
 			r->tm_year = year;
@@ -528,7 +719,7 @@ static int set_date(int year, int month, int day, struct tm *now_tm, time_t now,
 		 * sense to specify timestamp way into the future.  Make
 		 * sure it is not later than ten days from now...
 		 */
-		if ((specified != -1) && (now + 10*24*3600 < specified))
+		if ((specified != -1) && (now + 10 * 24 * 3600 < specified))
 			return -1;
 		tm->tm_mon = r->tm_mon;
 		tm->tm_mday = r->tm_mday;
@@ -542,8 +733,7 @@ static int set_date(int year, int month, int day, struct tm *now_tm, time_t now,
 static int set_time(long hour, long minute, long second, struct tm *tm)
 {
 	/* We accept 61st second because of leap second */
-	if (0 <= hour && hour <= 24 &&
-	    0 <= minute && minute < 60 &&
+	if (0 <= hour && hour <= 24 && 0 <= minute && minute < 60 &&
 	    0 <= second && second <= 60) {
 		tm->tm_hour = hour;
 		tm->tm_min = minute;
@@ -565,10 +755,10 @@ static int match_multi_number(timestamp_t num, char c, const char *date,
 	struct tm *refuse_future;
 	long num2, num3;
 
-	num2 = strtol(end+1, &end, 10);
+	num2 = strtol(end + 1, &end, 10);
 	num3 = -1;
 	if (*end == c && isdigit(end[1]))
-		num3 = strtol(end+1, &end, 10);
+		num3 = strtol(end + 1, &end, 10);
 
 	/* Time? Date? */
 	switch (c) {
@@ -630,18 +820,15 @@ static int match_multi_number(timestamp_t num, char c, const char *date,
  */
 static inline int nodate(struct tm *tm)
 {
-	return (tm->tm_year &
-		tm->tm_mon &
-		tm->tm_mday &
-		tm->tm_hour &
-		tm->tm_min &
-		tm->tm_sec) < 0;
+	return (tm->tm_year & tm->tm_mon & tm->tm_mday & tm->tm_hour &
+		tm->tm_min & tm->tm_sec) < 0;
 }
 
 /*
  * We've seen a digit. Time? Year? Date?
  */
-static int match_digit(const char *date, struct tm *tm, int *offset, int *tm_gmt)
+static int match_digit(const char *date, struct tm *tm, int *offset,
+		       int *tm_gmt)
 {
 	int n;
 	char *end;
@@ -671,7 +858,8 @@ static int match_digit(const char *date, struct tm *tm, int *offset, int *tm_gmt
 	case '/':
 	case '-':
 		if (isdigit(end[1])) {
-			int match = match_multi_number(num, *end, date, end, tm, 0);
+			int match =
+				match_multi_number(num, *end, date, end, tm, 0);
 			if (match)
 				return match;
 		}
@@ -706,7 +894,7 @@ static int match_digit(const char *date, struct tm *tm, int *offset, int *tm_gmt
 		if (num <= 1400 && *offset == -1) {
 			unsigned int minutes = num % 100;
 			unsigned int hours = num / 100;
-			*offset = hours*60 + minutes;
+			*offset = hours * 60 + minutes;
 		} else if (num > 1900 && num < 2100)
 			tm->tm_year = num - 1900;
 		return n;
@@ -744,7 +932,7 @@ static int match_digit(const char *date, struct tm *tm, int *offset, int *tm_gmt
 	}
 
 	if (num > 0 && num < 13 && tm->tm_mon < 0)
-		tm->tm_mon = num-1;
+		tm->tm_mon = num - 1;
 
 	return n;
 }
@@ -794,14 +982,16 @@ static void date_string(timestamp_t date, int offset, struct strbuf *buf)
 		offset = -offset;
 		sign = '-';
 	}
-	strbuf_addf(buf, "%"PRItime" %c%02d%02d", date, sign, offset / 60, offset % 60);
+	strbuf_addf(buf, "%" PRItime " %c%02d%02d", date, sign, offset / 60,
+		    offset % 60);
 }
 
 /*
  * Parse a string like "0 +0000" as ancient timestamp near epoch, but
  * only when it appears not as part of any other string.
  */
-static int match_object_header_date(const char *date, timestamp_t *timestamp, int *offset)
+static int match_object_header_date(const char *date, timestamp_t *timestamp,
+				    int *offset)
 {
 	char *end;
 	timestamp_t stamp;
@@ -810,7 +1000,8 @@ static int match_object_header_date(const char *date, timestamp_t *timestamp, in
 	if (*date < '0' || '9' < *date)
 		return -1;
 	stamp = parse_timestamp(date, &end, 10);
-	if (*end != ' ' || stamp == TIME_MAX || (end[1] != '+' && end[1] != '-'))
+	if (*end != ' ' || stamp == TIME_MAX ||
+	    (end[1] != '+' && end[1] != '-'))
 		return -1;
 	date = end + 2;
 	ofs = strtol(date, &end, 10);
@@ -1044,7 +1235,7 @@ static void pending_number(struct tm *tm, int *num)
 		if (tm->tm_mday < 0 && number < 32)
 			tm->tm_mday = number;
 		else if (tm->tm_mon < 0 && number < 13)
-			tm->tm_mon = number-1;
+			tm->tm_mon = number - 1;
 		else if (tm->tm_year < 0) {
 			if (number > 1969 && number < 2100)
 				tm->tm_year = number - 1900;
@@ -1066,13 +1257,13 @@ static void date_now(struct tm *tm, struct tm *now, int *num)
 static void date_yesterday(struct tm *tm, struct tm *now, int *num)
 {
 	*num = 0;
-	update_tm(tm, now, 24*60*60);
+	update_tm(tm, now, 24 * 60 * 60);
 }
 
 static void date_time(struct tm *tm, struct tm *now, int hour)
 {
 	if (tm->tm_hour < hour)
-		update_tm(tm, now, 24*60*60);
+		update_tm(tm, now, 24 * 60 * 60);
 	tm->tm_hour = hour;
 	tm->tm_min = 0;
 	tm->tm_sec = 0;
@@ -1134,36 +1325,33 @@ static void date_never(struct tm *tm, struct tm *now, int *num)
 static const struct special {
 	const char *name;
 	void (*fn)(struct tm *, struct tm *, int *);
-} special[] = {
-	{ "yesterday", date_yesterday },
-	{ "noon", date_noon },
-	{ "midnight", date_midnight },
-	{ "tea", date_tea },
-	{ "PM", date_pm },
-	{ "AM", date_am },
-	{ "never", date_never },
-	{ "now", date_now },
-	{ NULL }
-};
+} special[] = { { "yesterday", date_yesterday },
+		{ "noon", date_noon },
+		{ "midnight", date_midnight },
+		{ "tea", date_tea },
+		{ "PM", date_pm },
+		{ "AM", date_am },
+		{ "never", date_never },
+		{ "now", date_now },
+		{ NULL } };
 
 static const char *number_name[] = {
-	"zero", "one", "two", "three", "four",
-	"five", "six", "seven", "eight", "nine", "ten",
+	"zero", "one",	 "two",	  "three", "four", "five",
+	"six",	"seven", "eight", "nine",  "ten",
 };
 
 static const struct typelen {
 	const char *type;
 	int length;
-} typelen[] = {
-	{ "seconds", 1 },
-	{ "minutes", 60 },
-	{ "hours", 60*60 },
-	{ "days", 24*60*60 },
-	{ "weeks", 7*24*60*60 },
-	{ NULL }
-};
+} typelen[] = { { "seconds", 1 },
+		{ "minutes", 60 },
+		{ "hours", 60 * 60 },
+		{ "days", 24 * 60 * 60 },
+		{ "weeks", 7 * 24 * 60 * 60 },
+		{ NULL } };
 
-static const char *approxidate_alpha(const char *date, struct tm *tm, struct tm *now, int *num, int *touched)
+static const char *approxidate_alpha(const char *date, struct tm *tm,
+				     struct tm *now, int *num, int *touched)
 {
 	const struct typelen *tl;
 	const struct special *s;
@@ -1210,7 +1398,7 @@ static const char *approxidate_alpha(const char *date, struct tm *tm, struct tm 
 	tl = typelen;
 	while (tl->type) {
 		int len = strlen(tl->type);
-		if (match_string(date, tl->type) >= len-1) {
+		if (match_string(date, tl->type) >= len - 1) {
 			update_tm(tm, now, tl->length * *num);
 			*num = 0;
 			*touched = 1;
@@ -1222,13 +1410,13 @@ static const char *approxidate_alpha(const char *date, struct tm *tm, struct tm 
 	for (i = 0; i < 7; i++) {
 		int match = match_string(date, weekday_names[i]);
 		if (match >= 3) {
-			int diff, n = *num -1;
+			int diff, n = *num - 1;
 			*num = 0;
 
 			diff = tm->tm_wday - i;
 			if (diff <= 0)
 				n++;
-			diff += 7*n;
+			diff += 7 * n;
 
 			update_tm(tm, now, diff * 24 * 60 * 60);
 			*touched = 1;
@@ -1280,14 +1468,14 @@ static const char *approxidate_digit(const char *date, struct tm *tm, int *num,
 		}
 	}
 
-	/* Accept zero-padding only for small numbers ("Dec 02", never "Dec 0002") */
+	/* Accept zero-padding only for small numbers ("Dec 02", never "Dec
+	 * 0002") */
 	if (date[0] != '0' || end - date <= 2)
 		*num = number;
 	return end;
 }
 
-static timestamp_t approxidate_str(const char *date,
-				   const struct timeval *tv,
+static timestamp_t approxidate_str(const char *date, const struct timeval *tv,
 				   int *error_ret)
 {
 	int number = 0;
@@ -1310,12 +1498,14 @@ static timestamp_t approxidate_str(const char *date,
 		date++;
 		if (isdigit(c)) {
 			pending_number(&tm, &number);
-			date = approxidate_digit(date-1, &tm, &number, time_sec);
+			date = approxidate_digit(date - 1, &tm, &number,
+						 time_sec);
 			touched = 1;
 			continue;
 		}
 		if (isalpha(c))
-			date = approxidate_alpha(date-1, &tm, &now, &number, &touched);
+			date = approxidate_alpha(date - 1, &tm, &now, &number,
+						 &touched);
 	}
 	pending_number(&tm, &number);
 	if (!touched)
@@ -1334,7 +1524,7 @@ timestamp_t approxidate_relative(const char *date)
 		return timestamp;
 
 	get_time(&tv);
-	return approxidate_str(date, (const struct timeval *) &tv, &errors);
+	return approxidate_str(date, (const struct timeval *)&tv, &errors);
 }
 
 timestamp_t approxidate_careful(const char *date, int *error_ret)
