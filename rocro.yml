@@ -92,6 +92,6 @@ inspecode:
 
     # understand
 
-    #### Unused timed out.
-    # unused:
-    #   thresholds: {num-issues: 999}
+    unused:
+      machine: {cpu: 1.0}   # in default, unused timed-out
+      thresholds: {num-issues: 999}
