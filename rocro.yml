@@ -9,28 +9,13 @@ inspecode:
     - # auto-fix: true
       thresholds: {num-issues: 999}
       ignore:
-        - 'builtin/'
-        - 'compat/'
-        - 't/'
-        - 'trace2/'
-        - 'xdiff/'
-    - # auto-fix: true
-      thresholds: {num-issues: 999}
-      input:
-        - 'builtin/'
-    - # auto-fix: true
-      thresholds: {num-issues: 999}
-      input:
+        - '*.[ch]'
         - 'compat/'
     - # auto-fix: true
       thresholds: {num-issues: 999}
       input:
-        - 't/'
+        - '*.[ch]'
     - # auto-fix: true
       thresholds: {num-issues: 999}
       input:
-        - 'trace2/'
-    - # auto-fix: true
-      thresholds: {num-issues: 999}
-      input:
-        - 'xdiff/'
+        - 'compat/'
