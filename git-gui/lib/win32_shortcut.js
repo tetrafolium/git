@@ -10,25 +10,25 @@ var dir_path = argi < argv.length ? argv.item(argi++) : undefined;
 var lnk_exec = argi < argv.length ? argv.item(argi++) : undefined;
 var lnk_args = '';
 while (argi < argv.length) {
-	var s = argv.item(argi++);
-	if (lnk_args != '')
-		lnk_args += ' ';
-	if (s.indexOf(' ') >= 0) {
-		lnk_args += '"';
-		lnk_args += s;
-		lnk_args += '"';
-	} else {
-		lnk_args += s;
-	}
+  var s = argv.item(argi++);
+  if (lnk_args != '')
+    lnk_args += ' ';
+  if (s.indexOf(' ') >= 0) {
+    lnk_args += '"';
+    lnk_args += s;
+    lnk_args += '"';
+  } else {
+    lnk_args += s;
+  }
 }
 
 var lnk = WshShell.CreateShortcut(lnk_path);
 if (argv.length == 1) {
-	WScript.echo(lnk.TargetPath);
+  WScript.echo(lnk.TargetPath);
 } else {
-	lnk.TargetPath = lnk_exec;
-	lnk.Arguments = lnk_args;
-	lnk.IconLocation = ico_path + ", 0";
-	lnk.WorkingDirectory = dir_path;
-	lnk.Save();
+  lnk.TargetPath = lnk_exec;
+  lnk.Arguments = lnk_args;
+  lnk.IconLocation = ico_path + ", 0";
+  lnk.WorkingDirectory = dir_path;
+  lnk.Save();
 }
