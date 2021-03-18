@@ -93,5 +93,6 @@ inspecode:
     # understand
 
     unused:
-      machine: {cpu: 1.0}   # in default, unused timed-out
+      # machine: {cpu: 1.0}   # in default, unused timed-out
+      machine: {cpu: 0.75}    # (exp) limited at inspecode.strophoid.io
       thresholds: {num-issues: 999}
