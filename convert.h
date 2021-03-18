@@ -10,97 +10,92 @@
 struct index_state;
 struct strbuf;
 
-#define CONV_EOL_RNDTRP_DIE   (1<<0) /* Die if CRLF to LF to CRLF is different */
-#define CONV_EOL_RNDTRP_WARN  (1<<1) /* Warn if CRLF to LF to CRLF is different */
-#define CONV_EOL_RENORMALIZE  (1<<2) /* Convert CRLF to LF */
-#define CONV_EOL_KEEP_CRLF    (1<<3) /* Keep CRLF line endings as is */
-#define CONV_WRITE_OBJECT     (1<<4) /* Content is written to the index */
+#define CONV_EOL_RNDTRP_DIE \
+	(1 << 0) /* Die if CRLF to LF to CRLF is different */
+#define CONV_EOL_RNDTRP_WARN \
+	(1 << 1) /* Warn if CRLF to LF to CRLF is different */
+#define CONV_EOL_RENORMALIZE (1 << 2) /* Convert CRLF to LF */
+#define CONV_EOL_KEEP_CRLF (1 << 3) /* Keep CRLF line endings as is */
+#define CONV_WRITE_OBJECT (1 << 4) /* Content is written to the index */
 
 extern int global_conv_flags_eol;
 
 enum auto_crlf {
-    AUTO_CRLF_FALSE = 0,
-    AUTO_CRLF_TRUE = 1,
-    AUTO_CRLF_INPUT = -1
+	AUTO_CRLF_FALSE = 0,
+	AUTO_CRLF_TRUE = 1,
+	AUTO_CRLF_INPUT = -1
 };
 
 extern enum auto_crlf auto_crlf;
 
 enum eol {
-    EOL_UNSET,
-    EOL_CRLF,
-    EOL_LF,
+	EOL_UNSET,
+	EOL_CRLF,
+	EOL_LF,
 #ifdef NATIVE_CRLF
-    EOL_NATIVE = EOL_CRLF
+	EOL_NATIVE = EOL_CRLF
 #else
-    EOL_NATIVE = EOL_LF
+	EOL_NATIVE = EOL_LF
 #endif
 };
 
-enum ce_delay_state {
-    CE_NO_DELAY = 0,
-    CE_CAN_DELAY = 1,
-    CE_RETRY = 2
-};
+enum ce_delay_state { CE_NO_DELAY = 0, CE_CAN_DELAY = 1, CE_RETRY = 2 };
 
 struct delayed_checkout {
-    /*
-     * State of the currently processed cache entry. If the state is
-     * CE_CAN_DELAY, then the filter can delay the current cache entry.
-     * If the state is CE_RETRY, then this signals the filter that the
-     * cache entry was requested before.
-     */
-    enum ce_delay_state state;
-    /* List of filter drivers that signaled delayed blobs. */
-    struct string_list filters;
-    /* List of delayed blobs identified by their path. */
-    struct string_list paths;
+	/*
+	 * State of the currently processed cache entry. If the state is
+	 * CE_CAN_DELAY, then the filter can delay the current cache entry.
+	 * If the state is CE_RETRY, then this signals the filter that the
+	 * cache entry was requested before.
+	 */
+	enum ce_delay_state state;
+	/* List of filter drivers that signaled delayed blobs. */
+	struct string_list filters;
+	/* List of delayed blobs identified by their path. */
+	struct string_list paths;
 };
 
 struct checkout_metadata {
-    const char *refname;
-    struct object_id treeish;
-    struct object_id blob;
+	const char *refname;
+	struct object_id treeish;
+	struct object_id blob;
 };
 
 extern enum eol core_eol;
 extern char *check_roundtrip_encoding;
 const char *get_cached_convert_stats_ascii(const struct index_state *istate,
-        const char *path);
+					   const char *path);
 const char *get_wt_convert_stats_ascii(const char *path);
 const char *get_convert_attr_ascii(const struct index_state *istate,
-                                   const char *path);
+				   const char *path);
 
 /* returns 1 if *dst was used */
-int convert_to_git(const struct index_state *istate,
-                   const char *path, const char *src, size_t len,
-                   struct strbuf *dst, int conv_flags);
-int convert_to_working_tree(const struct index_state *istate,
-                            const char *path, const char *src,
-                            size_t len, struct strbuf *dst,
-                            const struct checkout_metadata *meta);
+int convert_to_git(const struct index_state *istate, const char *path,
+		   const char *src, size_t len, struct strbuf *dst,
+		   int conv_flags);
+int convert_to_working_tree(const struct index_state *istate, const char *path,
+			    const char *src, size_t len, struct strbuf *dst,
+			    const struct checkout_metadata *meta);
 int async_convert_to_working_tree(const struct index_state *istate,
-                                  const char *path, const char *src,
-                                  size_t len, struct strbuf *dst,
-                                  const struct checkout_metadata *meta,
-                                  void *dco);
+				  const char *path, const char *src, size_t len,
+				  struct strbuf *dst,
+				  const struct checkout_metadata *meta,
+				  void *dco);
 int async_query_available_blobs(const char *cmd,
-                                struct string_list *available_paths);
-int renormalize_buffer(const struct index_state *istate,
-                       const char *path, const char *src, size_t len,
-                       struct strbuf *dst);
+				struct string_list *available_paths);
+int renormalize_buffer(const struct index_state *istate, const char *path,
+		       const char *src, size_t len, struct strbuf *dst);
 static inline int would_convert_to_git(const struct index_state *istate,
-                                       const char *path)
+				       const char *path)
 {
-    return convert_to_git(istate, path, NULL, 0, NULL, 0);
+	return convert_to_git(istate, path, NULL, 0, NULL, 0);
 }
 /* Precondition: would_convert_to_git_filter_fd(path) == true */
 void convert_to_git_filter_fd(const struct index_state *istate,
-                              const char *path, int fd,
-                              struct strbuf *dst,
-                              int conv_flags);
+			      const char *path, int fd, struct strbuf *dst,
+			      int conv_flags);
 int would_convert_to_git_filter_fd(const struct index_state *istate,
-                                   const char *path);
+				   const char *path);
 
 /*
  * Initialize the checkout metadata with the given values.  Any argument may be
@@ -111,13 +106,13 @@ int would_convert_to_git_filter_fd(const struct index_state *istate,
  * THe object IDs are copied.
  */
 void init_checkout_metadata(struct checkout_metadata *meta, const char *refname,
-                            const struct object_id *treeish,
-                            const struct object_id *blob);
+			    const struct object_id *treeish,
+			    const struct object_id *blob);
 
 /* Copy the metadata from src to dst, updating the blob. */
 void clone_checkout_metadata(struct checkout_metadata *dst,
-                             const struct checkout_metadata *src,
-                             const struct object_id *blob);
+			     const struct checkout_metadata *src,
+			     const struct object_id *blob);
 
 /*
  * Reset the internal list of attributes used by convert_to_git and
@@ -134,8 +129,8 @@ void reset_parsed_attributes(void);
 struct stream_filter; /* opaque */
 
 struct stream_filter *get_stream_filter(const struct index_state *istate,
-                                        const char *path,
-                                        const struct object_id *);
+					const char *path,
+					const struct object_id *);
 void free_stream_filter(struct stream_filter *);
 int is_null_stream_filter(struct stream_filter *);
 
@@ -151,8 +146,7 @@ int is_null_stream_filter(struct stream_filter *);
  * such filters know there is no more input coming and it is time for
  * them to produce the remaining output based on the buffered input.
  */
-int stream_filter(struct stream_filter *,
-                  const char *input, size_t *isize_p,
-                  char *output, size_t *osize_p);
+int stream_filter(struct stream_filter *, const char *input, size_t *isize_p,
+		  char *output, size_t *osize_p);
 
 #endif /* CONVERT_H */

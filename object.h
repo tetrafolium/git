@@ -6,56 +6,59 @@
 struct buffer_slab;
 
 struct parsed_object_pool {
-    struct object **obj_hash;
-    int nr_objs, obj_hash_size;
+	struct object **obj_hash;
+	int nr_objs, obj_hash_size;
 
-    /* TODO: migrate alloc_states to mem-pool? */
-    struct alloc_state *blob_state;
-    struct alloc_state *tree_state;
-    struct alloc_state *commit_state;
-    struct alloc_state *tag_state;
-    struct alloc_state *object_state;
+	/* TODO: migrate alloc_states to mem-pool? */
+	struct alloc_state *blob_state;
+	struct alloc_state *tree_state;
+	struct alloc_state *commit_state;
+	struct alloc_state *tag_state;
+	struct alloc_state *object_state;
 
-    /* parent substitutions from .git/info/grafts and .git/shallow */
-    struct commit_graft **grafts;
-    int grafts_alloc, grafts_nr;
+	/* parent substitutions from .git/info/grafts and .git/shallow */
+	struct commit_graft **grafts;
+	int grafts_alloc, grafts_nr;
 
-    int is_shallow;
-    struct stat_validity *shallow_stat;
-    char *alternate_shallow_file;
+	int is_shallow;
+	struct stat_validity *shallow_stat;
+	char *alternate_shallow_file;
 
-    int commit_graft_prepared;
-    int substituted_parent;
+	int commit_graft_prepared;
+	int substituted_parent;
 
-    struct buffer_slab *buffer_slab;
+	struct buffer_slab *buffer_slab;
 };
 
 struct parsed_object_pool *parsed_object_pool_new(void);
 void parsed_object_pool_clear(struct parsed_object_pool *o);
 
 struct object_list {
-    struct object *item;
-    struct object_list *next;
+	struct object *item;
+	struct object_list *next;
 };
 
 struct object_array {
-    unsigned int nr;
-    unsigned int alloc;
-    struct object_array_entry {
-        struct object *item;
-        /*
-         * name or NULL.  If non-NULL, the memory pointed to
-         * is owned by this object *except* if it points at
-         * object_array_slopbuf, which is a static copy of the
-         * empty string.
-         */
-        char *name;
-        char *path;
-        unsigned mode;
-    } *objects;
+	unsigned int nr;
+	unsigned int alloc;
+	struct object_array_entry {
+		struct object *item;
+		/*
+		 * name or NULL.  If non-NULL, the memory pointed to
+		 * is owned by this object *except* if it points at
+		 * object_array_slopbuf, which is a static copy of the
+		 * empty string.
+		 */
+		char *name;
+		char *path;
+		unsigned mode;
+	} * objects;
 };
 
-#define OBJECT_ARRAY_INIT { 0, 0, NULL }
+#define OBJECT_ARRAY_INIT  \
+	{                  \
+		0, 0, NULL \
+	}
 
 /*
  * object flag allocation:
@@ -80,18 +83,16 @@ struct object_array {
  * builtin/show-branch.c:    0-------------------------------------------26
  * builtin/unpack-objects.c:                                 2021
  */
-#define FLAG_BITS  28
+#define FLAG_BITS 28
 
 /*
  * The object type is stored in 3 bits.
  */
 struct object {
-    unsigned parsed : 1;
-unsigned type :
-    TYPE_BITS;
-unsigned flags :
-    FLAG_BITS;
-    struct object_id oid;
+	unsigned parsed : 1;
+	unsigned type : TYPE_BITS;
+	unsigned flags : FLAG_BITS;
+	struct object_id oid;
 };
 
 const char *type_name(unsigned int type);
@@ -122,7 +123,8 @@ struct object *get_indexed_object(unsigned int);
  */
 struct object *lookup_object(struct repository *r, const struct object_id *oid);
 
-void *create_object(struct repository *r, const struct object_id *oid, void *obj);
+void *create_object(struct repository *r, const struct object_id *oid,
+		    void *obj);
 
 void *object_as_type(struct object *obj, enum object_type type, int quiet);
 
@@ -138,27 +140,34 @@ struct object *parse_object(struct repository *r, const struct object_id *oid);
  * "name" parameter is not NULL, it is included in the error message
  * (otherwise, the hex object ID is given).
  */
-struct object *parse_object_or_die(const struct object_id *oid, const char *name);
+struct object *parse_object_or_die(const struct object_id *oid,
+				   const char *name);
 
 /* Given the result of read_sha1_file(), returns the object after
  * parsing it.  eaten_p indicates if the object has a borrowed copy
  * of buffer and the caller should not free() it.
  */
-struct object *parse_object_buffer(struct repository *r, const struct object_id *oid, enum object_type type, unsigned long size, void *buffer, int *eaten_p);
+struct object *parse_object_buffer(struct repository *r,
+				   const struct object_id *oid,
+				   enum object_type type, unsigned long size,
+				   void *buffer, int *eaten_p);
 
 /** Returns the object, with potentially excess memory allocated. **/
 struct object *lookup_unknown_object(const struct object_id *oid);
 
 struct object_list *object_list_insert(struct object *item,
-                                       struct object_list **list_p);
+				       struct object_list **list_p);
 
 int object_list_contains(struct object_list *list, struct object *obj);
 
 void object_list_free(struct object_list **list);
 
 /* Object array handling .. */
-void add_object_array(struct object *obj, const char *name, struct object_array *array);
-void add_object_array_with_path(struct object *obj, const char *name, struct object_array *array, unsigned mode, const char *path);
+void add_object_array(struct object *obj, const char *name,
+		      struct object_array *array);
+void add_object_array_with_path(struct object *obj, const char *name,
+				struct object_array *array, unsigned mode,
+				const char *path);
 
 /*
  * Returns NULL if the array is empty. Otherwise, returns the last object
@@ -176,7 +185,7 @@ typedef int (*object_array_each_func_t)(struct object_array_entry *, void *);
  * that are retained.
  */
 void object_array_filter(struct object_array *array,
-                         object_array_each_func_t want, void *cb_data);
+			 object_array_each_func_t want, void *cb_data);
 
 /*
  * Remove from array all but the first entry with a given name.

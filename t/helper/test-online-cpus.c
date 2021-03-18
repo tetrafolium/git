@@ -4,6 +4,6 @@
 
 int cmd__online_cpus(int argc, const char **argv)
 {
-    printf("%d\n", online_cpus());
-    return 0;
+	printf("%d\n", online_cpus());
+	return 0;
 }

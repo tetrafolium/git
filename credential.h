@@ -92,7 +92,6 @@
  * -----------------------------------------------------------------------
  */
 
-
 /**
  * This struct represents a single username/password combination
  * along with any associated context. All string fields should be
@@ -104,31 +103,30 @@
  * `credential_init`.
  */
 struct credential {
+	/**
+	 * A `string_list` of helpers. Each string specifies an external
+	 * helper which will be run, in order, to either acquire or store
+	 * credentials. This list is filled-in by the API functions
+	 * according to the corresponding configuration variables before
+	 * consulting helpers, so there usually is no need for a caller to
+	 * modify the helpers field at all.
+	 */
+	struct string_list helpers;
 
-    /**
-     * A `string_list` of helpers. Each string specifies an external
-     * helper which will be run, in order, to either acquire or store
-     * credentials. This list is filled-in by the API functions
-     * according to the corresponding configuration variables before
-     * consulting helpers, so there usually is no need for a caller to
-     * modify the helpers field at all.
-     */
-    struct string_list helpers;
+	unsigned approved : 1, configured : 1, quit : 1, use_http_path : 1,
+		username_from_proto : 1;
 
-    unsigned approved:1,
-             configured:1,
-             quit:1,
-             use_http_path:1,
-             username_from_proto:1;
-
-    char *username;
-    char *password;
-    char *protocol;
-    char *host;
-    char *path;
+	char *username;
+	char *password;
+	char *protocol;
+	char *host;
+	char *path;
 };
 
-#define CREDENTIAL_INIT { STRING_LIST_INIT_DUP }
+#define CREDENTIAL_INIT              \
+	{                            \
+		STRING_LIST_INIT_DUP \
+	}
 
 /* Initialize a credential structure, setting all fields to empty. */
 void credential_init(struct credential *);
@@ -190,6 +188,6 @@ void credential_from_url(struct credential *, const char *url);
 int credential_from_url_gently(struct credential *, const char *url, int quiet);
 
 int credential_match(const struct credential *want,
-                     const struct credential *have);
+		     const struct credential *have);
 
 #endif /* CREDENTIAL_H */

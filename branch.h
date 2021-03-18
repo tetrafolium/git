@@ -5,12 +5,12 @@ struct repository;
 struct strbuf;
 
 enum branch_track {
-    BRANCH_TRACK_UNSPECIFIED = -1,
-    BRANCH_TRACK_NEVER = 0,
-    BRANCH_TRACK_REMOTE,
-    BRANCH_TRACK_ALWAYS,
-    BRANCH_TRACK_EXPLICIT,
-    BRANCH_TRACK_OVERRIDE
+	BRANCH_TRACK_UNSPECIFIED = -1,
+	BRANCH_TRACK_NEVER = 0,
+	BRANCH_TRACK_REMOTE,
+	BRANCH_TRACK_ALWAYS,
+	BRANCH_TRACK_EXPLICIT,
+	BRANCH_TRACK_OVERRIDE
 };
 
 extern enum branch_track git_branch_track;
@@ -40,10 +40,9 @@ extern enum branch_track git_branch_track;
  *     that start_name is a tracking branch for (if any).
  *
  */
-void create_branch(struct repository *r,
-                   const char *name, const char *start_name,
-                   int force, int clobber_head_ok,
-                   int reflog, int quiet, enum branch_track track);
+void create_branch(struct repository *r, const char *name,
+		   const char *start_name, int force, int clobber_head_ok,
+		   int reflog, int quiet, enum branch_track track);
 
 /*
  * Check if 'name' can be a valid name for a branch; die otherwise.
@@ -78,7 +77,8 @@ void remove_branch_state(struct repository *r, int verbose);
  * Returns 0 on success.
  */
 #define BRANCH_CONFIG_VERBOSE 01
-int install_branch_config(int flag, const char *local, const char *origin, const char *remote);
+int install_branch_config(int flag, const char *local, const char *origin,
+			  const char *remote);
 
 /*
  * Read branch description
@@ -98,6 +98,6 @@ void die_if_checked_out(const char *branch, int ignore_current_worktree);
  * otherwise.
  */
 int replace_each_worktree_head_symref(const char *oldref, const char *newref,
-                                      const char *logmsg);
+				      const char *logmsg);
 
 #endif

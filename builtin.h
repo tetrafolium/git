@@ -140,7 +140,8 @@ int cmd_config(int argc, const char **argv, const char *prefix);
 int cmd_count_objects(int argc, const char **argv, const char *prefix);
 int cmd_credential(int argc, const char **argv, const char *prefix);
 int cmd_credential_cache(int argc, const char **argv, const char *prefix);
-int cmd_credential_cache_daemon(int argc, const char **argv, const char *prefix);
+int cmd_credential_cache_daemon(int argc, const char **argv,
+				const char *prefix);
 int cmd_credential_store(int argc, const char **argv, const char *prefix);
 int cmd_describe(int argc, const char **argv, const char *prefix);
 int cmd_diff_files(int argc, const char **argv, const char *prefix);

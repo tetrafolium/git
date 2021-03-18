@@ -2,10 +2,10 @@
 #define PROTOCOL_H
 
 enum protocol_version {
-    protocol_unknown_version = -1,
-    protocol_v0 = 0,
-    protocol_v1 = 1,
-    protocol_v2 = 2,
+	protocol_unknown_version = -1,
+	protocol_v0 = 0,
+	protocol_v1 = 1,
+	protocol_v2 = 2,
 };
 
 /*
@@ -29,6 +29,7 @@ enum protocol_version determine_protocol_version_server(void);
  * Used by a client to determine which protocol version the server is speaking
  * based on the server's initial response.
  */
-enum protocol_version determine_protocol_version_client(const char *server_response);
+enum protocol_version
+determine_protocol_version_client(const char *server_response);
 
 #endif /* PROTOCOL_H */

@@ -11,10 +11,10 @@
 #ifdef DC_SHA1_EXTERNAL
 void git_SHA1DCInit(SHA1_CTX *);
 #else
-#define git_SHA1DCInit	SHA1DCInit
+#define git_SHA1DCInit SHA1DCInit
 #endif
 
-void git_SHA1DCFinal(unsigned char [20], SHA1_CTX *);
+void git_SHA1DCFinal(unsigned char[20], SHA1_CTX *);
 void git_SHA1DCUpdate(SHA1_CTX *ctx, const void *data, unsigned long len);
 
 #define platform_SHA_CTX SHA1_CTX

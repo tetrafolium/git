@@ -32,4 +32,4 @@ printf("Begin of second part\n");
  */
 
 return 0;
-}	// End of second part
+} // End of second part

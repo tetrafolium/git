@@ -28,12 +28,15 @@ extern const char *empty_strvec[];
  * NULL.
  */
 struct strvec {
-    const char **v;
-    int nr;
-    int alloc;
+	const char **v;
+	int nr;
+	int alloc;
 };
 
-#define STRVEC_INIT { empty_strvec, 0, 0 }
+#define STRVEC_INIT                \
+	{                          \
+		empty_strvec, 0, 0 \
+	}
 
 /**
  * Initialize an array. This is no different than assigning from
@@ -48,8 +51,8 @@ const char *strvec_push(struct strvec *, const char *);
  * Format a string and push it onto the end of the array. This is a
  * convenience wrapper combining `strbuf_addf` and `strvec_push`.
  */
-__attribute__((format (printf,2,3)))
-const char *strvec_pushf(struct strvec *, const char *fmt, ...);
+__attribute__((format(printf, 2, 3))) const char *
+strvec_pushf(struct strvec *, const char *fmt, ...);
 
 /**
  * Push a list of strings onto the end of the array. The arguments

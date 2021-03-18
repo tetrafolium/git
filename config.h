@@ -4,7 +4,6 @@
 #include "hashmap.h"
 #include "string-list.h"
 
-
 /**
  * The config API gives callers a way to access Git configuration files
  * (and files which have the same syntax).
@@ -25,7 +24,8 @@ struct object_id;
 /* git_config_parse_key() returns these negated: */
 #define CONFIG_INVALID_KEY 1
 #define CONFIG_NO_SECTION_OR_NAME 2
-/* git_config_set_gently(), git_config_set_multivar_gently() return the above or these: */
+/* git_config_set_gently(), git_config_set_multivar_gently() return the above or
+ * these: */
 #define CONFIG_NO_LOCK -1
 #define CONFIG_INVALID_FILE 3
 #define CONFIG_NO_WRITE 4
@@ -36,38 +36,38 @@ struct object_id;
 #define CONFIG_REGEX_NONE ((void *)1)
 
 enum config_scope {
-    CONFIG_SCOPE_UNKNOWN = 0,
-    CONFIG_SCOPE_SYSTEM,
-    CONFIG_SCOPE_GLOBAL,
-    CONFIG_SCOPE_LOCAL,
-    CONFIG_SCOPE_WORKTREE,
-    CONFIG_SCOPE_COMMAND,
-    CONFIG_SCOPE_SUBMODULE,
+	CONFIG_SCOPE_UNKNOWN = 0,
+	CONFIG_SCOPE_SYSTEM,
+	CONFIG_SCOPE_GLOBAL,
+	CONFIG_SCOPE_LOCAL,
+	CONFIG_SCOPE_WORKTREE,
+	CONFIG_SCOPE_COMMAND,
+	CONFIG_SCOPE_SUBMODULE,
 };
 const char *config_scope_name(enum config_scope scope);
 
 struct git_config_source {
-    unsigned int use_stdin:1;
-    const char *file;
-    const char *blob;
-    enum config_scope scope;
+	unsigned int use_stdin : 1;
+	const char *file;
+	const char *blob;
+	enum config_scope scope;
 };
 
 enum config_origin_type {
-    CONFIG_ORIGIN_BLOB,
-    CONFIG_ORIGIN_FILE,
-    CONFIG_ORIGIN_STDIN,
-    CONFIG_ORIGIN_SUBMODULE_BLOB,
-    CONFIG_ORIGIN_CMDLINE
+	CONFIG_ORIGIN_BLOB,
+	CONFIG_ORIGIN_FILE,
+	CONFIG_ORIGIN_STDIN,
+	CONFIG_ORIGIN_SUBMODULE_BLOB,
+	CONFIG_ORIGIN_CMDLINE
 };
 
 enum config_event_t {
-    CONFIG_EVENT_SECTION,
-    CONFIG_EVENT_ENTRY,
-    CONFIG_EVENT_WHITESPACE,
-    CONFIG_EVENT_COMMENT,
-    CONFIG_EVENT_EOF,
-    CONFIG_EVENT_ERROR
+	CONFIG_EVENT_SECTION,
+	CONFIG_EVENT_ENTRY,
+	CONFIG_EVENT_WHITESPACE,
+	CONFIG_EVENT_COMMENT,
+	CONFIG_EVENT_EOF,
+	CONFIG_EVENT_ERROR
 };
 
 /*
@@ -78,25 +78,25 @@ enum config_event_t {
  * character is considered part of the element.
  */
 typedef int (*config_parser_event_fn_t)(enum config_event_t type,
-                                        size_t begin_offset, size_t end_offset,
-                                        void *event_fn_data);
+					size_t begin_offset, size_t end_offset,
+					void *event_fn_data);
 
 struct config_options {
-    unsigned int respect_includes : 1;
-    unsigned int ignore_repo : 1;
-    unsigned int ignore_worktree : 1;
-    unsigned int ignore_cmdline : 1;
-    unsigned int system_gently : 1;
-    const char *commondir;
-    const char *git_dir;
-    config_parser_event_fn_t event_fn;
-    void *event_fn_data;
-    enum config_error_action {
-        CONFIG_ERROR_UNSET = 0, /* use source-specific default */
-        CONFIG_ERROR_DIE, /* die() on error */
-        CONFIG_ERROR_ERROR, /* error() on error, return -1 */
-        CONFIG_ERROR_SILENT, /* return -1 */
-    } error_action;
+	unsigned int respect_includes : 1;
+	unsigned int ignore_repo : 1;
+	unsigned int ignore_worktree : 1;
+	unsigned int ignore_cmdline : 1;
+	unsigned int system_gently : 1;
+	const char *commondir;
+	const char *git_dir;
+	config_parser_event_fn_t event_fn;
+	void *event_fn_data;
+	enum config_error_action {
+		CONFIG_ERROR_UNSET = 0, /* use source-specific default */
+		CONFIG_ERROR_DIE, /* die() on error */
+		CONFIG_ERROR_ERROR, /* error() on error, return -1 */
+		CONFIG_ERROR_SILENT, /* return -1 */
+	} error_action;
 };
 
 /**
@@ -127,16 +127,13 @@ int git_default_config(const char *, const char *, void *);
  */
 int git_config_from_file(config_fn_t fn, const char *, void *);
 
-int git_config_from_file_with_options(config_fn_t fn, const char *,
-                                      void *,
-                                      const struct config_options *);
-int git_config_from_mem(config_fn_t fn,
-                        const enum config_origin_type,
-                        const char *name,
-                        const char *buf, size_t len,
-                        void *data, const struct config_options *opts);
+int git_config_from_file_with_options(config_fn_t fn, const char *, void *,
+				      const struct config_options *);
+int git_config_from_mem(config_fn_t fn, const enum config_origin_type,
+			const char *name, const char *buf, size_t len,
+			void *data, const struct config_options *opts);
 int git_config_from_blob_oid(config_fn_t fn, const char *name,
-                             const struct object_id *oid, void *data);
+			     const struct object_id *oid, void *data);
 void git_config_push_parameter(const char *text);
 void git_config_push_env(const char *spec);
 int git_config_from_parameters(config_fn_t fn, void *data);
@@ -174,12 +171,12 @@ void git_config(config_fn_t fn, void *);
  *
  * - `opts`
  * Specify options to adjust the behavior of parsing config files. See `struct
- * config_options` in `config.h` for details. As an example: regular `git_config`
- * sets `opts.respect_includes` to `1` by default.
+ * config_options` in `config.h` for details. As an example: regular
+ * `git_config` sets `opts.respect_includes` to `1` by default.
  */
 int config_with_options(config_fn_t fn, void *,
-                        struct git_config_source *config_source,
-                        const struct config_options *opts);
+			struct git_config_source *config_source,
+			const struct config_options *opts);
 
 /**
  * Value Parsing Helpers
@@ -277,19 +274,24 @@ int git_config_key_is_valid(const char *key);
  */
 #define CONFIG_FLAGS_FIXED_VALUE (1 << 1)
 
-int git_config_set_multivar_gently(const char *, const char *, const char *, unsigned);
-void git_config_set_multivar(const char *, const char *, const char *, unsigned);
-int git_config_set_multivar_in_file_gently(const char *, const char *, const char *, const char *, unsigned);
+int git_config_set_multivar_gently(const char *, const char *, const char *,
+				   unsigned);
+void git_config_set_multivar(const char *, const char *, const char *,
+			     unsigned);
+int git_config_set_multivar_in_file_gently(const char *, const char *,
+					   const char *, const char *,
+					   unsigned);
 
 /**
  * takes four parameters:
  *
- * - the name of the file, as a string, to which key/value pairs will be written.
+ * - the name of the file, as a string, to which key/value pairs will be
+ * written.
  *
- * - the name of key, as a string. This is in canonical "flat" form: the section,
- *   subsection, and variable segments will be separated by dots, and the section
- *   and variable segments will be all lowercase.
- *   E.g., `core.ignorecase`, `diff.SomeType.textconv`.
+ * - the name of key, as a string. This is in canonical "flat" form: the
+ * section, subsection, and variable segments will be separated by dots, and the
+ * section and variable segments will be all lowercase. E.g., `core.ignorecase`,
+ * `diff.SomeType.textconv`.
  *
  * - the value of the variable, as a string. If value is equal to NULL, it will
  *   remove the matching key from the config file.
@@ -302,10 +304,8 @@ int git_config_set_multivar_in_file_gently(const char *, const char *, const cha
  * It returns 0 on success.
  */
 void git_config_set_multivar_in_file(const char *config_filename,
-                                     const char *key,
-                                     const char *value,
-                                     const char *value_pattern,
-                                     unsigned flags);
+				     const char *key, const char *value,
+				     const char *value_pattern, unsigned flags);
 
 /**
  * rename or remove sections in the config file
@@ -359,12 +359,15 @@ int current_config_line(void);
  *
  */
 struct config_include_data {
-    int depth;
-    config_fn_t fn;
-    void *data;
-    const struct config_options *opts;
+	int depth;
+	config_fn_t fn;
+	void *data;
+	const struct config_options *opts;
 };
-#define CONFIG_INCLUDE_INIT { 0 }
+#define CONFIG_INCLUDE_INIT \
+	{                   \
+		0           \
+	}
 int git_config_include(const char *name, const char *value, void *data);
 
 /*
@@ -380,10 +383,9 @@ int git_config_include(const char *name, const char *value, void *data);
  * If the subsection pointer-to-pointer passed in is NULL, returns 0 only if
  * there is no subsection at all.
  */
-int parse_config_key(const char *var,
-                     const char *section,
-                     const char **subsection, size_t *subsection_len,
-                     const char **key);
+int parse_config_key(const char *var, const char *section,
+		     const char **subsection, size_t *subsection_len,
+		     const char **key);
 
 /**
  * Custom Configsets
@@ -413,14 +415,14 @@ int parse_config_key(const char *var,
  */
 
 struct config_set_element {
-    struct hashmap_entry ent;
-    char *key;
-    struct string_list value_list;
+	struct hashmap_entry ent;
+	char *key;
+	struct string_list value_list;
 };
 
 struct configset_list_item {
-    struct config_set_element *e;
-    int value_index;
+	struct config_set_element *e;
+	int value_index;
 };
 
 /*
@@ -430,14 +432,14 @@ struct configset_list_item {
  * be at the last item of the list)
  */
 struct configset_list {
-    struct configset_list_item *items;
-    unsigned int nr, alloc;
+	struct configset_list_item *items;
+	unsigned int nr, alloc;
 };
 
 struct config_set {
-    struct hashmap config_hash;
-    int hash_initialized;
-    struct configset_list list;
+	struct hashmap config_hash;
+	int hash_initialized;
+	struct configset_list list;
 };
 
 /**
@@ -460,7 +462,8 @@ int git_configset_add_file(struct config_set *cs, const char *filename);
  * configuration variable `key` is not found, returns NULL. The caller
  * should not free or modify the returned pointer, as it is owned by the cache.
  */
-const struct string_list *git_configset_get_value_multi(struct config_set *cs, const char *key);
+const struct string_list *git_configset_get_value_multi(struct config_set *cs,
+							const char *key);
 
 /**
  * Clears `config_set` structure, removes all saved variable-value pairs.
@@ -479,40 +482,45 @@ void git_configset_clear(struct config_set *cs);
  * touching `value`. The caller should not free or modify `value`, as it
  * is owned by the cache.
  */
-int git_configset_get_value(struct config_set *cs, const char *key, const char **dest);
+int git_configset_get_value(struct config_set *cs, const char *key,
+			    const char **dest);
 
-int git_configset_get_string(struct config_set *cs, const char *key, char **dest);
-int git_configset_get_string_tmp(struct config_set *cs, const char *key, const char **dest);
+int git_configset_get_string(struct config_set *cs, const char *key,
+			     char **dest);
+int git_configset_get_string_tmp(struct config_set *cs, const char *key,
+				 const char **dest);
 int git_configset_get_int(struct config_set *cs, const char *key, int *dest);
-int git_configset_get_ulong(struct config_set *cs, const char *key, unsigned long *dest);
+int git_configset_get_ulong(struct config_set *cs, const char *key,
+			    unsigned long *dest);
 int git_configset_get_bool(struct config_set *cs, const char *key, int *dest);
-int git_configset_get_bool_or_int(struct config_set *cs, const char *key, int *is_bool, int *dest);
-int git_configset_get_maybe_bool(struct config_set *cs, const char *key, int *dest);
-int git_configset_get_pathname(struct config_set *cs, const char *key, const char **dest);
+int git_configset_get_bool_or_int(struct config_set *cs, const char *key,
+				  int *is_bool, int *dest);
+int git_configset_get_maybe_bool(struct config_set *cs, const char *key,
+				 int *dest);
+int git_configset_get_pathname(struct config_set *cs, const char *key,
+			       const char **dest);
 
 /* Functions for reading a repository's config */
 struct repository;
 void repo_config(struct repository *repo, config_fn_t fn, void *data);
-int repo_config_get_value(struct repository *repo,
-                          const char *key, const char **value);
+int repo_config_get_value(struct repository *repo, const char *key,
+			  const char **value);
 const struct string_list *repo_config_get_value_multi(struct repository *repo,
-        const char *key);
-int repo_config_get_string(struct repository *repo,
-                           const char *key, char **dest);
-int repo_config_get_string_tmp(struct repository *repo,
-                               const char *key, const char **dest);
-int repo_config_get_int(struct repository *repo,
-                        const char *key, int *dest);
-int repo_config_get_ulong(struct repository *repo,
-                          const char *key, unsigned long *dest);
-int repo_config_get_bool(struct repository *repo,
-                         const char *key, int *dest);
-int repo_config_get_bool_or_int(struct repository *repo,
-                                const char *key, int *is_bool, int *dest);
-int repo_config_get_maybe_bool(struct repository *repo,
-                               const char *key, int *dest);
-int repo_config_get_pathname(struct repository *repo,
-                             const char *key, const char **dest);
+						      const char *key);
+int repo_config_get_string(struct repository *repo, const char *key,
+			   char **dest);
+int repo_config_get_string_tmp(struct repository *repo, const char *key,
+			       const char **dest);
+int repo_config_get_int(struct repository *repo, const char *key, int *dest);
+int repo_config_get_ulong(struct repository *repo, const char *key,
+			  unsigned long *dest);
+int repo_config_get_bool(struct repository *repo, const char *key, int *dest);
+int repo_config_get_bool_or_int(struct repository *repo, const char *key,
+				int *is_bool, int *dest);
+int repo_config_get_maybe_bool(struct repository *repo, const char *key,
+			       int *dest);
+int repo_config_get_pathname(struct repository *repo, const char *key,
+			     const char **dest);
 
 /**
  * Querying For Specific Variables
@@ -613,13 +621,14 @@ int git_config_get_fsmonitor(void);
 int git_config_get_expiry(const char *key, const char **output);
 
 /* parse either "this many days" integer, or "5.days.ago" approxidate */
-int git_config_get_expiry_in_days(const char *key, timestamp_t *, timestamp_t now);
+int git_config_get_expiry_in_days(const char *key, timestamp_t *,
+				  timestamp_t now);
 
 struct key_value_info {
-    const char *filename;
-    int linenr;
-    enum config_origin_type origin_type;
-    enum config_scope scope;
+	const char *filename;
+	int linenr;
+	enum config_origin_type origin_type;
+	enum config_scope scope;
 };
 
 /**
@@ -627,7 +636,8 @@ struct key_value_info {
  * dies printing the line number and the file name of the highest priority
  * value for the configuration variable `key`.
  */
-NORETURN void git_die_config(const char *key, const char *err, ...) __attribute__((format(printf, 2, 3)));
+NORETURN void git_die_config(const char *key, const char *err, ...)
+	__attribute__((format(printf, 2, 3)));
 
 /**
  * Helper function which formats the die error message according to the
@@ -635,7 +645,8 @@ NORETURN void git_die_config(const char *key, const char *err, ...) __attribute_
  * handling `git_config_get_value_multi()` to print the correct error message
  * for the desired value.
  */
-NORETURN void git_die_config_linenr(const char *key, const char *filename, int linenr);
+NORETURN void git_die_config_linenr(const char *key, const char *filename,
+				    int linenr);
 
 #define LOOKUP_CONFIG(mapping, var) \
 	lookup_config(mapping, ARRAY_SIZE(mapping), var)
