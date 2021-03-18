@@ -5,12 +5,12 @@ struct repository;
 struct strbuf;
 
 enum branch_track {
-	BRANCH_TRACK_UNSPECIFIED = -1,
-	BRANCH_TRACK_NEVER = 0,
-	BRANCH_TRACK_REMOTE,
-	BRANCH_TRACK_ALWAYS,
-	BRANCH_TRACK_EXPLICIT,
-	BRANCH_TRACK_OVERRIDE
+    BRANCH_TRACK_UNSPECIFIED = -1,
+    BRANCH_TRACK_NEVER = 0,
+    BRANCH_TRACK_REMOTE,
+    BRANCH_TRACK_ALWAYS,
+    BRANCH_TRACK_EXPLICIT,
+    BRANCH_TRACK_OVERRIDE
 };
 
 extern enum branch_track git_branch_track;
@@ -41,9 +41,9 @@ extern enum branch_track git_branch_track;
  *
  */
 void create_branch(struct repository *r,
-		   const char *name, const char *start_name,
-		   int force, int clobber_head_ok,
-		   int reflog, int quiet, enum branch_track track);
+                   const char *name, const char *start_name,
+                   int force, int clobber_head_ok,
+                   int reflog, int quiet, enum branch_track track);
 
 /*
  * Check if 'name' can be a valid name for a branch; die otherwise.
@@ -98,6 +98,6 @@ void die_if_checked_out(const char *branch, int ignore_current_worktree);
  * otherwise.
  */
 int replace_each_worktree_head_symref(const char *oldref, const char *newref,
-				      const char *logmsg);
+                                      const char *logmsg);
 
 #endif

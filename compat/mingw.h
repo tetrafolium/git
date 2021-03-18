@@ -85,29 +85,29 @@ typedef int pid_t;
 #endif
 
 struct passwd {
-	char *pw_name;
-	char *pw_gecos;
-	char *pw_dir;
+    char *pw_name;
+    char *pw_gecos;
+    char *pw_dir;
 };
 
 typedef void (__cdecl *sig_handler_t)(int);
 struct sigaction {
-	sig_handler_t sa_handler;
-	unsigned sa_flags;
+    sig_handler_t sa_handler;
+    unsigned sa_flags;
 };
 #define SA_RESTART 0
 
 struct itimerval {
-	struct timeval it_value, it_interval;
+    struct timeval it_value, it_interval;
 };
 #define ITIMER_REAL 0
 
 struct utsname {
-	char sysname[16];
-	char nodename[1];
-	char release[16];
-	char version[16];
-	char machine[1];
+    char sysname[16];
+    char nodename[1];
+    char release[16];
+    char version[16];
+    char machine[1];
 };
 
 /*
@@ -121,46 +121,76 @@ struct utsname {
  */
 
 static inline int readlink(const char *path, char *buf, size_t bufsiz)
-{ errno = ENOSYS; return -1; }
+{
+    errno = ENOSYS;
+    return -1;
+}
 static inline int symlink(const char *oldpath, const char *newpath)
-{ errno = ENOSYS; return -1; }
+{
+    errno = ENOSYS;
+    return -1;
+}
 static inline int fchmod(int fildes, mode_t mode)
-{ errno = ENOSYS; return -1; }
+{
+    errno = ENOSYS;
+    return -1;
+}
 #ifndef __MINGW64_VERSION_MAJOR
 static inline pid_t fork(void)
-{ errno = ENOSYS; return -1; }
+{
+    errno = ENOSYS;
+    return -1;
+}
 #endif
 static inline unsigned int alarm(unsigned int seconds)
-{ return 0; }
+{
+    return 0;
+}
 static inline int fsync(int fd)
-{ return _commit(fd); }
+{
+    return _commit(fd);
+}
 static inline void sync(void)
 {}
 static inline uid_t getuid(void)
-{ return 1; }
+{
+    return 1;
+}
 static inline struct passwd *getpwnam(const char *name)
-{ return NULL; }
+{
+    return NULL;
+}
 static inline int fcntl(int fd, int cmd, ...)
 {
-	if (cmd == F_GETFD || cmd == F_SETFD)
-		return 0;
-	errno = EINVAL;
-	return -1;
+    if (cmd == F_GETFD || cmd == F_SETFD)
+        return 0;
+    errno = EINVAL;
+    return -1;
 }
 
 #define sigemptyset(x) (void)0
 static inline int sigaddset(sigset_t *set, int signum)
-{ return 0; }
+{
+    return 0;
+}
 #define SIG_BLOCK 0
 #define SIG_UNBLOCK 0
 static inline int sigprocmask(int how, const sigset_t *set, sigset_t *oldset)
-{ return 0; }
+{
+    return 0;
+}
 static inline pid_t getppid(void)
-{ return 1; }
+{
+    return 1;
+}
 static inline pid_t getpgid(pid_t pid)
-{ return pid == 0 ? getpid() : pid; }
+{
+    return pid == 0 ? getpid() : pid;
+}
 static inline pid_t tcgetpgrp(int fd)
-{ return getpid(); }
+{
+    return getpid();
+}
 
 /*
  * simple adaptors
@@ -179,19 +209,19 @@ int mingw_kill(pid_t pid, int sig);
 #include <openssl/ssl.h>
 static inline int mingw_SSL_set_fd(SSL *ssl, int fd)
 {
-	return SSL_set_fd(ssl, _get_osfhandle(fd));
+    return SSL_set_fd(ssl, _get_osfhandle(fd));
 }
 #define SSL_set_fd mingw_SSL_set_fd
 
 static inline int mingw_SSL_set_rfd(SSL *ssl, int fd)
 {
-	return SSL_set_rfd(ssl, _get_osfhandle(fd));
+    return SSL_set_rfd(ssl, _get_osfhandle(fd));
 }
 #define SSL_set_rfd mingw_SSL_set_rfd
 
 static inline int mingw_SSL_set_wfd(SSL *ssl, int fd)
 {
-	return SSL_set_wfd(ssl, _get_osfhandle(fd));
+    return SSL_set_wfd(ssl, _get_osfhandle(fd));
 }
 #define SSL_set_wfd mingw_SSL_set_wfd
 #endif
@@ -297,7 +327,7 @@ struct hostent *mingw_gethostbyname(const char *host);
 #define gethostbyname mingw_gethostbyname
 
 int mingw_getaddrinfo(const char *node, const char *service,
-		      const struct addrinfo *hints, struct addrinfo **res);
+                      const struct addrinfo *hints, struct addrinfo **res);
 #define getaddrinfo mingw_getaddrinfo
 
 int mingw_socket(int domain, int type, int protocol);
@@ -330,19 +360,19 @@ int mingw_getpagesize(void);
 #endif
 
 struct rlimit {
-	unsigned int rlim_cur;
+    unsigned int rlim_cur;
 };
 #define RLIMIT_NOFILE 0
 
 static inline int getrlimit(int resource, struct rlimit *rlp)
 {
-	if (resource != RLIMIT_NOFILE) {
-		errno = EINVAL;
-		return -1;
-	}
+    if (resource != RLIMIT_NOFILE) {
+        errno = EINVAL;
+        return -1;
+    }
 
-	rlp->rlim_cur = 2048;
-	return 0;
+    rlp->rlim_cur = 2048;
+    return 0;
 }
 
 /*
@@ -355,8 +385,8 @@ static inline int getrlimit(int resource, struct rlimit *rlp)
 #define lseek _lseeki64
 #ifndef _MSC_VER
 struct timespec {
-	time_t tv_sec;
-	long tv_nsec;
+    time_t tv_sec;
+    long tv_nsec;
 };
 #endif
 #endif
@@ -399,19 +429,21 @@ int mingw_fstat(int fd, struct stat *buf);
 int mingw_utime(const char *file_name, const struct utimbuf *times);
 #define utime mingw_utime
 size_t mingw_strftime(char *s, size_t max,
-		   const char *format, const struct tm *tm);
+                      const char *format, const struct tm *tm);
 #define strftime mingw_strftime
 
 pid_t mingw_spawnvpe(const char *cmd, const char **argv, char **env,
-		     const char *dir,
-		     int fhin, int fhout, int fherr);
+                     const char *dir,
+                     int fhin, int fhout, int fherr);
 int mingw_execvp(const char *cmd, char *const *argv);
 #define execvp mingw_execvp
 int mingw_execv(const char *cmd, char *const *argv);
 #define execv mingw_execv
 
 static inline unsigned int git_ntohl(unsigned int x)
-{ return (unsigned int)ntohl(x); }
+{
+    return (unsigned int)ntohl(x);
+}
 #define ntohl git_ntohl
 
 sig_handler_t mingw_signal(int sig, sig_handler_t handler);
@@ -439,9 +471,9 @@ HANDLE winansi_get_osfhandle(int fd);
 
 static inline void convert_slashes(char *path)
 {
-	for (; *path; path++)
-		if (*path == '\\')
-			*path = '/';
+    for (; *path; path++)
+        if (*path == '\\')
+            *path = '/';
 }
 #define PATH_SEP ';'
 char *mingw_query_user_email(void);
@@ -528,7 +560,7 @@ int xutftowcsn(wchar_t *wcs, const char *utf, size_t wcslen, int utflen);
  */
 static inline int xutftowcs(wchar_t *wcs, const char *utf, size_t wcslen)
 {
-	return xutftowcsn(wcs, utf, wcslen, -1);
+    return xutftowcsn(wcs, utf, wcslen, -1);
 }
 
 /**
@@ -538,10 +570,10 @@ static inline int xutftowcs(wchar_t *wcs, const char *utf, size_t wcslen)
  */
 static inline int xutftowcs_path(wchar_t *wcs, const char *utf)
 {
-	int result = xutftowcsn(wcs, utf, MAX_PATH, -1);
-	if (result < 0 && errno == ERANGE)
-		errno = ENAMETOOLONG;
-	return result;
+    int result = xutftowcsn(wcs, utf, MAX_PATH, -1);
+    if (result < 0 && errno == ERANGE)
+        errno = ENAMETOOLONG;
+    return result;
 }
 
 /**

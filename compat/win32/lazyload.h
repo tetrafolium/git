@@ -16,10 +16,10 @@
  */
 
 struct proc_addr {
-	const char *const dll;
-	const char *const function;
-	FARPROC pfunction;
-	unsigned initialized : 1;
+    const char *const dll;
+    const char *const function;
+    FARPROC pfunction;
+    unsigned initialized : 1;
 };
 
 /* Declares a function to be loaded dynamically from a DLL. */
@@ -39,19 +39,19 @@ struct proc_addr {
 
 static inline void *get_proc_addr(struct proc_addr *proc)
 {
-	/* only do this once */
-	if (!proc->initialized) {
-		HANDLE hnd;
-		proc->initialized = 1;
-		hnd = LoadLibraryExA(proc->dll, NULL,
-				     LOAD_LIBRARY_SEARCH_SYSTEM32);
-		if (hnd)
-			proc->pfunction = GetProcAddress(hnd, proc->function);
-	}
-	/* set ENOSYS if DLL or function was not found */
-	if (!proc->pfunction)
-		errno = ENOSYS;
-	return proc->pfunction;
+    /* only do this once */
+    if (!proc->initialized) {
+        HANDLE hnd;
+        proc->initialized = 1;
+        hnd = LoadLibraryExA(proc->dll, NULL,
+                             LOAD_LIBRARY_SEARCH_SYSTEM32);
+        if (hnd)
+            proc->pfunction = GetProcAddress(hnd, proc->function);
+    }
+    /* set ENOSYS if DLL or function was not found */
+    if (!proc->pfunction)
+        errno = ENOSYS;
+    return proc->pfunction;
 }
 
 #endif

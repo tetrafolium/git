@@ -66,8 +66,8 @@
  * string, and you may use the `util` member for any purpose, if you want.
  */
 struct string_list_item {
-	char *string;
-	void *util;
+    char *string;
+    void *util;
 };
 
 typedef int (*compare_strings_fn)(const char *, const char *);
@@ -85,10 +85,10 @@ typedef int (*compare_strings_fn)(const char *, const char *);
  *   function, otherwise `strcmp()` is used as the default function.
  */
 struct string_list {
-	struct string_list_item *items;
-	unsigned int nr, alloc;
-	unsigned int strdup_strings:1;
-	compare_strings_fn cmp; /* NULL uses strcmp() */
+    struct string_list_item *items;
+    unsigned int nr, alloc;
+    unsigned int strdup_strings:1;
+    compare_strings_fn cmp; /* NULL uses strcmp() */
 };
 
 #define STRING_LIST_INIT_NODUP { NULL, 0, 0, 0, NULL }
@@ -112,7 +112,7 @@ typedef int (*string_list_each_func_t)(struct string_list_item *, void *);
  * the order of the items that are retained.
  */
 void filter_string_list(struct string_list *list, int free_util,
-			string_list_each_func_t want, void *cb_data);
+                        string_list_each_func_t want, void *cb_data);
 
 /**
  * Free a string_list. The `string` pointer of the items will be freed
@@ -136,7 +136,7 @@ void string_list_clear_func(struct string_list *list, string_list_clear_func_t c
  * iteration aborts and the return value is propagated.
  */
 int for_each_string_list(struct string_list *list,
-			 string_list_each_func_t func, void *cb_data);
+                         string_list_each_func_t func, void *cb_data);
 
 /** Iterate over each item, as a macro. */
 #define for_each_string_list_item(item,list)            \
@@ -156,7 +156,7 @@ void string_list_remove_empty_items(struct string_list *list, int free_util);
 /** Determine if the string_list has a given string or not. */
 int string_list_has_string(const struct string_list *list, const char *string);
 int string_list_find_insert_index(const struct string_list *list, const char *string,
-				  int negative_existing_index);
+                                  int negative_existing_index);
 
 /**
  * Insert a new element to the string_list. The returned pointer can
@@ -176,7 +176,7 @@ struct string_list_item *string_list_insert(struct string_list *list, const char
  * doesn't exist, the list is not altered.
  */
 void string_list_remove(struct string_list *list, const char *string,
-			int free_util);
+                        int free_util);
 
 /**
  * Check if the given string is part of a sorted list. If it is part of the list,
@@ -226,7 +226,7 @@ int unsorted_string_list_has_string(struct string_list *list, const char *string
  * of the list.
  */
 struct string_list_item *unsorted_string_list_lookup(struct string_list *list,
-						     const char *string);
+        const char *string);
 /**
  * Remove an item from a string_list. The `string` pointer of the
  * items will be freed in case the `strdup_strings` member of the
@@ -252,7 +252,7 @@ void unsorted_string_list_delete_item(struct string_list *list, int i, int free_
  *   string_list_split(l, ":", ':', -1) -> ["", ""]
  */
 int string_list_split(struct string_list *list, const char *string,
-		      int delim, int maxsplit);
+                      int delim, int maxsplit);
 
 /*
  * Like string_list_split(), except that string is split in-place: the
@@ -262,5 +262,5 @@ int string_list_split(struct string_list *list, const char *string,
  * list->strdup_strings must *not* be set.
  */
 int string_list_split_in_place(struct string_list *list, char *string,
-			       int delim, int maxsplit);
+                               int delim, int maxsplit);
 #endif /* STRING_LIST_H */

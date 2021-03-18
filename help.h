@@ -5,18 +5,18 @@
 #include "strbuf.h"
 
 struct cmdnames {
-	int alloc;
-	int cnt;
-	struct cmdname {
-		size_t len; /* also used for similarity index in help.c */
-		char name[FLEX_ARRAY];
-	} **names;
+    int alloc;
+    int cnt;
+    struct cmdname {
+        size_t len; /* also used for similarity index in help.c */
+        char name[FLEX_ARRAY];
+    } **names;
 };
 
 static inline void mput_char(char c, unsigned int num)
 {
-	while (num--)
-		putchar(c);
+    while (num--)
+        putchar(c);
 }
 
 void list_common_cmds_help(void);
@@ -26,12 +26,12 @@ void list_guides_help(void);
 void list_all_main_cmds(struct string_list *list);
 void list_all_other_cmds(struct string_list *list);
 void list_cmds_by_category(struct string_list *list,
-			   const char *category);
+                           const char *category);
 void list_cmds_by_config(struct string_list *list);
 const char *help_unknown_cmd(const char *cmd);
 void load_command_list(const char *prefix,
-		       struct cmdnames *main_cmds,
-		       struct cmdnames *other_cmds);
+                       struct cmdnames *main_cmds,
+                       struct cmdnames *other_cmds);
 void load_builtin_commands(const char *prefix, struct cmdnames *cmds);
 void add_cmdname(struct cmdnames *cmds, const char *name, int len);
 /* Here we require that excludes is a sorted list. */
@@ -47,10 +47,10 @@ void get_version_info(struct strbuf *buf, int show_build_options);
 NORETURN void help_unknown_ref(const char *ref, const char *cmd, const char *error);
 
 static inline void list_config_item(struct string_list *list,
-				    const char *prefix,
-				    const char *str)
+                                    const char *prefix,
+                                    const char *str)
 {
-	string_list_append_nodup(list, xstrfmt("%s.%s", prefix, str));
+    string_list_append_nodup(list, xstrfmt("%s.%s", prefix, str));
 }
 
 #define define_list_config_array(array)					\

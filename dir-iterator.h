@@ -69,25 +69,25 @@
 #define DIR_ITERATOR_FOLLOW_SYMLINKS (1 << 1)
 
 struct dir_iterator {
-	/* The current path: */
-	struct strbuf path;
+    /* The current path: */
+    struct strbuf path;
 
-	/*
-	 * The current path relative to the starting path. This part
-	 * of the path always uses "/" characters to separate path
-	 * components:
-	 */
-	const char *relative_path;
+    /*
+     * The current path relative to the starting path. This part
+     * of the path always uses "/" characters to separate path
+     * components:
+     */
+    const char *relative_path;
 
-	/* The current basename: */
-	const char *basename;
+    /* The current basename: */
+    const char *basename;
 
-	/*
-	 * The result of calling lstat() on path; or stat(), if the
-	 * DIR_ITERATOR_FOLLOW_SYMLINKS flag was set at
-	 * dir_iterator's initialization.
-	 */
-	struct stat st;
+    /*
+     * The result of calling lstat() on path; or stat(), if the
+     * DIR_ITERATOR_FOLLOW_SYMLINKS flag was set at
+     * dir_iterator's initialization.
+     */
+    struct stat st;
 };
 
 /*

@@ -5,37 +5,37 @@ struct commit;
 struct repository;
 
 struct bloom_filter_settings {
-	/*
-	 * The version of the hashing technique being used.
-	 * We currently only support version = 1 which is
-	 * the seeded murmur3 hashing technique implemented
-	 * in bloom.c.
-	 */
-	uint32_t hash_version;
+    /*
+     * The version of the hashing technique being used.
+     * We currently only support version = 1 which is
+     * the seeded murmur3 hashing technique implemented
+     * in bloom.c.
+     */
+    uint32_t hash_version;
 
-	/*
-	 * The number of times a path is hashed, i.e. the
-	 * number of bit positions tht cumulatively
-	 * determine whether a path is present in the
-	 * Bloom filter.
-	 */
-	uint32_t num_hashes;
+    /*
+     * The number of times a path is hashed, i.e. the
+     * number of bit positions tht cumulatively
+     * determine whether a path is present in the
+     * Bloom filter.
+     */
+    uint32_t num_hashes;
 
-	/*
-	 * The minimum number of bits per entry in the Bloom
-	 * filter. If the filter contains 'n' entries, then
-	 * filter size is the minimum number of 8-bit words
-	 * that contain n*b bits.
-	 */
-	uint32_t bits_per_entry;
+    /*
+     * The minimum number of bits per entry in the Bloom
+     * filter. If the filter contains 'n' entries, then
+     * filter size is the minimum number of 8-bit words
+     * that contain n*b bits.
+     */
+    uint32_t bits_per_entry;
 
-	/*
-	 * The maximum number of changed paths per commit
-	 * before declaring a Bloom filter to be too-large.
-	 *
-	 * Not written to the commit-graph file.
-	 */
-	uint32_t max_changed_paths;
+    /*
+     * The maximum number of changed paths per commit
+     * before declaring a Bloom filter to be too-large.
+     *
+     * Not written to the commit-graph file.
+     */
+    uint32_t max_changed_paths;
 };
 
 #define DEFAULT_BLOOM_MAX_CHANGES 512
@@ -50,8 +50,8 @@ struct bloom_filter_settings {
  * 'data'.
  */
 struct bloom_filter {
-	unsigned char *data;
-	size_t len;
+    unsigned char *data;
+    size_t len;
 };
 
 /*
@@ -65,7 +65,7 @@ struct bloom_filter {
  * the Bloom data chunks.
  */
 struct bloom_key {
-	uint32_t *hashes;
+    uint32_t *hashes;
 };
 
 /*
@@ -78,35 +78,35 @@ struct bloom_key {
 uint32_t murmur3_seeded(uint32_t seed, const char *data, size_t len);
 
 void fill_bloom_key(const char *data,
-		    size_t len,
-		    struct bloom_key *key,
-		    const struct bloom_filter_settings *settings);
+                    size_t len,
+                    struct bloom_key *key,
+                    const struct bloom_filter_settings *settings);
 void clear_bloom_key(struct bloom_key *key);
 
 void add_key_to_filter(const struct bloom_key *key,
-		       struct bloom_filter *filter,
-		       const struct bloom_filter_settings *settings);
+                       struct bloom_filter *filter,
+                       const struct bloom_filter_settings *settings);
 
 void init_bloom_filters(void);
 
 enum bloom_filter_computed {
-	BLOOM_NOT_COMPUTED = (1 << 0),
-	BLOOM_COMPUTED     = (1 << 1),
-	BLOOM_TRUNC_LARGE  = (1 << 2),
-	BLOOM_TRUNC_EMPTY  = (1 << 3),
+    BLOOM_NOT_COMPUTED = (1 << 0),
+    BLOOM_COMPUTED     = (1 << 1),
+    BLOOM_TRUNC_LARGE  = (1 << 2),
+    BLOOM_TRUNC_EMPTY  = (1 << 3),
 };
 
 struct bloom_filter *get_or_compute_bloom_filter(struct repository *r,
-						 struct commit *c,
-						 int compute_if_not_present,
-						 const struct bloom_filter_settings *settings,
-						 enum bloom_filter_computed *computed);
+        struct commit *c,
+        int compute_if_not_present,
+        const struct bloom_filter_settings *settings,
+        enum bloom_filter_computed *computed);
 
 #define get_bloom_filter(r, c) get_or_compute_bloom_filter( \
 	(r), (c), 0, NULL, NULL)
 
 int bloom_filter_contains(const struct bloom_filter *filter,
-			  const struct bloom_key *key,
-			  const struct bloom_filter_settings *settings);
+                          const struct bloom_key *key,
+                          const struct bloom_filter_settings *settings);
 
 #endif

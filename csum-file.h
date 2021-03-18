@@ -7,22 +7,22 @@ struct progress;
 
 /* A SHA1-protected file */
 struct hashfile {
-	int fd;
-	int check_fd;
-	unsigned int offset;
-	git_hash_ctx ctx;
-	off_t total;
-	struct progress *tp;
-	const char *name;
-	int do_crc;
-	uint32_t crc32;
-	unsigned char buffer[8192];
+    int fd;
+    int check_fd;
+    unsigned int offset;
+    git_hash_ctx ctx;
+    off_t total;
+    struct progress *tp;
+    const char *name;
+    int do_crc;
+    uint32_t crc32;
+    unsigned char buffer[8192];
 };
 
 /* Checkpoint */
 struct hashfile_checkpoint {
-	off_t offset;
-	git_hash_ctx ctx;
+    off_t offset;
+    git_hash_ctx ctx;
 };
 
 void hashfile_checkpoint(struct hashfile *, struct hashfile_checkpoint *);
@@ -48,25 +48,25 @@ uint32_t crc32_end(struct hashfile *);
  */
 static inline off_t hashfile_total(struct hashfile *f)
 {
-	return f->total + f->offset;
+    return f->total + f->offset;
 }
 
 static inline void hashwrite_u8(struct hashfile *f, uint8_t data)
 {
-	hashwrite(f, &data, sizeof(data));
+    hashwrite(f, &data, sizeof(data));
 }
 
 static inline void hashwrite_be32(struct hashfile *f, uint32_t data)
 {
-	data = htonl(data);
-	hashwrite(f, &data, sizeof(data));
+    data = htonl(data);
+    hashwrite(f, &data, sizeof(data));
 }
 
 static inline size_t hashwrite_be64(struct hashfile *f, uint64_t data)
 {
-	data = htonll(data);
-	hashwrite(f, &data, sizeof(data));
-	return sizeof(data);
+    data = htonll(data);
+    hashwrite(f, &data, sizeof(data));
+    return sizeof(data);
 }
 
 #endif

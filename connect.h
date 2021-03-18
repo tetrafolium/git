@@ -23,10 +23,10 @@ const char *parse_feature_value(const char *feature_list, const char *feature, i
 int server_supports_v2(const char *c, int die_on_error);
 int server_feature_v2(const char *c, const char **v);
 int server_supports_feature(const char *c, const char *feature,
-			    int die_on_error);
+                            int die_on_error);
 
 void check_stateless_delimiter(int stateless_rpc,
-			       struct packet_reader *reader,
-			       const char *error);
+                               struct packet_reader *reader,
+                               const char *error);
 
 #endif

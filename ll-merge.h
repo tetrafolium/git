@@ -48,38 +48,38 @@ struct index_state;
  */
 struct ll_merge_options {
 
-	/**
-	 * Behave as though this were part of a merge between common ancestors in
-	 * a recursive merge (merges of binary files may need to be handled
-	 * differently in such cases, for example). If a helper program is
-	 * specified by the `[merge "<driver>"] recursive` configuration, it will
-	 * be used.
-	 */
-	unsigned virtual_ancestor : 1;
+    /**
+     * Behave as though this were part of a merge between common ancestors in
+     * a recursive merge (merges of binary files may need to be handled
+     * differently in such cases, for example). If a helper program is
+     * specified by the `[merge "<driver>"] recursive` configuration, it will
+     * be used.
+     */
+    unsigned virtual_ancestor : 1;
 
-	/**
-	 * Resolve local conflicts automatically in favor of one side or the other
-	 * (as in 'git merge-file' `--ours`/`--theirs`/`--union`).  Can be `0`,
-	 * `XDL_MERGE_FAVOR_OURS`, `XDL_MERGE_FAVOR_THEIRS`,
-	 * or `XDL_MERGE_FAVOR_UNION`.
-	 */
-	unsigned variant : 2;
+    /**
+     * Resolve local conflicts automatically in favor of one side or the other
+     * (as in 'git merge-file' `--ours`/`--theirs`/`--union`).  Can be `0`,
+     * `XDL_MERGE_FAVOR_OURS`, `XDL_MERGE_FAVOR_THEIRS`,
+     * or `XDL_MERGE_FAVOR_UNION`.
+     */
+    unsigned variant : 2;
 
-	/**
-	 * Resmudge and clean the "base", "theirs" and "ours" files before merging.
-	 * Use this when the merge is likely to have overlapped with a change in
-	 * smudge/clean or end-of-line normalization rules.
-	 */
-	unsigned renormalize : 1;
+    /**
+     * Resmudge and clean the "base", "theirs" and "ours" files before merging.
+     * Use this when the merge is likely to have overlapped with a change in
+     * smudge/clean or end-of-line normalization rules.
+     */
+    unsigned renormalize : 1;
 
-	/**
-	 * Increase the length of conflict markers so that nested conflicts
-	 * can be differentiated.
-	 */
-	unsigned extra_marker_size;
+    /**
+     * Increase the length of conflict markers so that nested conflicts
+     * can be differentiated.
+     */
+    unsigned extra_marker_size;
 
-	/* Extra xpparam_t flags as defined in xdiff/xdiff.h. */
-	long xdl_opts;
+    /* Extra xpparam_t flags as defined in xdiff/xdiff.h. */
+    long xdl_opts;
 };
 
 /**
@@ -89,12 +89,12 @@ struct ll_merge_options {
  * Returns 0 for a clean merge.
  */
 int ll_merge(mmbuffer_t *result_buf,
-	     const char *path,
-	     mmfile_t *ancestor, const char *ancestor_label,
-	     mmfile_t *ours, const char *our_label,
-	     mmfile_t *theirs, const char *their_label,
-	     struct index_state *istate,
-	     const struct ll_merge_options *opts);
+             const char *path,
+             mmfile_t *ancestor, const char *ancestor_label,
+             mmfile_t *ours, const char *our_label,
+             mmfile_t *theirs, const char *their_label,
+             struct index_state *istate,
+             const struct ll_merge_options *opts);
 
 int ll_merge_marker_size(struct index_state *istate, const char *path);
 void reset_merge_attributes(void);

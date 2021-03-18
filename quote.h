@@ -86,7 +86,7 @@ void quote_two_c_style(struct strbuf *, const char *, const char *, unsigned);
 
 void write_name_quoted(const char *name, FILE *, int terminator);
 void write_name_quoted_relative(const char *name, const char *prefix,
-				FILE *fp, int terminator);
+                                FILE *fp, int terminator);
 
 /* quote path as relative to the given prefix */
 char *quote_path(const char *in, const char *prefix, struct strbuf *out, unsigned flags);

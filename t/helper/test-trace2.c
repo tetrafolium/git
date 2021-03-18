@@ -8,9 +8,9 @@
 typedef int(fn_unit_test)(int argc, const char **argv);
 
 struct unit_test {
-	fn_unit_test *ut_fn;
-	const char *ut_name;
-	const char *ut_usage;
+    fn_unit_test *ut_fn;
+    const char *ut_name;
+    const char *ut_usage;
 };
 
 #define MyOk 0
@@ -18,16 +18,16 @@ struct unit_test {
 
 static int get_i(int *p_value, const char *data)
 {
-	char *endptr;
+    char *endptr;
 
-	if (!data || !*data)
-		return MyError;
+    if (!data || !*data)
+        return MyError;
 
-	*p_value = strtol(data, &endptr, 10);
-	if (*endptr || errno == ERANGE)
-		return MyError;
+    *p_value = strtol(data, &endptr, 10);
+    if (*endptr || errno == ERANGE)
+        return MyError;
 
-	return MyOk;
+    return MyOk;
 }
 
 /*
@@ -46,12 +46,12 @@ static int get_i(int *p_value, const char *data)
  */
 static int ut_001return(int argc, const char **argv)
 {
-	int rc;
+    int rc;
 
-	if (get_i(&rc, argv[0]))
-		die("expect <exit_code>");
+    if (get_i(&rc, argv[0]))
+        die("expect <exit_code>");
 
-	return rc;
+    return rc;
 }
 
 /*
@@ -66,12 +66,12 @@ static int ut_001return(int argc, const char **argv)
  */
 static int ut_002exit(int argc, const char **argv)
 {
-	int rc;
+    int rc;
 
-	if (get_i(&rc, argv[0]))
-		die("expect <exit_code>");
+    if (get_i(&rc, argv[0]))
+        die("expect <exit_code>");
 
-	exit(rc);
+    exit(rc);
 }
 
 /*
@@ -86,15 +86,15 @@ static int ut_002exit(int argc, const char **argv)
  */
 static int ut_003error(int argc, const char **argv)
 {
-	int k;
+    int k;
 
-	if (!argv[0] || !*argv[0])
-		die("expect <error_message>");
+    if (!argv[0] || !*argv[0])
+        die("expect <error_message>");
 
-	for (k = 0; k < argc; k++)
-		error("%s", argv[k]);
+    for (k = 0; k < argc; k++)
+        error("%s", argv[k]);
 
-	return 0;
+    return 0;
 }
 
 /*
@@ -132,17 +132,17 @@ static int ut_003error(int argc, const char **argv)
  */
 static int ut_004child(int argc, const char **argv)
 {
-	int result;
+    int result;
 
-	/*
-	 * Allow empty <child_command_line> so we can do arbitrarily deep
-	 * command nesting and let the last one be null.
-	 */
-	if (!argc)
-		return 0;
+    /*
+     * Allow empty <child_command_line> so we can do arbitrarily deep
+     * command nesting and let the last one be null.
+     */
+    if (!argc)
+        return 0;
 
-	result = run_command_v_opt(argv, 0);
-	exit(result);
+    result = run_command_v_opt(argv, 0);
+    exit(result);
 }
 
 /*
@@ -168,42 +168,42 @@ static int ut_004child(int argc, const char **argv)
  */
 static int ut_005exec(int argc, const char **argv)
 {
-	int result;
+    int result;
 
-	if (!argc)
-		return 0;
+    if (!argc)
+        return 0;
 
-	result = execv_git_cmd(argv);
-	return result;
+    result = execv_git_cmd(argv);
+    return result;
 }
 
 static int ut_006data(int argc, const char **argv)
 {
-	const char *usage_error =
-		"expect <cat0> <k0> <v0> [<cat1> <k1> <v1> [...]]";
+    const char *usage_error =
+        "expect <cat0> <k0> <v0> [<cat1> <k1> <v1> [...]]";
 
-	if (argc % 3 != 0)
-		die("%s", usage_error);
+    if (argc % 3 != 0)
+        die("%s", usage_error);
 
-	while (argc) {
-		if (!argv[0] || !*argv[0] || !argv[1] || !*argv[1] ||
-		    !argv[2] || !*argv[2])
-			die("%s", usage_error);
+    while (argc) {
+        if (!argv[0] || !*argv[0] || !argv[1] || !*argv[1] ||
+                !argv[2] || !*argv[2])
+            die("%s", usage_error);
 
-		trace2_data_string(argv[0], the_repository, argv[1], argv[2]);
-		argv += 3;
-		argc -= 3;
-	}
+        trace2_data_string(argv[0], the_repository, argv[1], argv[2]);
+        argv += 3;
+        argc -= 3;
+    }
 
-	return 0;
+    return 0;
 }
 
 static int ut_007bug(int argc, const char **argv)
 {
-	/*
-	 * Exercise BUG() to ensure that the message is printed to trace2.
-	 */
-	BUG("the bug message");
+    /*
+     * Exercise BUG() to ensure that the message is printed to trace2.
+     */
+    BUG("the bug message");
 }
 
 /*
@@ -216,13 +216,13 @@ static int ut_007bug(int argc, const char **argv)
 
 /* clang-format off */
 static struct unit_test ut_table[] = {
-	{ ut_001return,   "001return", "<exit_code>" },
-	{ ut_002exit,     "002exit",   "<exit_code>" },
-	{ ut_003error,    "003error",  "<error_message>+" },
-	{ ut_004child,    "004child",  "[<child_command_line>]" },
-	{ ut_005exec,     "005exec",   "<git_command_args>" },
-	{ ut_006data,     "006data",   "[<category> <key> <value>]+" },
-	{ ut_007bug,      "007bug",    "" },
+    { ut_001return,   "001return", "<exit_code>" },
+    { ut_002exit,     "002exit",   "<exit_code>" },
+    { ut_003error,    "003error",  "<error_message>+" },
+    { ut_004child,    "004child",  "[<child_command_line>]" },
+    { ut_005exec,     "005exec",   "<git_command_args>" },
+    { ut_006data,     "006data",   "[<category> <key> <value>]+" },
+    { ut_007bug,      "007bug",    "" },
 };
 /* clang-format on */
 
@@ -235,15 +235,15 @@ static struct unit_test ut_table[] = {
 
 static int print_usage(void)
 {
-	int k;
-	struct unit_test *ut_k;
+    int k;
+    struct unit_test *ut_k;
 
-	fprintf(stderr, "usage:\n");
-	for_each_ut (k, ut_k)
-		fprintf(stderr, "\t%s %s %s\n", USAGE_PREFIX, ut_k->ut_name,
-			ut_k->ut_usage);
+    fprintf(stderr, "usage:\n");
+    for_each_ut (k, ut_k)
+    fprintf(stderr, "\t%s %s %s\n", USAGE_PREFIX, ut_k->ut_name,
+            ut_k->ut_usage);
 
-	return 129;
+    return 129;
 }
 
 /*
@@ -267,16 +267,16 @@ static int print_usage(void)
  */
 int cmd__trace2(int argc, const char **argv)
 {
-	int k;
-	struct unit_test *ut_k;
+    int k;
+    struct unit_test *ut_k;
 
-	argc--; /* skip over "trace2" arg */
-	argv++;
+    argc--; /* skip over "trace2" arg */
+    argv++;
 
-	if (argc)
-		for_each_ut (k, ut_k)
-			if (!strcmp(argv[0], ut_k->ut_name))
-				return ut_k->ut_fn(argc - 1, argv + 1);
+    if (argc)
+        for_each_ut (k, ut_k)
+        if (!strcmp(argv[0], ut_k->ut_name))
+            return ut_k->ut_fn(argc - 1, argv + 1);
 
-	return print_usage();
+    return print_usage();
 }

@@ -40,10 +40,10 @@ const char *pack_basename(struct packed_git *p);
 struct packed_git *parse_pack_index(unsigned char *sha1, const char *idx_path);
 
 typedef void each_file_in_pack_dir_fn(const char *full_path, size_t full_path_len,
-				      const char *file_pach, void *data);
+                                      const char *file_pach, void *data);
 void for_each_file_in_pack_dir(const char *objdir,
-			       each_file_in_pack_dir_fn fn,
-			       void *data);
+                               each_file_in_pack_dir_fn fn,
+                               void *data);
 
 /* A hook to report invalid files in pack directory */
 #define PACKDIR_FILE_PACK 1
@@ -68,7 +68,7 @@ unsigned long repo_approximate_object_count(struct repository *r);
 #define approximate_object_count() repo_approximate_object_count(the_repository)
 
 struct packed_git *find_sha1_pack(const unsigned char *sha1,
-				  struct packed_git *packs);
+                                  struct packed_git *packs);
 
 void pack_report(void);
 
@@ -147,8 +147,8 @@ unsigned long unpack_object_header_buffer(const unsigned char *buf, unsigned lon
 unsigned long get_size_from_delta(struct packed_git *, struct pack_window **, off_t);
 int unpack_object_header(struct packed_git *, struct pack_window **, off_t *, unsigned long *);
 off_t get_delta_base(struct packed_git *p, struct pack_window **w_curs,
-		     off_t *curpos, enum object_type type,
-		     off_t delta_obj_offset);
+                     off_t *curpos, enum object_type type,
+                     off_t delta_obj_offset);
 
 void release_pack_memory(size_t);
 
@@ -156,8 +156,8 @@ void release_pack_memory(size_t);
 extern int do_check_packed_object_crc;
 
 int packed_object_info(struct repository *r,
-		       struct packed_git *pack,
-		       off_t offset, struct object_info *);
+                       struct packed_git *pack,
+                       off_t offset, struct object_info *);
 
 void mark_bad_packed_object(struct packed_git *p, const unsigned char *sha1);
 const struct packed_git *has_packed_and_bad(struct repository *r, const unsigned char *sha1);
@@ -189,6 +189,6 @@ int is_promisor_object(const struct object_id *oid);
  * probably use open_pack_index() or parse_pack_index() instead.
  */
 int load_idx(const char *path, const unsigned int hashsz, void *idx_map,
-	     size_t idx_size, struct packed_git *p);
+             size_t idx_size, struct packed_git *p);
 
 #endif

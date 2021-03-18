@@ -6,57 +6,57 @@
  */
 
 enum parse_opt_type {
-	/* special types */
-	OPTION_END,
-	OPTION_ARGUMENT,
-	OPTION_GROUP,
-	OPTION_NUMBER,
-	OPTION_ALIAS,
-	/* options with no arguments */
-	OPTION_BIT,
-	OPTION_NEGBIT,
-	OPTION_BITOP,
-	OPTION_COUNTUP,
-	OPTION_SET_INT,
-	/* options with arguments (usually) */
-	OPTION_STRING,
-	OPTION_INTEGER,
-	OPTION_MAGNITUDE,
-	OPTION_CALLBACK,
-	OPTION_LOWLEVEL_CALLBACK,
-	OPTION_FILENAME
+    /* special types */
+    OPTION_END,
+    OPTION_ARGUMENT,
+    OPTION_GROUP,
+    OPTION_NUMBER,
+    OPTION_ALIAS,
+    /* options with no arguments */
+    OPTION_BIT,
+    OPTION_NEGBIT,
+    OPTION_BITOP,
+    OPTION_COUNTUP,
+    OPTION_SET_INT,
+    /* options with arguments (usually) */
+    OPTION_STRING,
+    OPTION_INTEGER,
+    OPTION_MAGNITUDE,
+    OPTION_CALLBACK,
+    OPTION_LOWLEVEL_CALLBACK,
+    OPTION_FILENAME
 };
 
 enum parse_opt_flags {
-	PARSE_OPT_KEEP_DASHDASH = 1,
-	PARSE_OPT_STOP_AT_NON_OPTION = 2,
-	PARSE_OPT_KEEP_ARGV0 = 4,
-	PARSE_OPT_KEEP_UNKNOWN = 8,
-	PARSE_OPT_NO_INTERNAL_HELP = 16,
-	PARSE_OPT_ONE_SHOT = 32
+    PARSE_OPT_KEEP_DASHDASH = 1,
+    PARSE_OPT_STOP_AT_NON_OPTION = 2,
+    PARSE_OPT_KEEP_ARGV0 = 4,
+    PARSE_OPT_KEEP_UNKNOWN = 8,
+    PARSE_OPT_NO_INTERNAL_HELP = 16,
+    PARSE_OPT_ONE_SHOT = 32
 };
 
 enum parse_opt_option_flags {
-	PARSE_OPT_OPTARG  = 1,
-	PARSE_OPT_NOARG   = 2,
-	PARSE_OPT_NONEG   = 4,
-	PARSE_OPT_HIDDEN  = 8,
-	PARSE_OPT_LASTARG_DEFAULT = 16,
-	PARSE_OPT_NODASH = 32,
-	PARSE_OPT_LITERAL_ARGHELP = 64,
-	PARSE_OPT_SHELL_EVAL = 256,
-	PARSE_OPT_NOCOMPLETE = 512,
-	PARSE_OPT_COMP_ARG = 1024,
-	PARSE_OPT_CMDMODE = 2048
+    PARSE_OPT_OPTARG  = 1,
+    PARSE_OPT_NOARG   = 2,
+    PARSE_OPT_NONEG   = 4,
+    PARSE_OPT_HIDDEN  = 8,
+    PARSE_OPT_LASTARG_DEFAULT = 16,
+    PARSE_OPT_NODASH = 32,
+    PARSE_OPT_LITERAL_ARGHELP = 64,
+    PARSE_OPT_SHELL_EVAL = 256,
+    PARSE_OPT_NOCOMPLETE = 512,
+    PARSE_OPT_COMP_ARG = 1024,
+    PARSE_OPT_CMDMODE = 2048
 };
 
 enum parse_opt_result {
-	PARSE_OPT_COMPLETE = -3,
-	PARSE_OPT_HELP = -2,
-	PARSE_OPT_ERROR = -1,	/* must be the same as error() */
-	PARSE_OPT_DONE = 0,	/* fixed so that "return 0" works */
-	PARSE_OPT_NON_OPTION,
-	PARSE_OPT_UNKNOWN
+    PARSE_OPT_COMPLETE = -3,
+    PARSE_OPT_HELP = -2,
+    PARSE_OPT_ERROR = -1,	/* must be the same as error() */
+    PARSE_OPT_DONE = 0,	/* fixed so that "return 0" works */
+    PARSE_OPT_NON_OPTION,
+    PARSE_OPT_UNKNOWN
 };
 
 struct option;
@@ -64,8 +64,8 @@ typedef int parse_opt_cb(const struct option *, const char *arg, int unset);
 
 struct parse_opt_ctx_t;
 typedef enum parse_opt_result parse_opt_ll_cb(struct parse_opt_ctx_t *ctx,
-					      const struct option *opt,
-					      const char *arg, int unset);
+        const struct option *opt,
+        const char *arg, int unset);
 
 /*
  * `type`::
@@ -127,18 +127,18 @@ typedef enum parse_opt_result parse_opt_ll_cb(struct parse_opt_ctx_t *ctx,
  *
  */
 struct option {
-	enum parse_opt_type type;
-	int short_name;
-	const char *long_name;
-	void *value;
-	const char *argh;
-	const char *help;
+    enum parse_opt_type type;
+    int short_name;
+    const char *long_name;
+    void *value;
+    const char *argh;
+    const char *help;
 
-	int flags;
-	parse_opt_cb *callback;
-	intptr_t defval;
-	parse_opt_ll_cb *ll_callback;
-	intptr_t extra;
+    int flags;
+    parse_opt_cb *callback;
+    intptr_t defval;
+    parse_opt_ll_cb *ll_callback;
+    intptr_t extra;
 };
 
 #define OPT_BIT_F(s, l, v, h, b, f) { OPTION_BIT, (s), (l), (v), NULL, (h), \
@@ -214,15 +214,15 @@ struct option {
  * processed.
  */
 int parse_options(int argc, const char **argv, const char *prefix,
-		  const struct option *options,
-		  const char * const usagestr[], int flags);
+                  const struct option *options,
+                  const char * const usagestr[], int flags);
 
 NORETURN void usage_with_options(const char * const *usagestr,
-				 const struct option *options);
+                                 const struct option *options);
 
 NORETURN void usage_msg_opt(const char *msg,
-			    const char * const *usagestr,
-			    const struct option *options);
+                            const char * const *usagestr,
+                            const struct option *options);
 
 int optbug(const struct option *opt, const char *reason);
 const char *optname(const struct option *opt, int flags);
@@ -260,23 +260,23 @@ const char *optname(const struct option *opt, int flags);
  * be modified in any way.
  */
 struct parse_opt_ctx_t {
-	const char **argv;
-	const char **out;
-	int argc, cpidx, total;
-	const char *opt;
-	int flags;
-	const char *prefix;
-	const char **alias_groups; /* must be in groups of 3 elements! */
-	struct option *updated_options;
+    const char **argv;
+    const char **out;
+    int argc, cpidx, total;
+    const char *opt;
+    int flags;
+    const char *prefix;
+    const char **alias_groups; /* must be in groups of 3 elements! */
+    struct option *updated_options;
 };
 
 void parse_options_start(struct parse_opt_ctx_t *ctx,
-			 int argc, const char **argv, const char *prefix,
-			 const struct option *options, int flags);
+                         int argc, const char **argv, const char *prefix,
+                         const struct option *options, int flags);
 
 int parse_options_step(struct parse_opt_ctx_t *ctx,
-		       const struct option *options,
-		       const char * const usagestr[]);
+                       const struct option *options,
+                       const char * const usagestr[]);
 
 int parse_options_end(struct parse_opt_ctx_t *ctx);
 
@@ -298,8 +298,8 @@ int parse_opt_tertiary(const struct option *, const char *, int);
 int parse_opt_string_list(const struct option *, const char *, int);
 int parse_opt_noop_cb(const struct option *, const char *, int);
 enum parse_opt_result parse_opt_unknown_cb(struct parse_opt_ctx_t *ctx,
-					   const struct option *,
-					   const char *, int);
+        const struct option *,
+        const char *, int);
 int parse_opt_passthru(const struct option *, const char *, int);
 int parse_opt_passthru_argv(const struct option *, const char *, int);
 

@@ -37,21 +37,21 @@ static inline void git_setup_gettext(void)
 }
 static inline int gettext_width(const char *s)
 {
-	return strlen(s);
+    return strlen(s);
 }
 #endif
 
 static inline FORMAT_PRESERVING(1) const char *_(const char *msgid)
 {
-	if (!*msgid)
-		return "";
-	return gettext(msgid);
+    if (!*msgid)
+        return "";
+    return gettext(msgid);
 }
 
 static inline FORMAT_PRESERVING(1) FORMAT_PRESERVING(2)
 const char *Q_(const char *msgid, const char *plu, unsigned long n)
 {
-	return ngettext(msgid, plu, n);
+    return ngettext(msgid, plu, n);
 }
 
 /* Mark msgid for translation but do not translate it. */

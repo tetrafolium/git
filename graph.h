@@ -254,7 +254,7 @@ int graph_show_remainder(struct git_graph *graph);
  * graph_show_commit_msg can be called even with a NULL graph.
  */
 void graph_show_commit_msg(struct git_graph *graph,
-			   FILE *file,
-			   struct strbuf const *sb);
+                           FILE *file,
+                           struct strbuf const *sb);
 
 #endif /* GRAPH_H */

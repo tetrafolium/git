@@ -16,9 +16,9 @@ X(three)
 
 int cmd__sigchain(int argc, const char **argv)
 {
-	sigchain_push(SIGTERM, one);
-	sigchain_push(SIGTERM, two);
-	sigchain_push(SIGTERM, three);
-	raise(SIGTERM);
-	return 0;
+    sigchain_push(SIGTERM, one);
+    sigchain_push(SIGTERM, two);
+    sigchain_push(SIGTERM, three);
+    raise(SIGTERM);
+    return 0;
 }

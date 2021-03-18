@@ -130,13 +130,13 @@ unsigned int memihash_cont(unsigned int hash_seed, const void *buf, size_t len);
  */
 static inline unsigned int oidhash(const struct object_id *oid)
 {
-	/*
-	 * Equivalent to 'return *(unsigned int *)oid->hash;', but safe on
-	 * platforms that don't support unaligned reads.
-	 */
-	unsigned int hash;
-	memcpy(&hash, oid->hash, sizeof(hash));
-	return hash;
+    /*
+     * Equivalent to 'return *(unsigned int *)oid->hash;', but safe on
+     * platforms that don't support unaligned reads.
+     */
+    unsigned int hash;
+    memcpy(&hash, oid->hash, sizeof(hash));
+    return hash;
 }
 
 /*
@@ -146,14 +146,14 @@ static inline unsigned int oidhash(const struct object_id *oid)
  * memory on 64-bit systems due to alignment.
  */
 struct hashmap_entry {
-	/*
-	 * next points to the next entry in case of collisions (i.e. if
-	 * multiple entries map to the same bucket)
-	 */
-	struct hashmap_entry *next;
+    /*
+     * next points to the next entry in case of collisions (i.e. if
+     * multiple entries map to the same bucket)
+     */
+    struct hashmap_entry *next;
 
-	/* entry's hash code */
-	unsigned int hash;
+    /* entry's hash code */
+    unsigned int hash;
 };
 
 /*
@@ -176,36 +176,36 @@ struct hashmap_entry {
  * The `hashmap_cmp_fn_data` entry is the pointer given in the init function.
  */
 typedef int (*hashmap_cmp_fn)(const void *hashmap_cmp_fn_data,
-			      const struct hashmap_entry *entry,
-			      const struct hashmap_entry *entry_or_key,
-			      const void *keydata);
+                              const struct hashmap_entry *entry,
+                              const struct hashmap_entry *entry_or_key,
+                              const void *keydata);
 
 /*
  * struct hashmap is the hash table structure. Members can be used as follows,
  * but should not be modified directly.
  */
 struct hashmap {
-	struct hashmap_entry **table;
+    struct hashmap_entry **table;
 
-	/* Stores the comparison function specified in `hashmap_init()`. */
-	hashmap_cmp_fn cmpfn;
-	const void *cmpfn_data;
+    /* Stores the comparison function specified in `hashmap_init()`. */
+    hashmap_cmp_fn cmpfn;
+    const void *cmpfn_data;
 
-	/* total number of entries (0 means the hashmap is empty) */
-	unsigned int private_size; /* use hashmap_get_size() */
+    /* total number of entries (0 means the hashmap is empty) */
+    unsigned int private_size; /* use hashmap_get_size() */
 
-	/*
-	 * tablesize is the allocated size of the hash table. A non-0 value
-	 * indicates that the hashmap is initialized. It may also be useful
-	 * for statistical purposes (i.e. `size / tablesize` is the current
-	 * load factor).
-	 */
-	unsigned int tablesize;
+    /*
+     * tablesize is the allocated size of the hash table. A non-0 value
+     * indicates that the hashmap is initialized. It may also be useful
+     * for statistical purposes (i.e. `size / tablesize` is the current
+     * load factor).
+     */
+    unsigned int tablesize;
 
-	unsigned int grow_at;
-	unsigned int shrink_at;
+    unsigned int grow_at;
+    unsigned int shrink_at;
 
-	unsigned int do_count_items : 1;
+    unsigned int do_count_items : 1;
 };
 
 /* hashmap functions */
@@ -231,9 +231,9 @@ struct hashmap {
  * prevent expensive resizing. If 0, the table is dynamically resized.
  */
 void hashmap_init(struct hashmap *map,
-		  hashmap_cmp_fn equals_function,
-		  const void *equals_function_data,
-		  size_t initial_size);
+                  hashmap_cmp_fn equals_function,
+                  const void *equals_function_data,
+                  size_t initial_size);
 
 /* internal functions for clearing or freeing hashmap */
 void hashmap_partial_clear_(struct hashmap *map, ssize_t offset);
@@ -312,10 +312,10 @@ void hashmap_clear_(struct hashmap *map, ssize_t offset);
  * and if it is on stack, you can just let it go out of scope).
  */
 static inline void hashmap_entry_init(struct hashmap_entry *e,
-				      unsigned int hash)
+                                      unsigned int hash)
 {
-	e->hash = hash;
-	e->next = NULL;
+    e->hash = hash;
+    e->next = NULL;
 }
 
 /*
@@ -323,11 +323,11 @@ static inline void hashmap_entry_init(struct hashmap_entry *e,
  */
 static inline unsigned int hashmap_get_size(struct hashmap *map)
 {
-	if (map->do_count_items)
-		return map->private_size;
+    if (map->do_count_items)
+        return map->private_size;
 
-	BUG("hashmap_get_size: size not set");
-	return 0;
+    BUG("hashmap_get_size: size not set");
+    return 0;
 }
 
 /*
@@ -354,8 +354,8 @@ static inline unsigned int hashmap_get_size(struct hashmap *map)
  * to `hashmap_cmp_fn` to decide whether the entry matches the key.
  */
 struct hashmap_entry *hashmap_get(const struct hashmap *map,
-				  const struct hashmap_entry *key,
-				  const void *keydata);
+                                  const struct hashmap_entry *key,
+                                  const void *keydata);
 
 /*
  * Returns the hashmap entry for the specified hash code and key data,
@@ -370,13 +370,13 @@ struct hashmap_entry *hashmap_get(const struct hashmap *map,
  * structure that should not be used in the comparison.
  */
 static inline struct hashmap_entry *hashmap_get_from_hash(
-					const struct hashmap *map,
-					unsigned int hash,
-					const void *keydata)
+    const struct hashmap *map,
+    unsigned int hash,
+    const void *keydata)
 {
-	struct hashmap_entry key;
-	hashmap_entry_init(&key, hash);
-	return hashmap_get(map, &key, keydata);
+    struct hashmap_entry key;
+    hashmap_entry_init(&key, hash);
+    return hashmap_get(map, &key, keydata);
 }
 
 /*
@@ -388,7 +388,7 @@ static inline struct hashmap_entry *hashmap_get_from_hash(
  * call to `hashmap_get` or `hashmap_get_next`.
  */
 struct hashmap_entry *hashmap_get_next(const struct hashmap *map,
-				       const struct hashmap_entry *entry);
+                                       const struct hashmap_entry *entry);
 
 /*
  * Adds a hashmap entry. This allows to add duplicate entries (i.e.
@@ -408,7 +408,7 @@ void hashmap_add(struct hashmap *map, struct hashmap_entry *entry);
  * Returns the replaced entry, or NULL if not found (i.e. the entry was added).
  */
 struct hashmap_entry *hashmap_put(struct hashmap *map,
-				  struct hashmap_entry *entry);
+                                  struct hashmap_entry *entry);
 
 /*
  * Adds or replaces a hashmap entry contained within @keyvar,
@@ -430,8 +430,8 @@ struct hashmap_entry *hashmap_put(struct hashmap *map,
  * Argument explanation is the same as in `hashmap_get`.
  */
 struct hashmap_entry *hashmap_remove(struct hashmap *map,
-				     const struct hashmap_entry *key,
-				     const void *keydata);
+                                     const struct hashmap_entry *key,
+                                     const void *keydata);
 
 /*
  * Removes a hashmap entry contained within @keyvar,
@@ -460,9 +460,9 @@ int hashmap_bucket(const struct hashmap *map, unsigned int hash);
  * iterating.
  */
 struct hashmap_iter {
-	struct hashmap *map;
-	struct hashmap_entry *next;
-	unsigned int tablepos;
+    struct hashmap *map;
+    struct hashmap_entry *next;
+    unsigned int tablepos;
 };
 
 /* Initializes a `hashmap_iter` structure. */
@@ -473,10 +473,10 @@ struct hashmap_entry *hashmap_iter_next(struct hashmap_iter *iter);
 
 /* Initializes the iterator and returns the first entry, if any. */
 static inline struct hashmap_entry *hashmap_iter_first(struct hashmap *map,
-						       struct hashmap_iter *iter)
+        struct hashmap_iter *iter)
 {
-	hashmap_iter_init(map, iter);
-	return hashmap_iter_next(iter);
+    hashmap_iter_init(map, iter);
+    return hashmap_iter_next(iter);
 }
 
 /*
@@ -550,7 +550,7 @@ static inline struct hashmap_entry *hashmap_iter_first(struct hashmap *map,
  */
 static inline void hashmap_disable_item_counting(struct hashmap *map)
 {
-	map->do_count_items = 0;
+    map->do_count_items = 0;
 }
 
 /*
@@ -560,18 +560,18 @@ static inline void hashmap_disable_item_counting(struct hashmap *map)
  */
 static inline void hashmap_enable_item_counting(struct hashmap *map)
 {
-	unsigned int n = 0;
-	struct hashmap_iter iter;
+    unsigned int n = 0;
+    struct hashmap_iter iter;
 
-	if (map->do_count_items)
-		return;
+    if (map->do_count_items)
+        return;
 
-	hashmap_iter_init(map, &iter);
-	while (hashmap_iter_next(&iter))
-		n++;
+    hashmap_iter_init(map, &iter);
+    while (hashmap_iter_next(&iter))
+        n++;
 
-	map->do_count_items = 1;
-	map->private_size = n;
+    map->do_count_items = 1;
+    map->private_size = n;
 }
 
 /* String interning */
@@ -592,7 +592,7 @@ static inline void hashmap_enable_item_counting(struct hashmap *map)
 const void *memintern(const void *data, size_t len);
 static inline const char *strintern(const char *string)
 {
-	return memintern(string, strlen(string));
+    return memintern(string, strlen(string));
 }
 
 #endif

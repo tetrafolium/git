@@ -64,9 +64,9 @@ struct string_list;
  * access to the string itself.
  */
 struct strbuf {
-	size_t alloc;
-	size_t len;
-	char *buf;
+    size_t alloc;
+    size_t len;
+    char *buf;
 };
 
 extern char strbuf_slopbuf[];
@@ -124,7 +124,7 @@ void strbuf_attach(struct strbuf *sb, void *str, size_t len, size_t mem);
  */
 static inline void strbuf_swap(struct strbuf *a, struct strbuf *b)
 {
-	SWAP(*a, *b);
+    SWAP(*a, *b);
 }
 
 
@@ -138,7 +138,7 @@ static inline void strbuf_swap(struct strbuf *a, struct strbuf *b)
  */
 static inline size_t strbuf_avail(const struct strbuf *sb)
 {
-	return sb->alloc ? sb->alloc - sb->len - 1 : 0;
+    return sb->alloc ? sb->alloc - sb->len - 1 : 0;
 }
 
 /**
@@ -159,13 +159,13 @@ void strbuf_grow(struct strbuf *sb, size_t amount);
  */
 static inline void strbuf_setlen(struct strbuf *sb, size_t len)
 {
-	if (len > (sb->alloc ? sb->alloc - 1 : 0))
-		die("BUG: strbuf_setlen() beyond buffer");
-	sb->len = len;
-	if (sb->buf != strbuf_slopbuf)
-		sb->buf[len] = '\0';
-	else
-		assert(!strbuf_slopbuf[0]);
+    if (len > (sb->alloc ? sb->alloc - 1 : 0))
+        die("BUG: strbuf_setlen() beyond buffer");
+    sb->len = len;
+    if (sb->buf != strbuf_slopbuf)
+        sb->buf[len] = '\0';
+    else
+        assert(!strbuf_slopbuf[0]);
 }
 
 /**
@@ -227,10 +227,10 @@ int strbuf_cmp(const struct strbuf *first, const struct strbuf *second);
  */
 static inline void strbuf_addch(struct strbuf *sb, int c)
 {
-	if (!strbuf_avail(sb))
-		strbuf_grow(sb, 1);
-	sb->buf[sb->len++] = c;
-	sb->buf[sb->len] = '\0';
+    if (!strbuf_avail(sb))
+        strbuf_grow(sb, 1);
+    sb->buf[sb->len++] = c;
+    sb->buf[sb->len] = '\0';
 }
 
 /**
@@ -251,9 +251,9 @@ void strbuf_insert(struct strbuf *sb, size_t pos, const void *, size_t);
  * constants at compile time.
  */
 static inline void strbuf_insertstr(struct strbuf *sb, size_t pos,
-				    const char *s)
+                                    const char *s)
 {
-	strbuf_insert(sb, pos, s, strlen(s));
+    strbuf_insert(sb, pos, s, strlen(s));
 }
 
 /**
@@ -261,7 +261,7 @@ static inline void strbuf_insertstr(struct strbuf *sb, size_t pos,
  * string. The contents will be shifted, not overwritten.
  */
 void strbuf_vinsertf(struct strbuf *sb, size_t pos, const char *fmt,
-		     va_list ap);
+                     va_list ap);
 
 void strbuf_insertf(struct strbuf *sb, size_t pos, const char *fmt, ...);
 
@@ -275,14 +275,14 @@ void strbuf_remove(struct strbuf *sb, size_t pos, size_t len);
  * data.
  */
 void strbuf_splice(struct strbuf *sb, size_t pos, size_t len,
-		   const void *data, size_t data_len);
+                   const void *data, size_t data_len);
 
 /**
  * Add a NUL-terminated string to the buffer. Each line will be prepended
  * by a comment character and a blank.
  */
 void strbuf_add_commented_lines(struct strbuf *out,
-				const char *buf, size_t size);
+                                const char *buf, size_t size);
 
 
 /**
@@ -301,7 +301,7 @@ void strbuf_add(struct strbuf *sb, const void *data, size_t len);
  */
 static inline void strbuf_addstr(struct strbuf *sb, const char *s)
 {
-	strbuf_add(sb, s, strlen(s));
+    strbuf_add(sb, s, strlen(s));
 }
 
 /**
@@ -314,7 +314,7 @@ void strbuf_addbuf(struct strbuf *sb, const struct strbuf *sb2);
  * two arguments.
  */
 const char *strbuf_join_argv(struct strbuf *buf, int argc,
-			     const char **argv, char delim);
+                             const char **argv, char delim);
 
 /**
  * This function can be used to expand a format string containing
@@ -341,20 +341,20 @@ const char *strbuf_join_argv(struct strbuf *buf, int argc,
  * which can be used by the programmer of the callback as she sees fit.
  */
 typedef size_t (*expand_fn_t) (struct strbuf *sb,
-			       const char *placeholder,
-			       void *context);
+                               const char *placeholder,
+                               void *context);
 void strbuf_expand(struct strbuf *sb,
-		   const char *format,
-		   expand_fn_t fn,
-		   void *context);
+                   const char *format,
+                   expand_fn_t fn,
+                   void *context);
 
 /**
  * Used as callback for `strbuf_expand` to only expand literals
  * (i.e. %n and %xNN). The context argument is ignored.
  */
 size_t strbuf_expand_literal_cb(struct strbuf *sb,
-				const char *placeholder,
-				void *context);
+                                const char *placeholder,
+                                void *context);
 
 /**
  * Used as callback for `strbuf_expand()`, expects an array of
@@ -363,12 +363,12 @@ size_t strbuf_expand_literal_cb(struct strbuf *sb,
  * terminated by an entry with placeholder set to NULL.
  */
 struct strbuf_expand_dict_entry {
-	const char *placeholder;
-	const char *value;
+    const char *placeholder;
+    const char *value;
 };
 size_t strbuf_expand_dict_cb(struct strbuf *sb,
-			     const char *placeholder,
-			     void *context);
+                             const char *placeholder,
+                             void *context);
 
 /**
  * Append the contents of one strbuf to another, quoting any
@@ -426,8 +426,8 @@ void strbuf_vaddf(struct strbuf *sb, const char *fmt, va_list ap);
  * string rather than passing it to `strftime`.
  */
 void strbuf_addftime(struct strbuf *sb, const char *fmt,
-		    const struct tm *tm, int tz_offset,
-		    int suppress_tz_name);
+                     const struct tm *tm, int tz_offset,
+                     int suppress_tz_name);
 
 /**
  * Read a given size of data from a FILE* pointer to the buffer.
@@ -563,11 +563,11 @@ void strbuf_stripspace(struct strbuf *buf, int skip_comments);
 
 static inline int strbuf_strip_suffix(struct strbuf *sb, const char *suffix)
 {
-	if (strip_suffix_mem(sb->buf, &sb->len, suffix)) {
-		strbuf_setlen(sb, sb->len);
-		return 1;
-	} else
-		return 0;
+    if (strip_suffix_mem(sb->buf, &sb->len, suffix)) {
+        strbuf_setlen(sb, sb->len);
+        return 1;
+    } else
+        return 0;
 }
 
 /**
@@ -589,24 +589,24 @@ static inline int strbuf_strip_suffix(struct strbuf *sb, const char *suffix)
  * string_list_split_in_place().
  */
 struct strbuf **strbuf_split_buf(const char *str, size_t len,
-				 int terminator, int max);
+                                 int terminator, int max);
 
 static inline struct strbuf **strbuf_split_str(const char *str,
-					       int terminator, int max)
+        int terminator, int max)
 {
-	return strbuf_split_buf(str, strlen(str), terminator, max);
+    return strbuf_split_buf(str, strlen(str), terminator, max);
 }
 
 static inline struct strbuf **strbuf_split_max(const struct strbuf *sb,
-					       int terminator, int max)
+        int terminator, int max)
 {
-	return strbuf_split_buf(sb->buf, sb->len, terminator, max);
+    return strbuf_split_buf(sb->buf, sb->len, terminator, max);
 }
 
 static inline struct strbuf **strbuf_split(const struct strbuf *sb,
-					   int terminator)
+        int terminator)
 {
-	return strbuf_split_max(sb, terminator, 0);
+    return strbuf_split_max(sb, terminator, 0);
 }
 
 /*
@@ -620,8 +620,8 @@ static inline struct strbuf **strbuf_split(const struct strbuf *sb,
  * to str.  If only one element, just write "element1" to str.
  */
 void strbuf_add_separated_string_list(struct strbuf *str,
-				      const char *sep,
-				      struct string_list *slist);
+                                      const char *sep,
+                                      struct string_list *slist);
 
 /**
  * Free a NULL-terminated list of strbufs (for example, the return
@@ -634,8 +634,8 @@ void strbuf_list_free(struct strbuf **list);
  * the strbuf `sb`.
  */
 void strbuf_add_unique_abbrev(struct strbuf *sb,
-			      const struct object_id *oid,
-			      int abbrev_len);
+                              const struct object_id *oid,
+                              int abbrev_len);
 
 /**
  * Launch the user preferred editor to edit a file and fill the buffer
@@ -645,10 +645,10 @@ void strbuf_add_unique_abbrev(struct strbuf *sb,
  * file's contents are not read into the buffer upon completion.
  */
 int launch_editor(const char *path, struct strbuf *buffer,
-		  const char *const *env);
+                  const char *const *env);
 
 int launch_sequence_editor(const char *path, struct strbuf *buffer,
-			   const char *const *env);
+                           const char *const *env);
 
 /*
  * In contrast to `launch_editor()`, this function writes out the contents
@@ -659,19 +659,19 @@ int launch_sequence_editor(const char *path, struct strbuf *buffer,
  * If `path` is relative, it refers to a file in the `.git` directory.
  */
 int strbuf_edit_interactively(struct strbuf *buffer, const char *path,
-			      const char *const *env);
+                              const char *const *env);
 
 void strbuf_add_lines(struct strbuf *sb,
-		      const char *prefix,
-		      const char *buf,
-		      size_t size);
+                      const char *prefix,
+                      const char *buf,
+                      size_t size);
 
 /**
  * Append s to sb, with the characters '<', '>', '&' and '"' converted
  * into XML entities.
  */
 void strbuf_addstr_xml_quoted(struct strbuf *sb,
-			      const char *s);
+                              const char *s);
 
 /**
  * "Complete" the contents of `sb` by ensuring that either it ends with the
@@ -681,13 +681,13 @@ void strbuf_addstr_xml_quoted(struct strbuf *sb,
  */
 static inline void strbuf_complete(struct strbuf *sb, char term)
 {
-	if (sb->len && sb->buf[sb->len - 1] != term)
-		strbuf_addch(sb, term);
+    if (sb->len && sb->buf[sb->len - 1] != term)
+        strbuf_addch(sb, term);
 }
 
 static inline void strbuf_complete_line(struct strbuf *sb)
 {
-	strbuf_complete(sb, '\n');
+    strbuf_complete(sb, '\n');
 }
 
 /*
@@ -702,7 +702,7 @@ static inline void strbuf_complete_line(struct strbuf *sb)
  * interpret_branch_name() for details.
  */
 void strbuf_branchname(struct strbuf *sb, const char *name,
-		       unsigned allowed);
+                       unsigned allowed);
 
 /*
  * Like strbuf_branchname() above, but confirm that the result is
@@ -718,7 +718,7 @@ int is_rfc3986_unreserved(char ch);
 int is_rfc3986_reserved_or_unreserved(char ch);
 
 void strbuf_addstr_urlencode(struct strbuf *sb, const char *name,
-			     char_predicate allow_unencoded_fn);
+                             char_predicate allow_unencoded_fn);
 
 __attribute__((format (printf,1,2)))
 int printf_ln(const char *fmt, ...);

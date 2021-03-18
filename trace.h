@@ -81,10 +81,10 @@
  * the `trace_key` structure.
  */
 struct trace_key {
-	const char * const key;
-	int fd;
-	unsigned int initialized : 1;
-	unsigned int  need_close : 1;
+    const char * const key;
+    int fd;
+    unsigned int initialized : 1;
+    unsigned int  need_close : 1;
 };
 
 extern struct trace_key trace_default_key;
@@ -268,21 +268,21 @@ void trace_performance_leave(const char *format, ...);
 /* backend functions, use non-*fl macros instead */
 __attribute__((format (printf, 4, 5)))
 void trace_printf_key_fl(const char *file, int line, struct trace_key *key,
-			 const char *format, ...);
+                         const char *format, ...);
 __attribute__((format (printf, 4, 5)))
 void trace_argv_printf_fl(const char *file, int line, const char **argv,
-			  const char *format, ...);
+                          const char *format, ...);
 void trace_strbuf_fl(const char *file, int line, struct trace_key *key,
-		     const struct strbuf *data);
+                     const struct strbuf *data);
 __attribute__((format (printf, 4, 5)))
 void trace_performance_fl(const char *file, int line,
-			  uint64_t nanos, const char *fmt, ...);
+                          uint64_t nanos, const char *fmt, ...);
 __attribute__((format (printf, 4, 5)))
 void trace_performance_leave_fl(const char *file, int line,
-				uint64_t nanos, const char *fmt, ...);
+                                uint64_t nanos, const char *fmt, ...);
 static inline int trace_pass_fl(struct trace_key *key)
 {
-	return key->fd || !key->initialized;
+    return key->fd || !key->initialized;
 }
 
 #endif /* HAVE_VARIADIC_MACROS */

@@ -114,134 +114,134 @@ static char *super_prefix;
  * Repository-local GIT_* environment variables; see cache.h for details.
  */
 const char * const local_repo_env[] = {
-	ALTERNATE_DB_ENVIRONMENT,
-	CONFIG_ENVIRONMENT,
-	CONFIG_DATA_ENVIRONMENT,
-	CONFIG_COUNT_ENVIRONMENT,
-	DB_ENVIRONMENT,
-	GIT_DIR_ENVIRONMENT,
-	GIT_WORK_TREE_ENVIRONMENT,
-	GIT_IMPLICIT_WORK_TREE_ENVIRONMENT,
-	GRAFT_ENVIRONMENT,
-	INDEX_ENVIRONMENT,
-	NO_REPLACE_OBJECTS_ENVIRONMENT,
-	GIT_REPLACE_REF_BASE_ENVIRONMENT,
-	GIT_PREFIX_ENVIRONMENT,
-	GIT_SUPER_PREFIX_ENVIRONMENT,
-	GIT_SHALLOW_FILE_ENVIRONMENT,
-	GIT_COMMON_DIR_ENVIRONMENT,
-	NULL
+    ALTERNATE_DB_ENVIRONMENT,
+    CONFIG_ENVIRONMENT,
+    CONFIG_DATA_ENVIRONMENT,
+    CONFIG_COUNT_ENVIRONMENT,
+    DB_ENVIRONMENT,
+    GIT_DIR_ENVIRONMENT,
+    GIT_WORK_TREE_ENVIRONMENT,
+    GIT_IMPLICIT_WORK_TREE_ENVIRONMENT,
+    GRAFT_ENVIRONMENT,
+    INDEX_ENVIRONMENT,
+    NO_REPLACE_OBJECTS_ENVIRONMENT,
+    GIT_REPLACE_REF_BASE_ENVIRONMENT,
+    GIT_PREFIX_ENVIRONMENT,
+    GIT_SUPER_PREFIX_ENVIRONMENT,
+    GIT_SHALLOW_FILE_ENVIRONMENT,
+    GIT_COMMON_DIR_ENVIRONMENT,
+    NULL
 };
 
 static char *expand_namespace(const char *raw_namespace)
 {
-	struct strbuf buf = STRBUF_INIT;
-	struct strbuf **components, **c;
+    struct strbuf buf = STRBUF_INIT;
+    struct strbuf **components, **c;
 
-	if (!raw_namespace || !*raw_namespace)
-		return xstrdup("");
+    if (!raw_namespace || !*raw_namespace)
+        return xstrdup("");
 
-	strbuf_addstr(&buf, raw_namespace);
-	components = strbuf_split(&buf, '/');
-	strbuf_reset(&buf);
-	for (c = components; *c; c++)
-		if (strcmp((*c)->buf, "/") != 0)
-			strbuf_addf(&buf, "refs/namespaces/%s", (*c)->buf);
-	strbuf_list_free(components);
-	if (check_refname_format(buf.buf, 0))
-		die(_("bad git namespace path \"%s\""), raw_namespace);
-	strbuf_addch(&buf, '/');
-	return strbuf_detach(&buf, NULL);
+    strbuf_addstr(&buf, raw_namespace);
+    components = strbuf_split(&buf, '/');
+    strbuf_reset(&buf);
+    for (c = components; *c; c++)
+        if (strcmp((*c)->buf, "/") != 0)
+            strbuf_addf(&buf, "refs/namespaces/%s", (*c)->buf);
+    strbuf_list_free(components);
+    if (check_refname_format(buf.buf, 0))
+        die(_("bad git namespace path \"%s\""), raw_namespace);
+    strbuf_addch(&buf, '/');
+    return strbuf_detach(&buf, NULL);
 }
 
 const char *getenv_safe(struct strvec *argv, const char *name)
 {
-	const char *value = getenv(name);
+    const char *value = getenv(name);
 
-	if (!value)
-		return NULL;
+    if (!value)
+        return NULL;
 
-	strvec_push(argv, value);
-	return argv->v[argv->nr - 1];
+    strvec_push(argv, value);
+    return argv->v[argv->nr - 1];
 }
 
 void setup_git_env(const char *git_dir)
 {
-	const char *shallow_file;
-	const char *replace_ref_base;
-	struct set_gitdir_args args = { NULL };
-	struct strvec to_free = STRVEC_INIT;
+    const char *shallow_file;
+    const char *replace_ref_base;
+    struct set_gitdir_args args = { NULL };
+    struct strvec to_free = STRVEC_INIT;
 
-	args.commondir = getenv_safe(&to_free, GIT_COMMON_DIR_ENVIRONMENT);
-	args.object_dir = getenv_safe(&to_free, DB_ENVIRONMENT);
-	args.graft_file = getenv_safe(&to_free, GRAFT_ENVIRONMENT);
-	args.index_file = getenv_safe(&to_free, INDEX_ENVIRONMENT);
-	args.alternate_db = getenv_safe(&to_free, ALTERNATE_DB_ENVIRONMENT);
-	repo_set_gitdir(the_repository, git_dir, &args);
-	strvec_clear(&to_free);
+    args.commondir = getenv_safe(&to_free, GIT_COMMON_DIR_ENVIRONMENT);
+    args.object_dir = getenv_safe(&to_free, DB_ENVIRONMENT);
+    args.graft_file = getenv_safe(&to_free, GRAFT_ENVIRONMENT);
+    args.index_file = getenv_safe(&to_free, INDEX_ENVIRONMENT);
+    args.alternate_db = getenv_safe(&to_free, ALTERNATE_DB_ENVIRONMENT);
+    repo_set_gitdir(the_repository, git_dir, &args);
+    strvec_clear(&to_free);
 
-	if (getenv(NO_REPLACE_OBJECTS_ENVIRONMENT))
-		read_replace_refs = 0;
-	replace_ref_base = getenv(GIT_REPLACE_REF_BASE_ENVIRONMENT);
-	free(git_replace_ref_base);
-	git_replace_ref_base = xstrdup(replace_ref_base ? replace_ref_base
-							  : "refs/replace/");
-	free(git_namespace);
-	git_namespace = expand_namespace(getenv(GIT_NAMESPACE_ENVIRONMENT));
-	shallow_file = getenv(GIT_SHALLOW_FILE_ENVIRONMENT);
-	if (shallow_file)
-		set_alternate_shallow_file(the_repository, shallow_file, 0);
+    if (getenv(NO_REPLACE_OBJECTS_ENVIRONMENT))
+        read_replace_refs = 0;
+    replace_ref_base = getenv(GIT_REPLACE_REF_BASE_ENVIRONMENT);
+    free(git_replace_ref_base);
+    git_replace_ref_base = xstrdup(replace_ref_base ? replace_ref_base
+                                   : "refs/replace/");
+    free(git_namespace);
+    git_namespace = expand_namespace(getenv(GIT_NAMESPACE_ENVIRONMENT));
+    shallow_file = getenv(GIT_SHALLOW_FILE_ENVIRONMENT);
+    if (shallow_file)
+        set_alternate_shallow_file(the_repository, shallow_file, 0);
 }
 
 int is_bare_repository(void)
 {
-	/* if core.bare is not 'false', let's see if there is a work tree */
-	return is_bare_repository_cfg && !get_git_work_tree();
+    /* if core.bare is not 'false', let's see if there is a work tree */
+    return is_bare_repository_cfg && !get_git_work_tree();
 }
 
 int have_git_dir(void)
 {
-	return startup_info->have_repository
-		|| the_repository->gitdir;
+    return startup_info->have_repository
+           || the_repository->gitdir;
 }
 
 const char *get_git_dir(void)
 {
-	if (!the_repository->gitdir)
-		BUG("git environment hasn't been setup");
-	return the_repository->gitdir;
+    if (!the_repository->gitdir)
+        BUG("git environment hasn't been setup");
+    return the_repository->gitdir;
 }
 
 const char *get_git_common_dir(void)
 {
-	if (!the_repository->commondir)
-		BUG("git environment hasn't been setup");
-	return the_repository->commondir;
+    if (!the_repository->commondir)
+        BUG("git environment hasn't been setup");
+    return the_repository->commondir;
 }
 
 const char *get_git_namespace(void)
 {
-	if (!git_namespace)
-		BUG("git environment hasn't been setup");
-	return git_namespace;
+    if (!git_namespace)
+        BUG("git environment hasn't been setup");
+    return git_namespace;
 }
 
 const char *strip_namespace(const char *namespaced_ref)
 {
-	const char *out;
-	if (skip_prefix(namespaced_ref, get_git_namespace(), &out))
-		return out;
-	return NULL;
+    const char *out;
+    if (skip_prefix(namespaced_ref, get_git_namespace(), &out))
+        return out;
+    return NULL;
 }
 
 const char *get_super_prefix(void)
 {
-	static int initialized;
-	if (!initialized) {
-		super_prefix = xstrdup_or_null(getenv(GIT_SUPER_PREFIX_ENVIRONMENT));
-		initialized = 1;
-	}
-	return super_prefix;
+    static int initialized;
+    if (!initialized) {
+        super_prefix = xstrdup_or_null(getenv(GIT_SUPER_PREFIX_ENVIRONMENT));
+        initialized = 1;
+    }
+    return super_prefix;
 }
 
 static int git_work_tree_initialized;
@@ -253,127 +253,127 @@ static int git_work_tree_initialized;
  */
 void set_git_work_tree(const char *new_work_tree)
 {
-	struct strbuf realpath = STRBUF_INIT;
+    struct strbuf realpath = STRBUF_INIT;
 
-	if (git_work_tree_initialized) {
-		strbuf_realpath(&realpath, new_work_tree, 1);
-		new_work_tree = realpath.buf;
-		if (strcmp(new_work_tree, the_repository->worktree))
-			die("internal error: work tree has already been set\n"
-			    "Current worktree: %s\nNew worktree: %s",
-			    the_repository->worktree, new_work_tree);
-		return;
-	}
-	git_work_tree_initialized = 1;
-	repo_set_worktree(the_repository, new_work_tree);
+    if (git_work_tree_initialized) {
+        strbuf_realpath(&realpath, new_work_tree, 1);
+        new_work_tree = realpath.buf;
+        if (strcmp(new_work_tree, the_repository->worktree))
+            die("internal error: work tree has already been set\n"
+                "Current worktree: %s\nNew worktree: %s",
+                the_repository->worktree, new_work_tree);
+        return;
+    }
+    git_work_tree_initialized = 1;
+    repo_set_worktree(the_repository, new_work_tree);
 
-	strbuf_release(&realpath);
+    strbuf_release(&realpath);
 }
 
 const char *get_git_work_tree(void)
 {
-	return the_repository->worktree;
+    return the_repository->worktree;
 }
 
 char *get_object_directory(void)
 {
-	if (!the_repository->objects->odb)
-		BUG("git environment hasn't been setup");
-	return the_repository->objects->odb->path;
+    if (!the_repository->objects->odb)
+        BUG("git environment hasn't been setup");
+    return the_repository->objects->odb->path;
 }
 
 int odb_mkstemp(struct strbuf *temp_filename, const char *pattern)
 {
-	int fd;
-	/*
-	 * we let the umask do its job, don't try to be more
-	 * restrictive except to remove write permission.
-	 */
-	int mode = 0444;
-	git_path_buf(temp_filename, "objects/%s", pattern);
-	fd = git_mkstemp_mode(temp_filename->buf, mode);
-	if (0 <= fd)
-		return fd;
+    int fd;
+    /*
+     * we let the umask do its job, don't try to be more
+     * restrictive except to remove write permission.
+     */
+    int mode = 0444;
+    git_path_buf(temp_filename, "objects/%s", pattern);
+    fd = git_mkstemp_mode(temp_filename->buf, mode);
+    if (0 <= fd)
+        return fd;
 
-	/* slow path */
-	/* some mkstemp implementations erase temp_filename on failure */
-	git_path_buf(temp_filename, "objects/%s", pattern);
-	safe_create_leading_directories(temp_filename->buf);
-	return xmkstemp_mode(temp_filename->buf, mode);
+    /* slow path */
+    /* some mkstemp implementations erase temp_filename on failure */
+    git_path_buf(temp_filename, "objects/%s", pattern);
+    safe_create_leading_directories(temp_filename->buf);
+    return xmkstemp_mode(temp_filename->buf, mode);
 }
 
 int odb_pack_keep(const char *name)
 {
-	int fd;
+    int fd;
 
-	fd = open(name, O_RDWR|O_CREAT|O_EXCL, 0600);
-	if (0 <= fd)
-		return fd;
+    fd = open(name, O_RDWR|O_CREAT|O_EXCL, 0600);
+    if (0 <= fd)
+        return fd;
 
-	/* slow path */
-	safe_create_leading_directories_const(name);
-	return open(name, O_RDWR|O_CREAT|O_EXCL, 0600);
+    /* slow path */
+    safe_create_leading_directories_const(name);
+    return open(name, O_RDWR|O_CREAT|O_EXCL, 0600);
 }
 
 char *get_index_file(void)
 {
-	if (!the_repository->index_file)
-		BUG("git environment hasn't been setup");
-	return the_repository->index_file;
+    if (!the_repository->index_file)
+        BUG("git environment hasn't been setup");
+    return the_repository->index_file;
 }
 
 char *get_graft_file(struct repository *r)
 {
-	if (!r->graft_file)
-		BUG("git environment hasn't been setup");
-	return r->graft_file;
+    if (!r->graft_file)
+        BUG("git environment hasn't been setup");
+    return r->graft_file;
 }
 
 static void set_git_dir_1(const char *path)
 {
-	if (setenv(GIT_DIR_ENVIRONMENT, path, 1))
-		die(_("could not set GIT_DIR to '%s'"), path);
-	setup_git_env(path);
+    if (setenv(GIT_DIR_ENVIRONMENT, path, 1))
+        die(_("could not set GIT_DIR to '%s'"), path);
+    setup_git_env(path);
 }
 
 static void update_relative_gitdir(const char *name,
-				   const char *old_cwd,
-				   const char *new_cwd,
-				   void *data)
+                                   const char *old_cwd,
+                                   const char *new_cwd,
+                                   void *data)
 {
-	char *path = reparent_relative_path(old_cwd, new_cwd, get_git_dir());
-	trace_printf_key(&trace_setup_key,
-			 "setup: move $GIT_DIR to '%s'",
-			 path);
-	set_git_dir_1(path);
-	free(path);
+    char *path = reparent_relative_path(old_cwd, new_cwd, get_git_dir());
+    trace_printf_key(&trace_setup_key,
+                     "setup: move $GIT_DIR to '%s'",
+                     path);
+    set_git_dir_1(path);
+    free(path);
 }
 
 void set_git_dir(const char *path, int make_realpath)
 {
-	struct strbuf realpath = STRBUF_INIT;
+    struct strbuf realpath = STRBUF_INIT;
 
-	if (make_realpath) {
-		strbuf_realpath(&realpath, path, 1);
-		path = realpath.buf;
-	}
+    if (make_realpath) {
+        strbuf_realpath(&realpath, path, 1);
+        path = realpath.buf;
+    }
 
-	set_git_dir_1(path);
-	if (!is_absolute_path(path))
-		chdir_notify_register(NULL, update_relative_gitdir, NULL);
+    set_git_dir_1(path);
+    if (!is_absolute_path(path))
+        chdir_notify_register(NULL, update_relative_gitdir, NULL);
 
-	strbuf_release(&realpath);
+    strbuf_release(&realpath);
 }
 
 const char *get_log_output_encoding(void)
 {
-	return git_log_output_encoding ? git_log_output_encoding
-		: get_commit_output_encoding();
+    return git_log_output_encoding ? git_log_output_encoding
+           : get_commit_output_encoding();
 }
 
 const char *get_commit_output_encoding(void)
 {
-	return git_commit_encoding ? git_commit_encoding : "UTF-8";
+    return git_commit_encoding ? git_commit_encoding : "UTF-8";
 }
 
 static int the_shared_repository = PERM_UMASK;
@@ -381,43 +381,43 @@ static int need_shared_repository_from_config = 1;
 
 void set_shared_repository(int value)
 {
-	the_shared_repository = value;
-	need_shared_repository_from_config = 0;
+    the_shared_repository = value;
+    need_shared_repository_from_config = 0;
 }
 
 int get_shared_repository(void)
 {
-	if (need_shared_repository_from_config) {
-		const char *var = "core.sharedrepository";
-		const char *value;
-		if (!git_config_get_value(var, &value))
-			the_shared_repository = git_config_perm(var, value);
-		need_shared_repository_from_config = 0;
-	}
-	return the_shared_repository;
+    if (need_shared_repository_from_config) {
+        const char *var = "core.sharedrepository";
+        const char *value;
+        if (!git_config_get_value(var, &value))
+            the_shared_repository = git_config_perm(var, value);
+        need_shared_repository_from_config = 0;
+    }
+    return the_shared_repository;
 }
 
 void reset_shared_repository(void)
 {
-	need_shared_repository_from_config = 1;
+    need_shared_repository_from_config = 1;
 }
 
 int use_optional_locks(void)
 {
-	return git_env_bool(GIT_OPTIONAL_LOCKS_ENVIRONMENT, 1);
+    return git_env_bool(GIT_OPTIONAL_LOCKS_ENVIRONMENT, 1);
 }
 
 int print_sha1_ellipsis(void)
 {
-	/*
-	 * Determine if the calling environment contains the variable
-	 * GIT_PRINT_SHA1_ELLIPSIS set to "yes".
-	 */
-	static int cached_result = -1; /* unknown */
+    /*
+     * Determine if the calling environment contains the variable
+     * GIT_PRINT_SHA1_ELLIPSIS set to "yes".
+     */
+    static int cached_result = -1; /* unknown */
 
-	if (cached_result < 0) {
-		const char *v = getenv("GIT_PRINT_SHA1_ELLIPSIS");
-		cached_result = (v && !strcasecmp(v, "yes"));
-	}
-	return cached_result;
+    if (cached_result < 0) {
+        const char *v = getenv("GIT_PRINT_SHA1_ELLIPSIS");
+        cached_result = (v && !strcasecmp(v, "yes"));
+    }
+    return cached_result;
 }

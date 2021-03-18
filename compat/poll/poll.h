@@ -50,9 +50,9 @@
 
 struct pollfd
 {
-  int fd;                       /* which file descriptor to poll */
-  short events;                 /* events we are interested in   */
-  short revents;                /* events found on return        */
+    int fd;                       /* which file descriptor to poll */
+    short events;                 /* events we are interested in   */
+    short revents;                /* events found on return        */
 };
 
 typedef unsigned long nfds_t;

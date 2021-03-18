@@ -50,44 +50,44 @@ int parse_commit_in_graph(struct repository *r, struct commit *item);
 void load_commit_graph_info(struct repository *r, struct commit *item);
 
 struct tree *get_commit_tree_in_graph(struct repository *r,
-				      const struct commit *c);
+                                      const struct commit *c);
 
 struct commit_graph {
-	const unsigned char *data;
-	size_t data_len;
+    const unsigned char *data;
+    size_t data_len;
 
-	unsigned char hash_len;
-	unsigned char num_chunks;
-	uint32_t num_commits;
-	struct object_id oid;
-	char *filename;
-	struct object_directory *odb;
+    unsigned char hash_len;
+    unsigned char num_chunks;
+    uint32_t num_commits;
+    struct object_id oid;
+    char *filename;
+    struct object_directory *odb;
 
-	uint32_t num_commits_in_base;
-	unsigned int read_generation_data;
-	struct commit_graph *base_graph;
+    uint32_t num_commits_in_base;
+    unsigned int read_generation_data;
+    struct commit_graph *base_graph;
 
-	const uint32_t *chunk_oid_fanout;
-	const unsigned char *chunk_oid_lookup;
-	const unsigned char *chunk_commit_data;
-	const unsigned char *chunk_generation_data;
-	const unsigned char *chunk_generation_data_overflow;
-	const unsigned char *chunk_extra_edges;
-	const unsigned char *chunk_base_graphs;
-	const unsigned char *chunk_bloom_indexes;
-	const unsigned char *chunk_bloom_data;
+    const uint32_t *chunk_oid_fanout;
+    const unsigned char *chunk_oid_lookup;
+    const unsigned char *chunk_commit_data;
+    const unsigned char *chunk_generation_data;
+    const unsigned char *chunk_generation_data_overflow;
+    const unsigned char *chunk_extra_edges;
+    const unsigned char *chunk_base_graphs;
+    const unsigned char *chunk_bloom_indexes;
+    const unsigned char *chunk_bloom_data;
 
-	struct topo_level_slab *topo_levels;
-	struct bloom_filter_settings *bloom_filter_settings;
+    struct topo_level_slab *topo_levels;
+    struct bloom_filter_settings *bloom_filter_settings;
 };
 
 struct commit_graph *load_commit_graph_one_fd_st(struct repository *r,
-						 int fd, struct stat *st,
-						 struct object_directory *odb);
+        int fd, struct stat *st,
+        struct object_directory *odb);
 struct commit_graph *read_commit_graph_one(struct repository *r,
-					   struct object_directory *odb);
+        struct object_directory *odb);
 struct commit_graph *parse_commit_graph(struct repository *r,
-					void *graph_map, size_t graph_size);
+                                        void *graph_map, size_t graph_size);
 
 /*
  * Return 1 if and only if the repository has a commit-graph
@@ -104,25 +104,25 @@ int corrected_commit_dates_enabled(struct repository *r);
 struct bloom_filter_settings *get_bloom_filter_settings(struct repository *r);
 
 enum commit_graph_write_flags {
-	COMMIT_GRAPH_WRITE_APPEND     = (1 << 0),
-	COMMIT_GRAPH_WRITE_PROGRESS   = (1 << 1),
-	COMMIT_GRAPH_WRITE_SPLIT      = (1 << 2),
-	COMMIT_GRAPH_WRITE_BLOOM_FILTERS = (1 << 3),
-	COMMIT_GRAPH_NO_WRITE_BLOOM_FILTERS = (1 << 4),
+    COMMIT_GRAPH_WRITE_APPEND     = (1 << 0),
+    COMMIT_GRAPH_WRITE_PROGRESS   = (1 << 1),
+    COMMIT_GRAPH_WRITE_SPLIT      = (1 << 2),
+    COMMIT_GRAPH_WRITE_BLOOM_FILTERS = (1 << 3),
+    COMMIT_GRAPH_NO_WRITE_BLOOM_FILTERS = (1 << 4),
 };
 
 enum commit_graph_split_flags {
-	COMMIT_GRAPH_SPLIT_UNSPECIFIED      = 0,
-	COMMIT_GRAPH_SPLIT_MERGE_PROHIBITED = 1,
-	COMMIT_GRAPH_SPLIT_REPLACE          = 2
+    COMMIT_GRAPH_SPLIT_UNSPECIFIED      = 0,
+    COMMIT_GRAPH_SPLIT_MERGE_PROHIBITED = 1,
+    COMMIT_GRAPH_SPLIT_REPLACE          = 2
 };
 
 struct commit_graph_opts {
-	int size_multiple;
-	int max_commits;
-	timestamp_t expire_time;
-	enum commit_graph_split_flags split_flags;
-	int max_new_filters;
+    int size_multiple;
+    int max_commits;
+    timestamp_t expire_time;
+    enum commit_graph_split_flags split_flags;
+    int max_new_filters;
 };
 
 /*
@@ -132,13 +132,13 @@ struct commit_graph_opts {
  * methods will return 0 without writing a commit-graph.
  */
 int write_commit_graph_reachable(struct object_directory *odb,
-				 enum commit_graph_write_flags flags,
-				 const struct commit_graph_opts *opts);
+                                 enum commit_graph_write_flags flags,
+                                 const struct commit_graph_opts *opts);
 int write_commit_graph(struct object_directory *odb,
-		       struct string_list *pack_indexes,
-		       struct oidset *commits,
-		       enum commit_graph_write_flags flags,
-		       const struct commit_graph_opts *opts);
+                       struct string_list *pack_indexes,
+                       struct oidset *commits,
+                       enum commit_graph_write_flags flags,
+                       const struct commit_graph_opts *opts);
 
 #define COMMIT_GRAPH_VERIFY_SHALLOW	(1 << 0)
 
@@ -154,8 +154,8 @@ void free_commit_graph(struct commit_graph *);
 void disable_commit_graph(struct repository *r);
 
 struct commit_graph_data {
-	uint32_t graph_pos;
-	timestamp_t generation;
+    uint32_t graph_pos;
+    timestamp_t generation;
 };
 
 /*

@@ -32,7 +32,15 @@ extern "C" {
 #endif
 
 #define DVMASKSIZE 1
-typedef struct { int dvType; int dvK; int dvB; int testt; int maski; int maskb; uint32_t dm[80]; } dv_info_t;
+typedef struct {
+    int dvType;
+    int dvK;
+    int dvB;
+    int testt;
+    int maski;
+    int maskb;
+    uint32_t dm[80];
+} dv_info_t;
 extern dv_info_t sha1_dvs[];
 void ubc_check(const uint32_t W[80], uint32_t dvmask[DVMASKSIZE]);
 

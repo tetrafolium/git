@@ -51,9 +51,9 @@ typedef khint_t khiter_t;
 
 static inline khint_t __ac_X31_hash_string(const char *s)
 {
-	khint_t h = (khint_t)*s;
-	if (h) for (++s ; *s; ++s) h = (h << 5) - h + (khint_t)*s;
-	return h;
+    khint_t h = (khint_t)*s;
+    if (h) for (++s ; *s; ++s) h = (h << 5) - h + (khint_t)*s;
+    return h;
 }
 
 #define kh_str_hash_func(key) __ac_X31_hash_string(key)
@@ -326,12 +326,12 @@ static const double __ac_HASH_UPPER = 0.77;
 
 static inline unsigned int oidhash_by_value(struct object_id oid)
 {
-	return oidhash(&oid);
+    return oidhash(&oid);
 }
 
 static inline int oideq_by_value(struct object_id a, struct object_id b)
 {
-	return oideq(&a, &b);
+    return oideq(&a, &b);
 }
 
 KHASH_INIT(oid_set, struct object_id, int, 0, oidhash_by_value, oideq_by_value)

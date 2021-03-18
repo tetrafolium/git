@@ -28,31 +28,31 @@ struct index_state;
  * prepared by parse_pathspec().
  */
 struct pathspec {
-	int nr;
-	unsigned int has_wildcard:1;
-	unsigned int recursive:1;
-	unsigned int recurse_submodules:1;
-	unsigned magic;
-	int max_depth;
-	struct pathspec_item {
-		char *match;
-		char *original;
-		unsigned magic;
-		int len, prefix;
-		int nowildcard_len;
-		int flags;
-		int attr_match_nr;
-		struct attr_match {
-			char *value;
-			enum attr_match_mode {
-				MATCH_SET,
-				MATCH_UNSET,
-				MATCH_VALUE,
-				MATCH_UNSPECIFIED
-			} match_mode;
-		} *attr_match;
-		struct attr_check *attr_check;
-	} *items;
+    int nr;
+    unsigned int has_wildcard:1;
+    unsigned int recursive:1;
+    unsigned int recurse_submodules:1;
+    unsigned magic;
+    int max_depth;
+    struct pathspec_item {
+        char *match;
+        char *original;
+        unsigned magic;
+        int len, prefix;
+        int nowildcard_len;
+        int flags;
+        int attr_match_nr;
+        struct attr_match {
+            char *value;
+            enum attr_match_mode {
+                MATCH_SET,
+                MATCH_UNSET,
+                MATCH_VALUE,
+                MATCH_UNSPECIFIED
+            } match_mode;
+        } *attr_match;
+        struct attr_check *attr_check;
+    } *items;
 };
 
 #define GUARD_PATHSPEC(ps, mask) \
@@ -113,49 +113,49 @@ struct pathspec {
  * some cases. grepping parse_pathspec() should help.
  */
 void parse_pathspec(struct pathspec *pathspec,
-		    unsigned magic_mask,
-		    unsigned flags,
-		    const char *prefix,
-		    const char **args);
+                    unsigned magic_mask,
+                    unsigned flags,
+                    const char *prefix,
+                    const char **args);
 /*
  * Same as parse_pathspec() but uses file as input.
  * When 'file' is exactly "-" it uses 'stdin' instead.
  */
 void parse_pathspec_file(struct pathspec *pathspec,
-			 unsigned magic_mask,
-			 unsigned flags,
-			 const char *prefix,
-			 const char *file,
-			 int nul_term_line);
+                         unsigned magic_mask,
+                         unsigned flags,
+                         const char *prefix,
+                         const char *file,
+                         int nul_term_line);
 
 void copy_pathspec(struct pathspec *dst, const struct pathspec *src);
 void clear_pathspec(struct pathspec *);
 
 static inline int ps_strncmp(const struct pathspec_item *item,
-			     const char *s1, const char *s2, size_t n)
+                             const char *s1, const char *s2, size_t n)
 {
-	if (item->magic & PATHSPEC_ICASE)
-		return strncasecmp(s1, s2, n);
-	else
-		return strncmp(s1, s2, n);
+    if (item->magic & PATHSPEC_ICASE)
+        return strncasecmp(s1, s2, n);
+    else
+        return strncmp(s1, s2, n);
 }
 
 static inline int ps_strcmp(const struct pathspec_item *item,
-			    const char *s1, const char *s2)
+                            const char *s1, const char *s2)
 {
-	if (item->magic & PATHSPEC_ICASE)
-		return strcasecmp(s1, s2);
-	else
-		return strcmp(s1, s2);
+    if (item->magic & PATHSPEC_ICASE)
+        return strcasecmp(s1, s2);
+    else
+        return strcmp(s1, s2);
 }
 
 void add_pathspec_matches_against_index(const struct pathspec *pathspec,
-					const struct index_state *istate,
-					char *seen);
+                                        const struct index_state *istate,
+                                        char *seen);
 char *find_pathspecs_matching_against_index(const struct pathspec *pathspec,
-					    const struct index_state *istate);
+        const struct index_state *istate);
 int match_pathspec_attrs(const struct index_state *istate,
-			 const char *name, int namelen,
-			 const struct pathspec_item *item);
+                         const char *name, int namelen,
+                         const struct pathspec_item *item);
 
 #endif /* PATHSPEC_H */

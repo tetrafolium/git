@@ -43,102 +43,102 @@
  */
 struct child_process {
 
-	/**
-	 * The .argv member is set up as an array of string pointers (NULL
-	 * terminated), of which .argv[0] is the program name to run (usually
-	 * without a path). If the command to run is a git command, set argv[0] to
-	 * the command name without the 'git-' prefix and set .git_cmd = 1.
-	 *
-	 * Note that the ownership of the memory pointed to by .argv stays with the
-	 * caller, but it should survive until `finish_command` completes. If the
-	 * .argv member is NULL, `start_command` will point it at the .args
-	 * `strvec` (so you may use one or the other, but you must use exactly
-	 * one). The memory in .args will be cleaned up automatically during
-	 * `finish_command` (or during `start_command` when it is unsuccessful).
-	 *
-	 */
-	const char **argv;
+    /**
+     * The .argv member is set up as an array of string pointers (NULL
+     * terminated), of which .argv[0] is the program name to run (usually
+     * without a path). If the command to run is a git command, set argv[0] to
+     * the command name without the 'git-' prefix and set .git_cmd = 1.
+     *
+     * Note that the ownership of the memory pointed to by .argv stays with the
+     * caller, but it should survive until `finish_command` completes. If the
+     * .argv member is NULL, `start_command` will point it at the .args
+     * `strvec` (so you may use one or the other, but you must use exactly
+     * one). The memory in .args will be cleaned up automatically during
+     * `finish_command` (or during `start_command` when it is unsuccessful).
+     *
+     */
+    const char **argv;
 
-	struct strvec args;
-	struct strvec env_array;
-	pid_t pid;
+    struct strvec args;
+    struct strvec env_array;
+    pid_t pid;
 
-	int trace2_child_id;
-	uint64_t trace2_child_us_start;
-	const char *trace2_child_class;
-	const char *trace2_hook_name;
+    int trace2_child_id;
+    uint64_t trace2_child_us_start;
+    const char *trace2_child_class;
+    const char *trace2_hook_name;
 
-	/*
-	 * Using .in, .out, .err:
-	 * - Specify 0 for no redirections. No new file descriptor is allocated.
-	 * (child inherits stdin, stdout, stderr from parent).
-	 * - Specify -1 to have a pipe allocated as follows:
-	 *     .in: returns the writable pipe end; parent writes to it,
-	 *          the readable pipe end becomes child's stdin
-	 *     .out, .err: returns the readable pipe end; parent reads from
-	 *          it, the writable pipe end becomes child's stdout/stderr
-	 *   The caller of start_command() must close the returned FDs
-	 *   after it has completed reading from/writing to it!
-	 * - Specify > 0 to set a channel to a particular FD as follows:
-	 *     .in: a readable FD, becomes child's stdin
-	 *     .out: a writable FD, becomes child's stdout/stderr
-	 *     .err: a writable FD, becomes child's stderr
-	 *   The specified FD is closed by start_command(), even in case
-	 *   of errors!
-	 */
-	int in;
-	int out;
-	int err;
+    /*
+     * Using .in, .out, .err:
+     * - Specify 0 for no redirections. No new file descriptor is allocated.
+     * (child inherits stdin, stdout, stderr from parent).
+     * - Specify -1 to have a pipe allocated as follows:
+     *     .in: returns the writable pipe end; parent writes to it,
+     *          the readable pipe end becomes child's stdin
+     *     .out, .err: returns the readable pipe end; parent reads from
+     *          it, the writable pipe end becomes child's stdout/stderr
+     *   The caller of start_command() must close the returned FDs
+     *   after it has completed reading from/writing to it!
+     * - Specify > 0 to set a channel to a particular FD as follows:
+     *     .in: a readable FD, becomes child's stdin
+     *     .out: a writable FD, becomes child's stdout/stderr
+     *     .err: a writable FD, becomes child's stderr
+     *   The specified FD is closed by start_command(), even in case
+     *   of errors!
+     */
+    int in;
+    int out;
+    int err;
 
-	/**
-	 * To specify a new initial working directory for the sub-process,
-	 * specify it in the .dir member.
-	 */
-	const char *dir;
+    /**
+     * To specify a new initial working directory for the sub-process,
+     * specify it in the .dir member.
+     */
+    const char *dir;
 
-	/**
-	 * To modify the environment of the sub-process, specify an array of
-	 * string pointers (NULL terminated) in .env:
-	 *
-	 * - If the string is of the form "VAR=value", i.e. it contains '='
-	 *   the variable is added to the child process's environment.
-	 *
-	 * - If the string does not contain '=', it names an environment
-	 *   variable that will be removed from the child process's environment.
-	 *
-	 * If the .env member is NULL, `start_command` will point it at the
-	 * .env_array `strvec` (so you may use one or the other, but not both).
-	 * The memory in .env_array will be cleaned up automatically during
-	 * `finish_command` (or during `start_command` when it is unsuccessful).
-	 */
-	const char *const *env;
+    /**
+     * To modify the environment of the sub-process, specify an array of
+     * string pointers (NULL terminated) in .env:
+     *
+     * - If the string is of the form "VAR=value", i.e. it contains '='
+     *   the variable is added to the child process's environment.
+     *
+     * - If the string does not contain '=', it names an environment
+     *   variable that will be removed from the child process's environment.
+     *
+     * If the .env member is NULL, `start_command` will point it at the
+     * .env_array `strvec` (so you may use one or the other, but not both).
+     * The memory in .env_array will be cleaned up automatically during
+     * `finish_command` (or during `start_command` when it is unsuccessful).
+     */
+    const char *const *env;
 
-	unsigned no_stdin:1;
-	unsigned no_stdout:1;
-	unsigned no_stderr:1;
-	unsigned git_cmd:1; /* if this is to be git sub-command */
+    unsigned no_stdin:1;
+    unsigned no_stdout:1;
+    unsigned no_stderr:1;
+    unsigned git_cmd:1; /* if this is to be git sub-command */
 
-	/**
-	 * If the program cannot be found, the functions return -1 and set
-	 * errno to ENOENT. Normally, an error message is printed, but if
-	 * .silent_exec_failure is set to 1, no message is printed for this
-	 * special error condition.
-	 */
-	unsigned silent_exec_failure:1;
+    /**
+     * If the program cannot be found, the functions return -1 and set
+     * errno to ENOENT. Normally, an error message is printed, but if
+     * .silent_exec_failure is set to 1, no message is printed for this
+     * special error condition.
+     */
+    unsigned silent_exec_failure:1;
 
-	/**
-	 * Run the command from argv[0] using a shell (but note that we may
-	 * still optimize out the shell call if the command contains no
-	 * metacharacters). Note that further arguments to the command in
-	 * argv[1], etc, do not need to be shell-quoted.
-	 */
-	unsigned use_shell:1;
+    /**
+     * Run the command from argv[0] using a shell (but note that we may
+     * still optimize out the shell call if the command contains no
+     * metacharacters). Note that further arguments to the command in
+     * argv[1], etc, do not need to be shell-quoted.
+     */
+    unsigned use_shell:1;
 
-	unsigned stdout_to_stderr:1;
-	unsigned clean_on_exit:1;
-	unsigned wait_after_clean:1;
-	void (*clean_on_exit_handler)(struct child_process *process);
-	void *clean_on_exit_handler_cbdata;
+    unsigned stdout_to_stderr:1;
+    unsigned clean_on_exit:1;
+    unsigned wait_after_clean:1;
+    void (*clean_on_exit_handler)(struct child_process *process);
+    void *clean_on_exit_handler_cbdata;
 };
 
 #define CHILD_PROCESS_INIT { NULL, STRVEC_INIT, STRVEC_INIT }
@@ -257,7 +257,7 @@ int run_command_v_opt_tr2(const char **argv, int opt, const char *tr2_class);
  */
 int run_command_v_opt_cd_env(const char **argv, int opt, const char *dir, const char *const *env);
 int run_command_v_opt_cd_env_tr2(const char **argv, int opt, const char *dir,
-				 const char *const *env, const char *tr2_class);
+                                 const char *const *env, const char *tr2_class);
 
 /**
  * Execute the given command, sending "in" to its stdin, and capturing its
@@ -274,19 +274,19 @@ int run_command_v_opt_cd_env_tr2(const char **argv, int opt, const char *dir,
  * fields; pipe_command handles that automatically.
  */
 int pipe_command(struct child_process *cmd,
-		 const char *in, size_t in_len,
-		 struct strbuf *out, size_t out_hint,
-		 struct strbuf *err, size_t err_hint);
+                 const char *in, size_t in_len,
+                 struct strbuf *out, size_t out_hint,
+                 struct strbuf *err, size_t err_hint);
 
 /**
  * Convenience wrapper around pipe_command for the common case
  * of capturing only stdout.
  */
 static inline int capture_command(struct child_process *cmd,
-				  struct strbuf *out,
-				  size_t hint)
+                                  struct strbuf *out,
+                                  size_t hint)
 {
-	return pipe_command(cmd, NULL, 0, out, hint, NULL, 0);
+    return pipe_command(cmd, NULL, 0, out, hint, NULL, 0);
 }
 
 /*
@@ -322,68 +322,68 @@ static inline int capture_command(struct child_process *cmd,
  */
 struct async {
 
-	/**
-	 * The function pointer in .proc has the following signature:
-	 *
-	 *	int proc(int in, int out, void *data);
-	 *
-	 * - in, out specifies a set of file descriptors to which the function
-	 *  must read/write the data that it needs/produces.  The function
-	 *  *must* close these descriptors before it returns.  A descriptor
-	 *  may be -1 if the caller did not configure a descriptor for that
-	 *  direction.
-	 *
-	 * - data is the value that the caller has specified in the .data member
-	 *  of struct async.
-	 *
-	 * - The return value of the function is 0 on success and non-zero
-	 *  on failure. If the function indicates failure, finish_async() will
-	 *  report failure as well.
-	 *
-	 */
-	int (*proc)(int in, int out, void *data);
+    /**
+     * The function pointer in .proc has the following signature:
+     *
+     *	int proc(int in, int out, void *data);
+     *
+     * - in, out specifies a set of file descriptors to which the function
+     *  must read/write the data that it needs/produces.  The function
+     *  *must* close these descriptors before it returns.  A descriptor
+     *  may be -1 if the caller did not configure a descriptor for that
+     *  direction.
+     *
+     * - data is the value that the caller has specified in the .data member
+     *  of struct async.
+     *
+     * - The return value of the function is 0 on success and non-zero
+     *  on failure. If the function indicates failure, finish_async() will
+     *  report failure as well.
+     *
+     */
+    int (*proc)(int in, int out, void *data);
 
-	void *data;
+    void *data;
 
-	/**
-	 * The members .in, .out are used to provide a set of fd's for
-	 * communication between the caller and the callee as follows:
-	 *
-	 * - Specify 0 to have no file descriptor passed.  The callee will
-	 *   receive -1 in the corresponding argument.
-	 *
-	 * - Specify < 0 to have a pipe allocated; start_async() replaces
-	 *   with the pipe FD in the following way:
-	 *
-	 * 	.in: Returns the writable pipe end into which the caller
-	 * 	writes; the readable end of the pipe becomes the function's
-	 * 	in argument.
-	 *
-	 * 	.out: Returns the readable pipe end from which the caller
-	 * 	reads; the writable end of the pipe becomes the function's
-	 * 	out argument.
-	 *
-	 *   The caller of start_async() must close the returned FDs after it
-	 *   has completed reading from/writing from them.
-	 *
-	 * - Specify a file descriptor > 0 to be used by the function:
-	 *
-	 * 	.in: The FD must be readable; it becomes the function's in.
-	 * 	.out: The FD must be writable; it becomes the function's out.
-	 *
-	 *   The specified FD is closed by start_async(), even if it fails to
-	 *   run the function.
-	 */
-	int in;		/* caller writes here and closes it */
-	int out;	/* caller reads from here and closes it */
+    /**
+     * The members .in, .out are used to provide a set of fd's for
+     * communication between the caller and the callee as follows:
+     *
+     * - Specify 0 to have no file descriptor passed.  The callee will
+     *   receive -1 in the corresponding argument.
+     *
+     * - Specify < 0 to have a pipe allocated; start_async() replaces
+     *   with the pipe FD in the following way:
+     *
+     * 	.in: Returns the writable pipe end into which the caller
+     * 	writes; the readable end of the pipe becomes the function's
+     * 	in argument.
+     *
+     * 	.out: Returns the readable pipe end from which the caller
+     * 	reads; the writable end of the pipe becomes the function's
+     * 	out argument.
+     *
+     *   The caller of start_async() must close the returned FDs after it
+     *   has completed reading from/writing from them.
+     *
+     * - Specify a file descriptor > 0 to be used by the function:
+     *
+     * 	.in: The FD must be readable; it becomes the function's in.
+     * 	.out: The FD must be writable; it becomes the function's out.
+     *
+     *   The specified FD is closed by start_async(), even if it fails to
+     *   run the function.
+     */
+    int in;		/* caller writes here and closes it */
+    int out;	/* caller reads from here and closes it */
 #ifdef NO_PTHREADS
-	pid_t pid;
+    pid_t pid;
 #else
-	pthread_t tid;
-	int proc_in;
-	int proc_out;
+    pthread_t tid;
+    int proc_in;
+    int proc_out;
 #endif
-	int isolate_sigpipe;
+    int isolate_sigpipe;
 };
 
 /**
@@ -420,9 +420,9 @@ void check_pipe(int err);
  * return the negative signal number.
  */
 typedef int (*get_next_task_fn)(struct child_process *cp,
-				struct strbuf *out,
-				void *pp_cb,
-				void **pp_task_cb);
+                                struct strbuf *out,
+                                void *pp_cb,
+                                void **pp_task_cb);
 
 /**
  * This callback is called whenever there are problems starting
@@ -440,8 +440,8 @@ typedef int (*get_next_task_fn)(struct child_process *cp,
  * the negative signal number.
  */
 typedef int (*start_failure_fn)(struct strbuf *out,
-				void *pp_cb,
-				void *pp_task_cb);
+                                void *pp_cb,
+                                void *pp_task_cb);
 
 /**
  * This callback is called on every child process that finished processing.
@@ -458,9 +458,9 @@ typedef int (*start_failure_fn)(struct strbuf *out,
  * the negative signal number.
  */
 typedef int (*task_finished_fn)(int result,
-				struct strbuf *out,
-				void *pp_cb,
-				void *pp_task_cb);
+                                struct strbuf *out,
+                                void *pp_cb,
+                                void *pp_task_cb);
 
 /**
  * Runs up to n processes at the same time. Whenever a process can be
@@ -475,12 +475,12 @@ typedef int (*task_finished_fn)(int result,
  * special handling.
  */
 int run_processes_parallel(int n,
-			   get_next_task_fn,
-			   start_failure_fn,
-			   task_finished_fn,
-			   void *pp_cb);
+                           get_next_task_fn,
+                           start_failure_fn,
+                           task_finished_fn,
+                           void *pp_cb);
 int run_processes_parallel_tr2(int n, get_next_task_fn, start_failure_fn,
-			       task_finished_fn, void *pp_cb,
-			       const char *tr2_category, const char *tr2_label);
+                               task_finished_fn, void *pp_cb,
+                               const char *tr2_category, const char *tr2_label);
 
 #endif

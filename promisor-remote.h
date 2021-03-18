@@ -12,9 +12,9 @@ struct object_id;
  * from extensions.partialclone.
  */
 struct promisor_remote {
-	struct promisor_remote *next;
-	const char *partial_clone_filter;
-	const char name[FLEX_ARRAY];
+    struct promisor_remote *next;
+    const char *partial_clone_filter;
+    const char name[FLEX_ARRAY];
 };
 
 void promisor_remote_reinit(void);
@@ -29,8 +29,8 @@ int has_promisor_remote(void);
  * If oid_nr is 0, this function returns 0 (success) immediately.
  */
 int promisor_remote_get_direct(struct repository *repo,
-			       const struct object_id *oids,
-			       int oid_nr);
+                               const struct object_id *oids,
+                               int oid_nr);
 
 /*
  * This should be used only once from setup.c to set the value we got

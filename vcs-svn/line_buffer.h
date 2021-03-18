@@ -6,8 +6,8 @@
 #define LINE_BUFFER_LEN 10000
 
 struct line_buffer {
-	char line_buffer[LINE_BUFFER_LEN];
-	FILE *infile;
+    char line_buffer[LINE_BUFFER_LEN];
+    FILE *infile;
 };
 #define LINE_BUFFER_INIT { "", NULL }
 

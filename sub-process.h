@@ -20,32 +20,32 @@
  * This API is based on the run-command API.
  */
 
- /* data structures */
+/* data structures */
 
 /* Members should not be accessed directly. */
 struct subprocess_entry {
-	struct hashmap_entry ent;
-	const char *cmd;
-	struct child_process process;
+    struct hashmap_entry ent;
+    const char *cmd;
+    struct child_process process;
 };
 
 struct subprocess_capability {
-	const char *name;
+    const char *name;
 
-	/*
-	 * subprocess_handshake will "|=" this value to supported_capabilities
-	 * if the server reports that it supports this capability.
-	 */
-	unsigned int flag;
+    /*
+     * subprocess_handshake will "|=" this value to supported_capabilities
+     * if the server reports that it supports this capability.
+     */
+    unsigned int flag;
 };
 
 /* subprocess functions */
 
 /* Function to test two subprocess hashmap entries for equality. */
 int cmd2process_cmp(const void *unused_cmp_data,
-		    const struct hashmap_entry *e,
-		    const struct hashmap_entry *entry_or_key,
-		    const void *unused_keydata);
+                    const struct hashmap_entry *e,
+                    const struct hashmap_entry *entry_or_key,
+                    const void *unused_keydata);
 
 /*
  * User-supplied function to initialize the sub-process.  This is
@@ -55,7 +55,7 @@ typedef int(*subprocess_start_fn)(struct subprocess_entry *entry);
 
 /* Start a subprocess and add it to the subprocess hashmap. */
 int subprocess_start(struct hashmap *hashmap, struct subprocess_entry *entry, const char *cmd,
-		subprocess_start_fn startfn);
+                     subprocess_start_fn startfn);
 
 /* Kill a subprocess and remove it from the subprocess hashmap. */
 void subprocess_stop(struct hashmap *hashmap, struct subprocess_entry *entry);
@@ -67,9 +67,9 @@ struct subprocess_entry *subprocess_find_entry(struct hashmap *hashmap, const ch
 
 /* Get the underlying `struct child_process` from a subprocess. */
 static inline struct child_process *subprocess_get_child_process(
-		struct subprocess_entry *entry)
+    struct subprocess_entry *entry)
 {
-	return &entry->process;
+    return &entry->process;
 }
 
 /*
@@ -82,11 +82,11 @@ static inline struct child_process *subprocess_get_child_process(
  * the "startfn" passed to subprocess_start).
  */
 int subprocess_handshake(struct subprocess_entry *entry,
-			 const char *welcome_prefix,
-			 int *versions,
-			 int *chosen_version,
-			 struct subprocess_capability *capabilities,
-			 unsigned int *supported_capabilities);
+                         const char *welcome_prefix,
+                         int *versions,
+                         int *chosen_version,
+                         struct subprocess_capability *capabilities,
+                         unsigned int *supported_capabilities);
 
 /*
  * Helper function that will read packets looking for "status=<foo>"

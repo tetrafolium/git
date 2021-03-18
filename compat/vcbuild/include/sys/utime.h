@@ -18,16 +18,16 @@
  */
 struct _utimbuf
 {
-	time_t	actime;		/* Access time */
-	time_t	modtime;	/* Modification time */
+    time_t	actime;		/* Access time */
+    time_t	modtime;	/* Modification time */
 };
 
 #ifndef	_NO_OLDNAMES
 /* NOTE: Must be the same as _utimbuf above. */
 struct utimbuf
 {
-	time_t	actime;
-	time_t	modtime;
+    time_t	actime;
+    time_t	modtime;
 };
 #endif	/* Not _NO_OLDNAMES */
 

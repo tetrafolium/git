@@ -56,11 +56,11 @@ int fsmonitor_is_trivial_response(const struct strbuf *query_result);
  */
 static inline void mark_fsmonitor_valid(struct index_state *istate, struct cache_entry *ce)
 {
-	if (core_fsmonitor && !(ce->ce_flags & CE_FSMONITOR_VALID)) {
-		istate->cache_changed = 1;
-		ce->ce_flags |= CE_FSMONITOR_VALID;
-		trace_printf_key(&trace_fsmonitor, "mark_fsmonitor_clean '%s'", ce->name);
-	}
+    if (core_fsmonitor && !(ce->ce_flags & CE_FSMONITOR_VALID)) {
+        istate->cache_changed = 1;
+        ce->ce_flags |= CE_FSMONITOR_VALID;
+        trace_printf_key(&trace_fsmonitor, "mark_fsmonitor_clean '%s'", ce->name);
+    }
 }
 
 /*
@@ -72,11 +72,11 @@ static inline void mark_fsmonitor_valid(struct index_state *istate, struct cache
  */
 static inline void mark_fsmonitor_invalid(struct index_state *istate, struct cache_entry *ce)
 {
-	if (core_fsmonitor) {
-		ce->ce_flags &= ~CE_FSMONITOR_VALID;
-		untracked_cache_invalidate_path(istate, ce->name, 1);
-		trace_printf_key(&trace_fsmonitor, "mark_fsmonitor_invalid '%s'", ce->name);
-	}
+    if (core_fsmonitor) {
+        ce->ce_flags &= ~CE_FSMONITOR_VALID;
+        untracked_cache_invalidate_path(istate, ce->name, 1);
+        trace_printf_key(&trace_fsmonitor, "mark_fsmonitor_invalid '%s'", ce->name);
+    }
 }
 
 #endif

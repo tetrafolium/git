@@ -50,35 +50,35 @@ ACQUIRE_LOCK, RELEASE_LOCK, TRY_LOCK, IS_LOCKED and NULL_LOCK_INITIALIZER.
 #include <stddef.h>   /* for size_t */
 
 #ifndef EXTSPEC
- #define EXTSPEC extern
+#define EXTSPEC extern
 #endif
 
 #if defined(_MSC_VER) && _MSC_VER>=1400
- #define MALLOCATTR __declspec(restrict)
+#define MALLOCATTR __declspec(restrict)
 #endif
 #ifdef __GNUC__
- #define MALLOCATTR __attribute__ ((malloc))
+#define MALLOCATTR __attribute__ ((malloc))
 #endif
 #ifndef MALLOCATTR
- #define MALLOCATTR
+#define MALLOCATTR
 #endif
 
 #ifdef REPLACE_SYSTEM_ALLOCATOR
- #define nedmalloc               malloc
- #define nedcalloc               calloc
- #define nedrealloc              realloc
- #define nedfree                 free
- #define nedmemalign             memalign
- #define nedmallinfo             mallinfo
- #define nedmallopt              mallopt
- #define nedmalloc_trim          malloc_trim
- #define nedmalloc_stats         malloc_stats
- #define nedmalloc_footprint     malloc_footprint
- #define nedindependent_calloc   independent_calloc
- #define nedindependent_comalloc independent_comalloc
- #ifdef _MSC_VER
-  #define nedblksize              _msize
- #endif
+#define nedmalloc               malloc
+#define nedcalloc               calloc
+#define nedrealloc              realloc
+#define nedfree                 free
+#define nedmemalign             memalign
+#define nedmallinfo             mallinfo
+#define nedmallopt              mallopt
+#define nedmalloc_trim          malloc_trim
+#define nedmalloc_stats         malloc_stats
+#define nedmalloc_footprint     malloc_footprint
+#define nedindependent_calloc   independent_calloc
+#define nedindependent_comalloc independent_comalloc
+#ifdef _MSC_VER
+#define nedblksize              _msize
+#endif
 #endif
 
 #ifndef NO_MALLINFO
@@ -90,14 +90,14 @@ struct mallinfo;
 #endif
 
 #if defined(__cplusplus)
- #if !defined(NO_NED_NAMESPACE)
+#if !defined(NO_NED_NAMESPACE)
 namespace nedalloc {
- #else
-extern "C" {
- #endif
- #define THROWSPEC throw()
 #else
- #define THROWSPEC
+extern "C" {
+#endif
+#define THROWSPEC throw()
+#else
+#define THROWSPEC
 #endif
 
 /* These are the global functions */

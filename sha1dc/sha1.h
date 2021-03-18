@@ -37,21 +37,21 @@ typedef void(*collision_block_callback)(uint64_t, const uint32_t*, const uint32_
 
 /* The SHA-1 context. */
 typedef struct {
-	uint64_t total;
-	uint32_t ihv[5];
-	unsigned char buffer[64];
-	int found_collision;
-	int safe_hash;
-	int detect_coll;
-	int ubc_check;
-	int reduced_round_coll;
-	collision_block_callback callback;
+    uint64_t total;
+    uint32_t ihv[5];
+    unsigned char buffer[64];
+    int found_collision;
+    int safe_hash;
+    int detect_coll;
+    int ubc_check;
+    int reduced_round_coll;
+    collision_block_callback callback;
 
-	uint32_t ihv1[5];
-	uint32_t ihv2[5];
-	uint32_t m1[80];
-	uint32_t m2[80];
-	uint32_t states[80][5];
+    uint32_t ihv1[5];
+    uint32_t ihv2[5];
+    uint32_t m1[80];
+    uint32_t m2[80];
+    uint32_t states[80][5];
 } SHA1_CTX;
 
 /* Initialize SHA-1 context. */

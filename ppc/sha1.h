@@ -6,13 +6,13 @@
 #include <stdint.h>
 
 typedef struct {
-	uint32_t hash[5];
-	uint32_t cnt;
-	uint64_t len;
-	union {
-		unsigned char b[64];
-		uint64_t l[8];
-	} buf;
+    uint32_t hash[5];
+    uint32_t cnt;
+    uint64_t len;
+    union {
+        unsigned char b[64];
+        uint64_t l[8];
+    } buf;
 } ppc_SHA_CTX;
 
 int ppc_SHA1_Init(ppc_SHA_CTX *c);

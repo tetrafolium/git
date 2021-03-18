@@ -26,61 +26,61 @@
 struct atom_value;
 
 struct ref_sorting {
-	struct ref_sorting *next;
-	int atom; /* index into used_atom array (internal) */
-	enum {
-		REF_SORTING_REVERSE = 1<<0,
-		REF_SORTING_ICASE = 1<<1,
-		REF_SORTING_VERSION = 1<<2,
-		REF_SORTING_DETACHED_HEAD_FIRST = 1<<3,
-	} sort_flags;
+    struct ref_sorting *next;
+    int atom; /* index into used_atom array (internal) */
+    enum {
+        REF_SORTING_REVERSE = 1<<0,
+        REF_SORTING_ICASE = 1<<1,
+        REF_SORTING_VERSION = 1<<2,
+        REF_SORTING_DETACHED_HEAD_FIRST = 1<<3,
+    } sort_flags;
 };
 
 struct ref_array_item {
-	struct object_id objectname;
-	int flag;
-	unsigned int kind;
-	const char *symref;
-	struct commit *commit;
-	struct atom_value *value;
-	char refname[FLEX_ARRAY];
+    struct object_id objectname;
+    int flag;
+    unsigned int kind;
+    const char *symref;
+    struct commit *commit;
+    struct atom_value *value;
+    char refname[FLEX_ARRAY];
 };
 
 struct ref_array {
-	int nr, alloc;
-	struct ref_array_item **items;
-	struct rev_info *revs;
+    int nr, alloc;
+    struct ref_array_item **items;
+    struct rev_info *revs;
 };
 
 struct ref_filter {
-	const char **name_patterns;
-	struct oid_array points_at;
-	struct commit_list *with_commit;
-	struct commit_list *no_commit;
-	struct commit_list *reachable_from;
-	struct commit_list *unreachable_from;
+    const char **name_patterns;
+    struct oid_array points_at;
+    struct commit_list *with_commit;
+    struct commit_list *no_commit;
+    struct commit_list *reachable_from;
+    struct commit_list *unreachable_from;
 
-	unsigned int with_commit_tag_algo : 1,
-		match_as_path : 1,
-		ignore_case : 1,
-		detached : 1;
-	unsigned int kind,
-		lines;
-	int abbrev,
-		verbose;
+    unsigned int with_commit_tag_algo : 1,
+             match_as_path : 1,
+             ignore_case : 1,
+             detached : 1;
+    unsigned int kind,
+             lines;
+    int abbrev,
+        verbose;
 };
 
 struct ref_format {
-	/*
-	 * Set these to define the format; make sure you call
-	 * verify_ref_format() afterwards to finalize.
-	 */
-	const char *format;
-	int quote_style;
-	int use_color;
+    /*
+     * Set these to define the format; make sure you call
+     * verify_ref_format() afterwards to finalize.
+     */
+    const char *format;
+    int quote_style;
+    int use_color;
 
-	/* Internal state to ref-filter */
-	int need_color_reset_at_eol;
+    /* Internal state to ref-filter */
+    int need_color_reset_at_eol;
 };
 
 #define REF_FORMAT_INIT { NULL, 0, -1 }
@@ -116,9 +116,9 @@ void ref_array_sort(struct ref_sorting *sort, struct ref_array *array);
 void ref_sorting_set_sort_flags_all(struct ref_sorting *sorting, unsigned int mask, int on);
 /*  Based on the given format and quote_style, fill the strbuf */
 int format_ref_array_item(struct ref_array_item *info,
-			  const struct ref_format *format,
-			  struct strbuf *final_buf,
-			  struct strbuf *error_buf);
+                          const struct ref_format *format,
+                          struct strbuf *final_buf,
+                          struct strbuf *error_buf);
 /*  Print the ref using the given format and quote_style */
 void show_ref_array_item(struct ref_array_item *info, const struct ref_format *format);
 /*  Parse a single sort specifier and add it to the list */
@@ -139,14 +139,14 @@ void setup_ref_filter_porcelain_msg(void);
  * name must be a fully qualified refname.
  */
 void pretty_print_ref(const char *name, const struct object_id *oid,
-		      const struct ref_format *format);
+                      const struct ref_format *format);
 
 /*
  * Push a single ref onto the array; this can be used to construct your own
  * ref_array without using filter_refs().
  */
 struct ref_array_item *ref_array_push(struct ref_array *array,
-				      const char *refname,
-				      const struct object_id *oid);
+                                      const char *refname,
+                                      const struct object_id *oid);
 
 #endif /*  REF_FILTER_H  */

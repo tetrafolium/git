@@ -34,16 +34,16 @@
  * in a certain revision. It is returned by the lookup functions.
  */
 struct submodule {
-	const char *path;
-	const char *name;
-	const char *url;
-	int fetch_recurse;
-	const char *ignore;
-	const char *branch;
-	struct submodule_update_strategy update_strategy;
-	/* the object id of the responsible .gitmodules file */
-	struct object_id gitmodules_oid;
-	int recommend_shallow;
+    const char *path;
+    const char *name;
+    const char *url;
+    int fetch_recurse;
+    const char *ignore;
+    const char *branch;
+    struct submodule_update_strategy update_strategy;
+    /* the object id of the responsible .gitmodules file */
+    struct object_id gitmodules_oid;
+    int recommend_shallow;
 };
 
 #define SUBMODULE_INIT { NULL, NULL, NULL, RECURSE_SUBMODULES_NONE, \
@@ -58,7 +58,7 @@ int parse_submodule_fetchjobs(const char *var, const char *value);
 int parse_fetch_recurse_submodules_arg(const char *opt, const char *arg);
 struct option;
 int option_fetch_parse_recurse_submodules(const struct option *opt,
-					  const char *arg, int unset);
+        const char *arg, int unset);
 int parse_update_recurse_submodules_arg(const char *opt, const char *arg);
 int parse_push_recurse_submodules_arg(const char *opt, const char *arg);
 void repo_read_gitmodules(struct repository *repo, int skip_if_read);
@@ -68,16 +68,16 @@ void gitmodules_config_oid(const struct object_id *commit_oid);
  * Same as submodule_from_path but lookup by name.
  */
 const struct submodule *submodule_from_name(struct repository *r,
-					    const struct object_id *commit_or_tree,
-					    const char *name);
+        const struct object_id *commit_or_tree,
+        const char *name);
 
 /**
  * Given a tree-ish in the superproject and a path, return the submodule that
  * is bound at the path in the named tree.
  */
 const struct submodule *submodule_from_path(struct repository *r,
-					    const struct object_id *commit_or_tree,
-					    const char *path);
+        const struct object_id *commit_or_tree,
+        const char *path);
 
 /**
  * Use these to free the internally cached values.

@@ -118,7 +118,7 @@ int trace2_cmd_exit_fl(const char *file, int line, int code);
  * Write an error message to the TRACE2 targets.
  */
 void trace2_cmd_error_va_fl(const char *file, int line, const char *fmt,
-			    va_list ap);
+                            va_list ap);
 
 #define trace2_cmd_error_va(fmt, ap) \
 	trace2_cmd_error_va_fl(__FILE__, __LINE__, (fmt), (ap))
@@ -157,7 +157,7 @@ void trace2_cmd_mode_fl(const char *file, int line, const char *mode);
  * expansion.
  */
 void trace2_cmd_alias_fl(const char *file, int line, const char *alias,
-			 const char **argv);
+                         const char **argv);
 
 #define trace2_cmd_alias(alias, argv) \
 	trace2_cmd_alias_fl(__FILE__, __LINE__, (alias), (argv))
@@ -203,7 +203,7 @@ void trace2_cmd_list_env_vars_fl(const char *file, int line);
  * trace2_cmd_list_config() is called.
  */
 void trace2_cmd_set_config_fl(const char *file, int line, const char *key,
-			      const char *value);
+                              const char *value);
 
 #define trace2_cmd_set_config(k, v) \
 	trace2_cmd_set_config_fl(__FILE__, __LINE__, (k), (v))
@@ -223,7 +223,7 @@ void trace2_cmd_set_config_fl(const char *file, int line, const char *key,
  * This function should be called before spawning the child process.
  */
 void trace2_child_start_fl(const char *file, int line,
-			   struct child_process *cmd);
+                           struct child_process *cmd);
 
 #define trace2_child_start(cmd) trace2_child_start_fl(__FILE__, __LINE__, (cmd))
 
@@ -238,7 +238,7 @@ void trace2_child_start_fl(const char *file, int line,
  * This function should be called after reaping the child process.
  */
 void trace2_child_exit_fl(const char *file, int line, struct child_process *cmd,
-			  int child_exit_code);
+                          int child_exit_code);
 
 #define trace2_child_exit(cmd, code) \
 	trace2_child_exit_fl(__FILE__, __LINE__, (cmd), (code))
@@ -254,7 +254,7 @@ void trace2_child_exit_fl(const char *file, int line, struct child_process *cmd,
  * if the exec() fails and a "exec-result" message is necessary.
  */
 int trace2_exec_fl(const char *file, int line, const char *exe,
-		   const char **argv);
+                   const char **argv);
 
 #define trace2_exec(exe, argv) trace2_exec_fl(__FILE__, __LINE__, (exe), (argv))
 
@@ -279,7 +279,7 @@ void trace2_exec_result_fl(const char *file, int line, int exec_id, int code);
  * Thread names will be decorated with an instance number automatically.
  */
 void trace2_thread_start_fl(const char *file, int line,
-			    const char *thread_name);
+                            const char *thread_name);
 
 #define trace2_thread_start(thread_name) \
 	trace2_thread_start_fl(__FILE__, __LINE__, (thread_name))
@@ -302,7 +302,7 @@ void trace2_thread_exit_fl(const char *file, int line);
  * `core.abbrev`, `status.showUntrackedFiles`, or `--no-ahead-behind`.
  */
 void trace2_def_param_fl(const char *file, int line, const char *param,
-			 const char *value);
+                         const char *value);
 
 #define trace2_def_param(param, value) \
 	trace2_def_param_fl(__FILE__, __LINE__, (param), (value))
@@ -343,24 +343,24 @@ void trace2_def_repo_fl(const char *file, int line, struct repository *repo);
  * recursive oerations can be attributed to the correct repository.
  */
 void trace2_region_enter_fl(const char *file, int line, const char *category,
-			    const char *label, const struct repository *repo, ...);
+                            const char *label, const struct repository *repo, ...);
 
 #define trace2_region_enter(category, label, repo) \
 	trace2_region_enter_fl(__FILE__, __LINE__, (category), (label), (repo))
 
 void trace2_region_enter_printf_va_fl(const char *file, int line,
-				      const char *category, const char *label,
-				      const struct repository *repo,
-				      const char *fmt, va_list ap);
+                                      const char *category, const char *label,
+                                      const struct repository *repo,
+                                      const char *fmt, va_list ap);
 
 #define trace2_region_enter_printf_va(category, label, repo, fmt, ap)    \
 	trace2_region_enter_printf_va_fl(__FILE__, __LINE__, (category), \
 					 (label), (repo), (fmt), (ap))
 
 void trace2_region_enter_printf_fl(const char *file, int line,
-				   const char *category, const char *label,
-				   const struct repository *repo,
-				   const char *fmt, ...);
+                                   const char *category, const char *label,
+                                   const struct repository *repo,
+                                   const char *fmt, ...);
 
 #ifdef HAVE_VARIADIC_MACROS
 #define trace2_region_enter_printf(category, label, repo, ...)                 \
@@ -370,8 +370,8 @@ void trace2_region_enter_printf_fl(const char *file, int line,
 /* clang-format off */
 __attribute__((format (region_enter_printf, 4, 5)))
 void trace2_region_enter_printf(const char *category, const char *label,
-				const struct repository *repo, const char *fmt,
-				...);
+                                const struct repository *repo, const char *fmt,
+                                ...);
 /* clang-format on */
 #endif
 
@@ -388,24 +388,24 @@ void trace2_region_enter_printf(const char *category, const char *label,
  * but it makes the data stream easier to understand.
  */
 void trace2_region_leave_fl(const char *file, int line, const char *category,
-			    const char *label, const struct repository *repo, ...);
+                            const char *label, const struct repository *repo, ...);
 
 #define trace2_region_leave(category, label, repo) \
 	trace2_region_leave_fl(__FILE__, __LINE__, (category), (label), (repo))
 
 void trace2_region_leave_printf_va_fl(const char *file, int line,
-				      const char *category, const char *label,
-				      const struct repository *repo,
-				      const char *fmt, va_list ap);
+                                      const char *category, const char *label,
+                                      const struct repository *repo,
+                                      const char *fmt, va_list ap);
 
 #define trace2_region_leave_printf_va(category, label, repo, fmt, ap)    \
 	trace2_region_leave_printf_va_fl(__FILE__, __LINE__, (category), \
 					 (label), (repo), (fmt), (ap))
 
 void trace2_region_leave_printf_fl(const char *file, int line,
-				   const char *category, const char *label,
-				   const struct repository *repo,
-				   const char *fmt, ...);
+                                   const char *category, const char *label,
+                                   const struct repository *repo,
+                                   const char *fmt, ...);
 
 #ifdef HAVE_VARIADIC_MACROS
 #define trace2_region_leave_printf(category, label, repo, ...)                 \
@@ -415,8 +415,8 @@ void trace2_region_leave_printf_fl(const char *file, int line,
 /* clang-format off */
 __attribute__((format (region_leave_printf, 4, 5)))
 void trace2_region_leave_printf(const char *category, const char *label,
-				const struct repository *repo, const char *fmt,
-				...);
+                                const struct repository *repo, const char *fmt,
+                                ...);
 /* clang-format on */
 #endif
 
@@ -432,24 +432,24 @@ void trace2_region_leave_printf(const char *category, const char *label,
  * into a fixed-format printf message.
  */
 void trace2_data_string_fl(const char *file, int line, const char *category,
-			   const struct repository *repo, const char *key,
-			   const char *value);
+                           const struct repository *repo, const char *key,
+                           const char *value);
 
 #define trace2_data_string(category, repo, key, value)                       \
 	trace2_data_string_fl(__FILE__, __LINE__, (category), (repo), (key), \
 			      (value))
 
 void trace2_data_intmax_fl(const char *file, int line, const char *category,
-			   const struct repository *repo, const char *key,
-			   intmax_t value);
+                           const struct repository *repo, const char *key,
+                           intmax_t value);
 
 #define trace2_data_intmax(category, repo, key, value)                       \
 	trace2_data_intmax_fl(__FILE__, __LINE__, (category), (repo), (key), \
 			      (value))
 
 void trace2_data_json_fl(const char *file, int line, const char *category,
-			 const struct repository *repo, const char *key,
-			 const struct json_writer *jw);
+                         const struct repository *repo, const char *key,
+                         const struct json_writer *jw);
 
 #define trace2_data_json(category, repo, key, value)                       \
 	trace2_data_json_fl(__FILE__, __LINE__, (category), (repo), (key), \
@@ -464,7 +464,7 @@ void trace2_data_json_fl(const char *file, int line, const char *category,
  * them.
  */
 void trace2_printf_va_fl(const char *file, int line, const char *fmt,
-			 va_list ap);
+                         va_list ap);
 
 #define trace2_printf_va(fmt, ap) \
 	trace2_printf_va_fl(__FILE__, __LINE__, (fmt), (ap))
@@ -488,8 +488,8 @@ void trace2_printf(const char *fmt, ...);
  */
 
 enum trace2_process_info_reason {
-	TRACE2_PROCESS_INFO_STARTUP,
-	TRACE2_PROCESS_INFO_EXIT,
+    TRACE2_PROCESS_INFO_STARTUP,
+    TRACE2_PROCESS_INFO_EXIT,
 };
 
 #if defined(GIT_WINDOWS_NATIVE)

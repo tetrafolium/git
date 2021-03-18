@@ -73,7 +73,7 @@ int write_packetized_from_buf(const char *src_in, size_t len, int fd_out);
 #define PACKET_READ_CHOMP_NEWLINE     (1u<<1)
 #define PACKET_READ_DIE_ON_ERR_PACKET (1u<<2)
 int packet_read(int fd, char **src_buffer, size_t *src_len, char
-		*buffer, unsigned size, int options);
+                *buffer, unsigned size, int options);
 
 /*
  * Convert a four hex digit packet line length header into its numeric
@@ -91,16 +91,16 @@ int packet_length(const char lenbuf_hex[4]);
  * read was 'PACKET_READ_NORMAL'.
  */
 enum packet_read_status {
-	PACKET_READ_EOF,
-	PACKET_READ_NORMAL,
-	PACKET_READ_FLUSH,
-	PACKET_READ_DELIM,
-	PACKET_READ_RESPONSE_END,
+    PACKET_READ_EOF,
+    PACKET_READ_NORMAL,
+    PACKET_READ_FLUSH,
+    PACKET_READ_DELIM,
+    PACKET_READ_RESPONSE_END,
 };
 enum packet_read_status packet_read_with_status(int fd, char **src_buffer,
-						size_t *src_len, char *buffer,
-						unsigned size, int *pktlen,
-						int options);
+        size_t *src_len, char *buffer,
+        unsigned size, int *pktlen,
+        int options);
 
 /*
  * Convenience wrapper for packet_read that is not gentle, and sets the
@@ -149,37 +149,37 @@ ssize_t read_packetized_to_strbuf(int fd_in, struct strbuf *sb_out);
 int recv_sideband(const char *me, int in_stream, int out);
 
 struct packet_reader {
-	/* source file descriptor */
-	int fd;
+    /* source file descriptor */
+    int fd;
 
-	/* source buffer and its size */
-	char *src_buffer;
-	size_t src_len;
+    /* source buffer and its size */
+    char *src_buffer;
+    size_t src_len;
 
-	/* buffer that pkt-lines are read into and its size */
-	char *buffer;
-	unsigned buffer_size;
+    /* buffer that pkt-lines are read into and its size */
+    char *buffer;
+    unsigned buffer_size;
 
-	/* options to be used during reads */
-	int options;
+    /* options to be used during reads */
+    int options;
 
-	/* status of the last read */
-	enum packet_read_status status;
+    /* status of the last read */
+    enum packet_read_status status;
 
-	/* length of data read during the last read */
-	int pktlen;
+    /* length of data read during the last read */
+    int pktlen;
 
-	/* the last line read */
-	const char *line;
+    /* the last line read */
+    const char *line;
 
-	/* indicates if a line has been peeked */
-	int line_peeked;
+    /* indicates if a line has been peeked */
+    int line_peeked;
 
-	unsigned use_sideband : 1;
-	const char *me;
+    unsigned use_sideband : 1;
+    const char *me;
 
-	/* hash algorithm in use */
-	const struct git_hash_algo *hash_algo;
+    /* hash algorithm in use */
+    const struct git_hash_algo *hash_algo;
 };
 
 /*
@@ -187,8 +187,8 @@ struct packet_reader {
  * abstraction around the 'packet_read_with_status()' function.
  */
 void packet_reader_init(struct packet_reader *reader, int fd,
-			char *src_buffer, size_t src_len,
-			int options);
+                        char *src_buffer, size_t src_len,
+                        int options);
 
 /*
  * Perform a packet read and return the status of the read.
@@ -218,8 +218,8 @@ enum packet_read_status packet_reader_peek(struct packet_reader *reader);
 extern char packet_buffer[LARGE_PACKET_MAX];
 
 struct packet_writer {
-	int dest_fd;
-	unsigned use_sideband : 1;
+    int dest_fd;
+    unsigned use_sideband : 1;
 };
 
 void packet_writer_init(struct packet_writer *writer, int dest_fd);

@@ -2,10 +2,10 @@
 #define PROTOCOL_H
 
 enum protocol_version {
-	protocol_unknown_version = -1,
-	protocol_v0 = 0,
-	protocol_v1 = 1,
-	protocol_v2 = 2,
+    protocol_unknown_version = -1,
+    protocol_v0 = 0,
+    protocol_v1 = 1,
+    protocol_v2 = 2,
 };
 
 /*

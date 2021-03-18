@@ -25,7 +25,7 @@
 # define GIT_GNUC_PREREQ(maj, min) \
 	((__GNUC__ << 16) + __GNUC_MINOR__ >= ((maj) << 16) + (min))
 #else
- #define GIT_GNUC_PREREQ(maj, min) 0
+#define GIT_GNUC_PREREQ(maj, min) 0
 #endif
 
 
@@ -68,7 +68,7 @@
 	(sizeof(char [1 - 2*!(cond)]) - 1)
 
 #if GIT_GNUC_PREREQ(3, 1)
- /* &arr[0] degrades to a pointer: a different type from an array */
+/* &arr[0] degrades to a pointer: a different type from an array */
 # define BARF_UNLESS_AN_ARRAY(arr)						\
 	BUILD_ASSERT_OR_ZERO(!__builtin_types_compatible_p(__typeof__(arr), \
 							   __typeof__(&(arr)[0])))
@@ -128,13 +128,13 @@
 #define decimal_length(x)	((int)(sizeof(x) * 2.56 + 0.5) + 1)
 
 #if defined(__sun__)
- /*
-  * On Solaris, when _XOPEN_EXTENDED is set, its header file
-  * forces the programs to be XPG4v2, defeating any _XOPEN_SOURCE
-  * setting to say we are XPG5 or XPG6.  Also on Solaris,
-  * XPG6 programs must be compiled with a c99 compiler, while
-  * non XPG6 programs must be compiled with a pre-c99 compiler.
-  */
+/*
+ * On Solaris, when _XOPEN_EXTENDED is set, its header file
+ * forces the programs to be XPG4v2, defeating any _XOPEN_SOURCE
+ * setting to say we are XPG5 or XPG6.  Also on Solaris,
+ * XPG6 programs must be compiled with a c99 compiler, while
+ * non XPG6 programs must be compiled with a pre-c99 compiler.
+ */
 # if __STDC_VERSION__ - 0 >= 199901L
 # define _XOPEN_SOURCE 600
 # else
@@ -254,7 +254,7 @@ typedef unsigned long uintptr_t;
 #else
 static inline const char *precompose_argv_prefix(int argc, const char **argv, const char *prefix)
 {
-	return prefix;
+    return prefix;
 }
 #define probe_utf8_pathname_composition()
 #endif
@@ -266,14 +266,14 @@ int compat_mkdir_wo_trailing_slash(const char*, mode_t);
 
 #ifdef NO_STRUCT_ITIMERVAL
 struct itimerval {
-	struct timeval it_interval;
-	struct timeval it_value;
+    struct timeval it_interval;
+    struct timeval it_value;
 };
 #endif
 
 #ifdef NO_SETITIMER
 static inline int setitimer(int which, const struct itimerval *value, struct itimerval *newvalue) {
-	return 0; /* pretend success */
+    return 0; /* pretend success */
 }
 #endif
 
@@ -344,7 +344,7 @@ typedef uintmax_t timestamp_t;
 #ifndef platform_core_config
 static inline int noop_core_config(const char *var, const char *value, void *cb)
 {
-	return 0;
+    return 0;
 }
 #define platform_core_config noop_core_config
 #endif
@@ -357,7 +357,7 @@ int lstat_cache_aware_rmdir(const char *path);
 #ifndef has_dos_drive_prefix
 static inline int git_has_dos_drive_prefix(const char *path)
 {
-	return 0;
+    return 0;
 }
 #define has_dos_drive_prefix git_has_dos_drive_prefix
 #endif
@@ -365,7 +365,7 @@ static inline int git_has_dos_drive_prefix(const char *path)
 #ifndef skip_dos_drive_prefix
 static inline int git_skip_dos_drive_prefix(char **path)
 {
-	return 0;
+    return 0;
 }
 #define skip_dos_drive_prefix git_skip_dos_drive_prefix
 #endif
@@ -373,7 +373,7 @@ static inline int git_skip_dos_drive_prefix(char **path)
 #ifndef is_dir_sep
 static inline int git_is_dir_sep(int c)
 {
-	return c == '/';
+    return c == '/';
 }
 #define is_dir_sep git_is_dir_sep
 #endif
@@ -381,7 +381,7 @@ static inline int git_is_dir_sep(int c)
 #ifndef offset_1st_component
 static inline int git_offset_1st_component(const char *path)
 {
-	return is_dir_sep(path[0]);
+    return is_dir_sep(path[0]);
 }
 #define offset_1st_component git_offset_1st_component
 #endif
@@ -393,7 +393,7 @@ static inline int git_offset_1st_component(const char *path)
 #ifndef find_last_dir_sep
 static inline char *git_find_last_dir_sep(const char *path)
 {
-	return strrchr(path, '/');
+    return strrchr(path, '/');
 }
 #define find_last_dir_sep git_find_last_dir_sep
 #endif
@@ -401,7 +401,7 @@ static inline char *git_find_last_dir_sep(const char *path)
 #ifndef has_dir_sep
 static inline int git_has_dir_sep(const char *path)
 {
-	return !!strchr(path, '/');
+    return !!strchr(path, '/');
 }
 #define has_dir_sep(path) git_has_dir_sep(path)
 #endif
@@ -488,7 +488,7 @@ void warning_errno(const char *err, ...) __attribute__((format (printf, 1, 2)));
 #if defined(__GNUC__)
 static inline int const_error(void)
 {
-	return -1;
+    return -1;
 }
 #define error(...) (error(__VA_ARGS__), const_error())
 #define error_errno(...) (error_errno(__VA_ARGS__), const_error())
@@ -523,15 +523,15 @@ int istarts_with(const char *str, const char *prefix);
  *   skip_prefix(name, "refs/heads/", &name);
  */
 static inline int skip_prefix(const char *str, const char *prefix,
-			      const char **out)
+                              const char **out)
 {
-	do {
-		if (!*prefix) {
-			*out = str;
-			return 1;
-		}
-	} while (*str++ == *prefix++);
-	return 0;
+    do {
+        if (!*prefix) {
+            *out = str;
+            return 1;
+        }
+    } while (*str++ == *prefix++);
+    return 0;
 }
 
 /*
@@ -549,12 +549,12 @@ static inline int skip_prefix(const char *str, const char *prefix,
  * skip_prefix(arg, "--key=", &arg) to parse such an option.
  */
 int skip_to_optional_arg_default(const char *str, const char *prefix,
-				 const char **arg, const char *def);
+                                 const char **arg, const char *def);
 
 static inline int skip_to_optional_arg(const char *str, const char *prefix,
-				       const char **arg)
+                                       const char **arg)
 {
-	return skip_to_optional_arg_default(str, prefix, arg, "");
+    return skip_to_optional_arg_default(str, prefix, arg, "");
 }
 
 /*
@@ -562,16 +562,16 @@ static inline int skip_to_optional_arg(const char *str, const char *prefix,
  * buffer, and returns the remaining number of bytes in "out" via "outlen".
  */
 static inline int skip_prefix_mem(const char *buf, size_t len,
-				  const char *prefix,
-				  const char **out, size_t *outlen)
+                                  const char *prefix,
+                                  const char **out, size_t *outlen)
 {
-	size_t prefix_len = strlen(prefix);
-	if (prefix_len <= len && !memcmp(buf, prefix, prefix_len)) {
-		*out = buf + prefix_len;
-		*outlen = len - prefix_len;
-		return 1;
-	}
-	return 0;
+    size_t prefix_len = strlen(prefix);
+    if (prefix_len <= len && !memcmp(buf, prefix, prefix_len)) {
+        *out = buf + prefix_len;
+        *outlen = len - prefix_len;
+        return 1;
+    }
+    return 0;
 }
 
 /*
@@ -579,13 +579,13 @@ static inline int skip_prefix_mem(const char *buf, size_t len,
  * from *len. Otherwise, return 0 and leave *len untouched.
  */
 static inline int strip_suffix_mem(const char *buf, size_t *len,
-				   const char *suffix)
+                                   const char *suffix)
 {
-	size_t suflen = strlen(suffix);
-	if (*len < suflen || memcmp(buf + (*len - suflen), suffix, suflen))
-		return 0;
-	*len -= suflen;
-	return 1;
+    size_t suflen = strlen(suffix);
+    if (*len < suflen || memcmp(buf + (*len - suflen), suffix, suflen))
+        return 0;
+    *len -= suflen;
+    return 1;
 }
 
 /*
@@ -597,14 +597,14 @@ static inline int strip_suffix_mem(const char *buf, size_t *len,
  */
 static inline int strip_suffix(const char *str, const char *suffix, size_t *len)
 {
-	*len = strlen(str);
-	return strip_suffix_mem(str, len, suffix);
+    *len = strlen(str);
+    return strip_suffix_mem(str, len, suffix);
 }
 
 static inline int ends_with(const char *str, const char *suffix)
 {
-	size_t len;
-	return strip_suffix(str, suffix, &len);
+    size_t len;
+    return strip_suffix(str, suffix, &len);
 }
 
 #define SWAP(a, b) do {						\
@@ -749,7 +749,7 @@ const char *githstrerror(int herror);
 #ifdef NO_MEMMEM
 #define memmem gitmemmem
 void *gitmemmem(const void *haystack, size_t haystacklen,
-		const void *needle, size_t needlelen);
+                const void *needle, size_t needlelen);
 #endif
 
 #ifdef OVERRIDE_STRDUP
@@ -784,13 +784,13 @@ FILE *git_fopen(const char*, const char*);
 #endif
 #define snprintf git_snprintf
 int git_snprintf(char *str, size_t maxsize,
-		 const char *format, ...);
+                 const char *format, ...);
 #ifdef vsnprintf
 #undef vsnprintf
 #endif
 #define vsnprintf git_vsnprintf
 int git_vsnprintf(char *str, size_t maxsize,
-		  const char *format, va_list ap);
+                  const char *format, va_list ap);
 #endif
 
 #ifdef OPEN_RETURNS_EINTR
@@ -809,9 +809,9 @@ int git_open_with_retry(const char *path, int flag, ...);
 #define strchrnul gitstrchrnul
 static inline char *gitstrchrnul(const char *s, int c)
 {
-	while (*s && *s != c)
-		s++;
-	return (char *)s;
+    while (*s && *s != c)
+        s++;
+    return (char *)s;
 }
 #endif
 
@@ -830,28 +830,28 @@ int git_atexit(void (*handler)(void));
 
 static inline size_t st_add(size_t a, size_t b)
 {
-	if (unsigned_add_overflows(a, b))
-		die("size_t overflow: %"PRIuMAX" + %"PRIuMAX,
-		    (uintmax_t)a, (uintmax_t)b);
-	return a + b;
+    if (unsigned_add_overflows(a, b))
+        die("size_t overflow: %"PRIuMAX" + %"PRIuMAX,
+            (uintmax_t)a, (uintmax_t)b);
+    return a + b;
 }
 #define st_add3(a,b,c)   st_add(st_add((a),(b)),(c))
 #define st_add4(a,b,c,d) st_add(st_add3((a),(b),(c)),(d))
 
 static inline size_t st_mult(size_t a, size_t b)
 {
-	if (unsigned_mult_overflows(a, b))
-		die("size_t overflow: %"PRIuMAX" * %"PRIuMAX,
-		    (uintmax_t)a, (uintmax_t)b);
-	return a * b;
+    if (unsigned_mult_overflows(a, b))
+        die("size_t overflow: %"PRIuMAX" * %"PRIuMAX,
+            (uintmax_t)a, (uintmax_t)b);
+    return a * b;
 }
 
 static inline size_t st_sub(size_t a, size_t b)
 {
-	if (a < b)
-		die("size_t underflow: %"PRIuMAX" - %"PRIuMAX,
-		    (uintmax_t)a, (uintmax_t)b);
-	return a - b;
+    if (a < b)
+        die("size_t underflow: %"PRIuMAX" - %"PRIuMAX,
+            (uintmax_t)a, (uintmax_t)b);
+    return a - b;
 }
 
 #ifdef HAVE_ALLOCA_H
@@ -905,16 +905,16 @@ int xstrncmpz(const char *s, const char *t, size_t len);
 	BUILD_ASSERT_OR_ZERO(sizeof(*(dst)) == sizeof(*(src))))
 static inline void copy_array(void *dst, const void *src, size_t n, size_t size)
 {
-	if (n)
-		memcpy(dst, src, st_mult(size, n));
+    if (n)
+        memcpy(dst, src, st_mult(size, n));
 }
 
 #define MOVE_ARRAY(dst, src, n) move_array((dst), (src), (n), sizeof(*(dst)) + \
 	BUILD_ASSERT_OR_ZERO(sizeof(*(dst)) == sizeof(*(src))))
 static inline void move_array(void *dst, const void *src, size_t n, size_t size)
 {
-	if (n)
-		memmove(dst, src, st_mult(size, n));
+    if (n)
+        memmove(dst, src, st_mult(size, n));
 }
 
 /*
@@ -976,16 +976,16 @@ static inline void move_array(void *dst, const void *src, size_t n, size_t size)
 
 static inline char *xstrdup_or_null(const char *str)
 {
-	return str ? xstrdup(str) : NULL;
+    return str ? xstrdup(str) : NULL;
 }
 
 static inline size_t xsize_t(off_t len)
 {
-	size_t size = (size_t) len;
+    size_t size = (size_t) len;
 
-	if (len != (off_t) size)
-		die("Cannot handle files this big");
-	return size;
+    if (len != (off_t) size)
+        die("Cannot handle files this big");
+    return size;
 }
 
 __attribute__((format (printf, 3, 4)))
@@ -1045,20 +1045,20 @@ extern const unsigned char sane_ctype[256];
 
 static inline int sane_case(int x, int high)
 {
-	if (sane_istest(x, GIT_ALPHA))
-		x = (x & ~0x20) | high;
-	return x;
+    if (sane_istest(x, GIT_ALPHA))
+        x = (x & ~0x20) | high;
+    return x;
 }
 
 static inline int sane_iscase(int x, int is_lower)
 {
-	if (!sane_istest(x, GIT_ALPHA))
-		return 0;
+    if (!sane_istest(x, GIT_ALPHA))
+        return 0;
 
-	if (is_lower)
-		return (x & 0x20) != 0;
-	else
-		return (x & 0x20) == 0;
+    if (is_lower)
+        return (x & 0x20) != 0;
+    else
+        return (x & 0x20) == 0;
 }
 
 /*
@@ -1067,58 +1067,58 @@ static inline int sane_iscase(int x, int is_lower)
  * locale-specific conversions).
  */
 static inline int skip_iprefix(const char *str, const char *prefix,
-			       const char **out)
+                               const char **out)
 {
-	do {
-		if (!*prefix) {
-			*out = str;
-			return 1;
-		}
-	} while (tolower(*str++) == tolower(*prefix++));
-	return 0;
+    do {
+        if (!*prefix) {
+            *out = str;
+            return 1;
+        }
+    } while (tolower(*str++) == tolower(*prefix++));
+    return 0;
 }
 
 static inline int strtoul_ui(char const *s, int base, unsigned int *result)
 {
-	unsigned long ul;
-	char *p;
+    unsigned long ul;
+    char *p;
 
-	errno = 0;
-	/* negative values would be accepted by strtoul */
-	if (strchr(s, '-'))
-		return -1;
-	ul = strtoul(s, &p, base);
-	if (errno || *p || p == s || (unsigned int) ul != ul)
-		return -1;
-	*result = ul;
-	return 0;
+    errno = 0;
+    /* negative values would be accepted by strtoul */
+    if (strchr(s, '-'))
+        return -1;
+    ul = strtoul(s, &p, base);
+    if (errno || *p || p == s || (unsigned int) ul != ul)
+        return -1;
+    *result = ul;
+    return 0;
 }
 
 static inline int strtol_i(char const *s, int base, int *result)
 {
-	long ul;
-	char *p;
+    long ul;
+    char *p;
 
-	errno = 0;
-	ul = strtol(s, &p, base);
-	if (errno || *p || p == s || (int) ul != ul)
-		return -1;
-	*result = ul;
-	return 0;
+    errno = 0;
+    ul = strtol(s, &p, base);
+    if (errno || *p || p == s || (int) ul != ul)
+        return -1;
+    *result = ul;
+    return 0;
 }
 
 void git_stable_qsort(void *base, size_t nmemb, size_t size,
-		      int(*compar)(const void *, const void *));
+                      int(*compar)(const void *, const void *));
 #ifdef INTERNAL_QSORT
 #define qsort git_stable_qsort
 #endif
 
 #define QSORT(base, n, compar) sane_qsort((base), (n), sizeof(*(base)), compar)
 static inline void sane_qsort(void *base, size_t nmemb, size_t size,
-			      int(*compar)(const void *, const void *))
+                              int(*compar)(const void *, const void *))
 {
-	if (nmemb > 1)
-		qsort(base, nmemb, size, compar);
+    if (nmemb > 1)
+        qsort(base, nmemb, size, compar);
 }
 
 #define STABLE_QSORT(base, n, compar) \
@@ -1126,7 +1126,7 @@ static inline void sane_qsort(void *base, size_t nmemb, size_t size,
 
 #ifndef HAVE_ISO_QSORT_S
 int git_qsort_s(void *base, size_t nmemb, size_t size,
-		int (*compar)(const void *, const void *, void *), void *ctx);
+                int (*compar)(const void *, const void *, void *), void *ctx);
 #define qsort_s git_qsort_s
 #endif
 
@@ -1140,12 +1140,12 @@ int git_qsort_s(void *base, size_t nmemb, size_t size,
 #endif
 
 static inline int regexec_buf(const regex_t *preg, const char *buf, size_t size,
-			      size_t nmatch, regmatch_t pmatch[], int eflags)
+                              size_t nmatch, regmatch_t pmatch[], int eflags)
 {
-	assert(nmatch > 0 && pmatch);
-	pmatch[0].rm_so = 0;
-	pmatch[0].rm_eo = size;
-	return regexec(preg, buf, nmatch, pmatch, eflags | REG_STARTEND);
+    assert(nmatch > 0 && pmatch);
+    pmatch[0].rm_so = 0;
+    pmatch[0].rm_eo = size;
+    return regexec(preg, buf, nmatch, pmatch, eflags | REG_STARTEND);
 }
 
 #ifndef DIR_HAS_BSD_GROUP_SEMANTICS
@@ -1212,12 +1212,12 @@ void BUG(const char *fmt, ...);
  * not exist.
  */
 int unlink_or_warn(const char *path);
- /*
-  * Tries to unlink file.  Returns 0 if unlink succeeded
-  * or the file already didn't exist.  Returns -1 and
-  * appends a message to err suitable for
-  * 'error("%s", err->buf)' on error.
-  */
+/*
+ * Tries to unlink file.  Returns 0 if unlink succeeded
+ * or the file already didn't exist.  Returns -1 and
+ * appends a message to err suitable for
+ * 'error("%s", err->buf)' on error.
+ */
 int unlink_or_msg(const char *file, struct strbuf *err);
 /*
  * Preserves errno, prints a message, but gives no warning for ENOENT.
@@ -1253,11 +1253,11 @@ int warn_on_fopen_errors(const char *path);
 #ifndef _POSIX_THREAD_SAFE_FUNCTIONS
 static inline void flockfile(FILE *fh)
 {
-	; /* nothing */
+    ; /* nothing */
 }
 static inline void funlockfile(FILE *fh)
 {
-	; /* nothing */
+    ; /* nothing */
 }
 #define getc_unlocked(fh) getc(fh)
 #endif
@@ -1292,7 +1292,7 @@ int git_access(const char *path, int mode);
  */
 static inline int is_missing_file_error(int errno_)
 {
-	return (errno_ == ENOENT || errno_ == ENOTDIR);
+    return (errno_ == ENOENT || errno_ == ENOTDIR);
 }
 
 int cmd_main(int, const char **);
@@ -1346,7 +1346,7 @@ void unleak_memory(const void *ptr, size_t len);
  */
 static inline void *container_of_or_null_offset(void *ptr, size_t offset)
 {
-	return ptr ? (char *)ptr - offset : NULL;
+    return ptr ? (char *)ptr - offset : NULL;
 }
 
 /*

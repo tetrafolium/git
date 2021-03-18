@@ -19,8 +19,8 @@ extern void *RERERE_RESOLVED;
 
 struct rerere_dir;
 struct rerere_id {
-	struct rerere_dir *collection;
-	int variant;
+    struct rerere_dir *collection;
+    int variant;
 };
 
 int setup_rerere(struct repository *,struct string_list *, int);

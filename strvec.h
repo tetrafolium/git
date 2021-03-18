@@ -28,9 +28,9 @@ extern const char *empty_strvec[];
  * NULL.
  */
 struct strvec {
-	const char **v;
-	int nr;
-	int alloc;
+    const char **v;
+    int nr;
+    int alloc;
 };
 
 #define STRVEC_INIT { empty_strvec, 0, 0 }

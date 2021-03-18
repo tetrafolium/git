@@ -4,8 +4,8 @@
 #include "cache.h"
 
 struct resolve_undo_info {
-	unsigned int mode[3];
-	struct object_id oid[3];
+    unsigned int mode[3];
+    struct object_id oid[3];
 };
 
 void record_resolve_undo(struct index_state *, struct cache_entry *);

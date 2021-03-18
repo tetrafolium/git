@@ -144,40 +144,40 @@ extern "C" {
 
 struct _obstack_chunk		/* Lives at front of each chunk. */
 {
-  char  *limit;			/* 1 past end of this chunk */
-  struct _obstack_chunk *prev;	/* address of prior chunk or NULL */
-  char	contents[4];		/* objects begin here */
+    char  *limit;			/* 1 past end of this chunk */
+    struct _obstack_chunk *prev;	/* address of prior chunk or NULL */
+    char	contents[4];		/* objects begin here */
 };
 
 struct obstack		/* control current object in current chunk */
 {
-  long	chunk_size;		/* preferred size to allocate chunks in */
-  struct _obstack_chunk *chunk;	/* address of current struct obstack_chunk */
-  char	*object_base;		/* address of object we are building */
-  char	*next_free;		/* where to add next char to current object */
-  char	*chunk_limit;		/* address of char after current chunk */
-  union
-  {
-    PTR_INT_TYPE tempint;
-    void *tempptr;
-  } temp;			/* Temporary for some macros.  */
-  int   alignment_mask;		/* Mask of alignment for each object. */
-  /* These prototypes vary based on `use_extra_arg'. */
-  union {
-    void *(*plain) (long);
-    struct _obstack_chunk *(*extra) (void *, long);
-  } chunkfun;
-  union {
-    void (*plain) (void *);
-    void (*extra) (void *, struct _obstack_chunk *);
-  } freefun;
-  void *extra_arg;		/* first arg for chunk alloc/dealloc funcs */
-  unsigned use_extra_arg:1;	/* chunk alloc/dealloc funcs take extra arg */
-  unsigned maybe_empty_object:1;/* There is a possibility that the current
+    long	chunk_size;		/* preferred size to allocate chunks in */
+    struct _obstack_chunk *chunk;	/* address of current struct obstack_chunk */
+    char	*object_base;		/* address of object we are building */
+    char	*next_free;		/* where to add next char to current object */
+    char	*chunk_limit;		/* address of char after current chunk */
+    union
+    {
+        PTR_INT_TYPE tempint;
+        void *tempptr;
+    } temp;			/* Temporary for some macros.  */
+    int   alignment_mask;		/* Mask of alignment for each object. */
+    /* These prototypes vary based on `use_extra_arg'. */
+    union {
+        void *(*plain) (long);
+        struct _obstack_chunk *(*extra) (void *, long);
+    } chunkfun;
+    union {
+        void (*plain) (void *);
+        void (*extra) (void *, struct _obstack_chunk *);
+    } freefun;
+    void *extra_arg;		/* first arg for chunk alloc/dealloc funcs */
+    unsigned use_extra_arg:1;	/* chunk alloc/dealloc funcs take extra arg */
+    unsigned maybe_empty_object:1;/* There is a possibility that the current
 				   chunk contains a zero-length object.  This
 				   prevents freeing the chunk if we allocate
 				   a bigger chunk to replace it. */
-  unsigned alloc_failed:1;	/* No longer used, as we now call the failed
+    unsigned alloc_failed:1;	/* No longer used, as we now call the failed
 				   handler on error, but retained for binary
 				   compatibility.  */
 };
@@ -186,10 +186,10 @@ struct obstack		/* control current object in current chunk */
 
 extern void _obstack_newchunk (struct obstack *, int);
 extern int _obstack_begin (struct obstack *, int, int,
-			    void *(*) (long), void (*) (void *));
+                           void *(*) (long), void (*) (void *));
 extern int _obstack_begin_1 (struct obstack *, int, int,
-			     void *(*) (void *, long),
-			     void (*) (void *, void *), void *);
+                             void *(*) (void *, long),
+                             void (*) (void *, void *), void *);
 extern int _obstack_memory_used (struct obstack *);
 
 void obstack_free (struct obstack *, void *);

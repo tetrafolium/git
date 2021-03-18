@@ -15,43 +15,43 @@
  */
 static void restore_sigpipe_to_default(void)
 {
-	sigset_t unblock;
+    sigset_t unblock;
 
-	sigemptyset(&unblock);
-	sigaddset(&unblock, SIGPIPE);
-	sigprocmask(SIG_UNBLOCK, &unblock, NULL);
-	signal(SIGPIPE, SIG_DFL);
+    sigemptyset(&unblock);
+    sigaddset(&unblock, SIGPIPE);
+    sigprocmask(SIG_UNBLOCK, &unblock, NULL);
+    signal(SIGPIPE, SIG_DFL);
 }
 
 int main(int argc, const char **argv)
 {
-	int result;
+    int result;
 
-	trace2_initialize_clock();
+    trace2_initialize_clock();
 
-	/*
-	 * Always open file descriptors 0/1/2 to avoid clobbering files
-	 * in die().  It also avoids messing up when the pipes are dup'ed
-	 * onto stdin/stdout/stderr in the child processes we spawn.
-	 */
-	sanitize_stdfds();
-	restore_sigpipe_to_default();
+    /*
+     * Always open file descriptors 0/1/2 to avoid clobbering files
+     * in die().  It also avoids messing up when the pipes are dup'ed
+     * onto stdin/stdout/stderr in the child processes we spawn.
+     */
+    sanitize_stdfds();
+    restore_sigpipe_to_default();
 
-	git_resolve_executable_dir(argv[0]);
+    git_resolve_executable_dir(argv[0]);
 
-	git_setup_gettext();
+    git_setup_gettext();
 
-	initialize_the_repository();
+    initialize_the_repository();
 
-	attr_start();
+    attr_start();
 
-	trace2_initialize();
-	trace2_cmd_start(argv);
-	trace2_collect_process_info(TRACE2_PROCESS_INFO_STARTUP);
+    trace2_initialize();
+    trace2_cmd_start(argv);
+    trace2_collect_process_info(TRACE2_PROCESS_INFO_STARTUP);
 
-	result = cmd_main(argc, argv);
+    result = cmd_main(argc, argv);
 
-	trace2_cmd_exit(result);
+    trace2_cmd_exit(result);
 
-	return result;
+    return result;
 }

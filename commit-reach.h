@@ -10,15 +10,15 @@ struct object_id;
 struct object_array;
 
 struct commit_list *repo_get_merge_bases(struct repository *r,
-					 struct commit *rev1,
-					 struct commit *rev2);
+        struct commit *rev1,
+        struct commit *rev2);
 struct commit_list *repo_get_merge_bases_many(struct repository *r,
-					      struct commit *one, int n,
-					      struct commit **twos);
+        struct commit *one, int n,
+        struct commit **twos);
 /* To be used only when object flags after this call no longer matter */
 struct commit_list *repo_get_merge_bases_many_dirty(struct repository *r,
-						    struct commit *one, int n,
-						    struct commit **twos);
+        struct commit *one, int n,
+        struct commit **twos);
 #ifndef NO_THE_REPOSITORY_COMPATIBILITY_MACROS
 #define get_merge_bases(r1, r2)           repo_get_merge_bases(the_repository, r1, r2)
 #define get_merge_bases_many(one, n, two) repo_get_merge_bases_many(the_repository, one, n, two)
@@ -28,14 +28,14 @@ struct commit_list *repo_get_merge_bases_many_dirty(struct repository *r,
 struct commit_list *get_octopus_merge_bases(struct commit_list *in);
 
 int repo_is_descendant_of(struct repository *r,
-			  struct commit *commit,
-			  struct commit_list *with_commit);
+                          struct commit *commit,
+                          struct commit_list *with_commit);
 int repo_in_merge_bases(struct repository *r,
-			struct commit *commit,
-			struct commit *reference);
+                        struct commit *commit,
+                        struct commit *reference);
 int repo_in_merge_bases_many(struct repository *r,
-			     struct commit *commit,
-			     int nr_reference, struct commit **reference);
+                             struct commit *commit,
+                             int nr_reference, struct commit **reference);
 #ifndef NO_THE_REPOSITORY_COMPATIBILITY_MACROS
 #define in_merge_bases(c1, c2) repo_in_merge_bases(the_repository, c1, c2)
 #define in_merge_bases_many(c1, n, cs) repo_in_merge_bases_many(the_repository, c1, n, cs)
@@ -66,15 +66,15 @@ int ref_newer(const struct object_id *new_oid, const struct object_id *old_oid);
  * contains_cache slab entries that have not yet been assigned.
  */
 enum contains_result {
-	CONTAINS_UNKNOWN = 0,
-	CONTAINS_NO,
-	CONTAINS_YES
+    CONTAINS_UNKNOWN = 0,
+    CONTAINS_NO,
+    CONTAINS_YES
 };
 
 define_commit_slab(contains_cache, enum contains_result);
 
 int commit_contains(struct ref_filter *filter, struct commit *commit,
-		    struct commit_list *list, struct contains_cache *cache);
+                    struct commit_list *list, struct contains_cache *cache);
 
 /*
  * Determine if every commit in 'from' can reach at least one commit
@@ -84,12 +84,12 @@ int commit_contains(struct ref_filter *filter, struct commit *commit,
  * 'min_generation'.
  */
 int can_all_from_reach_with_flag(struct object_array *from,
-				 unsigned int with_flag,
-				 unsigned int assign_flag,
-				 time_t min_commit_date,
-				 timestamp_t min_generation);
+                                 unsigned int with_flag,
+                                 unsigned int assign_flag,
+                                 time_t min_commit_date,
+                                 timestamp_t min_generation);
 int can_all_from_reach(struct commit_list *from, struct commit_list *to,
-		       int commit_date_cutoff);
+                       int commit_date_cutoff);
 
 
 /*
@@ -101,7 +101,7 @@ int can_all_from_reach(struct commit_list *from, struct commit_list *to,
  * so be sure these flags are not set before calling the method.
  */
 struct commit_list *get_reachable_subset(struct commit **from, int nr_from,
-					 struct commit **to, int nr_to,
-					 unsigned int reachable_flag);
+        struct commit **to, int nr_to,
+        unsigned int reachable_flag);
 
 #endif

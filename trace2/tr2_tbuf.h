@@ -7,7 +7,7 @@
  * argument.
  */
 struct tr2_tbuf {
-	char buf[32];
+    char buf[32];
 };
 
 /*

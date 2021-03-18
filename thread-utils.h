@@ -43,7 +43,7 @@
 #define pthread_getspecific(key) NULL
 
 int dummy_pthread_create(pthread_t *pthread, const void *attr,
-			 void *(*fn)(void *), void *data);
+                         void *(*fn)(void *), void *data);
 int dummy_pthread_join(pthread_t pthread, void **retval);
 
 int dummy_pthread_init(void *);

@@ -7,19 +7,19 @@
 
 struct cache_tree;
 struct cache_tree_sub {
-	struct cache_tree *cache_tree;
-	int count;		/* internally used by update_one() */
-	int namelen;
-	int used;
-	char name[FLEX_ARRAY];
+    struct cache_tree *cache_tree;
+    int count;		/* internally used by update_one() */
+    int namelen;
+    int used;
+    char name[FLEX_ARRAY];
 };
 
 struct cache_tree {
-	int entry_count; /* negative means "invalid" */
-	struct object_id oid;
-	int subtree_nr;
-	int subtree_alloc;
-	struct cache_tree_sub **down;
+    int entry_count; /* negative means "invalid" */
+    struct object_id oid;
+    int subtree_nr;
+    int subtree_alloc;
+    struct cache_tree_sub **down;
 };
 
 struct cache_tree *cache_tree(void);
@@ -57,14 +57,14 @@ int cache_tree_matches_traversal(struct cache_tree *, struct name_entry *ent, st
 #ifdef USE_THE_INDEX_COMPATIBILITY_MACROS
 static inline int write_cache_as_tree(struct object_id *oid, int flags, const char *prefix)
 {
-	return write_index_as_tree(oid, &the_index, get_index_file(), flags, prefix);
+    return write_index_as_tree(oid, &the_index, get_index_file(), flags, prefix);
 }
 
 static inline int update_main_cache_tree(int flags)
 {
-	if (!the_index.cache_tree)
-		the_index.cache_tree = cache_tree();
-	return cache_tree_update(&the_index, flags);
+    if (!the_index.cache_tree)
+        the_index.cache_tree = cache_tree();
+    return cache_tree_update(&the_index, flags);
 }
 #endif
 
