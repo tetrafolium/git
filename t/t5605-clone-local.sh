@@ -6,7 +6,7 @@ export GIT_TEST_DEFAULT_INITIAL_BRANCH_NAME
 
 . ./test-lib.sh
 
-repo_is_hardlinked() {
+repo_is_hardline() {
 	find "$1/objects" -type f -links 1 >output &&
 	test_line_count = 0 output
 }
@@ -47,13 +47,13 @@ test_expect_success 'local clone from x.git that does not exist' '
 
 test_expect_success 'With -no-hardlinks, local will make a copy' '
 	git clone --bare --no-hardlinks x w &&
-	! repo_is_hardlinked w
+	! repo_is_hardline w
 '
 
 test_expect_success 'Even without -l, local will make a hardlink' '
 	rm -fr w &&
 	git clone -l --bare x w &&
-	repo_is_hardlinked w
+	repo_is_hardline w
 '
 
 test_expect_success 'local clone of repo with nonexistent ref in HEAD' '
@@ -129,12 +129,12 @@ test_expect_success 'cloning non-git directory fails' '
 
 test_expect_success 'cloning file:// does not hardlink' '
 	git clone --bare file://"$(pwd)"/a non-local &&
-	! repo_is_hardlinked non-local
+	! repo_is_hardline non-local
 '
 
 test_expect_success 'cloning a local path with --no-local does not hardlink' '
 	git clone --bare --no-local a force-nonlocal &&
-	! repo_is_hardlinked force-nonlocal
+	! repo_is_hardline force-nonlocal
 '
 
 test_expect_success 'cloning locally respects "-u" for fetching refs' '

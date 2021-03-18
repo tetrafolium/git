@@ -71,7 +71,7 @@ void tr2tls_pop_unwind_self(void);
  * Compute the elapsed time since the innermost region in the
  * current thread started and the given time (usually now).
  */
-uint64_t tr2tls_region_elasped_self(uint64_t us);
+uint64_t tr2tls_region_elapsed_self(uint64_t us);
 
 /*
  * Compute the elapsed time since the main thread started

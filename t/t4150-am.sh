@@ -42,7 +42,7 @@ test_expect_success 'setup: messages' '
 	dolor in hendrerit in vulputate velit esse molestie consequat, vel illum
 	dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio
 	dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te
-	feugait nulla facilisi.
+	feugait nulla facilities.
 
 	Reported-by: A N Other <a.n.other@example.com>
 	EOF

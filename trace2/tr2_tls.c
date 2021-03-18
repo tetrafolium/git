@@ -125,7 +125,7 @@ void tr2tls_pop_unwind_self(void)
 		tr2tls_pop_self();
 }
 
-uint64_t tr2tls_region_elasped_self(uint64_t us)
+uint64_t tr2tls_region_elapsed_self(uint64_t us)
 {
 	struct tr2tls_thread_ctx *ctx;
 	uint64_t us_start;

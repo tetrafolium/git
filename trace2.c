@@ -498,7 +498,7 @@ void trace2_thread_exit_fl(const char *file, int line)
 	 * started).  This gives us the run time of the thread.
 	 */
 	tr2tls_pop_unwind_self();
-	us_elapsed_thread = tr2tls_region_elasped_self(us_now);
+	us_elapsed_thread = tr2tls_region_elapsed_self(us_now);
 
 	for_each_wanted_builtin (j, tgt_j)
 		if (tgt_j->pfn_thread_exit_fl)
@@ -634,7 +634,7 @@ void trace2_region_leave_printf_va_fl(const char *file, int line,
 	 * the perf message at the new (shallower) level so that
 	 * it lines up with the corresponding push/enter.
 	 */
-	us_elapsed_region = tr2tls_region_elasped_self(us_now);
+	us_elapsed_region = tr2tls_region_elapsed_self(us_now);
 
 	tr2tls_pop_self();
 
@@ -703,7 +703,7 @@ void trace2_data_string_fl(const char *file, int line, const char *category,
 
 	us_now = getnanotime() / 1000;
 	us_elapsed_absolute = tr2tls_absolute_elapsed(us_now);
-	us_elapsed_region = tr2tls_region_elasped_self(us_now);
+	us_elapsed_region = tr2tls_region_elapsed_self(us_now);
 
 	for_each_wanted_builtin (j, tgt_j)
 		if (tgt_j->pfn_data_fl)
@@ -741,7 +741,7 @@ void trace2_data_json_fl(const char *file, int line, const char *category,
 
 	us_now = getnanotime() / 1000;
 	us_elapsed_absolute = tr2tls_absolute_elapsed(us_now);
-	us_elapsed_region = tr2tls_region_elasped_self(us_now);
+	us_elapsed_region = tr2tls_region_elapsed_self(us_now);
 
 	for_each_wanted_builtin (j, tgt_j)
 		if (tgt_j->pfn_data_json_fl)

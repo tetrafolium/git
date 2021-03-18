@@ -31,7 +31,7 @@ struct command {
 	char ref_name[FLEX_ARRAY]; /* more */
 };
 
-static void proc_receive_verison(struct packet_reader *reader)
+static void proc_receive_version(struct packet_reader *reader)
 {
 	int server_version = 0;
 
@@ -166,7 +166,7 @@ int cmd__proc_receive(int argc, const char **argv)
 				   PACKET_READ_GENTLE_ON_EOF);
 
 	sigchain_push(SIGPIPE, SIG_IGN);
-	proc_receive_verison(&reader);
+	proc_receive_version(&reader);
 	proc_receive_read_commands(&reader, &commands);
 	proc_receive_read_push_options(&reader, &push_options);
 

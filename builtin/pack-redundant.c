@@ -1,6 +1,6 @@
 /*
  *
- * Copyright 2005, Lukas Sandstrom <lukass@etek.chalmers.se>
+ * Copyright 2005, Lukas Sandstorm <lukass@etek.chalmers.se>
  *
  * This file is licensed under the GPL v2.
  *
